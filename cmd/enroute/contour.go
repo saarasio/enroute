@@ -24,19 +24,20 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	//"github.com/saarasio/enroute/saaras"
 )
 
 func main() {
 	log := logrus.StandardLogger()
-	app := kingpin.New("contour", "Heptio Contour Kubernetes ingress controller.")
+	app := kingpin.New("enroute", "enroute agent to control envoy proxy")
 
 	bootstrap, bootstrapCtx := registerBootstrap(app)
 
 	certgenApp, certgenConfig := registerCertGen(app)
 
-	cli := app.Command("cli", "A CLI client for the Heptio Contour Kubernetes ingress controller.")
+	cli := app.Command("cli", "A CLI client for enroute agent")
 	var client Client
-	cli.Flag("contour", "contour host:port.").Default("127.0.0.1:8001").StringVar(&client.ContourAddr)
+	cli.Flag("enroute", "enroute host:port.").Default("127.0.0.1:8001").StringVar(&client.ContourAddr)
 	cli.Flag("cafile", "CA bundle file for connecting to a TLS-secured Contour").Envar("CLI_CAFILE").StringVar(&client.CAFile)
 	cli.Flag("cert-file", "Client certificate file for connecting to a TLS-secured Contour").Envar("CLI_CERT_FILE").StringVar(&client.ClientCert)
 	cli.Flag("key-file", "Client key file for connecting to a TLS-secured Contour").Envar("CLI_KEY_FILE").StringVar(&client.ClientKey)
@@ -102,9 +103,9 @@ func newClient(kubeconfig string, inCluster bool) (*kubernetes.Clientset, *clien
 
 	client, err := kubernetes.NewForConfig(config)
 	check(err)
-	contourClient, err := clientset.NewForConfig(config)
+	enrouteClient, err := clientset.NewForConfig(config)
 	check(err)
-	return client, contourClient
+	return client, enrouteClient
 }
 
 func check(err error) {

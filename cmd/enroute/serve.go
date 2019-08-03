@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"strings"
 
-	contourinformers "github.com/saarasio/enroute/apis/generated/informers/externalversions"
+	//contourinformers "github.com/saarasio/enroute/apis/generated/informers/externalversions"
 	"github.com/saarasio/enroute/internal/contour"
 	"github.com/saarasio/enroute/internal/dag"
 	"github.com/saarasio/enroute/internal/debug"
@@ -39,7 +39,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
-	coreinformers "k8s.io/client-go/informers"
+	//coreinformers "k8s.io/client-go/informers"
 )
 
 // registerServe registers the serve subcommand and flags
@@ -201,12 +201,12 @@ func (ctx *serveContext) ingressRouteRootNamespaces() []string {
 func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	// step 1. establish k8s client connection
-	client, contourClient := newClient(ctx.Kubeconfig, ctx.InCluster)
+	//client, contourClient := newClient(ctx.Kubeconfig, ctx.InCluster)
 
 	// step 2. create informers
 	// note: 0 means resync timers are disabled
-	coreInformers := coreinformers.NewSharedInformerFactory(client, 0)
-	contourInformers := contourinformers.NewSharedInformerFactory(contourClient, 0)
+	//coreInformers := coreinformers.NewSharedInformerFactory(client, 0)
+	//contourInformers := contourinformers.NewSharedInformerFactory(contourClient, 0)
 
 	// step 3. establish our (poorly named) gRPC cache handler.
 	ch := contour.CacheHandler{
@@ -222,7 +222,6 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		ListenerCache: contour.NewListenerCache(ctx.statsAddr, ctx.statsPort),
 		FieldLogger:   log.WithField("context", "CacheHandler"),
 		IngressRouteStatus: &k8s.IngressRouteStatus{
-			Client: contourClient,
 		},
 	}
 
@@ -240,23 +239,23 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	}
 
 	// step 5. register out resource event handler with the k8s informers.
-	coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
-	coreInformers.Extensions().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
-	coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-	contourInformers.Contour().V1beta1().IngressRoutes().Informer().AddEventHandler(&reh)
-	contourInformers.Contour().V1beta1().TLSCertificateDelegations().Informer().AddEventHandler(&reh)
+	//coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
+	//coreInformers.Extensions().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
+	//coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+	//contourInformers.Contour().V1beta1().IngressRoutes().Informer().AddEventHandler(&reh)
+	//contourInformers.Contour().V1beta1().TLSCertificateDelegations().Informer().AddEventHandler(&reh)
 
 	// step 6. endpoints updates are handled directly by the EndpointsTranslator
 	// due to their high update rate and their orthogonal nature.
 	et := &contour.EndpointsTranslator{
 		FieldLogger: log.WithField("context", "endpointstranslator"),
 	}
-	coreInformers.Core().V1().Endpoints().Informer().AddEventHandler(et)
+	//coreInformers.Core().V1().Endpoints().Informer().AddEventHandler(et)
 
 	// step 7. setup workgroup runner and register informers.
 	var g workgroup.Group
-	g.Add(startInformer(coreInformers, log.WithField("context", "coreinformers")))
-	g.Add(startInformer(contourInformers, log.WithField("context", "contourinformers")))
+	//g.Add(startInformer(coreInformers, log.WithField("context", "coreinformers")))
+	//g.Add(startInformer(contourInformers, log.WithField("context", "contourinformers")))
 
 	// step 8. setup prometheus registry and register base metrics.
 	registry := prometheus.NewRegistry()
@@ -270,7 +269,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 			Port:        ctx.metricsPort,
 			FieldLogger: log.WithField("context", "metricsvc"),
 		},
-		Client:   client,
+		//Client:   client,
 		Registry: registry,
 	}
 	g.Add(metricsvc.Start)
