@@ -40,6 +40,7 @@ import (
 	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	//coreinformers "k8s.io/client-go/informers"
+	"github.com/saarasio/enroute/saaras"
 )
 
 // registerServe registers the serve subcommand and flags
@@ -323,6 +324,10 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		defer log.Println("stopped")
 		return s.Serve(l)
 	})
+
+	wl := log.WithField("context", "saaras")
+	saarasCloudCache := saaras.SaarasCloudCache{}
+        saaras.WatchCloudIngressRoute(&g, wl, &reh, et, &saarasCloudCache)
 
 	// step 13. GO!
 	return g.Run()
