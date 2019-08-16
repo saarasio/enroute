@@ -1,6 +1,6 @@
 PROJECT = enroute
 # REGISTRY ?= gcr.io/heptio-images
-REGISTRY ?= 424368873890.dkr.ecr.us-west-2.amazonaws.com/enroute
+REGISTRY ?= 424368873890.dkr.ecr.us-west-2.amazonaws.com
 IMAGE := $(REGISTRY)/$(PROJECT)
 SRCDIRS := ./cmd ./internal ./apis
 PKGS := $(shell GO111MODULE=on go list -mod=readonly ./cmd/... ./internal/...)
