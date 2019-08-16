@@ -1,0 +1,109 @@
+{
+    "admin": {
+        "access_log_path": "/dev/null",
+        "address": {
+            "socket_address": {
+                "address": "127.0.0.1",
+                "port_value": 9001
+            }
+        }
+    },
+    "dynamic_resources": {
+        "cds_config": {
+            "api_config_source": {
+                "api_type": "GRPC",
+                "grpc_services": [
+                    {
+                        "envoy_grpc": {
+                            "cluster_name": "contour"
+                        }
+                    }
+                ]
+            }
+        },
+        "lds_config": {
+            "api_config_source": {
+                "api_type": "GRPC",
+                "grpc_services": [
+                    {
+                        "envoy_grpc": {
+                            "cluster_name": "contour"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "static_resources": {
+        "clusters": [
+            {
+                "alt_stat_name": "saaras-enroute_contour_8001",
+                "circuit_breakers": {
+                    "thresholds": [
+                        {
+                            "max_connections": 100000,
+                            "max_pending_requests": 100000,
+                            "max_requests": 60000000,
+                            "max_retries": 50,
+                            "priority": "HIGH"
+                        },
+                        {
+                            "max_connections": 100000,
+                            "max_pending_requests": 100000,
+                            "max_requests": 60000000,
+                            "max_retries": 50
+                        }
+                    ]
+                },
+                "connect_timeout": "5s",
+                "http2_protocol_options": {},
+                "load_assignment": {
+                    "cluster_name": "contour",
+                    "endpoints": [
+                        {
+                            "lb_endpoints": [
+                                {
+                                    "endpoint": {
+                                        "address": {
+                                            "socket_address": {
+                                                "address": "127.0.0.1",
+                                                "port_value": 8001
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "name": "contour",
+                "type": "STRICT_DNS"
+            },
+            {
+                "alt_stat_name": "saaras-enroute_service-stats_9001",
+                "connect_timeout": "0.250s",
+                "load_assignment": {
+                    "cluster_name": "service-stats",
+                    "endpoints": [
+                        {
+                            "lb_endpoints": [
+                                {
+                                    "endpoint": {
+                                        "address": {
+                                            "socket_address": {
+                                                "address": "127.0.0.1",
+                                                "port_value": 9001
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "name": "service-stats",
+                "type": "LOGICAL_DNS"
+            }
+        ]
+    }
+}
