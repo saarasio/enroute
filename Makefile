@@ -19,8 +19,11 @@ VERSION ?= $(GIT_REF)
 
 export GO111MODULE=on
 
-test: install
+test: copy
 	go test -mod=readonly ./...
+
+copy: install
+	cp /home/ubuntu/go/bin/enroute .
 
 test-race: | test
 	go test -race -mod=readonly ./...
