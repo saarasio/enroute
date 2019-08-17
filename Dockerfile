@@ -6,6 +6,7 @@ RUN apt-get update
 # Install golang
 RUN apt-get -y install wget
 RUN apt-get -y install vim
+RUN apt-get -y install curl
 RUN wget https://dl.google.com/go/go1.12.9.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go1.12.9.linux-amd64.tar.gz
 ENV PATH "$PATH:/usr/local/go/bin"
