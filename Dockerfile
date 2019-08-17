@@ -20,7 +20,7 @@ RUN go mod download
 #TODO: Remove hardcoded copy. This copy assumes that the built binary is in local directory
 COPY enroute /enroute
 
-RUN /enroute/enroute bootstrap --xds-address 127.0.0.1 --xds-port 8000 config.json
+RUN /enroute/enroute bootstrap --xds-address 127.0.0.1 --xds-port 8001 config.json
 #CMD /enroute/enroute serve && /usr/local/bin/envoy -c /enroute/config.json --service-node "service-node" --service-cluster "service-cluster"
 COPY entrypoint.sh /enroute
 ENTRYPOINT /enroute/entrypoint.sh

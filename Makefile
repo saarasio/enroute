@@ -1,4 +1,4 @@
-PROJECT = enroute
+PROJECT = enroute-dp
 # REGISTRY ?= gcr.io/heptio-images
 REGISTRY ?= 424368873890.dkr.ecr.us-west-2.amazonaws.com
 IMAGE := $(REGISTRY)/$(PROJECT)
