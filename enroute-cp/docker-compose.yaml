@@ -21,6 +21,5 @@ services:
       HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations/migrations
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-    #command: sleep 30 && /bin/hasura-cli migrate apply --project /hasura-migrations/migrations --log-level DEBUG
 volumes:
   db_data:
