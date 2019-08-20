@@ -32,8 +32,8 @@ CREATE TABLE saaras_db.proxy_service (
     proxy_id bigint NOT NULL,
     service_id bigint NOT NULL,
     proxy_service_id bigint NOT NULL,
-    create_ts timestamp with time zone NOT NULL,
-    update_ts timestamp with time zone NOT NULL,
+    create_ts timestamp with time zone DEFAULT now() NOT NULL,
+    update_ts timestamp with time zone DEFAULT now() NOT NULL,
     delete_flag boolean
 );
 CREATE SEQUENCE saaras_db.proxy_service_proxy_service_id_seq
@@ -46,7 +46,7 @@ ALTER SEQUENCE saaras_db.proxy_service_proxy_service_id_seq OWNED BY saaras_db.p
 CREATE TABLE saaras_db.route (
     route_id bigint NOT NULL,
     route_name character varying NOT NULL,
-    prefix text NOT NULL,
+    prefix text,
     create_ts timestamp with time zone DEFAULT now(),
     update_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
@@ -96,7 +96,7 @@ ALTER SEQUENCE saaras_db.route_upstream_upstream_id_seq OWNED BY saaras_db.route
 CREATE TABLE saaras_db.service (
     service_id bigint NOT NULL,
     service_name character varying NOT NULL,
-    fqdn character varying NOT NULL,
+    fqdn character varying,
     create_ts timestamp with time zone DEFAULT now(),
     update_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false
@@ -138,17 +138,29 @@ ALTER TABLE ONLY saaras_db.route_upstream ALTER COLUMN upstream_id SET DEFAULT n
 ALTER TABLE ONLY saaras_db.service ALTER COLUMN service_id SET DEFAULT nextval('saaras_db.service_service_id_seq'::regclass);
 ALTER TABLE ONLY saaras_db.upstream ALTER COLUMN upstream_id SET DEFAULT nextval('saaras_db.upstream_upstream_id_seq'::regclass);
 ALTER TABLE ONLY saaras_db.org
+    ADD CONSTRAINT org_org_name_key UNIQUE (org_name);
+ALTER TABLE ONLY saaras_db.org
     ADD CONSTRAINT org_pkey PRIMARY KEY (org_id);
 ALTER TABLE ONLY saaras_db.proxy
     ADD CONSTRAINT proxy_pkey PRIMARY KEY (proxy_id);
+ALTER TABLE ONLY saaras_db.proxy
+    ADD CONSTRAINT proxy_proxy_name_key UNIQUE (proxy_name);
 ALTER TABLE ONLY saaras_db.proxy_service
     ADD CONSTRAINT proxy_service_pkey PRIMARY KEY (proxy_service_id);
+ALTER TABLE ONLY saaras_db.proxy_service
+    ADD CONSTRAINT proxy_service_proxy_id_service_id_key UNIQUE (proxy_id, service_id);
 ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_pkey PRIMARY KEY (route_id);
+ALTER TABLE ONLY saaras_db.route
+    ADD CONSTRAINT route_prefix_key UNIQUE (prefix);
+ALTER TABLE ONLY saaras_db.route
+    ADD CONSTRAINT route_route_name_key UNIQUE (route_name);
 ALTER TABLE ONLY saaras_db.route_temp
     ADD CONSTRAINT route_temp_pkey PRIMARY KEY (route_name);
 ALTER TABLE ONLY saaras_db.route_upstream
     ADD CONSTRAINT route_upstream_pkey PRIMARY KEY (route_upstream_id);
+ALTER TABLE ONLY saaras_db.route_upstream
+    ADD CONSTRAINT route_upstream_route_id_upstream_id_key UNIQUE (route_id, upstream_id);
 ALTER TABLE ONLY saaras_db.service
     ADD CONSTRAINT service_pkey PRIMARY KEY (service_id);
 ALTER TABLE ONLY saaras_db.service
@@ -157,6 +169,8 @@ ALTER TABLE ONLY saaras_db.service_temp
     ADD CONSTRAINT service_temp_pkey PRIMARY KEY (service_name);
 ALTER TABLE ONLY saaras_db.upstream
     ADD CONSTRAINT upstream_pkey PRIMARY KEY (upstream_id);
+ALTER TABLE ONLY saaras_db.upstream
+    ADD CONSTRAINT upstream_upstream_name_key UNIQUE (upstream_name);
 ALTER TABLE ONLY saaras_db.proxy_service
     ADD CONSTRAINT proxy_service_proxy_id_fkey FOREIGN KEY (proxy_id) REFERENCES saaras_db.proxy(proxy_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.proxy_service
