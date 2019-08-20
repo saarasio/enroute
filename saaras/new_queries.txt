@@ -1,0 +1,240 @@
+
+
+
+# Get all services
+query get_services {
+  saaras_db_service {
+    service_id
+    service_name
+    fqdn
+    routes {
+      prefix
+      create_ts
+      update_ts
+      route_upstreams {
+        upstream {
+          upstream_name
+          upstream_ip
+          upstream_port
+        }
+      }
+    }
+  }
+}
+
+# Get all services for a proxy name
+{
+  saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: "testproxy"}}}) {
+    service {
+      service_name
+      fqdn
+      create_ts
+      update_ts
+      routes {
+        route_name
+        prefix
+        create_ts
+        update_ts
+        route_upstreams {
+          upstream {
+            upstream_name
+            upstream_ip
+            upstream_port
+            create_ts
+            update_ts
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation {
+  insert_saaras_db_proxy(objects: {proxy_name: "testproxy"}, 
+    on_conflict: {constraint: proxy_proxy_name_key, update_columns: create_ts}) {
+    affected_rows
+  }
+}
+
+
+# Associate a service to a proxy
+mutation {
+  insert_saaras_db_proxy_service(
+    objects:
+    {
+      proxy:
+      {
+        data:
+        {
+          proxy_name: "testproxy"
+        }, on_conflict: {constraint: proxy_proxy_name_key, update_columns: update_ts}
+      },
+      service:
+      {
+        data:
+        {
+          service_name: "test"
+        }, on_conflict: {constraint: service_service_name_key, update_columns: update_ts}
+      }
+    }
+  )
+  {
+    affected_rows
+  }
+}
+
+# Insert a service
+# Modifies table - (service)
+
+mutation {
+  insert_saaras_db_service
+  (
+    objects:
+    {
+      fqdn: "testfqdn.com",
+      service_name: "test2"
+    } on_conflict: {constraint: service_service_name_key, update_columns:[fqdn, service_name]}
+  )
+  {
+    returning
+    {
+      create_ts
+    }
+  }
+}
+
+
+# Insert route for a service
+# Modifies tables - (route, service)
+
+mutation {
+  insert_saaras_db_route
+  (
+    objects:
+    {
+      route_name: "testroute",
+      prefix: "/",
+      service:
+      {
+        data:
+        {
+          service_name: "test"
+        }, on_conflict: { constraint: service_service_name_key, update_columns: service_name }
+      }
+    } on_conflict: {constraint: route_route_name_key, update_columns: update_ts}
+  )
+
+  {
+    returning
+    {
+      route_id
+    }
+  }
+}
+
+# Insert an upstream
+mutation {
+  insert_saaras_db_upstream
+  (
+    objects: 
+    {
+      upstream_name: "testupstream", 
+      upstream_port: 10000, 
+      upstream_ip: "1.1.1.1"
+    }, on_conflict: {constraint: upstream_upstream_name_key, update_columns: update_ts}
+  ) 
+  {
+    returning 
+    {
+      update_ts
+      create_ts
+    }
+  }
+}
+
+# Update an upstream
+mutation {
+  update_saaras_db_upstream
+  (
+    where: 
+    {
+      upstream_name: {_eq: "testupstream"}
+    }, 
+    _set: {upstream_port: 10001}
+  ) 
+  {
+    returning {
+      update_ts
+    }
+  }
+}
+
+# Insert upstream for (service, route)
+# Modifies tables - (service, route, route_upstreams, upstream)
+
+mutation {
+  insert_saaras_db_upstream
+  (
+    # start insert upstream object
+    objects:
+    {
+      upstream_name: "testupstream",
+      upstream_port: 10000,
+      upstream_ip: "1.1.1.1",
+            route_upstreams:
+            {
+              data:
+              {
+                  route:
+                  {
+                    data:
+                    {
+                      route_name: "testroute",
+                      service:
+                      {
+                        data:
+                        {
+                          service_name: "test"
+                          }, on_conflict: {constraint: service_service_name_key, update_columns: service_name}
+                      } # end service
+                     }, on_conflict: {constraint: route_route_name_key, update_columns: route_name}
+                    } # end route
+              }    on_conflict: {constraint: route_upstream_route_id_upstream_id_key, update_columns:update_ts}
+              }
+    } on_conflict: {constraint: upstream_upstream_name_key, update_columns: update_ts}
+        # end insert upstream object
+  )
+  {
+    returning
+    {
+      update_ts
+      create_ts
+    }
+  }
+}
+
+# Delete upstream for route
+mutation {
+  delete_saaras_db_route_upstream
+  (
+    where: 
+    {
+      route:
+      {
+        route_name: {_eq: "testroute"}
+      }, 
+      upstream: {upstream_name: {_eq: "testupstream"}}
+    }
+  ) 
+  {
+    affected_rows
+  }
+}
+
+# Delete upstream
+
+mutation {
+  delete_saaras_db_upstream(where: {upstream_name: {_eq: "testupstream"}}) {
+    affected_rows
+  }
+}
