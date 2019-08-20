@@ -110,6 +110,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 	serve.Flag("use-proxy-protocol", "Use PROXY protocol for all listeners").BoolVar(&ctx.useProxyProto)
 
 	serve.Flag("enroute-cp-ip", "IP address of enroute control plane").StringVar(&saaras.ENROUTE_CP_SERVER_IP)
+	serve.Flag("enroute-cp-port", "Port of enroute control plane").StringVar(&saaras.ENROUTE_CP_SERVER_PORT)
 
 	return serve, &ctx
 }
