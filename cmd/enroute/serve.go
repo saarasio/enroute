@@ -109,6 +109,8 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 	serve.Flag("envoy-service-https-port", "Kubernetes Service port for HTTPS requests").Default("8443").IntVar(&ctx.httpsPort)
 	serve.Flag("use-proxy-protocol", "Use PROXY protocol for all listeners").BoolVar(&ctx.useProxyProto)
 
+	serve.Flag("enroute-cp-ip", "IP address of enroute control plane").StringVar(&saaras.ENROUTE_CP_SERVER_IP)
+
 	return serve, &ctx
 }
 

@@ -133,7 +133,7 @@ const QIngressRoute2 string = `
         update_ts
         routes {
           route_name
-          prefix
+          route_prefix
           create_ts
           update_ts
           route_upstreams {
@@ -165,7 +165,7 @@ const QIngressRouteOutput2 string = `
           "routes": [
             {
               "route_name": "testroute",
-              "prefix": "/",
+              "route_prefix": "/",
               "create_ts": "2019-08-19T15:06:50.680275+00:00",
               "update_ts": "2019-08-20T00:52:10.882748+00:00",
               "route_upstreams": [
@@ -297,7 +297,7 @@ type SaarasMicroService2 struct {
 
 type SaarasRoute2 struct {
 	Route_name      string
-	Prefix          string
+	Route_Prefix    string
 	Create_ts       string
 	Update_ts       string
 	Route_upstreams []SaarasMicroService2
