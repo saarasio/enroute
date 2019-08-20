@@ -39,8 +39,8 @@ func edsconfig2(cluster string, pgc *SaarasProxyGroupConfig) *v2.Cluster_EdsClus
 
 func (pgc *SaarasProxyGroupConfig) cluster2() *v2.Cluster {
 	c := &v2.Cluster{
-		Name:             JAEGER_TRACING_CLUSTER,
-		AltStatName:      JAEGER_TRACING_CLUSTER,
+		Name:        JAEGER_TRACING_CLUSTER,
+		AltStatName: JAEGER_TRACING_CLUSTER,
 		//Type:             v2.Cluster_EDS,
 		EdsClusterConfig: edsconfig2("contour", pgc),
 		ConnectTimeout:   250 * time.Millisecond,

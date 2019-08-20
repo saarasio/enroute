@@ -19,10 +19,10 @@ package contour
 import (
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/saarasio/enroute/internal/dag"
 	"github.com/saarasio/enroute/internal/k8s"
 	"github.com/saarasio/enroute/internal/metrics"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 

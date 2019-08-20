@@ -2,8 +2,8 @@ package saaras
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/saarasio/enroute/apis/contour/v1beta1"
+	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net"
@@ -63,6 +63,7 @@ query
   }    
 }
 `
+
 const QIngressRouteOutput string = `
 {
   "data": {
@@ -116,6 +117,81 @@ const QIngressRouteOutput string = `
             }
           }
         ]
+      }
+    ]
+  }
+}
+`
+
+const QIngressRoute2 string = `
+  query get_services_by_proxy($proxy_name: String!) {
+    saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
+      service {
+        service_name
+        fqdn
+        create_ts
+        update_ts
+        routes {
+          route_name
+          prefix
+          create_ts
+          update_ts
+          route_upstreams {
+            upstream {
+              upstream_name
+              upstream_ip
+              upstream_port
+              create_ts
+              update_ts
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+const QIngressRouteOutput2 string = `
+{
+  "data": {
+    "saaras_db_proxy_service": [
+      {
+        "service": {
+          "service_id": 1,
+          "service_name": "test",
+          "fqdn": "testfqdn.com",
+          "create_ts": "2019-08-20T00:40:02.873368+00:00",
+          "update_ts": "2019-08-19T14:57:51.841163+00:00",
+          "routes": [
+            {
+              "route_name": "testroute",
+              "prefix": "/",
+              "create_ts": "2019-08-19T15:06:50.680275+00:00",
+              "update_ts": "2019-08-20T00:52:10.882748+00:00",
+              "route_upstreams": [
+                {
+                  "upstream": {
+                    "upstream_name": "testupstream",
+                    "upstream_ip": "1.1.1.1",
+                    "upstream_port": 10000,
+                    "create_ts": "2019-08-20T01:21:02.351317+00:00",
+                    "update_ts": "2019-08-20T13:20:18.519485+00:00"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "service": {
+          "service_id": 104,
+          "service_name": "test2",
+          "fqdn": "testfqdn.com",
+          "create_ts": "2019-08-20T00:45:17.724345+00:00",
+          "update_ts": "2019-08-20T00:45:17.724345+00:00",
+          "routes": []
+        }
       }
     ]
   }
@@ -207,44 +283,43 @@ type DataPayloadSaarasApp struct {
 	Errors []GraphErr
 }
 
-var qApplicatons string = `
-query
-  get_applications($oname: String!) {
+type SaarasUpstream struct {
+	Upstream_name string
+	Upstream_ip   string
+	Upstream_port int32
+	Create_ts     string
+	Update_ts     string
+}
 
-    saaras_db_application (
-      where: {
+type SaarasMicroService2 struct {
+	Upstream SaarasUpstream
+}
 
-        _and:
-        [
-            { orgByorgId: {org_name: {_eq :$oname}} },
-            { orgByorgId: {org_name: {_eq :$oname}} }
-        ]
+type SaarasRoute2 struct {
+	Route_name      string
+	Prefix          string
+	Create_ts       string
+	Update_ts       string
+	Route_upstreams []SaarasMicroService2
+}
 
-      }
-    )
-      {
-        app_id
-        app_name
-        fqdn
-        create_ts
-        update_ts
-        orgByorgId {
-          org_name
-        }
-        applicationMicroservicessByappId {
-          create_ts
-          update_ts
-          load_percentage
-          microservicesBymicroserviceId {
-            microservice_name
-            clusterByclusterId {
-              cluster_name
-            }
-          }
-        }
-      }
-  }
-`
+type SaarasIngressRoute2 struct {
+	Service_id   string
+	Service_name string
+	Fqdn         string
+	Create_ts    string
+	Update_ts    string
+	Routes       []SaarasRoute2
+}
+
+type SaarasApp2 struct {
+	Saaras_db_application []SaarasIngressRoute2
+}
+
+type DataPayloadSaarasApp2 struct {
+	Data   SaarasApp2
+	Errors []GraphErr
+}
 
 ////////////// IngressRoute //////////////////////////////////////////////
 
@@ -756,3 +831,42 @@ func saaras_ep_equal(ep1, ep2 *SaarasEndpoint) bool {
 		ep1.Ip == ep2.Ip &&
 		ep1.Port == ep2.Port)
 }
+
+var qApplicatons string = `
+query
+  get_applications($oname: String!) {
+
+    saaras_db_application (
+      where: {
+
+        _and:
+        [
+            { orgByorgId: {org_name: {_eq :$oname}} },
+            { orgByorgId: {org_name: {_eq :$oname}} }
+        ]
+
+      }
+    )
+      {
+        app_id
+        app_name
+        fqdn
+        create_ts
+        update_ts
+        orgByorgId {
+          org_name
+        }
+        applicationMicroservicessByappId {
+          create_ts
+          update_ts
+          load_percentage
+          microservicesBymicroserviceId {
+            microservice_name
+            clusterByclusterId {
+              cluster_name
+            }
+          }
+        }
+      }
+  }
+`

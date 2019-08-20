@@ -19,10 +19,10 @@ package contour
 import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/prometheus/client_golang/prometheus"
 	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
 	"github.com/saarasio/enroute/internal/dag"
 	"github.com/saarasio/enroute/internal/metrics"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

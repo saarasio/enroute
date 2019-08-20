@@ -21,9 +21,9 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/saarasio/enroute/internal/httpsvc"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/saarasio/enroute/internal/httpsvc"
 )
 
 // Metrics provide Prometheus metrics for the app

@@ -1,9 +1,9 @@
 package saaras
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/saarasio/enroute/internal/contour"
 	"github.com/saarasio/enroute/internal/workgroup"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 

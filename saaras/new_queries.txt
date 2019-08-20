@@ -1,240 +1,295 @@
+CRUD API
+--------
+
+(1) Proxy
+ (1.1) Create Proxy - POST
+
+        mutation {
+          insert_saaras_db_proxy(objects: {proxy_name: "testproxy"}, 
+            on_conflict: {constraint: proxy_proxy_name_key, update_columns: create_ts}) {
+            affected_rows
+          }
+        }
 
 
+ (1.2) Read Proxy (for an org?) - GET
+ (1.3) Update Proxy 
+  (1.3.1) Update Proxy , replace it with new one - PUT (more like DELETE/POST)
+  (1.3.2) Update Proxy , update it - PATCH
+ (1.4) Delete Proxy - DELETE
 
-# Get all services
-query get_services {
-  saaras_db_service {
-    service_id
-    service_name
-    fqdn
-    routes {
-      prefix
-      create_ts
-      update_ts
-      route_upstreams {
-        upstream {
-          upstream_name
-          upstream_ip
-          upstream_port
+(2) Service
+ (2.1) Create a Service - POST
+
+        # Insert a service
+        # Modifies table - (service)
+        
+          mutation {
+            insert_saaras_db_service
+            (
+              objects:
+              {
+                fqdn: "testfqdn.com",
+                service_name: "test2"
+              } on_conflict: {constraint: service_service_name_key, update_columns:[fqdn, service_name]}
+            )
+            {
+              returning
+              {
+                create_ts
+              }
+            }
+          }
+
+  (2.2) Read a Service - GET
+  (2.3) Update a Service - PATCH
+
+          mutation {
+            insert_saaras_db_service
+            (
+              objects:
+              {
+                fqdn: "testfqdn.com",
+                service_name: "test2"
+              } on_conflict: {constraint: service_service_name_key, update_columns:[fqdn, service_name]}
+            )
+            {
+              returning
+              {
+                create_ts
+              }
+            }
+          }
+
+  (2.4) Delete a Service
+
+
+(3) Routes
+
+(4) Upstream
+
+ (4.1) Create an upstream - POST
+
+          # Insert an upstream
+          mutation {
+            insert_saaras_db_upstream
+            (
+              objects: 
+              {
+                upstream_name: "testupstream", 
+                upstream_port: 10000, 
+                upstream_ip: "1.1.1.1"
+              }, on_conflict: {constraint: upstream_upstream_name_key, update_columns: update_ts}
+            ) 
+            {
+              returning 
+              {
+                update_ts
+                create_ts
+              }
+            }
+          }
+
+ (4.2) Update an Upstream - PATCH
+
+          # Update an upstream
+          mutation {
+            update_saaras_db_upstream
+            (
+              where: 
+              {
+                upstream_name: {_eq: "testupstream"}
+              }, 
+              _set: {upstream_port: 10001}
+            ) 
+            {
+              returning {
+                update_ts
+              }
+            }
+          }
+
+ (4.3) Delete an Upstream - DELETE
+
+          # Delete upstream
+          
+          mutation {
+            delete_saaras_db_upstream(where: {upstream_name: {_eq: "testupstream"}}) {
+              affected_rows
+            }
+          }
+
+(5) Proxy_Service - Associate a service with a proxy - relationship table
+ (5.1) Create a Proxy_Service association - POST
+
+      # Associate a service to a proxy
+      mutation {
+        insert_saaras_db_proxy_service(
+          objects:
+          {
+            proxy:
+            {
+              data:
+              {
+                proxy_name: "testproxy"
+              }, on_conflict: {constraint: proxy_proxy_name_key, update_columns: update_ts}
+            },
+            service:
+            {
+              data:
+              {
+                service_name: "test"
+              }, on_conflict: {constraint: service_service_name_key, update_columns: update_ts}
+            }
+          }
+        )
+        {
+          affected_rows
         }
       }
-    }
-  }
-}
+
+
+ (5.2) Read a Proxy_Service association - GET
+ (5.3) Delete a Proxy_Service association - DELETE
+
+
+(6) Service_Route - Associate a route to a service
+
+ (6.1) Create a Service_Route association - POST
+
+          # Insert route for a service
+          # Modifies tables - (route, service)
+          
+          mutation {
+            insert_saaras_db_route
+            (
+              objects:
+              {
+                route_name: "testroute",
+                prefix: "/",
+                service:
+                {
+                  data:
+                  {
+                    service_name: "test"
+                  }, on_conflict: { constraint: service_service_name_key, update_columns: service_name }
+                }
+              } on_conflict: {constraint: route_route_name_key, update_columns: update_ts}
+            )
+          
+            {
+              returning
+              {
+                route_id
+              }
+            }
+          }
+
+(7) Service_Route_Upstream - Associate an Upstream to a Service_Route
+
+ (7.1) Create a Service_Route_Upstream association - POST
+
+
+          # Insert upstream for (service, route)
+          # Modifies tables - (service, route, route_upstreams, upstream)
+          
+          mutation {
+            insert_saaras_db_upstream
+            (
+              # start insert upstream object
+              objects:
+              {
+                upstream_name: "testupstream",
+                upstream_port: 10000,
+                upstream_ip: "1.1.1.1",
+                      route_upstreams:
+                      {
+                        data:
+                        {
+                            route:
+                            {
+                              data:
+                              {
+                                route_name: "testroute",
+                                service:
+                                {
+                                  data:
+                                  {
+                                    service_name: "test"
+                                    }, on_conflict: {constraint: service_service_name_key, update_columns: service_name}
+                                } # end service
+                               }, on_conflict: {constraint: route_route_name_key, update_columns: route_name}
+                              } # end route
+                        }    on_conflict: {constraint: route_upstream_route_id_upstream_id_key, update_columns:update_ts}
+                        }
+              } on_conflict: {constraint: upstream_upstream_name_key, update_columns: update_ts}
+                  # end insert upstream object
+            )
+            {
+              returning
+              {
+                update_ts
+                create_ts
+              }
+            }
+          }
+
+
+  (7.2) Delete an Upstream for Service_Route - DELETE
+
+          # Delete upstream for route
+          mutation {
+            delete_saaras_db_route_upstream
+            (
+              where: 
+              {
+                route: {route_name: {_eq: "testroute"}, 
+                service: {service_name: {_eq: "testservice"}}}, 
+                upstream: {upstream_name: {_eq: "testupstream"}}
+              }
+            ) 
+            {
+              affected_rows
+            }
+          }
+
+
+
+
+
+
+Enroute fetch config calls
+
 
 # Get all services for a proxy name
-{
-  saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: "testproxy"}}}) {
-    service {
-      service_name
-      fqdn
-      create_ts
-      update_ts
-      routes {
-        route_name
-        prefix
+  query get_services_by_proxy($proxy_name: String!)
+  {
+    saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
+      service {
+        service_name
+        fqdn
         create_ts
         update_ts
-        route_upstreams {
-          upstream {
-            upstream_name
-            upstream_ip
-            upstream_port
-            create_ts
-            update_ts
+        routes {
+          route_name
+          prefix
+          create_ts
+          update_ts
+          route_upstreams {
+            upstream {
+              upstream_name
+              upstream_ip
+              upstream_port
+              create_ts
+              update_ts
+            }
           }
         }
       }
     }
   }
-}
-
-mutation {
-  insert_saaras_db_proxy(objects: {proxy_name: "testproxy"}, 
-    on_conflict: {constraint: proxy_proxy_name_key, update_columns: create_ts}) {
-    affected_rows
-  }
-}
-
-
-# Associate a service to a proxy
-mutation {
-  insert_saaras_db_proxy_service(
-    objects:
-    {
-      proxy:
-      {
-        data:
-        {
-          proxy_name: "testproxy"
-        }, on_conflict: {constraint: proxy_proxy_name_key, update_columns: update_ts}
-      },
-      service:
-      {
-        data:
-        {
-          service_name: "test"
-        }, on_conflict: {constraint: service_service_name_key, update_columns: update_ts}
-      }
-    }
-  )
+  
+  # Args
   {
-    affected_rows
+    "proxy_name": "testproxy"
   }
-}
-
-# Insert a service
-# Modifies table - (service)
-
-mutation {
-  insert_saaras_db_service
-  (
-    objects:
-    {
-      fqdn: "testfqdn.com",
-      service_name: "test2"
-    } on_conflict: {constraint: service_service_name_key, update_columns:[fqdn, service_name]}
-  )
-  {
-    returning
-    {
-      create_ts
-    }
-  }
-}
-
-
-# Insert route for a service
-# Modifies tables - (route, service)
-
-mutation {
-  insert_saaras_db_route
-  (
-    objects:
-    {
-      route_name: "testroute",
-      prefix: "/",
-      service:
-      {
-        data:
-        {
-          service_name: "test"
-        }, on_conflict: { constraint: service_service_name_key, update_columns: service_name }
-      }
-    } on_conflict: {constraint: route_route_name_key, update_columns: update_ts}
-  )
-
-  {
-    returning
-    {
-      route_id
-    }
-  }
-}
-
-# Insert an upstream
-mutation {
-  insert_saaras_db_upstream
-  (
-    objects: 
-    {
-      upstream_name: "testupstream", 
-      upstream_port: 10000, 
-      upstream_ip: "1.1.1.1"
-    }, on_conflict: {constraint: upstream_upstream_name_key, update_columns: update_ts}
-  ) 
-  {
-    returning 
-    {
-      update_ts
-      create_ts
-    }
-  }
-}
-
-# Update an upstream
-mutation {
-  update_saaras_db_upstream
-  (
-    where: 
-    {
-      upstream_name: {_eq: "testupstream"}
-    }, 
-    _set: {upstream_port: 10001}
-  ) 
-  {
-    returning {
-      update_ts
-    }
-  }
-}
-
-# Insert upstream for (service, route)
-# Modifies tables - (service, route, route_upstreams, upstream)
-
-mutation {
-  insert_saaras_db_upstream
-  (
-    # start insert upstream object
-    objects:
-    {
-      upstream_name: "testupstream",
-      upstream_port: 10000,
-      upstream_ip: "1.1.1.1",
-            route_upstreams:
-            {
-              data:
-              {
-                  route:
-                  {
-                    data:
-                    {
-                      route_name: "testroute",
-                      service:
-                      {
-                        data:
-                        {
-                          service_name: "test"
-                          }, on_conflict: {constraint: service_service_name_key, update_columns: service_name}
-                      } # end service
-                     }, on_conflict: {constraint: route_route_name_key, update_columns: route_name}
-                    } # end route
-              }    on_conflict: {constraint: route_upstream_route_id_upstream_id_key, update_columns:update_ts}
-              }
-    } on_conflict: {constraint: upstream_upstream_name_key, update_columns: update_ts}
-        # end insert upstream object
-  )
-  {
-    returning
-    {
-      update_ts
-      create_ts
-    }
-  }
-}
-
-# Delete upstream for route
-mutation {
-  delete_saaras_db_route_upstream
-  (
-    where: 
-    {
-      route:
-      {
-        route_name: {_eq: "testroute"}
-      }, 
-      upstream: {upstream_name: {_eq: "testupstream"}}
-    }
-  ) 
-  {
-    affected_rows
-  }
-}
-
-# Delete upstream
-
-mutation {
-  delete_saaras_db_upstream(where: {upstream_name: {_eq: "testupstream"}}) {
-    affected_rows
-  }
-}

@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	//contourinformers "github.com/saarasio/enroute/apis/generated/informers/externalversions"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/saarasio/enroute/internal/contour"
 	"github.com/saarasio/enroute/internal/dag"
 	"github.com/saarasio/enroute/internal/debug"
@@ -36,7 +37,6 @@ import (
 	"github.com/saarasio/enroute/internal/k8s"
 	"github.com/saarasio/enroute/internal/metrics"
 	"github.com/saarasio/enroute/internal/workgroup"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	//coreinformers "k8s.io/client-go/informers"
@@ -220,10 +220,9 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 			HTTPSPort:      ctx.httpsPort,
 			HTTPSAccessLog: ctx.httpsAccessLog,
 		},
-		ListenerCache: contour.NewListenerCache(ctx.statsAddr, ctx.statsPort),
-		FieldLogger:   log.WithField("context", "CacheHandler"),
-		IngressRouteStatus: &k8s.IngressRouteStatus{
-		},
+		ListenerCache:      contour.NewListenerCache(ctx.statsAddr, ctx.statsPort),
+		FieldLogger:        log.WithField("context", "CacheHandler"),
+		IngressRouteStatus: &k8s.IngressRouteStatus{},
 	}
 
 	// step 4. wrap the gRPC cache handler in a k8s resource event handler.
@@ -327,7 +326,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	wl := log.WithField("context", "saaras")
 	saarasCloudCache := saaras.SaarasCloudCache{}
-        saaras.WatchCloudIngressRoute(&g, wl, &reh, et, &saarasCloudCache)
+	saaras.WatchCloudIngressRoute(&g, wl, &reh, et, &saarasCloudCache)
 
 	// step 13. GO!
 	return g.Run()
