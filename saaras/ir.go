@@ -312,8 +312,12 @@ type SaarasIngressRoute2 struct {
 	Routes       []SaarasRoute2
 }
 
+type SaarasIngressRouteService struct {
+	Service SaarasIngressRoute2
+}
+
 type SaarasApp2 struct {
-	Saaras_db_application []SaarasIngressRoute2
+	Saaras_db_proxy_service []SaarasIngressRouteService
 }
 
 type DataPayloadSaarasApp2 struct {

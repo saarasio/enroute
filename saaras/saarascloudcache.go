@@ -15,6 +15,8 @@ import (
 	"sync"
 )
 
+var ENROUTE_NAME string
+
 type SaarasCloudCache struct {
 	mu sync.RWMutex
 
@@ -351,22 +353,23 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	var args map[string]string
 	args = make(map[string]string)
 
-	args["oname"] = "trial_org_1"
+	args["proxy_name"] = ENROUTE_NAME
 
 	// Fetch Application
-	if err := FetchConfig(QIngressRoute, &buf, args, log); err != nil {
+	if err := FetchConfig(QIngressRoute2, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
-	var gr DataPayloadSaarasApp
+	var gr DataPayloadSaarasApp2
 	if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
 		errors.Wrap(err, "decoding response")
 		log.Errorf("Error when decoding json [%v]\n", err)
 	}
 	sdb_spew_dump := bytes.NewBufferString(`Saaras_db_application`)
-	spew.Fdump(sdb_spew_dump, gr.Data.Saaras_db_application)
-	log.Debugf("%s", sdb_spew_dump.String())
-	scc.OnFetch(gr.Data.Saaras_db_application, reh, et, log)
+	//spew.Fdump(sdb_spew_dump, gr.Data.Saaras_db_application)
+	spew.Fdump(sdb_spew_dump, gr)
+	log.Debugf("-> %s", sdb_spew_dump.String())
+	//scc.OnFetch(gr.Data.Saaras_db_application, reh, et, log)
 
 	// Fetch ProxyGroup
 	buf.Reset()

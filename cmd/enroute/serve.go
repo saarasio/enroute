@@ -111,6 +111,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 
 	serve.Flag("enroute-cp-ip", "IP address of enroute control plane").StringVar(&saaras.ENROUTE_CP_SERVER_IP)
 	serve.Flag("enroute-cp-port", "Port of enroute control plane").StringVar(&saaras.ENROUTE_CP_SERVER_PORT)
+	serve.Flag("enroute-name", "Name of this enroute instance - used to query its configuration").StringVar(&saaras.ENROUTE_NAME)
 
 	return serve, &ctx
 }

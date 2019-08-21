@@ -28,6 +28,7 @@ import (
 
 func main() {
 	log := logrus.StandardLogger()
+	log.SetLevel(logrus.DebugLevel)
 	app := kingpin.New("enroute", "enroute agent to control envoy proxy")
 
 	bootstrap, bootstrapCtx := registerBootstrap(app)
