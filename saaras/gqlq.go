@@ -6,8 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const SAARAS_GRAPHQL_SERVER_URL = "http://51.158.75.43/v1alpha1/graphql"
-
 var ENROUTE_CP_SERVER_IP string
 var ENROUTE_CP_SERVER_PORT string
 

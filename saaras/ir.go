@@ -2,6 +2,7 @@ package saaras
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/saarasio/enroute/apis/contour/v1beta1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
@@ -297,7 +298,7 @@ type SaarasMicroService2 struct {
 
 type SaarasRoute2 struct {
 	Route_name      string
-	Route_Prefix    string
+	Route_prefix    string
 	Create_ts       string
 	Update_ts       string
 	Route_upstreams []SaarasMicroService2
@@ -326,6 +327,63 @@ type DataPayloadSaarasApp2 struct {
 }
 
 ////////////// IngressRoute //////////////////////////////////////////////
+
+func saaras_route_to_v1b1_service_slice2(sir *SaarasIngressRouteService, r SaarasRoute2) []v1beta1.Service {
+	services := make([]v1beta1.Service, 0)
+	for _, oneService := range r.Route_upstreams {
+		s := v1beta1.Service{
+			Name:   serviceName2(oneService.Upstream.Upstream_name),
+			Port:   int(oneService.Upstream.Upstream_port),
+			Weight: 100,
+		}
+		services = append(services, s)
+	}
+	return services
+}
+
+func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRoute {
+	routes := make([]v1beta1.Route, 0)
+	for _, oneRoute := range sir.Service.Routes {
+		route := v1beta1.Route{
+			Match:    oneRoute.Route_prefix,
+			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
+		}
+		routes = append(routes, route)
+
+	}
+	return &v1beta1.IngressRoute{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      sir.Service.Service_name,
+			Namespace: ENROUTE_NAME,
+		},
+		Spec: v1beta1.IngressRouteSpec{
+			VirtualHost: &v1beta1.VirtualHost{
+				Fqdn: sir.Service.Fqdn,
+				// TODO
+				//TLS: &v1beta1.TLS{
+				//	SecretName: getIrSecretName(sdb),
+				//},
+			},
+			Routes: routes,
+		},
+	}
+}
+
+func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.IngressRoute {
+	var m map[string]*v1beta1.IngressRoute
+
+	fmt.Printf("Begin: saaras_ir_slice__to__v1b1_ir_map\n")
+	for _, oneSaarasIRService := range *s {
+		fmt.Printf("%+v\n", oneSaarasIRService)
+		fmt.Printf("%+v\n", m)
+		onev1b1ir := saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
+		fmt.Printf("-------------------------------\n")
+		spew.Dump(onev1b1ir)
+	}
+	fmt.Printf("End: saaras_ir_slice__to__v1b1_ir_map\n")
+
+	return &m
+}
 
 // Returns tuple (
 //	slice []app_id,
@@ -585,6 +643,12 @@ func v1b1_ir_equal(log logrus.FieldLogger, ir1, ir2 *v1beta1.IngressRoute) bool 
 ///// Services ////////////////////////////////////////////////
 
 func serviceName(org_name, cluster_name, microservice_name string) string {
+	//s := fmt.Sprintf("%s-%s-%s", org_name, cluster_name, microservice_name)
+	//return s
+	return microservice_name
+}
+
+func serviceName2(microservice_name string) string {
 	//s := fmt.Sprintf("%s-%s-%s", org_name, cluster_name, microservice_name)
 	//return s
 	return microservice_name

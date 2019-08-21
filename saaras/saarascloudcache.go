@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
+	"github.com/saarasio/enroute/apis/contour/v1beta1"
 	"github.com/saarasio/enroute/internal/config"
 	"github.com/saarasio/enroute/internal/contour"
 	"github.com/sirupsen/logrus"
@@ -25,6 +26,11 @@ type SaarasCloudCache struct {
 	sdbeps     map[string]*SaarasEndpoint
 	sdbpg      map[string]*config.SaarasProxyGroupConfig
 	sdbsecrets map[string]*v1.Secret
+}
+
+type SaarasCloudCache2 struct {
+	mu sync.RWMutex
+	ir map[string]*v1beta1.IngressRoute
 }
 
 // CloudEventHandler fetches state from the cloud and generates
@@ -325,6 +331,9 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 	sac.mu.Lock()
 	defer sac.mu.Unlock()
 	switch obj := obj.(type) {
+	case []SaarasIngressRouteService:
+		v1b1_ir_map := saaras_ir_slice__to__v1b1_ir_map(&obj, log)
+		fmt.Printf("%+v\n", v1b1_ir_map)
 	case []SaarasIngressRoute:
 		saaras_app_ids, saaras_ir_map := saaras_ir_slice_to_map(&obj, log)
 		sac.update_saaras_ir_cache(saaras_app_ids, saaras_ir_map, reh, log)
@@ -365,11 +374,11 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 		errors.Wrap(err, "decoding response")
 		log.Errorf("Error when decoding json [%v]\n", err)
 	}
-	sdb_spew_dump := bytes.NewBufferString(`Saaras_db_application`)
+	sdb_spew_dump := bytes.NewBufferString(`Saaras_db_proxy_service`)
 	//spew.Fdump(sdb_spew_dump, gr.Data.Saaras_db_application)
 	spew.Fdump(sdb_spew_dump, gr)
 	log.Debugf("-> %s", sdb_spew_dump.String())
-	//scc.OnFetch(gr.Data.Saaras_db_application, reh, et, log)
+	scc.OnFetch(gr.Data.Saaras_db_proxy_service, reh, et, log)
 
 	// Fetch ProxyGroup
 	buf.Reset()
