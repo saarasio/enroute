@@ -213,12 +213,12 @@ func (sac *SaarasCloudCache) update__v1b1__endpoint_cache(v1b1_endpoint_map *map
 	}
 
 	// Generate OnDelete()
-	for cache_ep_id, _ := range sac.ep {
+	for cache_ep_id, cache_ep := range sac.ep {
 		if len(cache_ep_id) > 0 {
 			if _, ok := (*v1b1_endpoint_map)[cache_ep_id]; !ok {
 				log.Infof("update__v1b1_endpoint__cache() - EP [%s] removed from cloud- OnDelete()\n", cache_ep_id)
 				delete(sac.ep, cache_ep_id)
-				et.OnDelete(cache_ep_id)
+				et.OnDelete(cache_ep)
 			}
 		}
 	}
