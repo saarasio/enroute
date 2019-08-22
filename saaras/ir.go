@@ -42,6 +42,98 @@ const QIngressRoute2 string = `
   }
 `
 
+const QIngressRoute3 string = `
+query get_services_by_proxy($proxy_name: String!) {
+  saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
+    service {
+      service_id
+      service_name
+      fqdn
+      create_ts
+      update_ts
+      routes {
+        route_name
+        route_prefix
+        create_ts
+        update_ts
+        route_upstreams {
+          upstream {
+            upstream_name
+            upstream_ip
+            upstream_port
+            create_ts
+            update_ts
+          }
+        }
+      }
+      service_secrets {
+        secret {
+          secret_id
+          secret_name
+          create_ts
+          update_ts
+          artifacts {
+            artifact_id
+            artifact_name
+            artifact_type
+            artifact_value
+          }
+        }
+      }
+    }
+  }
+}
+`
+
+const QIngressRouteOutput3 string = `
+{
+  "data": {
+    "saaras_db_proxy_service": [
+      {
+        "service": {
+          "service_id": 1,
+          "service_name": "test",
+          "fqdn": "testfqdn.com",
+          "create_ts": "2019-08-20T00:40:02.873368+00:00",
+          "update_ts": "2019-08-19T14:57:51.841163+00:00",
+          "routes": [
+            {
+              "route_name": "testroute",
+              "route_prefix": "/",
+              "create_ts": "2019-08-19T15:06:50.680275+00:00",
+              "update_ts": "2019-08-20T00:52:10.882748+00:00",
+              "route_upstreams": [
+                {
+                  "upstream": {
+                    "upstream_name": "testupstream",
+                    "upstream_ip": "1.1.1.1",
+                    "upstream_port": 10000,
+                    "create_ts": "2019-08-20T01:21:02.351317+00:00",
+                    "update_ts": "2019-08-20T13:20:18.519485+00:00"
+                  }
+                }
+              ]
+            }
+          ],
+          "service_secrets": [
+            {
+              "secret": {
+                "secret_id": 1,
+                "secret_name": "testsecret",
+                "artifacts": [
+                  {
+                    "artifact_id": 1,
+                    "artifact_name": "name1",
+                    "artifact_type": "key",
+                    "artifact_value": "testvalue"
+                  }
+                ],
+                "create_ts": "2019-08-22T23:42:30.113554+00:00",
+                "update_ts": "2019-08-22T23:41:01.26228+00:00"
+              }
+           
+`
+
 const QIngressRouteOutput2 string = `
 {
   "data": {
@@ -194,13 +286,33 @@ type SaarasRoute2 struct {
 	Route_upstreams []SaarasMicroService2
 }
 
+type SaarasArtifact struct {
+	Artifact_id    int64
+	Artifact_name  string
+	Artifact_type  string
+	Artifact_value string
+}
+
+type SaarasSecret struct {
+	Secret_id   int64
+	Secret_name string
+	Artifacts   []SaarasArtifact
+	Create_ts   string
+	Update_ts   string
+}
+
+type SaarasSecrets struct {
+	Secret SaarasSecret
+}
+
 type SaarasIngressRoute2 struct {
-	Service_id   int64
-	Service_name string
-	Fqdn         string
-	Create_ts    string
-	Update_ts    string
-	Routes       []SaarasRoute2
+	Service_id      int64
+	Service_name    string
+	Fqdn            string
+	Create_ts       string
+	Update_ts       string
+	Routes          []SaarasRoute2
+	Service_secrets []SaarasSecrets
 }
 
 type SaarasIngressRouteService struct {

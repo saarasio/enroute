@@ -371,7 +371,7 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	args["proxy_name"] = ENROUTE_NAME
 
 	// Fetch Application
-	if err := FetchConfig(QIngressRoute2, &buf, args, log); err != nil {
+	if err := FetchConfig(QIngressRoute3, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
