@@ -22,14 +22,12 @@ var ENROUTE_NAME string
 type SaarasCloudCache struct {
 	mu sync.RWMutex
 
-	sdbapps    map[string]*SaarasIngressRoute
-	sdbsvcs    map[string]*SaarasMicroService
-	sdbeps     map[string]*SaarasEndpoint
 	sdbpg      map[string]*config.SaarasProxyGroupConfig
 	sdbsecrets map[string]*v1.Secret
 
 	ir  map[string]*v1beta1.IngressRoute
 	svc map[string]*v1.Service
+	ep  map[string]*v1.Endpoints
 }
 
 // CloudEventHandler fetches state from the cloud and generates
@@ -48,10 +46,10 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 				// ir in cache, compare cache and one fetched from cp
 				if apiequality.Semantic.DeepEqual(cached_ir, cloud_ir) {
 					// Same, ignore
-					log.Infof("update__v1b1_ir__cache() - service [%s, %s] - cloud version same as cache\n",
+					log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - cloud version same as cache\n",
 						cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
 				} else {
-					log.Infof("update__v1b1_ir__cache() - service [%s, %s] - cloud version NOT same as cache - OnUpdate()\n",
+					log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - cloud version NOT same as cache - OnUpdate()\n",
 						cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
 					log.Infof("Diff [%s]\n", diff.ObjectGoPrintDiff(cached_ir, cloud_ir))
 					sac.ir[cloud_ir_id] = cloud_ir
@@ -59,7 +57,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 				}
 			} else {
 				// ir not in cache
-				fmt.Printf("update__v1b1_ir__cache() -> service [%s, %s] - not in cache - OnAdd()\n",
+				fmt.Printf("update__v1b1_ir__cache() -> IR [%s, %s] - not in cache - OnAdd()\n",
 					cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
 				if sac.ir == nil {
 					sac.ir = make(map[string]*v1beta1.IngressRoute)
@@ -73,7 +71,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 	for cache_ir_id, _ := range sac.ir {
 		if len(cache_ir_id) > 0 {
 			if cached_ir2, ok := (*saaras_ir_cloud_map)[cache_ir_id]; !ok {
-				log.Infof("update__v1b1_ir__cache() - service [%s, %s] - removed from cloud - OnDelete()\n",
+				log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - removed from cloud - OnDelete()\n",
 					cache_ir_id, sac.ir[cache_ir_id].Spec.VirtualHost.Fqdn)
 				// Not found on cloud, remove
 				delete(sac.ir, cache_ir_id)
@@ -83,65 +81,17 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 	}
 }
 
-// diff against local cache and generte OnAdd/OnUpdate/OnDelete
-func (sac *SaarasCloudCache) update_saaras_service_cache(
-	saaras_app_ids *[]string,
-	saaras_ir_map *map[string]*SaarasIngressRoute,
-	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
-
-	v1_s_map, saaras_s_map := saaras_ir_to_v1_service(saaras_ir_map)
-	log.Debugf(" id ->     v1 Service Map: [%v]\n", v1_s_map)
-	log.Debugf(" id -> Saaras Service Map: [%v]\n", saaras_s_map)
-
-	for k, saaras_cloud_svc := range *saaras_s_map {
-		if saaras_cache_svc, ok := sac.sdbsvcs[k]; ok {
-			if saaras_svc_equal(saaras_cache_svc, saaras_cloud_svc) {
-				// No change
-				log.Infof("No change in Service id [%s] on saaras cloud\n", k)
-			} else {
-				// OnUpdate
-				log.Infof("Update Service id [%s] from saaras cloud\n", k)
-				sac.sdbsvcs[k] = saaras_cloud_svc
-				log.Debugf("Cache map [%v]\n", sac.sdbsvcs)
-				v1_cache := saaras_ms_to_v1_service(saaras_cache_svc)
-				reh.OnUpdate(v1_cache, (*v1_s_map)[k])
-			}
-		} else {
-			// OnAdd
-			log.Infof("Add Service id [%s] on saaras cloud\n", k)
-			if sac.sdbsvcs == nil {
-				sac.sdbsvcs = make(map[string]*SaarasMicroService)
-			}
-			sac.sdbsvcs[k] = saaras_cloud_svc
-			log.Debugf("Cache map [%v]\n", sac.sdbsvcs)
-			reh.OnAdd((*v1_s_map)[k])
-		}
-	}
-
-	// Walk through services in cache and check if they are still programmed on the cloud.
-	for k, saaras_cache_svc := range sac.sdbsvcs {
-		if _, ok := (*saaras_s_map)[k]; ok {
-		} else {
-			// OnRemove
-			log.Infof("Remove Service id [%s] on saaras cloud\n", k)
-			v1_cache_svc := saaras_ms_to_v1_service(saaras_cache_svc)
-			delete(sac.sdbsvcs, k)
-			reh.OnDelete(v1_cache_svc)
-		}
-	}
-}
-
-func (sac *SaarasCloudCache) update__v1b1_service_cache(
-	v1b1_service_slice *[]*v1.Service,
+func (sac *SaarasCloudCache) update__v1b1_service__cache(
+	v1b1_service_map *map[string]*v1.Service,
 	reh *contour.ResourceEventHandler,
 	log logrus.FieldLogger) {
 
-	for _, cloud_svc := range *v1b1_service_slice {
+	for _, cloud_svc := range *v1b1_service_map {
 		if cached_svc, ok := sac.svc[cloud_svc.ObjectMeta.Namespace+cloud_svc.ObjectMeta.Name]; ok {
 			if apiequality.Semantic.DeepEqual(cached_svc, cloud_svc) {
-				log.Infof("update__v1b1_service_cache() - Service [%s] on saaras cloud same as cache\n", cloud_svc.ObjectMeta.Name)
+				log.Infof("update__v1b1_service__cache() - SVC [%s] on saaras cloud same as cache\n", cloud_svc.ObjectMeta.Name)
 			} else {
-				log.Infof("update__v1b1_service_cache() - Service [%s] on saaras cloud changed - OnUpdate()\n", cloud_svc.ObjectMeta.Name)
+				log.Infof("update__v1b1_service__cache() - SVC [%s] on saaras cloud changed - OnUpdate()\n", cloud_svc.ObjectMeta.Name)
 				sac.svc[cloud_svc.ObjectMeta.Namespace+cloud_svc.ObjectMeta.Name] = cloud_svc
 				reh.OnUpdate(cached_svc, cloud_svc)
 			}
@@ -150,17 +100,26 @@ func (sac *SaarasCloudCache) update__v1b1_service_cache(
 				sac.svc = make(map[string]*v1.Service)
 			}
 			sac.svc[cloud_svc.ObjectMeta.Namespace+cloud_svc.ObjectMeta.Name] = cloud_svc
-			log.Infof("update__v1b1_service_cache() - Service [%s] on saaras cloud added - OnAdd()\n", cloud_svc.ObjectMeta.Name)
+			log.Infof("update__v1b1_service__cache() - SVC [%s] on saaras cloud added - OnAdd()\n", cloud_svc.ObjectMeta.Name)
 			reh.OnAdd(cloud_svc)
 		}
 	}
 
 	// TODO: Generate OnDelete
+	for cache_svc_id, _ := range sac.svc {
+		if len(cache_svc_id) > 0 {
+			if _, ok := (*v1b1_service_map)[cache_svc_id]; !ok {
+				log.Infof("update__v1b1_service__cache() - SVC [%s] removed from cloud- OnDelete()\n", cache_svc_id)
+				delete(sac.svc, cache_svc_id)
+				reh.OnDelete(cache_svc_id)
+			}
+		}
+	}
 }
 
-func (sac *SaarasCloudCache) saaras_ir_slice__to__v1b1_service_slice(
-	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *[]*v1.Service {
-	svc := make([]*v1.Service, 0)
+func (sac *SaarasCloudCache) saaras_ir_slice__to__v1b1_service_map(
+	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Service {
+	svc := make(map[string]*v1.Service, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneRoute := range oneSaarasIRService.Service.Routes {
 			for _, oneService := range oneRoute.Route_upstreams {
@@ -178,47 +137,91 @@ func (sac *SaarasCloudCache) saaras_ir_slice__to__v1b1_service_slice(
 						Ports: sp,
 					},
 				}
-				svc = append(svc, one_service)
+				svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
 			}
 		}
 	}
 	return &svc
 }
 
-func (sac *SaarasCloudCache) update_saaras_endpoint_cache(
-	saaras_app_ids *[]string,
-	saaras_ir_map *map[string]*SaarasIngressRoute,
-	et *contour.EndpointsTranslator, log logrus.FieldLogger) {
-	v1_ep_map, saaras_ep_map := saaras_irs_to_v1_ep_saaras_ep(saaras_ir_map)
+func saaras_upstream__to__v1_ep(mss *SaarasMicroService2) *v1.Endpoints {
+	ep_subsets := make([]v1.EndpointSubset, 0)
+	ep_subsets_addresses := make([]v1.EndpointAddress, 0)
+	ep_subsets_ports := make([]v1.EndpointPort, 0)
 
-	for k, saaras_cloud_ep := range *saaras_ep_map {
-		if saaras_cache_ep, ok := sac.sdbeps[k]; ok {
-			// Found in cache
-			if saaras_ep_equal(saaras_cloud_ep, saaras_cache_ep) {
-				log.Infof("No change in Endpoint id [%s] on saaras cloud\n", k)
+	ep_subsets_port := v1.EndpointPort{
+		Port: mss.Upstream.Upstream_port,
+	}
+	ep_subsets_ports = append(ep_subsets_ports, ep_subsets_port)
+
+	ep_subsets_address := v1.EndpointAddress{
+		IP: mss.Upstream.Upstream_ip,
+	}
+	ep_subsets_addresses = append(ep_subsets_addresses, ep_subsets_address)
+
+	ep_subset := v1.EndpointSubset{
+		Addresses: ep_subsets_addresses,
+		Ports:     ep_subsets_ports,
+	}
+	ep_subsets = append(ep_subsets, ep_subset)
+
+	return &v1.Endpoints{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      mss.Upstream.Upstream_name,
+			Namespace: ENROUTE_NAME,
+		},
+		Subsets: ep_subsets,
+	}
+}
+
+func saaras_ir_slice__to__v1b1_endpoint_map(
+	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Endpoints {
+	eps := make(map[string]*v1.Endpoints, 0)
+	for _, oneSaarasIRService := range *s {
+		for _, oneRoute := range oneSaarasIRService.Service.Routes {
+			for _, oneService := range oneRoute.Route_upstreams {
+				v1_ep := saaras_upstream__to__v1_ep(&oneService)
+				eps[v1_ep.ObjectMeta.Namespace+v1_ep.ObjectMeta.Name] = v1_ep
+			}
+		}
+	}
+	return &eps
+}
+
+func (sac *SaarasCloudCache) update__v1b1__endpoint_cache(v1b1_endpoint_map *map[string]*v1.Endpoints,
+	et *contour.EndpointsTranslator,
+	log logrus.FieldLogger) {
+
+	for _, cloud_ep := range *v1b1_endpoint_map {
+		if cached_ep, ok := sac.ep[cloud_ep.ObjectMeta.Namespace+cloud_ep.ObjectMeta.Name]; ok {
+			if apiequality.Semantic.DeepEqual(cached_ep, cloud_ep) {
+				log.Infof("update__v1b1_endpoint__cache() - EP [%s] on saaras cloud same as cache\n", cloud_ep.ObjectMeta.Name)
 			} else {
-				log.Infof("Update Endpoint id [%s] from saaras cloud\n", k)
-				old_ep := saaras_ep_to_v1_ep(saaras_cache_ep)
-				// OnUpdate expects v1.Endpoints,
-				// lookup the v1.Endpoints corresponding to SaarasEndpoint
-				new_ep := (*v1_ep_map)[k]
-				// Generate the OnUpdate event on EndpointTranslator
-				et.OnUpdate(old_ep, new_ep)
-				sac.sdbeps[k] = saaras_cloud_ep
+				log.Infof("update__v1b1_endpoint__cache() - EP [%s] on saaras cloud changed OnUpdate()\n", cloud_ep.ObjectMeta.Name)
+				sac.ep[cached_ep.ObjectMeta.Namespace+cached_ep.ObjectMeta.Name] = cloud_ep
+				et.OnUpdate(cached_ep, cloud_ep)
 			}
 		} else {
-			// Not found in cache, run OnAdd, update cache
-			log.Infof("Add Endpoint id [%s] from Saaras cloud\n", k)
-			if sac.sdbeps == nil {
-				sac.sdbeps = make(map[string]*SaarasEndpoint)
+			log.Infof("update__v1b1_endpoint__cache() - EP [%s] NOT on saaras cloud - OnAdd()\n", cloud_ep.ObjectMeta.Name)
+
+			if sac.ep == nil {
+				sac.ep = make(map[string]*v1.Endpoints)
 			}
-			sac.sdbeps[k] = saaras_cloud_ep
-			v1_ep := saaras_ep_to_v1_ep(saaras_cloud_ep)
-			et.OnAdd(v1_ep)
+			sac.ep[cloud_ep.ObjectMeta.Namespace+cloud_ep.ObjectMeta.Name] = cloud_ep
+			et.OnAdd(cloud_ep)
 		}
 	}
 
-	// TODO: Track and generate OnDelete
+	// Generate OnDelete()
+	for cache_ep_id, _ := range sac.ep {
+		if len(cache_ep_id) > 0 {
+			if _, ok := (*v1b1_endpoint_map)[cache_ep_id]; !ok {
+				log.Infof("update__v1b1_endpoint__cache() - EP [%s] removed from cloud- OnDelete()\n", cache_ep_id)
+				delete(sac.ep, cache_ep_id)
+				et.OnDelete(cache_ep_id)
+			}
+		}
+	}
 }
 
 // Generate OnAdd/OnUpdate/OnDelete on reh
@@ -336,18 +339,12 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 		v1b1_ir_map := saaras_ir_slice__to__v1b1_ir_map(&obj, log)
 		sac.update__v1b1_ir__cache(v1b1_ir_map, reh, log)
 		//spew.Dump(v1b1_ir_map)
-		v1b1_service_slice := sac.saaras_ir_slice__to__v1b1_service_slice(&obj, log)
+		v1b1_service_map := sac.saaras_ir_slice__to__v1b1_service_map(&obj, log)
 		//spew.Dump(v1b1_service_slice)
-		sac.update__v1b1_service_cache(v1b1_service_slice, reh, log)
+		sac.update__v1b1_service__cache(v1b1_service_map, reh, log)
 		//spew.Dump(v1b1_service_map)
-		//v1b1_endpoint_map := saaras_ir_slice__to__v1b1_endpoint_map(&obj, log)
-		//sac.update__v1b1__endpoint_cache(v1b1_endpoint_map, reh, log)
-		break
-
-	case []SaarasIngressRoute:
-		saaras_app_ids, saaras_ir_map := saaras_ir_slice_to_map(&obj, log)
-		sac.update_saaras_service_cache(saaras_app_ids, saaras_ir_map, reh, log)
-		sac.update_saaras_endpoint_cache(saaras_app_ids, saaras_ir_map, et, log)
+		v1b1_endpoint_map := saaras_ir_slice__to__v1b1_endpoint_map(&obj, log)
+		sac.update__v1b1__endpoint_cache(v1b1_endpoint_map, et, log)
 		break
 
 	case []config.SaarasProxyGroupConfig:

@@ -384,27 +384,6 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus
 	return &m
 }
 
-// Returns tuple (
-//	slice []app_id,
-//	map   {[app_id] -> *SaarasIngressRoute}
-// )
-func saaras_ir_slice_to_map(sdb *[]SaarasIngressRoute, log logrus.FieldLogger) (*[]string, *map[string]*SaarasIngressRoute) {
-	var m map[string]*SaarasIngressRoute
-	m = make(map[string]*SaarasIngressRoute)
-
-	keys := make([]string, 0)
-
-	for _, osa := range *sdb {
-		m[osa.App_id] = &osa
-		keys = append(keys, osa.App_id)
-	}
-
-	log.Debugf("Saaras Cloud Ingress Route App Ids: %+v\n", keys)
-	log.Debugf("Cache Ingress Route App Ids: %+v\n", m)
-
-	return &keys, &m
-}
-
 func getIrSecretName(sdb *SaarasIngressRoute) string {
 	if len(sdb.Application_secretsByApp_id) > 0 {
 		return sdb.Application_secretsByApp_id[0].SecretsBySecretId.Secret_name
