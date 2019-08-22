@@ -27,6 +27,7 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
+	//"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -663,7 +664,8 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 				}
 				m := Meta{name: service.Name, namespace: ir.Namespace}
 				s := b.lookupHTTPService(m, intstr.FromInt(service.Port))
-
+				//fmt.Printf("processRoutes() -> dump builder state \n")
+				//spew.Dump(b)
 				if s == nil {
 					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
 					return

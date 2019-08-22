@@ -60,6 +60,8 @@ func (irs *IngressRouteStatus) setStatus(existing, updated *ingressroutev1.Ingre
 		return err
 	}
 
-	_, err = irs.Client.ContourV1beta1().IngressRoutes(existing.GetNamespace()).Patch(existing.GetName(), types.MergePatchType, patchBytes)
+	if irs != nil && irs.Client != nil && irs.Client.ContourV1beta1() != nil && existing != nil {
+		_, err = irs.Client.ContourV1beta1().IngressRoutes(existing.GetNamespace()).Patch(existing.GetName(), types.MergePatchType, patchBytes)
+	}
 	return err
 }

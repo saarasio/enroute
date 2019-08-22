@@ -17,8 +17,10 @@
 package contour
 
 import (
+	//"fmt"
 	"time"
 
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/saarasio/enroute/internal/dag"
 	"github.com/saarasio/enroute/internal/k8s"
@@ -44,9 +46,11 @@ type statusable interface {
 }
 
 func (ch *CacheHandler) OnChange(kc *dag.KubernetesCache) {
+	//fmt.Printf("CacheHandler.OnChange() \n")
 	timer := prometheus.NewTimer(ch.CacheHandlerOnUpdateSummary)
 	defer timer.ObserveDuration()
 	dag := dag.BuildDAG(kc)
+	//spew.Dump(dag)
 	ch.setIngressRouteStatus(dag)
 	ch.updateSecrets(dag)
 	ch.updateListeners(dag)
@@ -71,17 +75,23 @@ func (ch *CacheHandler) updateSecrets(root dag.Visitable) {
 }
 
 func (ch *CacheHandler) updateListeners(root dag.Visitable) {
+	//fmt.Printf("CacheHandler.updateListeners() \n")
 	listeners := visitListeners(root, &ch.ListenerVisitorConfig)
+	//spew.Dump(listeners)
 	ch.ListenerCache.Update(listeners)
 }
 
 func (ch *CacheHandler) updateRoutes(root dag.Visitable) {
+	//fmt.Printf("CacheHandler.updateRoutes() \n")
 	routes := visitRoutes(root)
+	//spew.Dump(routes)
 	ch.RouteCache.Update(routes)
 }
 
 func (ch *CacheHandler) updateClusters(root dag.Visitable) {
+	//fmt.Printf("CacheHandler.updateClusters() \n")
 	clusters := visitClusters(root)
+	//spew.Dump(clusters)
 	ch.ClusterCache.Update(clusters)
 }
 

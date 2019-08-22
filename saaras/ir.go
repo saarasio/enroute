@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"sort"
+	"strconv"
 )
 
 const QIngressRoute string = `
@@ -128,6 +129,7 @@ const QIngressRoute2 string = `
   query get_services_by_proxy($proxy_name: String!) {
     saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
       service {
+        service_id
         service_name
         fqdn
         create_ts
@@ -305,7 +307,7 @@ type SaarasRoute2 struct {
 }
 
 type SaarasIngressRoute2 struct {
-	Service_id   string
+	Service_id   int64
 	Service_name string
 	Fqdn         string
 	Create_ts    string
@@ -371,16 +373,13 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 
 func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.IngressRoute {
 	var m map[string]*v1beta1.IngressRoute
+	m = make(map[string]*v1beta1.IngressRoute)
 
-	fmt.Printf("Begin: saaras_ir_slice__to__v1b1_ir_map\n")
 	for _, oneSaarasIRService := range *s {
-		fmt.Printf("%+v\n", oneSaarasIRService)
-		fmt.Printf("%+v\n", m)
 		onev1b1ir := saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
-		fmt.Printf("-------------------------------\n")
 		spew.Dump(onev1b1ir)
+		m[strconv.FormatInt(oneSaarasIRService.Service.Service_id, 10)] = onev1b1ir
 	}
-	fmt.Printf("End: saaras_ir_slice__to__v1b1_ir_map\n")
 
 	return &m
 }
