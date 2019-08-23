@@ -31,6 +31,22 @@
             table:
               name: route
               schema: saaras_db
+      - comment: null
+        name: proxy_services
+        using:
+          foreign_key_constraint_on:
+            column: service_id
+            table:
+              name: proxy_service
+              schema: saaras_db
+      - comment: null
+        name: service_secrets
+        using:
+          foreign_key_constraint_on:
+            column: service_id
+            table:
+              name: service_secret
+              schema: saaras_db
       delete_permissions: []
       event_triggers: []
       insert_permissions: []
@@ -112,10 +128,68 @@
       delete_permissions: []
       event_triggers: []
       insert_permissions: []
+      object_relationships:
+      - comment: null
+        name: secret
+        using:
+          foreign_key_constraint_on: secret_id
+      - comment: null
+        name: service
+        using:
+          foreign_key_constraint_on: service_id
+      select_permissions: []
+      table:
+        name: service_secret
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships:
+      - comment: null
+        name: artifacts
+        using:
+          foreign_key_constraint_on:
+            column: secret_id
+            table:
+              name: artifact
+              schema: saaras_db
+      - comment: null
+        name: service_secrets
+        using:
+          foreign_key_constraint_on:
+            column: secret_id
+            table:
+              name: service_secret
+              schema: saaras_db
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      object_relationships: []
+      select_permissions: []
+      table:
+        name: secret
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships: []
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
       object_relationships: []
       select_permissions: []
       table:
         name: service_temp
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships: []
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      object_relationships:
+      - comment: null
+        name: secret
+        using:
+          foreign_key_constraint_on: secret_id
+      select_permissions: []
+      table:
+        name: artifact
         schema: saaras_db
       update_permissions: []
     - array_relationships: []
@@ -128,7 +202,15 @@
         name: route_temp
         schema: saaras_db
       update_permissions: []
-    - array_relationships: []
+    - array_relationships:
+      - comment: null
+        name: proxy_services
+        using:
+          foreign_key_constraint_on:
+            column: proxy_id
+            table:
+              name: proxy_service
+              schema: saaras_db
       delete_permissions: []
       event_triggers: []
       insert_permissions: []
