@@ -2,7 +2,7 @@ package saaras
 
 import (
 	"fmt"
-	//"github.com/davecgh/go-spew/spew"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/saarasio/enroute/apis/contour/v1beta1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
@@ -124,14 +124,26 @@ const QIngressRouteOutput3 string = `
                   {
                     "artifact_id": 1,
                     "artifact_name": "name1",
-                    "artifact_type": "key",
+                    "artifact_type": "tls.key",
                     "artifact_value": "testvalue"
+                  },
+                  {
+                    "artifact_id": 3,
+                    "artifact_name": "name2",
+                    "artifact_type": "tls.crt",
+                    "artifact_value": "certificate"
                   }
                 ],
                 "create_ts": "2019-08-22T23:42:30.113554+00:00",
                 "update_ts": "2019-08-22T23:41:01.26228+00:00"
               }
-           
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
 `
 
 const QIngressRouteOutput2 string = `
@@ -343,6 +355,18 @@ func saaras_route_to_v1b1_service_slice2(sir *SaarasIngressRouteService, r Saara
 	return services
 }
 
+func getIrSecretName2(sir *SaarasIngressRouteService) string {
+	// If there are multiple secrets, we pick the first one.
+
+	var secret_name string
+
+	if len(sir.Service.Service_secrets) > 0 {
+		secret_name = ENROUTE_NAME + sir.Service.Service_secrets[0].Secret.Secret_name
+	}
+
+	return secret_name
+}
+
 func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRoute {
 	routes := make([]v1beta1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
@@ -362,9 +386,9 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 			VirtualHost: &v1beta1.VirtualHost{
 				Fqdn: sir.Service.Fqdn,
 				// TODO
-				//TLS: &v1beta1.TLS{
-				//	SecretName: getIrSecretName(sdb),
-				//},
+				TLS: &v1beta1.TLS{
+					SecretName: getIrSecretName2(sir),
+				},
 			},
 			Routes: routes,
 		},
@@ -377,7 +401,7 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus
 
 	for _, oneSaarasIRService := range *s {
 		onev1b1ir := saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
-		//spew.Dump(onev1b1ir)
+		spew.Dump(onev1b1ir)
 		m[strconv.FormatInt(oneSaarasIRService.Service.Service_id, 10)] = onev1b1ir
 	}
 

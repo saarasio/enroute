@@ -117,7 +117,7 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 	}
 }
 
-func (sac *SaarasCloudCache) saaras_ir_slice__to__v1b1_service_map(
+func saaras_ir_slice__to__v1b1_service_map(
 	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Service {
 	svc := make(map[string]*v1.Service, 0)
 	for _, oneSaarasIRService := range *s {
@@ -326,6 +326,45 @@ func (sac *SaarasCloudCache) update_saaras_secret_cache(
 	}
 }
 
+func v1_secret(saaras_secret *SaarasSecret) *v1.Secret {
+
+	var v1secret v1.Secret
+	//				v1_service := &v1.Secret{
+	//					ObjectMeta: metav1.ObjectMeta{
+	//						Name:      saaras_secret.Secret_name,
+	//						Namespace: ENROUTE_NAME,
+	//					},
+	//				}
+
+	v1secret.ObjectMeta.Name = saaras_secret.Secret_name
+	v1secret.ObjectMeta.Namespace = ENROUTE_NAME
+
+	for _, artifact := range saaras_secret.Artifacts {
+		if artifact.Artifact_type == v1.TLSCertKey {
+			if v1secret.Data == nil {
+				v1secret.Data = make(map[string][]byte, 0)
+			}
+			v1secret.Data[v1.TLSCertKey] = []byte(artifact.Artifact_value)
+		}
+
+		if artifact.Artifact_type == v1.TLSPrivateKeyKey {
+			v1secret.Data[v1.TLSPrivateKeyKey] = []byte(artifact.Artifact_value)
+		}
+	}
+
+	return &v1secret
+}
+
+func saaras_ir_slice__to__v1_secret(s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Secret {
+	secrets := make(map[string]*v1.Secret, 0)
+	for _, oneSaarasIRService := range *s {
+		for _, oneSecret := range oneSaarasIRService.Service.Service_secrets {
+			secrets[ENROUTE_NAME+oneSecret.Secret.Secret_name] = v1_secret(&oneSecret.Secret)
+		}
+	}
+	return &secrets
+}
+
 // Convert saaras cloud state to k8s state
 // Generate events on SaarasCloudCache
 // - Generate OnFetch() for all state similar to k8s (ingress_route, service, endpoint)
@@ -339,12 +378,14 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 		v1b1_ir_map := saaras_ir_slice__to__v1b1_ir_map(&obj, log)
 		sac.update__v1b1_ir__cache(v1b1_ir_map, reh, log)
 		//spew.Dump(v1b1_ir_map)
-		v1b1_service_map := sac.saaras_ir_slice__to__v1b1_service_map(&obj, log)
+		v1b1_service_map := saaras_ir_slice__to__v1b1_service_map(&obj, log)
 		//spew.Dump(v1b1_service_slice)
 		sac.update__v1b1_service__cache(v1b1_service_map, reh, log)
 		//spew.Dump(v1b1_service_map)
 		v1b1_endpoint_map := saaras_ir_slice__to__v1b1_endpoint_map(&obj, log)
 		sac.update__v1b1__endpoint_cache(v1b1_endpoint_map, et, log)
+		v1_secret_map := saaras_ir_slice__to__v1_secret(&obj, log)
+		spew.Dump(*v1_secret_map)
 		break
 
 	case []config.SaarasProxyGroupConfig:
