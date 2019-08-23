@@ -361,7 +361,7 @@ func getIrSecretName2(sir *SaarasIngressRouteService) string {
 	var secret_name string
 
 	if len(sir.Service.Service_secrets) > 0 {
-		secret_name = ENROUTE_NAME + sir.Service.Service_secrets[0].Secret.Secret_name
+		secret_name = sir.Service.Service_secrets[0].Secret.Secret_name
 	}
 
 	return secret_name

@@ -182,14 +182,20 @@ func (b *builder) addTCPService(svc *v1.Service, port *v1.ServicePort) *TCPServi
 // lookupSecret returns a Secret if present or nil if the underlying kubernetes
 // secret fails validation or is missing.
 func (b *builder) lookupSecret(m Meta, validate func(*v1.Secret) bool) *Secret {
+	//fmt.Printf("lookupSecret() [%v]\n", m)
+	//for k, s := range b.source.secrets {
+	//	fmt.Printf("in list lookupSecret() [%s]:[%s]\n", k, s)
+	//}
 	if s, ok := b.secrets[m]; ok {
 		return s
 	}
 	sec, ok := b.source.secrets[m]
 	if !ok {
+		//fmt.Printf("lookupSecret() Secret not found [%v]\n", m)
 		return nil
 	}
 	if !validate(sec) {
+		//fmt.Printf("lookupSecret() Secret invalid [%v]\n", m)
 		return nil
 	}
 	s := &Secret{

@@ -28,6 +28,7 @@ type SaarasCloudCache struct {
 	ir  map[string]*v1beta1.IngressRoute
 	svc map[string]*v1.Service
 	ep  map[string]*v1.Endpoints
+	sec map[string]*v1.Secret
 }
 
 // CloudEventHandler fetches state from the cloud and generates
@@ -326,6 +327,37 @@ func (sac *SaarasCloudCache) update_saaras_secret_cache(
 	}
 }
 
+func (sac *SaarasCloudCache) update__v1__secret_cache(v1_secret_map *map[string]*v1.Secret, reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
+	for _, cloud_secret := range *v1_secret_map {
+		if cached_secret, ok := sac.sec[cloud_secret.ObjectMeta.Namespace+cloud_secret.ObjectMeta.Name]; ok {
+			if apiequality.Semantic.DeepEqual(cached_secret, cloud_secret) {
+				log.Infof("update__v1__secret_cache() - SEC [%s] on saaras cloud same as cache\n", cloud_secret.ObjectMeta.Name)
+			} else {
+				log.Infof("update__v1__secret_cache() - SEC [%s] on saaras different from cache - OnUpdate()\n", cloud_secret.ObjectMeta.Name)
+				sac.sec[cloud_secret.ObjectMeta.Namespace+cloud_secret.ObjectMeta.Name] = cloud_secret
+				reh.OnUpdate(cached_secret, cloud_secret)
+			}
+		} else {
+			if sac.sec == nil {
+				sac.sec = make(map[string]*v1.Secret, 0)
+			}
+			log.Infof("update__v1__secret_cache() - SEC [%s] not in cache OnAdd()\n", cloud_secret.ObjectMeta.Name)
+			sac.sec[cloud_secret.ObjectMeta.Namespace+cloud_secret.ObjectMeta.Name] = cloud_secret
+			reh.OnAdd(cloud_secret)
+		}
+	}
+
+	for cache_sec_id, cached_secret := range sac.sec {
+		if len(cache_sec_id) > 0 {
+			if _, ok := (*v1_secret_map)[cache_sec_id]; !ok {
+				log.Infof("update__v1__secret_cache() - SEC [%s] removed from cloud - OnDelete()\n", cached_secret.ObjectMeta.Name)
+				delete(sac.sec, cache_sec_id)
+				reh.OnDelete(cached_secret)
+			}
+		}
+	}
+}
+
 func v1_secret(saaras_secret *SaarasSecret) *v1.Secret {
 
 	var v1secret v1.Secret
@@ -338,6 +370,9 @@ func v1_secret(saaras_secret *SaarasSecret) *v1.Secret {
 
 	v1secret.ObjectMeta.Name = saaras_secret.Secret_name
 	v1secret.ObjectMeta.Namespace = ENROUTE_NAME
+
+	//TODO: This needs to be captured in the DB
+	v1secret.Type = v1.SecretTypeTLS
 
 	for _, artifact := range saaras_secret.Artifacts {
 		if artifact.Artifact_type == v1.TLSCertKey {
@@ -385,7 +420,7 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 		v1b1_endpoint_map := saaras_ir_slice__to__v1b1_endpoint_map(&obj, log)
 		sac.update__v1b1__endpoint_cache(v1b1_endpoint_map, et, log)
 		v1_secret_map := saaras_ir_slice__to__v1_secret(&obj, log)
-		spew.Dump(*v1_secret_map)
+		sac.update__v1__secret_cache(v1_secret_map, reh, log)
 		break
 
 	case []config.SaarasProxyGroupConfig:
