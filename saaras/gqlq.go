@@ -29,3 +29,23 @@ func FetchConfig(query string, buf *bytes.Buffer, args map[string]string, log lo
 		return nil
 	}
 }
+
+func FetchConfig2(url string, query string, buf *bytes.Buffer, args map[string]string, log logrus.FieldLogger) error {
+	client := NewClient(url)
+	client.Log = func(s string) { log.Debugf("%s", s) }
+	req := NewRequest(query)
+
+	for k, v := range args {
+		req.Var(k, v)
+	}
+
+	ctx := context.Background()
+
+	if err := client.Run(ctx, req, buf); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return err
+	} else {
+		log.Debugf("Received buf [%s]\n", buf.String())
+		return nil
+	}
+}

@@ -11,6 +11,10 @@ CRUD API
           }
         }
 
+	PATH - localhost:8081/proxies/
+  METHOD - POST
+  ARGS - (proxyname)
+
 
  (1.2) Read Proxy (for an org?) - GET
  (1.3) Update Proxy 
