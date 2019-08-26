@@ -11,16 +11,27 @@ CRUD API
           }
         }
 
-	PATH - localhost:8081/proxies/
+
+	PATH - localhost:8081/proxy
   METHOD - POST
   ARGS - (proxyname)
 
 
  (1.2) Read Proxy (for an org?) - GET
+
+	PATH - localhost:8081/proxy
+  METHOD - GET
+  ARGS - (proxyname)
+
  (1.3) Update Proxy 
   (1.3.1) Update Proxy , replace it with new one - PUT (more like DELETE/POST)
   (1.3.2) Update Proxy , update it - PATCH
+
  (1.4) Delete Proxy - DELETE
+
+	PATH - localhost:8081/proxy
+  METHOD - DELETE
+  ARGS - (proxyname)
 
 (2) Service
  (2.1) Create a Service - POST
