@@ -106,7 +106,7 @@ var QDeleteProxyService = `
 
 mutation delete_proxy_service($service_name: String!, $proxy_name: String!) {
   delete_saaras_db_proxy_service(where: {
-		_and: 
+		_and:
 			{
 				proxy: {proxy_name: {_eq: $proxy_name}}, 
 				service: {service_name: {_eq: $service_name}}
