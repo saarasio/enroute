@@ -102,6 +102,19 @@ var QGetProxyService string = `
 	}
 `
 
+var QGetProxyServiceAssociation string = `
+query get_proxy_service($proxy_name: String!, $service_name: String!) {
+  saaras_db_service(where: {_and: 
+    {proxy_services: {proxy: {proxy_name: {_eq: $proxy_name}}}}, service_name: {_eq: $service_name}}) {
+    service_id
+    service_name
+    fqdn
+    create_ts
+    update_ts
+  }
+}
+`
+
 var QDeleteProxyService = `
 
 mutation delete_proxy_service($service_name: String!, $proxy_name: String!) {
@@ -119,6 +132,49 @@ mutation delete_proxy_service($service_name: String!, $proxy_name: String!) {
   }
 }
 
+`
+
+var QDeleteProxyServiceAssociation = `
+
+mutation delete_proxy_service($service_name: String!, $proxy_name: String!) {
+  delete_saaras_db_proxy_service(where: {
+		_and:
+			{
+				proxy: {proxy_name: {_eq: $proxy_name}}, 
+				service: {service_name: {_eq: $service_name}}
+			}
+		}) {
+    affected_rows
+  }
+}
+`
+
+var QCreateProxyServiceAssociation = `
+      mutation create_proxy_service($proxy_name : String!, $service_name : String!) {
+        # Associate a service to a proxy
+        insert_saaras_db_proxy_service(
+          objects:
+          {
+            proxy:
+            {
+              data:
+              {
+                proxy_name: $proxy_name
+              }, on_conflict: {constraint: proxy_proxy_name_key, update_columns: update_ts}
+            },
+            service:
+            {
+              data:
+              {
+                service_name: $service_name
+              }, on_conflict: {constraint: service_service_name_key, update_columns: update_ts}
+            }
+          }
+        )
+        {
+          affected_rows
+        }
+      }
 `
 
 var HOST string = `localhost`
@@ -277,6 +333,72 @@ func DELETE_Proxy_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+func POST_Proxy_Service_Association(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	proxy_name := c.Param("proxy_name")
+	service_name := c.Param("service_name")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	args["proxy_name"] = proxy_name
+	args["service_name"] = service_name
+
+	if err := saaras.FetchConfig2(url, QCreateProxyServiceAssociation, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func DELETE_Proxy_Service_Association(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	proxy_name := c.Param("proxy_name")
+	service_name := c.Param("service_name")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	args["proxy_name"] = proxy_name
+	args["service_name"] = service_name
+
+	if err := saaras.FetchConfig2(url, QDeleteProxyServiceAssociation, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func GET_Proxy_Service_Association(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+	proxy_name := c.Param("proxy_name")
+	service_name := c.Param("service_name")
+
+	args["proxy_name"] = proxy_name
+	args["service_name"] = service_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	if err := saaras.FetchConfig2(url, QGetProxyServiceAssociation, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
 func Add_endpoint_proxy(e *echo.Echo) {
 	e.GET("/proxy", GET_Proxy)
 	e.POST("/proxy", POST_Proxy)
@@ -285,4 +407,8 @@ func Add_endpoint_proxy(e *echo.Echo) {
 	e.POST("/proxy/:proxy_name/service", POST_Proxy_Service)
 	e.GET("/proxy/:proxy_name/service", GET_Proxy_Service)
 	e.DELETE("/proxy/:proxy_name/service", DELETE_Proxy_Service)
+
+	e.POST("/proxy/:proxy_name/service/:service_name", POST_Proxy_Service_Association)
+	e.GET("/proxy/:proxy_name/service/:service_name", GET_Proxy_Service_Association)
+	e.DELETE("/proxy/:proxy_name/service/:service_name", DELETE_Proxy_Service_Association)
 }
