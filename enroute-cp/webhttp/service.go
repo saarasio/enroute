@@ -44,6 +44,26 @@ query get_proxy_service {
 
 `
 
+var QDeleteService = `
+mutation delete_service($service_name: String!) {
+  delete_saaras_db_service(where: {service_name: {_eq: $service_name}}) {
+    affected_rows
+  }
+}
+`
+
+var QServiceProxy = `
+query get_proxy_service($service_name: String!) {
+  saaras_db_proxy(where: {proxy_services: {service: {service_name: {_eq: $service_name}}}}) {
+    proxy_id
+    proxy_name
+    update_ts
+    create_ts
+  }
+}
+
+`
+
 func PATCH_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -89,7 +109,45 @@ func GET_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+func DELETE_Service(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	service_name := c.Param("service_name")
+	args["service_name"] = service_name
+	if err := saaras.FetchConfig2(url, QDeleteService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func GET_Service_Proxy(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	service_name := c.Param("service_name")
+	args["service_name"] = service_name
+	if err := saaras.FetchConfig2(url, QServiceProxy, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
 func Add_endpoint_service(e *echo.Echo) {
 	e.GET("/service", GET_Service)
+	e.GET("/service/:service_name/proxy", GET_Service_Proxy)
 	e.PATCH("/service/:service_name", PATCH_Service)
+	e.DELETE("/service/:service_name", DELETE_Service)
 }
