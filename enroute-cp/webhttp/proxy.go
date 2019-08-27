@@ -102,6 +102,25 @@ var QGetProxyService string = `
 	}
 `
 
+var QDeleteProxyService = `
+
+mutation delete_proxy_service($service_name: String!, $proxy_name: String!) {
+  delete_saaras_db_proxy_service(where: {
+		_and: 
+			{
+				proxy: {proxy_name: {_eq: $proxy_name}}, 
+				service: {service_name: {_eq: $service_name}}
+			}
+		}) {
+    affected_rows
+  }
+  delete_saaras_db_service(where: {service_name: {_eq: $service_name}}) {
+    affected_rows
+  }
+}
+
+`
+
 var HOST string = `localhost`
 var PORT string = `8081`
 
@@ -118,7 +137,7 @@ func POST_Proxy(c echo.Context) error {
 		return err
 	}
 
-  if len(p.Name) == 0 {
+	if len(p.Name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
 	}
 
@@ -144,11 +163,11 @@ func POST_Proxy_Service(c echo.Context) error {
 		return err
 	}
 
-  if len(s.Name) == 0 {
+	if len(s.Name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
 	}
 
-  if len(s.Fqdn) == 0 {
+	if len(s.Fqdn) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide fqdn using Fqdn field")
 	}
 
@@ -213,7 +232,7 @@ func DELETE_Proxy(c echo.Context) error {
 		return err
 	}
 
-  if len(p.Name) == 0 {
+	if len(p.Name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
 	}
 
@@ -228,6 +247,36 @@ func DELETE_Proxy(c echo.Context) error {
 
 }
 
+func DELETE_Proxy_Service(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	s := new(Service)
+	if err := c.Bind(s); err != nil {
+		return err
+	}
+
+	if len(s.Name) == 0 {
+		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
+	}
+
+	proxy_name := c.Param("proxy_name")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	args["proxy_name"] = proxy_name
+	args["service_name"] = s.Name
+
+	if err := saaras.FetchConfig2(url, QDeleteProxyService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
 func Add_endpoint_proxy(e *echo.Echo) {
 	e.GET("/proxy", GET_Proxy)
 	e.POST("/proxy", POST_Proxy)
@@ -235,4 +284,5 @@ func Add_endpoint_proxy(e *echo.Echo) {
 
 	e.POST("/proxy/:proxy_name/service", POST_Proxy_Service)
 	e.GET("/proxy/:proxy_name/service", GET_Proxy_Service)
+	e.DELETE("/proxy/:proxy_name/service", DELETE_Proxy_Service)
 }

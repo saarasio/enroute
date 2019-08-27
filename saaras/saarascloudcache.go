@@ -69,14 +69,14 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 		}
 	}
 
-	for cache_ir_id, _ := range sac.ir {
+	for cache_ir_id, cached_ir := range sac.ir {
 		if len(cache_ir_id) > 0 {
-			if cached_ir2, ok := (*saaras_ir_cloud_map)[cache_ir_id]; !ok {
+			if _, ok := (*saaras_ir_cloud_map)[cache_ir_id]; !ok {
 				log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - removed from cloud - OnDelete()\n",
 					cache_ir_id, sac.ir[cache_ir_id].Spec.VirtualHost.Fqdn)
 				// Not found on cloud, remove
+				reh.OnDelete(cached_ir)
 				delete(sac.ir, cache_ir_id)
-				reh.OnDelete(cached_ir2)
 			}
 		}
 	}
@@ -111,8 +111,8 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 		if len(cache_svc_id) > 0 {
 			if _, ok := (*v1b1_service_map)[cache_svc_id]; !ok {
 				log.Infof("update__v1b1_service__cache() - SVC [%s] removed from cloud- OnDelete()\n", cache_svc_id)
-				delete(sac.svc, cache_svc_id)
 				reh.OnDelete(cache_svc_id)
+				delete(sac.svc, cache_svc_id)
 			}
 		}
 	}
@@ -218,8 +218,8 @@ func (sac *SaarasCloudCache) update__v1b1__endpoint_cache(v1b1_endpoint_map *map
 		if len(cache_ep_id) > 0 {
 			if _, ok := (*v1b1_endpoint_map)[cache_ep_id]; !ok {
 				log.Infof("update__v1b1_endpoint__cache() - EP [%s] removed from cloud- OnDelete()\n", cache_ep_id)
-				delete(sac.ep, cache_ep_id)
 				et.OnDelete(cache_ep)
+				delete(sac.ep, cache_ep_id)
 			}
 		}
 	}

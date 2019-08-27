@@ -31,6 +31,19 @@ var QPatchService = `
 	}
 `
 
+var QGetService = `
+query get_proxy_service {
+  saaras_db_service {
+    service_id
+    service_name
+    fqdn
+    create_ts
+    update_ts
+  }
+}
+
+`
+
 func PATCH_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -46,7 +59,7 @@ func PATCH_Service(c echo.Context) error {
 
 	service_name := c.Param("service_name")
 
-  if len(s.Fqdn) == 0 {
+	if len(s.Fqdn) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide fqdn using Fqdn field")
 	}
 
@@ -69,43 +82,14 @@ func GET_Service(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetProxy, &buf, args, log); err != nil {
+	if err := saaras.FetchConfig2(url, QGetService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
-}
-
-func DELETE_Service(c echo.Context) error {
-	var buf bytes.Buffer
-	var args map[string]string
-	args = make(map[string]string)
-
-	log2 := logrus.StandardLogger()
-	log := log2.WithField("context", "web-http")
-
-	p := new(Proxy)
-	if err := c.Bind(p); err != nil {
-		return err
-	}
-
-  if len(p.Name) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
-	}
-
-	args["proxy_name"] = p.Name
-
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QDeleteProxy, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-	}
-
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
-
 }
 
 func Add_endpoint_service(e *echo.Echo) {
-	//e.GET("/service", GET_Service)
+	e.GET("/service", GET_Service)
 	e.PATCH("/service/:service_name", PATCH_Service)
-	//e.DELETE("/service", DELETE_Service)
 }
