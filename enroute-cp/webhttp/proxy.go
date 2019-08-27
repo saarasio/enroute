@@ -18,6 +18,11 @@ type Service struct {
 	Fqdn string `json:"fqdn" xml:"fqdn" form:"fqdn" query:"fqdn"`
 }
 
+type Route struct {
+	Name   string `json:"name" xml:"name" form:"name" query:"name"`
+	Prefix string `json:"prefix" xml:"prefix" form:"prefix" query:"prefix"`
+}
+
 var QCreateProxy string = `
     mutation create_proxy($proxy_name : String!){
       insert_saaras_db_proxy(objects: {proxy_name: $proxy_name},
