@@ -484,7 +484,7 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus
 
 	for _, oneSaarasIRService := range *s {
 		onev1b1ir := saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
-		spew.Dump(onev1b1ir)
+		//spew.Dump(onev1b1ir)
 		m[strconv.FormatInt(oneSaarasIRService.Service.Service_id, 10)] = onev1b1ir
 	}
 
