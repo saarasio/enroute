@@ -186,6 +186,8 @@ func POST_Upstream(c echo.Context) error {
 	args["upstream_ip"] = u.Upstream_ip
 	args["upstream_port"] = u.Upstream_port
 
+  // TODO: Should we make health check path mandatory? Without the path, the health checker is
+  // is not programmed and it is not getting programmed on envoy through CDS/EDS
 	if len(u.Upstream_hc_path) > 0 {
 		args["upstream_hc_path"] = u.Upstream_hc_path
 	}
