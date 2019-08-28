@@ -61,6 +61,16 @@ query get_services_by_proxy($proxy_name: String!) {
             upstream_name
             upstream_ip
             upstream_port
+            upstream_weight
+            upstream_hc_path
+            upstream_hc_host
+            upstream_hc_intervalseconds
+            upstream_hc_timeoutseconds
+            upstream_hc_unhealthythresholdcount
+            upstream_hc_healthythresholdcount
+            upstream_strategy
+            upstream_validation_cacertificate
+            upstream_validation_subjectname
             create_ts
             update_ts
           }
@@ -279,11 +289,21 @@ type DataPayloadSaarasApp struct {
 }
 
 type SaarasUpstream struct {
-	Upstream_name string
-	Upstream_ip   string
-	Upstream_port int32
-	Create_ts     string
-	Update_ts     string
+	Upstream_name                       string
+	Upstream_ip                         string
+	Upstream_port                       int32
+	Upstream_weight                     int32
+	Upstream_hc_path                    string
+	Upstream_hc_host                    string
+	Upstream_hc_intervalseconds         int64
+	Upstream_hc_timeoutseconds          int64
+	Upstream_hc_unhealthythresholdcount uint32
+	Upstream_hc_healthythresholdcount   uint32
+	Upstream_strategy                   string
+	Upstream_validation_cacertificate   string
+	Upstream_validation_subjectname     string
+	Create_ts                           string
+	Update_ts                           string
 }
 
 type SaarasMicroService2 struct {
@@ -342,13 +362,76 @@ type DataPayloadSaarasApp2 struct {
 
 ////////////// IngressRoute //////////////////////////////////////////////
 
+func upstream_hc(oneService *SaarasMicroService2) *v1beta1.HealthCheck {
+	hc := v1beta1.HealthCheck{}
+	if len(oneService.Upstream.Upstream_hc_path) > 0 {
+		hc.Path = oneService.Upstream.Upstream_hc_path
+	}
+
+	if len(oneService.Upstream.Upstream_hc_host) > 0 {
+		hc.Host = oneService.Upstream.Upstream_hc_host
+	}
+
+	if oneService.Upstream.Upstream_hc_intervalseconds > 0 {
+		hc.IntervalSeconds = oneService.Upstream.Upstream_hc_intervalseconds
+	}
+
+	if oneService.Upstream.Upstream_hc_timeoutseconds > 0 {
+		hc.TimeoutSeconds = oneService.Upstream.Upstream_hc_timeoutseconds
+	}
+
+	if oneService.Upstream.Upstream_hc_unhealthythresholdcount > 0 {
+		hc.UnhealthyThresholdCount = oneService.Upstream.Upstream_hc_unhealthythresholdcount
+	}
+
+	if oneService.Upstream.Upstream_hc_healthythresholdcount > 0 {
+		hc.HealthyThresholdCount = oneService.Upstream.Upstream_hc_healthythresholdcount
+	}
+
+	return &hc
+}
+
+func need_hc(oneService *SaarasMicroService2) bool {
+
+	if len(oneService.Upstream.Upstream_hc_path) > 0 ||
+		len(oneService.Upstream.Upstream_hc_host) > 0 ||
+		oneService.Upstream.Upstream_hc_intervalseconds > 0 ||
+		oneService.Upstream.Upstream_hc_timeoutseconds > 0 ||
+		oneService.Upstream.Upstream_hc_unhealthythresholdcount > 0 ||
+		oneService.Upstream.Upstream_hc_healthythresholdcount > 0 {
+
+		return true
+	}
+
+	return false
+}
+
+func upstream_service(oneService *SaarasMicroService2) v1beta1.Service {
+
+	s := v1beta1.Service{
+		Name: serviceName2(oneService.Upstream.Upstream_name),
+		Port: int(oneService.Upstream.Upstream_port),
+	}
+
+	if oneService.Upstream.Upstream_weight > 0 {
+		s.Weight = int(oneService.Upstream.Upstream_weight)
+	}
+
+	if need_hc(oneService) {
+		s.HealthCheck = upstream_hc(oneService)
+	}
+
+	return s
+}
+
 func saaras_route_to_v1b1_service_slice2(sir *SaarasIngressRouteService, r SaarasRoute2) []v1beta1.Service {
 	services := make([]v1beta1.Service, 0)
 	for _, oneService := range r.Route_upstreams {
 		s := v1beta1.Service{
-			Name:   serviceName2(oneService.Upstream.Upstream_name),
-			Port:   int(oneService.Upstream.Upstream_port),
-			Weight: 100,
+			Name:        serviceName2(oneService.Upstream.Upstream_name),
+			Port:        int(oneService.Upstream.Upstream_port),
+			Weight:      int(oneService.Upstream.Upstream_weight),
+			HealthCheck: upstream_hc(&oneService),
 		}
 		services = append(services, s)
 	}

@@ -14,19 +14,21 @@ type Proxy struct {
 }
 
 type Service struct {
-	Name string `json:"name" xml:"name" form:"name" query:"name"`
-	Fqdn string `json:"fqdn" xml:"fqdn" form:"fqdn" query:"fqdn"`
+	Service_name string `json:"service_name" xml:"service_name" form:"service_name" query:"service_name"`
+	Fqdn         string `json:"fqdn" xml:"fqdn" form:"fqdn" query:"fqdn"`
 }
 
 type Route struct {
-	Name   string `json:"name" xml:"name" form:"name" query:"name"`
-	Prefix string `json:"prefix" xml:"prefix" form:"prefix" query:"prefix"`
+	Route_name   string `json:"route_name" xml:"route_name" form:"route_name" query:"route_name"`
+	Route_prefix string `json:"route_prefix" xml:"route_prefix" form:"route_prefix" query:"route_prefix"`
 }
 
 type Upstream struct {
-	Name string `json:"name" xml:"name" form:"name" query:"name"`
-	Ip   string `json:"ip" xml:"ip" form:"ip" query:"ip"`
-	Port string `json:"port" xml:"port" form:"port" query:"port"`
+	Upstream_name    string `json:"upstream_name" xml:"upstream_name" form:"upstream_name" query:"upstream_name"`
+	Upstream_ip      string `json:"upstream_ip" xml:"upstream_ip" form:"upstream_ip" query:"upstream_ip"`
+	Upstream_port    string `json:"upstream_port" xml:"upstream_port" form:"upstream_port" query:"upstream_port"`
+	Upstream_hc_path string `json:"upstream_hc_path" xml:"upstream_hc_path" form:"upstream_hc_path" query:"upstream_hc_path"`
+	Upstream_hc_host string `json:"upstream_hc_host" xml:"upstream_hc_host" form:"upstream_hc_host" query:"upstream_hc_host"`
 }
 
 var QCreateProxy string = `
@@ -230,7 +232,7 @@ func POST_Proxy_Service(c echo.Context) error {
 		return err
 	}
 
-	if len(s.Name) == 0 {
+	if len(s.Service_name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
 	}
 
@@ -244,7 +246,7 @@ func POST_Proxy_Service(c echo.Context) error {
 
 	args["proxy_name"] = proxy_name
 	args["fqdn"] = s.Fqdn
-	args["service_name"] = s.Name
+	args["service_name"] = s.Service_name
 
 	if err := saaras.FetchConfig2(url, QCreateProxyService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
@@ -327,7 +329,7 @@ func DELETE_Proxy_Service(c echo.Context) error {
 		return err
 	}
 
-	if len(s.Name) == 0 {
+	if len(s.Service_name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
 	}
 
@@ -336,7 +338,7 @@ func DELETE_Proxy_Service(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
 	args["proxy_name"] = proxy_name
-	args["service_name"] = s.Name
+	args["service_name"] = s.Service_name
 
 	if err := saaras.FetchConfig2(url, QDeleteProxyService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)

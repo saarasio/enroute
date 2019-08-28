@@ -154,10 +154,21 @@ query get_upstream($service_name: String!, $route_name: String!) {
       route_name
       route_upstreams {
         upstream {
-          upstream_id
-          upstream_name
-          upstream_ip
-          upstream_port
+    			upstream_id
+    			upstream_name
+    			upstream_ip
+    			upstream_port
+    			upstream_hc_path
+    			upstream_hc_host
+    			upstream_hc_intervalseconds
+    			upstream_hc_timeoutseconds
+    			upstream_hc_unhealthythresholdcount
+    			upstream_hc_healthythresholdcount
+    			upstream_strategy
+    			upstream_validation_cacertificate
+    			upstream_validation_subjectname
+    			create_ts
+    			update_ts
         }
       }
     }
@@ -263,7 +274,7 @@ func POST_Service(c echo.Context) error {
 		return err
 	}
 
-	if len(s.Name) == 0 {
+	if len(s.Service_name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide service name using Name field")
 	}
 
@@ -271,7 +282,7 @@ func POST_Service(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Please provide fqdn using Fqdn field")
 	}
 
-	args["service_name"] = s.Name
+	args["service_name"] = s.Service_name
 	args["fqdn"] = s.Fqdn
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
@@ -349,16 +360,16 @@ func POST_Service_Route(c echo.Context) error {
 	service_name := c.Param("service_name")
 	args["service_name"] = service_name
 
-	if len(r.Name) == 0 {
+	if len(r.Route_name) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide route name using Name field")
 	}
 
-	if len(r.Prefix) == 0 {
+	if len(r.Route_prefix) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide route prefix using Prefix field")
 	}
 
-	args["route_name"] = r.Name
-	args["route_prefix"] = r.Prefix
+	args["route_name"] = r.Route_name
+	args["route_prefix"] = r.Route_prefix
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
@@ -486,11 +497,6 @@ func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
-
-	u := new(Upstream)
-	if err := c.Bind(u); err != nil {
-		return err
-	}
 
 	service_name := c.Param("service_name")
 	route_name := c.Param("route_name")
