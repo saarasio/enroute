@@ -7,7 +7,8 @@ import (
 
 func main() {
 	e := echo.New()
-	webhttp.Add_endpoint_proxy(e)
-	webhttp.Add_endpoint_service(e)
+	webhttp.Add_proxy_routes(e)
+	webhttp.Add_service_routes(e)
+	webhttp.Add_upstream_routes(e)
 	e.Logger.Fatal(e.Start(":1323"))
 }

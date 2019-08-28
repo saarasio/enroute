@@ -23,6 +23,12 @@ type Route struct {
 	Prefix string `json:"prefix" xml:"prefix" form:"prefix" query:"prefix"`
 }
 
+type Upstream struct {
+	Name string `json:"name" xml:"name" form:"name" query:"name"`
+	Ip   string `json:"ip" xml:"ip" form:"ip" query:"ip"`
+	Port string `json:"port" xml:"port" form:"port" query:"port"`
+}
+
 var QCreateProxy string = `
     mutation create_proxy($proxy_name : String!){
       insert_saaras_db_proxy(objects: {proxy_name: $proxy_name},
@@ -404,15 +410,19 @@ func GET_Proxy_Service_Association(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-func Add_endpoint_proxy(e *echo.Echo) {
+func Add_proxy_routes(e *echo.Echo) {
+	// Proxy CRUD
 	e.GET("/proxy", GET_Proxy)
 	e.POST("/proxy", POST_Proxy)
 	e.DELETE("/proxy", DELETE_Proxy)
 
-	e.POST("/proxy/:proxy_name/service", POST_Proxy_Service)
+	// Proxy to Service association with implied service CRUD
+	// Only the GET makes sense here?
+	// e.POST("/proxy/:proxy_name/service", POST_Proxy_Service)
 	e.GET("/proxy/:proxy_name/service", GET_Proxy_Service)
-	e.DELETE("/proxy/:proxy_name/service", DELETE_Proxy_Service)
+	// e.DELETE("/proxy/:proxy_name/service", DELETE_Proxy_Service)
 
+	// Proxy to Service association
 	e.POST("/proxy/:proxy_name/service/:service_name", POST_Proxy_Service_Association)
 	e.GET("/proxy/:proxy_name/service/:service_name", GET_Proxy_Service_Association)
 	e.DELETE("/proxy/:proxy_name/service/:service_name", DELETE_Proxy_Service_Association)
