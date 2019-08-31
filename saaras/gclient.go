@@ -79,7 +79,7 @@ func NewClient(endpoint string, opts ...ClientOption) *Client {
 
 func (c *Client) logf(format string, args ...interface{}) {
 	//TODO
-	c.Log(fmt.Sprintf(format, args...))
+	// c.Log(fmt.Sprintf(format, args...))
 }
 
 func (c *Client) runWithPostFields(ctx context.Context, req *Request, gr *bytes.Buffer) error {

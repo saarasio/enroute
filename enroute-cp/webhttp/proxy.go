@@ -31,6 +31,13 @@ type Upstream struct {
 	Upstream_hc_host string `json:"upstream_hc_host" xml:"upstream_hc_host" form:"upstream_hc_host" query:"upstream_hc_host"`
 }
 
+type Secret struct {
+	Secret_name string `json:"secret_name" xml:"secret_name" form:"secret_name" query:"secret_name"`
+	Secret_key  string `json:"secret_key" xml:"secret_key" form:"secret_key" query:"secret_key"`
+	Secret_cert string `json:"secret_cert" xml:"secret_cert" form:"secret_cert" query:"secret_cert"`
+	Secret_sni  string `json:"secret_sni" xml:"secret_sni" form:"secret_sni" query:"secret_sni"`
+}
+
 var QCreateProxy string = `
     mutation create_proxy($proxy_name : String!){
       insert_saaras_db_proxy(objects: {proxy_name: $proxy_name},
@@ -251,7 +258,7 @@ func POST_Proxy_Service(c echo.Context) error {
 	if err := saaras.FetchConfig2(url, QCreateProxyService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
 func GET_Proxy(c echo.Context) error {
@@ -365,7 +372,7 @@ func POST_Proxy_Service_Association(c echo.Context) error {
 	if err := saaras.FetchConfig2(url, QCreateProxyServiceAssociation, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
 func DELETE_Proxy_Service_Association(c echo.Context) error {

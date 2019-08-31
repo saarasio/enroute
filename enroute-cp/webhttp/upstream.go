@@ -186,8 +186,8 @@ func POST_Upstream(c echo.Context) error {
 	args["upstream_ip"] = u.Upstream_ip
 	args["upstream_port"] = u.Upstream_port
 
-  // TODO: Should we make health check path mandatory? Without the path, the health checker is
-  // is not programmed and it is not getting programmed on envoy through CDS/EDS
+	// TODO: Should we make health check path mandatory? Without the path, the health checker is
+	// is not programmed and it is not getting programmed on envoy through CDS/EDS
 	if len(u.Upstream_hc_path) > 0 {
 		args["upstream_hc_path"] = u.Upstream_hc_path
 	}
@@ -220,7 +220,7 @@ func GET_One_Upstream(c echo.Context) error {
 	if err := saaras.FetchConfig2(url, QOneUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
 func GET_Upstream(c echo.Context) error {

@@ -25,7 +25,8 @@ func FetchConfig(query string, buf *bytes.Buffer, args map[string]string, log lo
 		log.Errorf("Error when running http request [%v]\n", err)
 		return err
 	} else {
-		log.Debugf("Received buf [%s]\n", buf.String())
+		// TODO: Fix logging
+		//log.Debugf("Received buf [%s]\n", buf.String())
 		return nil
 	}
 }

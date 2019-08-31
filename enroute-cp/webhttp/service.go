@@ -176,6 +176,52 @@ query get_upstream($service_name: String!, $route_name: String!) {
 }
 `
 
+var QGetServiceSecret = `
+query get_upstream($service_name: String!) {
+  saaras_db_secret(where: {service_secrets: {service: {service_name: {_eq: $service_name}}}}) {
+    secret_id
+    secret_name
+    artifacts {
+      artifact_id
+      artifact_name
+      artifact_type
+      artifact_value
+    }
+  }
+}
+`
+
+var QAssociateServiceSecret = `
+mutation insert_service_secret($service_name: String!, $secret_name: String!) {
+  insert_saaras_db_service_secret(
+    objects: {
+      service: {data: {service_name: $service_name}, 
+        on_conflict: {constraint: service_service_name_key, update_columns: update_ts}}, 
+      secret: {data: {secret_name: $secret_name}, 
+        on_conflict: {constraint: secret_secret_name_key, update_columns: update_ts}}
+    }, on_conflict: {constraint: service_secret_service_id_secret_id_key, update_columns: update_ts}) {
+    affected_rows
+  }
+}
+`
+
+var QDisassociateServiceSecret = `
+mutation delete_service_secret($service_name: String!, $secret_name: String!) {
+  delete_saaras_db_service_secret(
+    where: 
+    {
+      _and: 
+      {
+        secret: {secret_name: {_eq: $secret_name}}, 
+        service: {service_name: {_eq: $service_name}}
+      }
+    }
+  ) {
+    affected_rows
+  }
+}
+`
+
 var QAssociateRouteUpstream = `
 mutation insert_route_upstream(
   $service_name: String!, 
@@ -289,7 +335,7 @@ func POST_Service(c echo.Context) error {
 	if err := saaras.FetchConfig2(url, QCreateService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
 func GET_Service(c echo.Context) error {
@@ -376,7 +422,7 @@ func POST_Service_Route(c echo.Context) error {
 	if err := saaras.FetchConfig2(url, QPostServiceRoute, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
 func GET_Service_Route(c echo.Context) error {
@@ -465,7 +511,7 @@ func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 	if err := saaras.FetchConfig2(url, QAssociateRouteUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
 func GET_Service_Route_Upstream(c echo.Context) error {
@@ -514,6 +560,70 @@ func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+func GET_Service_Secret(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name := c.Param("service_name")
+
+	args["service_name"] = service_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	if err := saaras.FetchConfig2(url, QGetServiceSecret, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func POST_Service_Secret(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name := c.Param("service_name")
+	secret_name := c.Param("secret_name")
+
+	args["service_name"] = service_name
+	args["secret_name"] = secret_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	if err := saaras.FetchConfig2(url, QAssociateServiceSecret, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
+}
+
+func DELETE_Service_Secret(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name := c.Param("service_name")
+	secret_name := c.Param("secret_name")
+
+	args["service_name"] = service_name
+	args["secret_name"] = secret_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	if err := saaras.FetchConfig2(url, QDisassociateServiceSecret, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
 func Add_service_routes(e *echo.Echo) {
 
 	// Service CRUD
@@ -538,4 +648,9 @@ func Add_service_routes(e *echo.Echo) {
 	e.GET("/service/:service_name/route/:route_name/upstream", GET_Service_Route_Upstream)
 	e.POST("/service/:service_name/route/:route_name/upstream/:upstream_name", POST_Service_Route_Upstream_Associate)
 	e.DELETE("/service/:service_name/route/:route_name/upstream/:upstream_name", DELETE_Service_Route_Upstream_Associate)
+
+	// Service to Secret associations
+	e.GET("/service/:service_name/secret", GET_Service_Secret)
+	e.POST("/service/:service_name/secret/:secret_name", POST_Service_Secret)
+	e.DELETE("/service/:service_name/secret/:secret_name", DELETE_Service_Secret)
 }

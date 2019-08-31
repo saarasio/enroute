@@ -2,7 +2,7 @@ package saaras
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
+	_ "github.com/davecgh/go-spew/spew"
 	"github.com/saarasio/enroute/apis/contour/v1beta1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
@@ -12,35 +12,6 @@ import (
 	"sort"
 	"strconv"
 )
-
-const QIngressRoute2 string = `
-  query get_services_by_proxy($proxy_name: String!) {
-    saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
-      service {
-        service_id
-        service_name
-        fqdn
-        create_ts
-        update_ts
-        routes {
-          route_name
-          route_prefix
-          create_ts
-          update_ts
-          route_upstreams {
-            upstream {
-              upstream_name
-              upstream_ip
-              upstream_port
-              create_ts
-              update_ts
-            }
-          }
-        }
-      }
-    }
-  }
-`
 
 const QIngressRoute3 string = `
 query get_services_by_proxy($proxy_name: String!) {
@@ -80,6 +51,9 @@ query get_services_by_proxy($proxy_name: String!) {
         secret {
           secret_id
           secret_name
+          secret_key
+          secret_sni
+          secret_cert
           create_ts
           update_ts
           artifacts {
@@ -328,6 +302,9 @@ type SaarasArtifact struct {
 type SaarasSecret struct {
 	Secret_id   int64
 	Secret_name string
+	Secret_key  string
+	Secret_cert string
+	Secret_sni  string
 	Artifacts   []SaarasArtifact
 	Create_ts   string
 	Update_ts   string

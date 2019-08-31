@@ -373,19 +373,24 @@ func v1_secret(saaras_secret *SaarasSecret) *v1.Secret {
 
 	//TODO: This needs to be captured in the DB
 	v1secret.Type = v1.SecretTypeTLS
-
-	for _, artifact := range saaras_secret.Artifacts {
-		if artifact.Artifact_type == v1.TLSCertKey {
-			if v1secret.Data == nil {
-				v1secret.Data = make(map[string][]byte, 0)
-			}
-			v1secret.Data[v1.TLSCertKey] = []byte(artifact.Artifact_value)
-		}
-
-		if artifact.Artifact_type == v1.TLSPrivateKeyKey {
-			v1secret.Data[v1.TLSPrivateKeyKey] = []byte(artifact.Artifact_value)
-		}
+	if v1secret.Data == nil {
+		v1secret.Data = make(map[string][]byte, 0)
 	}
+	v1secret.Data[v1.TLSCertKey] = []byte(saaras_secret.Secret_cert)
+	v1secret.Data[v1.TLSPrivateKeyKey] = []byte(saaras_secret.Secret_key)
+
+	//	for _, artifact := range saaras_secret.Artifacts {
+	//		if artifact.Artifact_type == v1.TLSCertKey {
+	//			if v1secret.Data == nil {
+	//				v1secret.Data = make(map[string][]byte, 0)
+	//			}
+	//			v1secret.Data[v1.TLSCertKey] = []byte(artifact.Artifact_value)
+	//		}
+	//
+	//		if artifact.Artifact_type == v1.TLSPrivateKeyKey {
+	//			v1secret.Data[v1.TLSPrivateKeyKey] = []byte(artifact.Artifact_value)
+	//		}
+	//	}
 
 	return &v1secret
 }
@@ -409,7 +414,7 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 	defer sac.mu.Unlock()
 	switch obj := obj.(type) {
 	case []SaarasIngressRouteService:
-		fmt.Printf("-- SaarasCloudCache.OnFetch() --\n")
+		log.Infof("-- SaarasCloudCache.OnFetch() --\n")
 		v1b1_ir_map := saaras_ir_slice__to__v1b1_ir_map(&obj, log)
 		sac.update__v1b1_ir__cache(v1b1_ir_map, reh, log)
 		//spew.Dump(v1b1_ir_map)
@@ -459,7 +464,7 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	sdb_spew_dump := bytes.NewBufferString(`Saaras_db_proxy_service`)
 	//spew.Fdump(sdb_spew_dump, gr.Data.Saaras_db_application)
 	spew.Fdump(sdb_spew_dump, gr)
-	log.Debugf("-> %s", sdb_spew_dump.String())
+	//log.Debugf("-> %s", sdb_spew_dump.String())
 	scc.OnFetch(gr.Data.Saaras_db_proxy_service, reh, et, log)
 
 	//// Fetch ProxyGroup
