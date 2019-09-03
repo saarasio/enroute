@@ -122,7 +122,10 @@ CREATE TABLE saaras_db.secret (
     secret_name character varying NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
     update_ts timestamp with time zone DEFAULT now() NOT NULL,
-    delete_flag boolean DEFAULT false NOT NULL
+    delete_flag boolean DEFAULT false NOT NULL,
+    secret_key character varying,
+    secret_cert character varying,
+    secret_sni character varying
 );
 CREATE SEQUENCE saaras_db.secret_secret_id_seq
     START WITH 1
@@ -182,11 +185,21 @@ CREATE TABLE saaras_db.service_temp (
 CREATE TABLE saaras_db.upstream (
     upstream_id bigint NOT NULL,
     upstream_name character varying NOT NULL,
-    upstream_ip character varying NOT NULL,
-    upstream_port integer NOT NULL,
+    upstream_ip character varying,
+    upstream_port integer,
     create_ts timestamp with time zone DEFAULT now(),
     update_ts timestamp with time zone DEFAULT now(),
-    delete_flag boolean DEFAULT false
+    delete_flag boolean DEFAULT false,
+    upstream_weight integer DEFAULT 100,
+    upstream_hc_path character varying,
+    upstream_hc_host character varying,
+    upstream_hc_intervalseconds bigint,
+    upstream_hc_unhealthythresholdcount integer,
+    upstream_hc_healthythresholdcount integer,
+    upstream_strategy character varying,
+    upstream_validation_cacertificate character varying,
+    upstream_validation_subjectname character varying,
+    upstream_hc_timeoutseconds bigint
 );
 CREATE SEQUENCE saaras_db.upstream_upstream_id_seq
     START WITH 1
@@ -229,9 +242,9 @@ ALTER TABLE ONLY saaras_db.proxy_service
 ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_pkey PRIMARY KEY (route_id);
 ALTER TABLE ONLY saaras_db.route
-    ADD CONSTRAINT route_prefix_key UNIQUE (route_prefix);
+    ADD CONSTRAINT route_service_id_route_name_key UNIQUE (service_id, route_name);
 ALTER TABLE ONLY saaras_db.route
-    ADD CONSTRAINT route_route_name_key UNIQUE (route_name);
+    ADD CONSTRAINT route_service_id_route_prefix_key UNIQUE (service_id, route_prefix);
 ALTER TABLE ONLY saaras_db.route_temp
     ADD CONSTRAINT route_temp_pkey PRIMARY KEY (route_name);
 ALTER TABLE ONLY saaras_db.route_upstream
@@ -246,6 +259,8 @@ ALTER TABLE ONLY saaras_db.service
     ADD CONSTRAINT service_pkey PRIMARY KEY (service_id);
 ALTER TABLE ONLY saaras_db.service_secret
     ADD CONSTRAINT service_secret_pkey PRIMARY KEY (service_secret_id);
+ALTER TABLE ONLY saaras_db.service_secret
+    ADD CONSTRAINT service_secret_service_id_secret_id_key UNIQUE (service_id, secret_id);
 ALTER TABLE ONLY saaras_db.service
     ADD CONSTRAINT service_service_name_key UNIQUE (service_name);
 ALTER TABLE ONLY saaras_db.service_temp
