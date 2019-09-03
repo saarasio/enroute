@@ -454,6 +454,9 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	// Fetch Application
 	if err := FetchConfig(QIngressRoute3, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
+		// If we failed reaching the route, an empty IngressRoute is received.
+		// Bail here or it'll clear the cache
+		return
 	}
 
 	var gr DataPayloadSaarasApp2
