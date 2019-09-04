@@ -1,5 +1,4 @@
 version: '3.6'
-#sudo docker run -p 8081:8080 -v /home/ubuntu/enroute/enroute-cp:/hasura-migrations -e HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:@postgres:5432/postgres hasura/graphql-engine:v1.0.0-beta.4.cli-migrations
 services:
   postgres:
     image: postgres
@@ -7,7 +6,7 @@ services:
     volumes:
     - db_data:/var/lib/postgresql/data
   graphql-engine:
-    image: hasura/graphql-engine:v1.0.0-beta.4.cli-migrations
+    image: hasura/graphql-engine:v1.0.0-beta.6.cli-migrations
     volumes:
     - ./:/hasura-migrations
     ports:
