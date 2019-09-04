@@ -1,5 +1,6 @@
 #FROM golang:1.12.7 AS build
-FROM envoyproxy/envoy:latest
+#FROM envoyproxy/envoy:latest
+FROM envoyproxy/envoy:v1.11.1
 RUN apt-get update
 #CMD /usr/local/bin/envoy -c /etc/envoy.yaml
 

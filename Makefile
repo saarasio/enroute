@@ -1,6 +1,7 @@
-PROJECT = enroute-dp
+PROJECT = enroute
 # REGISTRY ?= gcr.io/heptio-images
-REGISTRY ?= 424368873890.dkr.ecr.us-west-2.amazonaws.com
+# REGISTRY ?= 424368873890.dkr.ecr.us-west-2.amazonaws.com
+REGISTRY ?= saarasio
 IMAGE := $(REGISTRY)/$(PROJECT)
 SRCDIRS := ./cmd ./internal ./apis
 PKGS := $(shell GO111MODULE=on go list -mod=readonly ./cmd/... ./internal/...)
@@ -43,6 +44,7 @@ download:
 
 container:
 	docker build . -t $(IMAGE):$(VERSION)
+	docker build . -t $(IMAGE):latest
 
 push: container
 	docker push $(IMAGE):$(VERSION)
