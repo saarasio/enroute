@@ -291,7 +291,7 @@ func PATCH_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-func create_service_helper(s *Service, log *logrus.Entry) (int, string) {
+func db_insert_service(s *Service, log *logrus.Entry) (int, string) {
 
 	var QCreateService = `
 mutation insert_service($fqdn: String!, $service_name: String!) {
@@ -342,7 +342,7 @@ func POST_Service(c echo.Context) error {
 		return err
 	}
 
-	code, buf := create_service_helper(s, log)
+	code, buf := db_insert_service(s, log)
 	return c.JSONBlob(code, []byte(buf))
 }
 
