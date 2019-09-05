@@ -30,8 +30,8 @@ mutation insert_upstream(
 	$upstream_name: String!, 
 	$upstream_ip: String!, 
 	$upstream_port: Int!,
-	$upstream_hc_path: String,
-	$upstream_hc_host: String
+	$upstream_hc_path: String!,
+	$upstream_hc_host: String!
 ) {
   insert_saaras_db_upstream(
     objects: {
