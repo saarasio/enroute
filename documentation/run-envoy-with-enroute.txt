@@ -1,0 +1,1 @@
+sudo docker run -e ENROUTE_NAME=test2 -e ENROUTE_CP_IP=127.0.0.1 -e ENROUTE_CP_PORT=8081 -p 8082:8081 saarasio/enroute
