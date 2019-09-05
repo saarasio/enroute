@@ -197,6 +197,116 @@ var QCreateProxyServiceAssociation = `
       }
 `
 
+var QGetAllProxyDetail = `
+query get_proxy_detail {
+  saaras_db_proxy {
+    proxy_id
+    proxy_name
+    create_ts
+    update_ts
+    proxy_services {
+      service {
+        service_id
+        service_name
+        fqdn
+        create_ts
+        update_ts
+        service_secrets {
+          secret {
+            secret_id
+            secret_name
+            secret_key
+            secret_cert
+            create_ts
+            update_ts
+          }
+        }
+        routes {
+          route_id
+          route_name
+          route_prefix
+          create_ts
+          update_ts
+          route_upstreams {
+            upstream {
+              upstream_id
+              upstream_name
+              upstream_ip
+              upstream_port
+              upstream_hc_healthythresholdcount
+              upstream_hc_host
+              upstream_hc_intervalseconds
+              upstream_hc_path
+              upstream_hc_timeoutseconds
+              upstream_hc_unhealthythresholdcount
+              upstream_strategy
+              upstream_validation_cacertificate
+              upstream_validation_subjectname
+              upstream_weight
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`
+
+var QGetOneProxyDetail = `
+query get_one_proxy_detail($proxy_name:String!) {
+  saaras_db_proxy(where: {proxy_name: {_eq: $proxy_name}}) {
+    proxy_id
+    proxy_name
+    create_ts
+    update_ts
+    proxy_services {
+      service {
+        service_id
+        service_name
+        fqdn
+        create_ts
+        update_ts
+        service_secrets {
+          secret {
+            secret_id
+            secret_name
+            secret_key
+            secret_cert
+            create_ts
+            update_ts
+          }
+        }
+        routes {
+          route_id
+          route_name
+          route_prefix
+          create_ts
+          update_ts
+          route_upstreams {
+            upstream {
+              upstream_id
+              upstream_name
+              upstream_ip
+              upstream_port
+              upstream_hc_healthythresholdcount
+              upstream_hc_host
+              upstream_hc_intervalseconds
+              upstream_hc_path
+              upstream_hc_timeoutseconds
+              upstream_hc_unhealthythresholdcount
+              upstream_strategy
+              upstream_validation_cacertificate
+              upstream_validation_subjectname
+              upstream_weight
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`
+
 var HOST string = `localhost`
 var PORT string = `8081`
 
@@ -271,6 +381,41 @@ func GET_Proxy(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	if err := saaras.FetchConfig2(url, QGetProxy, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func GET_Proxy_Detail(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.FetchConfig2(url, QGetAllProxyDetail, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func GET_One_Proxy_Detail(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	proxy_name := c.Param("proxy_name")
+	args["proxy_name"] = proxy_name
+
+	if err := saaras.FetchConfig2(url, QGetOneProxyDetail, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -435,4 +580,8 @@ func Add_proxy_routes(e *echo.Echo) {
 	e.POST("/proxy/:proxy_name/service/:service_name", POST_Proxy_Service_Association)
 	e.GET("/proxy/:proxy_name/service/:service_name", GET_Proxy_Service_Association)
 	e.DELETE("/proxy/:proxy_name/service/:service_name", DELETE_Proxy_Service_Association)
+
+	// Support for verbs
+	e.GET("/proxy/dump", GET_Proxy_Detail)
+	e.GET("/proxy/dump/:proxy_name", GET_One_Proxy_Detail)
 }
