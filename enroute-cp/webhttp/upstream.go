@@ -141,7 +141,7 @@ func PATCH_Upstream(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QPatchUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QPatchUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -202,7 +202,7 @@ func POST_Upstream(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QCreateUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QCreateUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -221,7 +221,7 @@ func GET_One_Upstream(c echo.Context) error {
 	args["upstream_name"] = upstream_name
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QOneUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QOneUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -236,7 +236,7 @@ func GET_Upstream(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -254,7 +254,7 @@ func DELETE_Upstream(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	upstream_name := c.Param("upstream_name")
 	args["upstream_name"] = upstream_name
-	if err := saaras.FetchConfig2(url, QDeleteUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -272,7 +272,7 @@ func GET_Upstream_Routes(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	upstream_name := c.Param("upstream_name")
 	args["upstream_name"] = upstream_name
-	if err := saaras.FetchConfig2(url, QUpstreamRoutes, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QUpstreamRoutes, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 

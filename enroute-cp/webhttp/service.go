@@ -285,7 +285,7 @@ func PATCH_Service(c echo.Context) error {
 	args["fqdn"] = s.Fqdn
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QPatchService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QPatchService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -325,7 +325,7 @@ mutation insert_service($fqdn: String!, $service_name: String!) {
 	args["service_name"] = s.Service_name
 	args["fqdn"] = s.Fqdn
 
-	if err := saaras.FetchConfig2(url, QCreateService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QCreateService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -355,7 +355,7 @@ func GET_Service(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -373,7 +373,7 @@ func DELETE_Service(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	service_name := c.Param("service_name")
 	args["service_name"] = service_name
-	if err := saaras.FetchConfig2(url, QDeleteService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -391,7 +391,7 @@ func GET_Service_Proxy(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	service_name := c.Param("service_name")
 	args["service_name"] = service_name
-	if err := saaras.FetchConfig2(url, QServiceProxy, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QServiceProxy, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -427,7 +427,7 @@ func POST_Service_Route(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QPostServiceRoute, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QPostServiceRoute, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -446,7 +446,7 @@ func GET_Service_Route(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QServiceRoutes, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QServiceRoutes, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -469,7 +469,7 @@ func GET_Service_Route_OneRoute(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QServiceRouteOneRoute, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QServiceRouteOneRoute, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -492,7 +492,7 @@ func DELETE_Service_Route_OneRoute(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QDeleteRouteOneRoute, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteRouteOneRoute, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -516,7 +516,7 @@ func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QAssociateRouteUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QAssociateRouteUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -538,7 +538,7 @@ func GET_Service_Route_Upstream(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QGetServiceRouteUpstreams, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetServiceRouteUpstreams, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -562,7 +562,7 @@ func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QDeleteServiceRouteUpstreamAssociation, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteServiceRouteUpstreamAssociation, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -582,7 +582,7 @@ func GET_Service_Secret(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QGetServiceSecret, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetServiceSecret, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -604,7 +604,7 @@ func POST_Service_Secret(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QAssociateServiceSecret, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QAssociateServiceSecret, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -626,7 +626,7 @@ func DELETE_Service_Secret(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QDisassociateServiceSecret, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDisassociateServiceSecret, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())

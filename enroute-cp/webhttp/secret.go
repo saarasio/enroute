@@ -110,7 +110,7 @@ func POST_Secret(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QCreateSecret, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QCreateSecret, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -147,7 +147,7 @@ func POST_Secret_Key(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QUpdateSecretKey, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QUpdateSecretKey, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -184,7 +184,7 @@ func POST_Secret_Cert(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QUpdateSecretCert, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QUpdateSecretCert, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -199,7 +199,7 @@ func GET_Secret(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetSecret, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetSecret, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -217,7 +217,7 @@ func DELETE_Secret(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	secret_name := c.Param("secret_name")
 	args["secret_name"] = secret_name
-	if err := saaras.FetchConfig2(url, QDeleteUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 

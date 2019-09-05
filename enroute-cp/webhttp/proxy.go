@@ -330,7 +330,7 @@ func POST_Proxy(c echo.Context) error {
 	args["proxy_name"] = p.Name
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QCreateProxy, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QCreateProxy, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSON(http.StatusCreated, p)
@@ -365,7 +365,7 @@ func POST_Proxy_Service(c echo.Context) error {
 	args["fqdn"] = s.Fqdn
 	args["service_name"] = s.Service_name
 
-	if err := saaras.FetchConfig2(url, QCreateProxyService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QCreateProxyService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -380,7 +380,7 @@ func GET_Proxy(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetProxy, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetProxy, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -396,7 +396,7 @@ func GET_Proxy_Detail(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetAllProxyDetail, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetAllProxyDetail, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -415,7 +415,7 @@ func GET_One_Proxy_Detail(c echo.Context) error {
 	proxy_name := c.Param("proxy_name")
 	args["proxy_name"] = proxy_name
 
-	if err := saaras.FetchConfig2(url, QGetOneProxyDetail, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetOneProxyDetail, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -433,7 +433,7 @@ func GET_Proxy_Service(c echo.Context) error {
 
 	args["proxy_name"] = proxy_name
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QGetProxyService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetProxyService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -460,7 +460,7 @@ func DELETE_Proxy(c echo.Context) error {
 	args["proxy_name"] = p.Name
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.FetchConfig2(url, QDeleteProxy, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteProxy, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
@@ -492,7 +492,7 @@ func DELETE_Proxy_Service(c echo.Context) error {
 	args["proxy_name"] = proxy_name
 	args["service_name"] = s.Service_name
 
-	if err := saaras.FetchConfig2(url, QDeleteProxyService, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteProxyService, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -514,7 +514,7 @@ func POST_Proxy_Service_Association(c echo.Context) error {
 	args["proxy_name"] = proxy_name
 	args["service_name"] = service_name
 
-	if err := saaras.FetchConfig2(url, QCreateProxyServiceAssociation, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QCreateProxyServiceAssociation, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
@@ -536,7 +536,7 @@ func DELETE_Proxy_Service_Association(c echo.Context) error {
 	args["proxy_name"] = proxy_name
 	args["service_name"] = service_name
 
-	if err := saaras.FetchConfig2(url, QDeleteProxyServiceAssociation, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteProxyServiceAssociation, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
@@ -557,7 +557,7 @@ func GET_Proxy_Service_Association(c echo.Context) error {
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
-	if err := saaras.FetchConfig2(url, QGetProxyServiceAssociation, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QGetProxyServiceAssociation, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
