@@ -1,1 +1,5 @@
+First envoy can be run in host mode -
+sudo docker run -e ENROUTE_NAME=test -e ENROUTE_CP_IP=127.0.0.1 -e ENROUTE_CP_PORT=8081 --net=host saarasio/enroute
+
+Next one can be run with port 8082 of host mapped to 8081 of envoy
 sudo docker run -e ENROUTE_NAME=test2 -e ENROUTE_CP_IP=127.0.0.1 -e ENROUTE_CP_PORT=8081 -p 8082:8081 saarasio/enroute

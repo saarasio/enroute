@@ -1,0 +1,1 @@
+curl -vvv -H "Host: testfqdn.com" http://localhost:8080/clusters
