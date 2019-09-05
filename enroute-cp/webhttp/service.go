@@ -31,22 +31,6 @@ var QPatchService = `
 	}
 `
 
-var QCreateService = `
-mutation insert_service($fqdn: String!, $service_name: String!) {
-  insert_saaras_db_service(
-    objects: 
-    {
-      service_name: $service_name, 
-      fqdn: $fqdn
-    }, on_conflict: {
-      constraint: service_service_name_key, update_columns: update_ts
-    }
-  ) {
-    affected_rows
-  }
-}
-`
-
 var QGetService = `
 query get_service {
   saaras_db_service {
@@ -307,10 +291,48 @@ func PATCH_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-func POST_Service(c echo.Context) error {
+func create_service_helper(s *Service, log *logrus.Entry) (int, *bytes.Buffer) {
+
+	var QCreateService = `
+mutation insert_service($fqdn: String!, $service_name: String!) {
+  insert_saaras_db_service(
+    objects: 
+    {
+      service_name: $service_name, 
+      fqdn: $fqdn
+    }, on_conflict: {
+      constraint: service_service_name_key, update_columns: update_ts
+    }
+  ) {
+    affected_rows
+  }
+}
+`
+
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	if len(s.Service_name) == 0 {
+		return http.StatusBadRequest, bytes.NewBuffer([]byte("Please provide service name using Name field"))
+	}
+
+	if len(s.Fqdn) == 0 {
+		return http.StatusBadRequest, bytes.NewBuffer([]byte("Please provide fqdn using Fqdn field"))
+	}
+
+	args["service_name"] = s.Service_name
+	args["fqdn"] = s.Fqdn
+
+	if err := saaras.FetchConfig2(url, QCreateService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return http.StatusCreated, &buf
+}
+
+func POST_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -320,22 +342,8 @@ func POST_Service(c echo.Context) error {
 		return err
 	}
 
-	if len(s.Service_name) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide service name using Name field")
-	}
-
-	if len(s.Fqdn) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide fqdn using Fqdn field")
-	}
-
-	args["service_name"] = s.Service_name
-	args["fqdn"] = s.Fqdn
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-
-	if err := saaras.FetchConfig2(url, QCreateService, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-	}
-	return c.JSONBlob(http.StatusCreated, buf.Bytes())
+	code, buf := create_service_helper(s, log)
+	return c.JSONBlob(code, buf.Bytes())
 }
 
 func GET_Service(c echo.Context) error {
