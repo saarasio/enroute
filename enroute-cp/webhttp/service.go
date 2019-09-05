@@ -291,7 +291,7 @@ func PATCH_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-func create_service_helper(s *Service, log *logrus.Entry) (int, *bytes.Buffer) {
+func create_service_helper(s *Service, log *logrus.Entry) (int, string) {
 
 	var QCreateService = `
 mutation insert_service($fqdn: String!, $service_name: String!) {
@@ -315,11 +315,11 @@ mutation insert_service($fqdn: String!, $service_name: String!) {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
 	if len(s.Service_name) == 0 {
-		return http.StatusBadRequest, bytes.NewBuffer([]byte("Please provide service name using Name field"))
+		return http.StatusBadRequest, "Please provide service name using Name field"
 	}
 
 	if len(s.Fqdn) == 0 {
-		return http.StatusBadRequest, bytes.NewBuffer([]byte("Please provide fqdn using Fqdn field"))
+		return http.StatusBadRequest, "Please provide fqdn using Fqdn field"
 	}
 
 	args["service_name"] = s.Service_name
@@ -329,7 +329,7 @@ mutation insert_service($fqdn: String!, $service_name: String!) {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
-	return http.StatusCreated, &buf
+	return http.StatusCreated, buf.String()
 }
 
 func POST_Service(c echo.Context) error {
@@ -343,7 +343,7 @@ func POST_Service(c echo.Context) error {
 	}
 
 	code, buf := create_service_helper(s, log)
-	return c.JSONBlob(code, buf.Bytes())
+	return c.JSONBlob(code, []byte(buf))
 }
 
 func GET_Service(c echo.Context) error {
