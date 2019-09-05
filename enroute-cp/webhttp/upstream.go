@@ -190,10 +190,14 @@ func POST_Upstream(c echo.Context) error {
 	// is not programmed and it is not getting programmed on envoy through CDS/EDS
 	if len(u.Upstream_hc_path) > 0 {
 		args["upstream_hc_path"] = u.Upstream_hc_path
+	} else {
+		return c.JSON(http.StatusBadRequest, "Please provide a value for upstream_hc_path")
 	}
 
 	if len(u.Upstream_hc_host) > 0 {
 		args["upstream_hc_host"] = u.Upstream_hc_host
+	} else {
+		return c.JSON(http.StatusBadRequest, "Please provide a value for upstream_hc_host")
 	}
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
