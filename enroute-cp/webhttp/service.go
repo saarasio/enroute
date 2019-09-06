@@ -2,7 +2,10 @@ package webhttp
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/saaras"
 	"net/http"
 
@@ -29,19 +32,6 @@ var QPatchService = `
 	    affected_rows
 	  }
 	}
-`
-
-var QGetService = `
-query get_service {
-  saaras_db_service {
-    service_id
-    service_name
-    fqdn
-    create_ts
-    update_ts
-  }
-}
-
 `
 
 var QDeleteService = `
@@ -138,21 +128,21 @@ query get_upstream($service_name: String!, $route_name: String!) {
       route_name
       route_upstreams {
         upstream {
-    			upstream_id
-    			upstream_name
-    			upstream_ip
-    			upstream_port
-    			upstream_hc_path
-    			upstream_hc_host
-    			upstream_hc_intervalseconds
-    			upstream_hc_timeoutseconds
-    			upstream_hc_unhealthythresholdcount
-    			upstream_hc_healthythresholdcount
-    			upstream_strategy
-    			upstream_validation_cacertificate
-    			upstream_validation_subjectname
-    			create_ts
-    			update_ts
+	  upstream_id
+	  upstream_name
+	  upstream_ip
+	  upstream_port
+	  upstream_hc_path
+	  upstream_hc_host
+	  upstream_hc_intervalseconds
+	  upstream_hc_timeoutseconds
+	  upstream_hc_unhealthythresholdcount
+	  upstream_hc_healthythresholdcount
+	  upstream_strategy
+	  upstream_validation_cacertificate
+	  upstream_validation_subjectname
+	  create_ts
+	  update_ts
         }
       }
     }
@@ -314,6 +304,133 @@ mutation insert_service($fqdn: String!, $service_name: String!) {
 	args = make(map[string]string)
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
+	args["service_name"] = s.Service_name
+	args["fqdn"] = s.Fqdn
+
+	if err := saaras.RunDBQuery(url, QCreateService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String()
+	}
+
+	return http.StatusCreated, buf.String()
+}
+
+func db_get_service(log *logrus.Entry) (int, string) {
+	var QGetService = `
+query get_service {
+  saaras_db_service {
+    service_id
+    service_name
+    fqdn
+    create_ts
+    update_ts
+  }
+}
+`
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQuery(url, QGetService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String()
+	}
+
+	return http.StatusOK, buf.String()
+}
+
+func db_get_one_service(service_name string, decode bool, log *logrus.Entry) (int, string, *Service) {
+
+	var QGetOneService = `
+query get_one_service($service_name : String!) {
+  saaras_db_service (where: {service_name: {_eq: $service_name}}) {
+    service_id
+    service_name
+    fqdn
+    create_ts
+    update_ts
+  }
+}
+`
+
+	//{
+	//    "data": {
+	//        "saaras_db_service": [
+	//            {
+	//                "create_ts": "2019-09-05T01:57:45.174459+00:00",
+	//                "fqdn": "testfqdn3.com",
+	//                "service_id": 1,
+	//                "service_name": "test",
+	//                "update_ts": "2019-09-05T04:11:26.619627+00:00"
+	//            }
+	//        ]
+	//    }
+	//}
+
+	// Note: To auto-generate a golang data structure use:
+	// https://mholt.github.io/json-to-go/
+
+	type OneSaarasDBService struct {
+		Service_id   int64  `json:"service_id"`
+		Service_name string `json:"service_name"`
+		Fqdn         string `json:"fqdn"`
+		Create_ts    string `json:"create_ts"`
+		Update_ts    string `json:"update_ts"`
+	}
+
+	type SaarasDBService struct {
+		Saaras_db_service []OneSaarasDBService `json:"saaras_db_service"`
+	}
+
+	type ServiceResponse struct {
+		Data SaarasDBService `json:"data"`
+	}
+
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	args["service_name"] = service_name
+	if err := saaras.RunDBQuery(url, QGetOneService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String(), nil
+	}
+
+	var s Service
+
+	if decode {
+		var gr ServiceResponse
+		fmt.Printf("Decoding :\n %s\n", buf.String())
+		if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
+			errors.Wrap(err, "decoding response")
+			log.Errorf("Error when decoding json [%v]\n", err)
+		}
+
+		if len(gr.Data.Saaras_db_service) > 0 {
+			s.Fqdn = gr.Data.Saaras_db_service[0].Fqdn
+			s.Service_name = gr.Data.Saaras_db_service[0].Service_name
+		}
+	}
+
+	return http.StatusOK, buf.String(), &s
+}
+
+func db_copy_service(service_name_src string, service_name_dst string, log *logrus.Entry) (int, string) {
+
+	code, buf, s := db_get_one_service(service_name_src, true, log)
+
+	if code != http.StatusOK {
+		return code, buf
+	}
+	// Overwrite service name to that of destination
+	s.Service_name = service_name_dst
+	code2, buf2 := db_insert_service(s, log)
+	return code2, buf2
+}
+
+func validate_service(s *Service) (int, string) {
 	if len(s.Service_name) == 0 {
 		return http.StatusBadRequest, "Please provide service name using Name field"
 	}
@@ -322,14 +439,19 @@ mutation insert_service($fqdn: String!, $service_name: String!) {
 		return http.StatusBadRequest, "Please provide fqdn using Fqdn field"
 	}
 
-	args["service_name"] = s.Service_name
-	args["fqdn"] = s.Fqdn
+	return http.StatusOK, ""
+}
 
-	if err := saaras.RunDBQuery(url, QCreateService, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-	}
+func POST_Service_Copy(c echo.Context) error {
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
 
-	return http.StatusCreated, buf.String()
+	service_name_src := c.Param("service_name_src")
+	service_name_dst := c.Param("service_name_dst")
+
+	code, buf := db_copy_service(service_name_src, service_name_dst, log)
+
+	return c.JSONBlob(code, []byte(buf))
 }
 
 func POST_Service(c echo.Context) error {
@@ -342,24 +464,33 @@ func POST_Service(c echo.Context) error {
 		return err
 	}
 
+	code_validate, buf_validate := validate_service(s)
+
+	if code_validate != http.StatusOK {
+		return c.JSONBlob(code_validate, []byte(buf_validate))
+	}
+
 	code, buf := db_insert_service(s, log)
 	return c.JSONBlob(code, []byte(buf))
 }
 
 func GET_Service(c echo.Context) error {
-	var buf bytes.Buffer
-	var args map[string]string
-	args = make(map[string]string)
 
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
 
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	if err := saaras.RunDBQuery(url, QGetService, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-	}
+	code, buf := db_get_service(log)
+	return c.JSONBlob(code, []byte(buf))
+}
 
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+func GET_One_Service(c echo.Context) error {
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name := c.Param("service_name")
+	code, buf, _ := db_get_one_service(service_name, false, log)
+	return c.JSONBlob(code, []byte(buf))
 }
 
 func DELETE_Service(c echo.Context) error {
@@ -636,6 +767,7 @@ func Add_service_routes(e *echo.Echo) {
 
 	// Service CRUD
 	e.GET("/service", GET_Service)
+	e.GET("/service/:service_name", GET_One_Service)
 	e.POST("/service", POST_Service)
 	e.PATCH("/service/:service_name", PATCH_Service)
 	e.DELETE("/service/:service_name", DELETE_Service)
@@ -661,4 +793,7 @@ func Add_service_routes(e *echo.Echo) {
 	e.GET("/service/:service_name/secret", GET_Service_Secret)
 	e.POST("/service/:service_name/secret/:secret_name", POST_Service_Secret)
 	e.DELETE("/service/:service_name/secret/:secret_name", DELETE_Service_Secret)
+
+	// Service verb
+	e.POST("/service/copy/:service_name_src/:service_name_dst", POST_Service_Copy)
 }
