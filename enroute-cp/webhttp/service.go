@@ -12,28 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var QPatchService = `
-	mutation update_service(
-		$service_name : String!,
-		$fqdn : String!
-	){
-	  update_saaras_db_service
-		(
-			
-			where: {service_name: {_eq: $service_name}}, 
-
-			_set: 
-
-			{
-				fqdn: $fqdn
-			}
-
-		) {
-	    affected_rows
-	  }
-	}
-`
-
 var QDeleteService = `
 mutation delete_service($service_name: String!) {
   delete_saaras_db_service(where: {service_name: {_eq: $service_name}}) {
@@ -211,11 +189,48 @@ mutation delete_route_upstream($service_name: String!, $route_name: String!, $up
 }
 `
 
-func PATCH_Service(c echo.Context) error {
+func db_update_service(s *Service, log *logrus.Entry) (int, string) {
+
+	var QPatchService = `
+	mutation update_service(
+		$service_name : String!,
+		$fqdn : String!
+	){
+	  update_saaras_db_service
+		(
+			
+			where: {service_name: {_eq: $service_name}}, 
+	
+			_set: 
+	
+			{
+				fqdn: $fqdn
+			}
+	
+		) {
+	    affected_rows
+	  }
+	}
+`
+
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
+	args["service_name"] = s.Service_name
+	args["fqdn"] = s.Fqdn
+
+	if err := saaras.RunDBQuery(url, QPatchService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String()
+	}
+
+	return http.StatusCreated, buf.String()
+
+}
+
+func PATCH_Service(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
 
@@ -226,18 +241,23 @@ func PATCH_Service(c echo.Context) error {
 
 	service_name := c.Param("service_name")
 
+	code, buf, s_in_db := db_get_one_service(service_name, true, log)
+	if code != http.StatusOK {
+		return c.JSONBlob(code, []byte(buf))
+	}
+
+	// For service, right now, only Fqdn can be patched.
+	// Ensure that we are passed a valid Fqdn
 	if len(s.Fqdn) == 0 {
 		return c.JSON(http.StatusBadRequest, "Please provide fqdn using Fqdn field")
 	}
 
-	args["service_name"] = service_name
-	args["fqdn"] = s.Fqdn
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	// Overwrite Fqdn value
+	s_in_db.Fqdn = s.Fqdn
 
-	if err := saaras.RunDBQuery(url, QPatchService, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+	code2, buf2 := db_update_service(s_in_db, log)
+
+	return c.JSONBlob(code2, []byte(buf2))
 }
 
 func db_insert_service(s *Service, log *logrus.Entry) (int, string) {

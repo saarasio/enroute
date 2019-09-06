@@ -1,0 +1,29 @@
+ubuntu@ip-172-31-17-135:~/enroute/documentation$ curl -X PATCH -H "Content-Type:application/json" -d '{"Fqdn":"testfqdn5.com"}' localhost:1323/service/test3 | python -m json.tool
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    83  100    59  100    24   6115   2487 --:--:-- --:--:-- --:--:--  6555
+{
+    "data": {
+        "update_saaras_db_service": {
+            "affected_rows": 1
+        }
+    }
+}
+ubuntu@ip-172-31-17-135:~/enroute/documentation$ curl localhost:1323/service/test3 | python -m json.tool
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   189  100   189    0     0  32039      0 --:--:-- --:--:-- --:--:-- 37800
+{
+    "data": {
+        "saaras_db_service": [
+            {
+                "create_ts": "2019-09-06T18:24:05.236774+00:00",
+                "fqdn": "testfqdn5.com",
+                "service_id": 9,
+                "service_name": "test3",
+                "update_ts": "2019-09-06T18:50:41.053135+00:00"
+            }
+        ]
+    }
+}
+
