@@ -3,11 +3,11 @@ package webhttp
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/saaras"
 	"net/http"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -54,50 +54,9 @@ query get_proxy_service($service_name: String!) {
 
 `
 
-var QPostServiceRoute = `
-mutation insert_service_route($route_name: String!, $route_prefix: String!, $service_name: String!) {
-  insert_saaras_db_route(
-    objects: 
-    {
-      route_name: $route_name, 
-      route_prefix: $route_prefix, 
-      service: 
-      {
-        data: 
-        {
-          service_name: $service_name
-        }, 
-        on_conflict: {constraint: service_service_name_key, update_columns: service_name}
-      }
-    }
-  ) 
-  {
-    affected_rows
-  }
-}
-`
-
 var QServiceRoutes = `
 query get_service_routes($service_name: String!){
   saaras_db_route(where: {service: {service_name: {_eq: $service_name}}}) {
-    route_id
-    route_name
-    route_prefix
-    create_ts
-    update_ts
-  }
-}
-`
-
-var QServiceRouteOneRoute = `
-query get_service_routes($service_name: String!, $route_name: String!) {
-  saaras_db_route(
-    where: {
-      _and: {
-        route_name: {_eq: $route_name}, 
-        service: {service_name: {_eq: $service_name}}
-      }
-    }) {
     route_id
     route_name
     route_prefix
@@ -353,6 +312,16 @@ query get_one_service($service_name : String!) {
   }
 }
 `
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	args["service_name"] = service_name
+	if err := saaras.RunDBQuery(url, QGetOneService, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String(), nil
+	}
 
 	//{
 	//    "data": {
@@ -387,22 +356,11 @@ query get_one_service($service_name : String!) {
 		Data SaarasDBService `json:"data"`
 	}
 
-	var buf bytes.Buffer
-	var args map[string]string
-	args = make(map[string]string)
-
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-	args["service_name"] = service_name
-	if err := saaras.RunDBQuery(url, QGetOneService, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-		return http.StatusBadRequest, buf.String(), nil
-	}
-
 	var s Service
 
 	if decode {
 		var gr ServiceResponse
-		fmt.Printf("Decoding :\n %s\n", buf.String())
+		log.Debugf("Decoding :\n %s\n", buf.String())
 		if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
 			errors.Wrap(err, "decoding response")
 			log.Errorf("Error when decoding json [%v]\n", err)
@@ -529,11 +487,60 @@ func GET_Service_Proxy(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-func POST_Service_Route(c echo.Context) error {
+func db_insert_service_route(service_name string, r *Route, log *logrus.Entry) (int, string) {
+
+	var QPostServiceRoute = `
+mutation insert_service_route($route_name: String!, $route_prefix: String!, $service_name: String!) {
+  insert_saaras_db_route(
+    objects: 
+    {
+      route_name: $route_name, 
+      route_prefix: $route_prefix, 
+      service: 
+      {
+        data: 
+        {
+          service_name: $service_name
+        }, 
+        on_conflict: {constraint: service_service_name_key, update_columns: service_name}
+      }
+    }
+  ) 
+  {
+    affected_rows
+  }
+}
+`
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
+	args["route_name"] = r.Route_name
+	args["route_prefix"] = r.Route_prefix
+	args["service_name"] = service_name
+
+	if err := saaras.RunDBQuery(url, QPostServiceRoute, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String()
+	}
+
+	return http.StatusCreated, buf.String()
+}
+
+func validate_service_route(r *Route) (int, string) {
+	if len(r.Route_name) == 0 {
+		return http.StatusBadRequest, "Please provide route name using Name field"
+	}
+
+	if len(r.Route_prefix) == 0 {
+		return http.StatusBadRequest, "Please provide route prefix using Prefix field"
+	}
+
+	return http.StatusOK, ""
+}
+
+func POST_Service_Route(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
 
@@ -543,25 +550,38 @@ func POST_Service_Route(c echo.Context) error {
 	}
 
 	service_name := c.Param("service_name")
-	args["service_name"] = service_name
 
-	if len(r.Route_name) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide route name using Name field")
+	code, buf := validate_service_route(r)
+	if code != http.StatusOK {
+		return c.JSONBlob(code, []byte(buf))
 	}
 
-	if len(r.Route_prefix) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide route prefix using Prefix field")
+	code2, buf2 := db_insert_service_route(service_name, r, log)
+
+	return c.JSONBlob(code2, []byte(buf2))
+}
+
+func POST_Service_Route_Copy(c echo.Context) error {
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name_src := c.Param("service_name_src")
+	service_name_dst := c.Param("service_name_dst")
+	route_name := c.Param("route_name")
+
+	code, buf, r := db_get_one_service_route(service_name_src, route_name, true, log)
+	if code != http.StatusOK {
+		return c.JSONBlob(code, []byte(buf))
 	}
 
-	args["route_name"] = r.Route_name
-	args["route_prefix"] = r.Route_prefix
-
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
-
-	if err := saaras.RunDBQuery(url, QPostServiceRoute, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
+	code2, buf2 := validate_service_route(r)
+	if code2 != http.StatusOK {
+		return c.JSONBlob(code, []byte(buf2))
 	}
-	return c.JSONBlob(http.StatusCreated, buf.Bytes())
+
+	log.Debugf("Inserting route [%+v] in service [%s]\n", r, service_name_dst)
+	code3, buf3 := db_insert_service_route(service_name_dst, r, log)
+	return c.JSONBlob(code3, []byte(buf3))
 }
 
 func GET_Service_Route(c echo.Context) error {
@@ -581,11 +601,79 @@ func GET_Service_Route(c echo.Context) error {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+func db_get_one_service_route(service_name string, route_name string, decode bool, log *logrus.Entry) (int, string, *Route) {
+
+	var QServiceRouteOneRoute = `
+	query get_service_routes($service_name: String!, $route_name: String!) {
+		saaras_db_route(
+			where: {
+				_and: {
+					route_name: {_eq: $route_name}, 
+					service: {service_name: {_eq: $service_name}}
+				}
+			}) {
+				route_id
+				route_name
+				route_prefix
+				create_ts
+				update_ts
+			}
+		}
+		`
+
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	args["service_name"] = service_name
+	args["route_name"] = route_name
+	if err := saaras.RunDBQuery(url, QServiceRouteOneRoute, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String(), nil
+	}
+
+	// Note: To auto-generate a golang data structure use:
+	// https://mholt.github.io/json-to-go/
+	type SaarasDbRoute struct {
+		RouteID     int       `json:"route_id"`
+		RouteName   string    `json:"route_name"`
+		RoutePrefix string    `json:"route_prefix"`
+		CreateTs    time.Time `json:"create_ts"`
+		UpdateTs    time.Time `json:"update_ts"`
+	}
+	type Data struct {
+		SaarasDbRoute []SaarasDbRoute `json:"saaras_db_route"`
+	}
+	type AutoGenerated struct {
+		Data Data `json:"data"`
+	}
+
+	var r Route
+
+	if decode {
+		var gr AutoGenerated
+		log.Debugf("Decoding :\n %s\n", buf.String())
+		if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
+			errors.Wrap(err, "decoding response")
+			log.Errorf("Error when decoding json [%v]\n", err)
+		}
+
+		log.Debugf("Decoded json payload [%+v]\n", gr)
+		if len(gr.Data.SaarasDbRoute) > 0 {
+			r.Route_name = gr.Data.SaarasDbRoute[0].RouteName
+			r.Route_prefix = gr.Data.SaarasDbRoute[0].RoutePrefix
+		}
+	}
+
+	log.Debugf("Returing decoded route [%+v]\n", r)
+	return http.StatusOK, buf.String(), &r
 
 }
 
 func GET_Service_Route_OneRoute(c echo.Context) error {
-	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
 
@@ -598,13 +686,9 @@ func GET_Service_Route_OneRoute(c echo.Context) error {
 	args["service_name"] = service_name
 	args["route_name"] = route_name
 
-	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	code, buf, _ := db_get_one_service_route(service_name, route_name, false, log)
 
-	if err := saaras.RunDBQuery(url, QServiceRouteOneRoute, &buf, args, log); err != nil {
-		log.Errorf("Error when running http request [%v]\n", err)
-	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
-
+	return c.JSONBlob(code, []byte(buf))
 }
 
 func DELETE_Service_Route_OneRoute(c echo.Context) error {
@@ -796,4 +880,5 @@ func Add_service_routes(e *echo.Echo) {
 
 	// Service verb
 	e.POST("/service/copy/:service_name_src/:service_name_dst", POST_Service_Copy)
+	e.POST("/service/copy/:service_name_src/:service_name_dst/route/:route_name", POST_Service_Route_Copy)
 }

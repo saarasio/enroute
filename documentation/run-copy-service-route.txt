@@ -1,0 +1,45 @@
+ubuntu@ip-172-31-17-135:~/enroute$ curl -X POST localhost:1323/service/copy/test/test2/route/test | python -m json.tool
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    55  100    55    0     0   6329      0 --:--:-- --:--:-- --:--:--  6875
+{
+    "data": {
+        "insert_saaras_db_route": {
+            "affected_rows": 2
+        }
+    }
+}
+ubuntu@ip-172-31-17-135:~/enroute$ curl localhost:1323/service/test2 | python -m json.tool
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   189  100   189    0     0  30746      0 --:--:-- --:--:-- --:--:-- 31500
+{
+    "data": {
+        "saaras_db_service": [
+            {
+                "create_ts": "2019-09-06T03:22:17.902311+00:00",
+                "fqdn": "testfqdn3.com",
+                "service_id": 7,
+                "service_name": "test2",
+                "update_ts": "2019-09-06T03:22:17.902311+00:00"
+            }
+        ]
+    }
+}
+ubuntu@ip-172-31-17-135:~/enroute$ curl localhost:1323/service/test2/route | python -m json.tool
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   178  100   178    0     0  23295      0 --:--:-- --:--:-- --:--:-- 25428
+{
+    "data": {
+        "saaras_db_route": [
+            {
+                "create_ts": "2019-09-06T03:30:52.414346+00:00",
+                "route_id": 4,
+                "route_name": "test",
+                "route_prefix": "/",
+                "update_ts": "2019-09-06T03:30:52.414346+00:00"
+            }
+        ]
+    }
+}
