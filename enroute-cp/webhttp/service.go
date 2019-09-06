@@ -337,7 +337,7 @@ query get_one_service($service_name : String!) {
 	//    }
 	//}
 
-	// Note: To auto-generate a golang data structure use:
+	// Note: To auto-generate a golang data structure paste the above here:
 	// https://mholt.github.io/json-to-go/
 
 	type OneSaarasDBService struct {
@@ -364,6 +364,7 @@ query get_one_service($service_name : String!) {
 		if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
 			errors.Wrap(err, "decoding response")
 			log.Errorf("Error when decoding json [%v]\n", err)
+			return http.StatusBadRequest, buf.String(), nil
 		}
 
 		if len(gr.Data.Saaras_db_service) > 0 {
