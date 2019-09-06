@@ -508,6 +508,43 @@ func GET_Service_Proxy(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+func db_update_service_route(service_name string, r *Route, log *logrus.Entry) (int, string) {
+
+	var QPostUpdateServiceRoute = `
+mutation update_route($service_name:String!, $route_name:String!, $route_prefix:String!){
+  update_saaras_db_route
+  (
+    where: 
+    {
+      _and: 
+      {
+        service: {service_name: {_eq: $service_name}}, 
+        route_name: {_eq: $route_name}
+      }
+    }, 
+    _set: {route_prefix: $route_prefix}
+  ) {
+    affected_rows
+  }
+}
+`
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	args["service_name"] = service_name
+	args["route_name"] = r.Route_name
+	args["route_prefix"] = r.Route_prefix
+
+	if err := saaras.RunDBQuery(url, QPostUpdateServiceRoute, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String()
+	}
+
+	return http.StatusCreated, buf.String()
+}
+
 func db_insert_service_route(service_name string, r *Route, log *logrus.Entry) (int, string) {
 
 	var QPostServiceRoute = `
@@ -580,6 +617,42 @@ func POST_Service_Route(c echo.Context) error {
 	code2, buf2 := db_insert_service_route(service_name, r, log)
 
 	return c.JSONBlob(code2, []byte(buf2))
+}
+
+func PATCH_Service_Route(c echo.Context) error {
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	r := new(Route)
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+
+	service_name := c.Param("service_name")
+	route_name := c.Param("route_name")
+
+	log.Infof("Fetch service from DB service [%s] route [%s] \n", service_name, route_name)
+	code, buf, r_in_db := db_get_one_service_route(service_name, route_name, true, log)
+	log.Infof("Fetched service from DB service [%+v]  \n", r_in_db)
+	if code != http.StatusOK {
+		return c.JSONBlob(code, []byte(buf))
+	}
+
+	// Since only prefix is something that you can update in the route, overwrite the prefix
+	if len(r.Route_prefix) == 0 {
+		return c.JSONBlob(http.StatusBadRequest, []byte("Please provide a Route_prefix to patch route"))
+	}
+
+	r_in_db.Route_prefix = r.Route_prefix
+
+	code2, buf2 := validate_service_route(r_in_db)
+	if code2 != http.StatusOK {
+		return c.JSONBlob(code2, []byte(buf2))
+	}
+
+	log.Infof("Update route to [%+v]  \n", r_in_db)
+	code3, buf3 := db_update_service_route(service_name, r_in_db, log)
+	return c.JSONBlob(code3, []byte(buf3))
 }
 
 func POST_Service_Route_Copy(c echo.Context) error {
@@ -884,6 +957,7 @@ func Add_service_routes(e *echo.Echo) {
 	// Route is always associated to a service and isn't an independent entity.
 	// Hence all Route operations are associated with a service
 	e.POST("/service/:service_name/route", POST_Service_Route)
+	e.PATCH("/service/:service_name/route/:route_name", PATCH_Service_Route)
 	e.GET("/service/:service_name/route", GET_Service_Route)
 	e.GET("/service/:service_name/route/:route_name", GET_Service_Route_OneRoute)
 	e.DELETE("/service/:service_name/route/:route_name", DELETE_Service_Route_OneRoute)
