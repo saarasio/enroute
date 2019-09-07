@@ -13,22 +13,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// TODO: Build query to only patch fields that need updating
-var QPatchUpstream = `
-mutation update_upstream($upstream_name: String!, $upstream_ip: String!, $upstream_port: Int!, $upstream_hc_path: String!) {
-  update_saaras_db_upstream(
-    where: {upstream_name: {_eq: $upstream_name}}, 
-    _set: {
-			upstream_ip: $upstream_ip, 
-			upstream_port: $upstream_port, 
-			upstream_hc_path: $upstream_hc_path
-		}
-	) {
-    affected_rows
-  }
-}
-`
-
 var QGetUpstream = `
 query get_upstream {
   saaras_db_upstream {
@@ -76,6 +60,46 @@ query get_upstream_routes($upstream_name: String!) {
 `
 
 func PATCH_Upstream(c echo.Context) error {
+
+	var QPatchUpstream = `
+
+mutation update_upstream(
+     $upstream_name: String!,
+     $upstream_ip: String!,
+     $upstream_port: Int!,
+     $upstream_weight: Int!,
+     $upstream_hc_path: String!,
+     $upstream_hc_host: String!,
+     $upstream_hc_intervalseconds: Int!,
+     $upstream_hc_unhealthythresholdcount: Int!,
+     $upstream_hc_healthythresholdcount: Int!,
+     $upstream_strategy: String!,
+     $upstream_validation_cacertificate: String!,
+     $upstream_validation_subjectname: String!,
+     $upstream_hc_timeoutseconds: Int!
+ ) {
+     update_saaras_db_upstream(
+         where: {upstream_name: {_eq: $upstream_name}},
+         _set: {
+             upstream_ip: $upstream_ip,
+             upstream_port: $upstream_port,
+             upstream_weight: $upstream_weight,
+             upstream_hc_path: $upstream_hc_path,
+             upstream_hc_host: $upstream_hc_host,
+             upstream_hc_intervalseconds: $upstream_hc_intervalseconds,
+             upstream_hc_unhealthythresholdcount: $upstream_hc_unhealthythresholdcount,
+             upstream_hc_healthythresholdcount: $upstream_hc_healthythresholdcount,
+             upstream_strategy: $upstream_strategy,
+             upstream_validation_cacertificate: $upstream_validation_cacertificate,
+             upstream_validation_subjectname: $upstream_validation_subjectname,
+             upstream_hc_timeoutseconds: $upstream_hc_timeoutseconds
+         }
+     ) {
+         affected_rows
+     }
+ }
+	  `
+
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
@@ -83,30 +107,114 @@ func PATCH_Upstream(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
 
+	upstream_name := c.Param("upstream_name")
+
+	code2, buf2, u_in_db := db_get_one_upstream(upstream_name, true, log)
+
+	if code2 != http.StatusOK {
+		return c.JSONBlob(code2, []byte(buf2))
+	}
+
 	u := new(Upstream)
 	if err := c.Bind(u); err != nil {
 		return err
 	}
 
-	if len(u.Upstream_name) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide upstream name using Name field")
+	if len(u.Upstream_ip) > 0 {
+		u_in_db.Upstream_ip = u.Upstream_ip
 	}
-
-	if len(u.Upstream_ip) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide Ip using Ip field")
+	if len(u.Upstream_port) > 0 {
+		u_in_db.Upstream_port = u.Upstream_port
 	}
-
-	if len(u.Upstream_port) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide Port using Port field")
-	}
-
-	args["upstream_name"] = u.Upstream_name
-	args["upstream_ip"] = u.Upstream_ip
-	args["upstream_port"] = u.Upstream_port
-
 	if len(u.Upstream_hc_path) > 0 {
-		args["upstream_hc_path"] = u.Upstream_hc_path
+		u_in_db.Upstream_hc_path = u.Upstream_hc_path
 	}
+	if len(u.Upstream_hc_host) > 0 {
+		u_in_db.Upstream_hc_host = u.Upstream_hc_host
+	}
+	if len(u.Upstream_weight) > 0 {
+		u_in_db.Upstream_weight = u.Upstream_weight
+	}
+	if len(u.Upstream_hc_intervalseconds) > 0 {
+		u_in_db.Upstream_hc_intervalseconds = u.Upstream_hc_intervalseconds
+	}
+	if len(u.Upstream_hc_unhealthythresholdcount) > 0 {
+		u_in_db.Upstream_hc_unhealthythresholdcount = u.Upstream_hc_unhealthythresholdcount
+	}
+	if len(u.Upstream_hc_healthythresholdcount) > 0 {
+		u_in_db.Upstream_hc_healthythresholdcount = u.Upstream_hc_healthythresholdcount
+	}
+	if len(u.Upstream_strategy) > 0 {
+		u_in_db.Upstream_strategy = u.Upstream_strategy
+	}
+	if len(u.Upstream_validation_cacertificate) > 0 {
+		u_in_db.Upstream_validation_cacertificate = u.Upstream_validation_cacertificate
+	}
+	if len(u.Upstream_validation_subjectname) > 0 {
+		u_in_db.Upstream_validation_subjectname = u.Upstream_validation_subjectname
+	}
+	if len(u.Upstream_hc_timeoutseconds) > 0 {
+		u_in_db.Upstream_hc_timeoutseconds = u.Upstream_hc_timeoutseconds
+	}
+
+	log.Infof(" Sending upstream values [%+v]\n", u_in_db)
+
+	//{
+	//  "upstream_name": "test3",
+	//  "upstream_ip": "1.1.1.1",
+	//  "upstream_port": 11,
+	//  "upstream_weight": 11,
+	//  "upstream_hc_path": "/",
+	//  "upstream_hc_host": "blah",
+	//  "upstream_hc_intervalseconds": 11,
+	//  "upstream_hc_unhealthythresholdcount": 11,
+	//  "upstream_hc_healthythresholdcount": 11,
+	//  "upstream_strategy": "blah",
+	//  "upstream_validation_cacertificate": "blah",
+	//  "upstream_validation_subjectname": "blah",
+	//  "upstream_hc_timeoutseconds": 11
+	//
+	//}
+
+	if u_in_db.Upstream_port == "" {
+		u_in_db.Upstream_port = "-1"
+	}
+
+	if u_in_db.Upstream_weight == "" {
+		u_in_db.Upstream_weight = "-1"
+	}
+
+	if u_in_db.Upstream_hc_intervalseconds == "" {
+		u_in_db.Upstream_hc_intervalseconds = "-1"
+	}
+
+	if u_in_db.Upstream_hc_unhealthythresholdcount == "" {
+		u_in_db.Upstream_hc_unhealthythresholdcount = "-1"
+	}
+
+	if u_in_db.Upstream_hc_healthythresholdcount == "" {
+		u_in_db.Upstream_hc_healthythresholdcount = "-1"
+	}
+
+	if u_in_db.Upstream_hc_timeoutseconds == "" {
+		u_in_db.Upstream_hc_timeoutseconds = "-1"
+	}
+
+	args["upstream_name"] = u_in_db.Upstream_name
+	args["upstream_ip"] = u_in_db.Upstream_ip
+	args["upstream_port"] = u_in_db.Upstream_port
+	args["upstream_hc_path"] = u_in_db.Upstream_hc_path
+	args["upstream_hc_host"] = u_in_db.Upstream_hc_host
+	args["upstream_weight"] = u_in_db.Upstream_weight
+	args["upstream_hc_intervalseconds"] = u_in_db.Upstream_hc_intervalseconds
+	args["upstream_hc_unhealthythresholdcount"] = u_in_db.Upstream_hc_unhealthythresholdcount
+	args["upstream_hc_healthythresholdcount"] = u_in_db.Upstream_hc_healthythresholdcount
+	args["upstream_strategy"] = u_in_db.Upstream_strategy
+	args["upstream_validation_cacertificate"] = u_in_db.Upstream_validation_cacertificate
+	args["upstream_validation_subjectname"] = u_in_db.Upstream_validation_subjectname
+	args["upstream_hc_timeoutseconds"] = u_in_db.Upstream_hc_timeoutseconds
+
+	log.Infof(" Sending upstream values ARGS [%+v]\n", args)
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
@@ -220,14 +328,22 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 	var QOneUpstream = `
 	query get_upstream($upstream_name : String!) {
 		saaras_db_upstream(where: {upstream_name: {_eq: $upstream_name}}) {
-			upstream_id
-			upstream_name
-			upstream_ip
-			upstream_port
-                        upstream_hc_path
-                        upstream_hc_host
-			create_ts
-			update_ts
+    	upstream_id
+    	upstream_name
+    	upstream_ip
+    	upstream_port
+    	upstream_hc_path
+    	upstream_hc_host
+    	upstream_hc_intervalseconds
+    	upstream_hc_timeoutseconds
+    	upstream_hc_unhealthythresholdcount
+    	upstream_hc_healthythresholdcount
+    	upstream_strategy
+    	upstream_validation_cacertificate
+    	upstream_validation_subjectname
+		upstream_weight
+    	create_ts
+    	update_ts
 		}
 	}
 	`
@@ -242,34 +358,51 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
-	// {
-	//   "data": {
-	//     "saaras_db_upstream": [
-	//       {
-	//         "upstream_id": 3,
-	//         "upstream_name": "test",
-	//         "upstream_ip": "127.0.0.1",
-	//         "upstream_port": 9001,
-	//         "create_ts": "2019-09-05T02:05:01.31547+00:00",
-	//         "update_ts": "2019-09-05T03:13:31.854692+00:00"
-	//       }
-	//     ]
-	//   }
-	// }
-
+	//{
+	//    "data": {
+	//        "saaras_db_upstream": [
+	//            {
+	//                "create_ts": "2019-09-06T16:19:51.774798+00:00",
+	//                "update_ts": "2019-09-06T18:50:25.667251+00:00",
+	//                "upstream_hc_healthythresholdcount": null,
+	//                "upstream_hc_host": "127.0.0.1",
+	//                "upstream_hc_intervalseconds": null,
+	//                "upstream_hc_path": "/",
+	//                "upstream_hc_timeoutseconds": null,
+	//                "upstream_hc_unhealthythresholdcount": null,
+	//                "upstream_id": 7,
+	//                "upstream_ip": "127.0.0.1",
+	//                "upstream_name": "test3",
+	//                "upstream_port": 9001,
+	//                "upstream_strategy": null,
+	//                "upstream_validation_cacertificate": null,
+	//                "upstream_validation_subjectname": null
+	//            }
+	//        ]
+	//    }
+	//}
 	type SaarasDbUpstream struct {
-		UpstreamID     int       `json:"upstream_id"`
-		UpstreamName   string    `json:"upstream_name"`
-		UpstreamIP     string    `json:"upstream_ip"`
-		UpstreamPort   int       `json:"upstream_port"`
-		UpstreamHcPath string    `json:"upstream_hc_path"`
-		UpstreamHcHost string    `json:"upstream_hc_host"`
-		CreateTs       time.Time `json:"create_ts"`
-		UpdateTs       time.Time `json:"update_ts"`
+		CreateTs                          time.Time `json:"create_ts"`
+		UpdateTs                          time.Time `json:"update_ts"`
+		UpstreamHcHealthythresholdcount   int       `json:"upstream_hc_healthythresholdcount"`
+		UpstreamHcHost                    string    `json:"upstream_hc_host"`
+		UpstreamHcIntervalseconds         int       `json:"upstream_hc_intervalseconds"`
+		UpstreamHcPath                    string    `json:"upstream_hc_path"`
+		UpstreamHcTimeoutseconds          int       `json:"upstream_hc_timeoutseconds"`
+		UpstreamHcUnhealthythresholdcount int       `json:"upstream_hc_unhealthythresholdcount"`
+		UpstreamID                        int       `json:"upstream_id"`
+		UpstreamIP                        string    `json:"upstream_ip"`
+		UpstreamName                      string    `json:"upstream_name"`
+		UpstreamPort                      int       `json:"upstream_port"`
+		UpstreamStrategy                  string    `json:"upstream_strategy"`
+		UpstreamValidationCacertificate   string    `json:"upstream_validation_cacertificate"`
+		UpstreamValidationSubjectname     string    `json:"upstream_validation_subjectname"`
 	}
+
 	type Data struct {
 		SaarasDbUpstream []SaarasDbUpstream `json:"saaras_db_upstream"`
 	}
+
 	type AutoGenerated struct {
 		Data Data `json:"data"`
 	}
@@ -291,6 +424,13 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 			u.Upstream_port = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamPort), 10)
 			u.Upstream_hc_path = gr.Data.SaarasDbUpstream[0].UpstreamHcPath
 			u.Upstream_hc_host = gr.Data.SaarasDbUpstream[0].UpstreamHcHost
+			u.Upstream_hc_intervalseconds = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamHcIntervalseconds), 10)
+			u.Upstream_hc_timeoutseconds = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamHcTimeoutseconds), 10)
+			u.Upstream_hc_unhealthythresholdcount = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamHcUnhealthythresholdcount), 10)
+			u.Upstream_hc_healthythresholdcount = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamHcHealthythresholdcount), 10)
+			u.Upstream_strategy = gr.Data.SaarasDbUpstream[0].UpstreamStrategy
+			u.Upstream_validation_cacertificate = gr.Data.SaarasDbUpstream[0].UpstreamValidationCacertificate
+			u.Upstream_validation_subjectname = gr.Data.SaarasDbUpstream[0].UpstreamValidationSubjectname
 		}
 
 	}

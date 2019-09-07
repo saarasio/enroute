@@ -24,11 +24,19 @@ type Route struct {
 }
 
 type Upstream struct {
-	Upstream_name    string `json:"upstream_name" xml:"upstream_name" form:"upstream_name" query:"upstream_name"`
-	Upstream_ip      string `json:"upstream_ip" xml:"upstream_ip" form:"upstream_ip" query:"upstream_ip"`
-	Upstream_port    string `json:"upstream_port" xml:"upstream_port" form:"upstream_port" query:"upstream_port"`
-	Upstream_hc_path string `json:"upstream_hc_path" xml:"upstream_hc_path" form:"upstream_hc_path" query:"upstream_hc_path"`
-	Upstream_hc_host string `json:"upstream_hc_host" xml:"upstream_hc_host" form:"upstream_hc_host" query:"upstream_hc_host"`
+	Upstream_name                       string `json:"upstream_name" xml:"upstream_name" form:"upstream_name" query:"upstream_name"`
+	Upstream_ip                         string `json:"upstream_ip" xml:"upstream_ip" form:"upstream_ip" query:"upstream_ip"`
+	Upstream_port                       string `json:"upstream_port" xml:"upstream_port" form:"upstream_port" query:"upstream_port"`
+	Upstream_hc_path                    string `json:"upstream_hc_path" xml:"upstream_hc_path" form:"upstream_hc_path" query:"upstream_hc_path"`
+	Upstream_hc_host                    string `json:"upstream_hc_host" xml:"upstream_hc_host" form:"upstream_hc_host" query:"upstream_hc_host"`
+	Upstream_weight                     string `json:"upstream_weight" xml:"upstream_weight" form:"upstream_weight" query:"upstream_weight"`
+	Upstream_hc_intervalseconds         string `json:"upstream_hc_intervalseconds" xml:"upstream_hc_intervalseconds" form:"upstream_hc_intervalseconds" query:"upstream_hc_intervalseconds"`
+	Upstream_hc_unhealthythresholdcount string `json:"upstream_hc_unhealthythresholdcount" xml:"upstream_hc_unhealthythresholdcount" form:"upstream_hc_unhealthythresholdcount" query:"upstream_hc_unhealthythresholdcount"`
+	Upstream_hc_healthythresholdcount   string `json:"upstream_hc_healthythresholdcount" xml:"upstream_hc_healthythresholdcount" form:"upstream_hc_healthythresholdcount" query:"upstream_hc_healthythresholdcount"`
+	Upstream_strategy                   string `json:"upstream_strategy" xml:"upstream_strategy" form:"upstream_strategy" query:"upstream_strategy"`
+	Upstream_validation_cacertificate   string `json:"upstream_validation_cacertificate" xml:"upstream_validation_cacertificate" form:"upstream_validation_cacertificate" query:"upstream_validation_cacertificate"`
+	Upstream_validation_subjectname     string `json:"upstream_validation_subjectname" xml:"upstream_validation_subjectname" form:"upstream_validation_subjectname" query:"upstream_validation_subjectname"`
+	Upstream_hc_timeoutseconds          string `json:"upstream_hc_timeoutseconds" xml:"upstream_hc_timeoutseconds" form:"upstream_hc_timeoutseconds" query:"upstream_hc_timeoutseconds"`
 }
 
 type Secret struct {
