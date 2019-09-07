@@ -1,4 +1,48 @@
 CREATE SCHEMA saaras_db;
+CREATE FUNCTION saaras_db.set_current_timestamp_update_ts() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  _new record;
+BEGIN
+  _new := NEW;
+  _new."update_ts" = NOW();
+  RETURN _new;
+END;
+$$;
+CREATE FUNCTION saaras_db.set_current_timestamp_updated_as() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  _new record;
+BEGIN
+  _new := NEW;
+  _new."updated_as" = NOW();
+  RETURN _new;
+END;
+$$;
+CREATE FUNCTION saaras_db.set_current_timestamp_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  _new record;
+BEGIN
+  _new := NEW;
+  _new."updated_at" = NOW();
+  RETURN _new;
+END;
+$$;
+CREATE FUNCTION saaras_db.set_current_timestamp_updated_ts() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  _new record;
+BEGIN
+  _new := NEW;
+  _new."updated_ts" = NOW();
+  RETURN _new;
+END;
+$$;
 CREATE TABLE saaras_db.artifact (
     artifact_id bigint NOT NULL,
     artifact_name character varying NOT NULL,
@@ -42,8 +86,8 @@ CREATE TABLE saaras_db.proxy (
     proxy_id bigint NOT NULL,
     proxy_name character varying NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
-    update_ts timestamp with time zone DEFAULT now() NOT NULL,
-    delete_flag boolean DEFAULT false
+    delete_flag boolean DEFAULT false,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.proxy_proxy_id_seq
     START WITH 1
@@ -57,8 +101,8 @@ CREATE TABLE saaras_db.proxy_service (
     service_id bigint NOT NULL,
     proxy_service_id bigint NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
-    update_ts timestamp with time zone DEFAULT now() NOT NULL,
-    delete_flag boolean
+    delete_flag boolean,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.proxy_service_proxy_service_id_seq
     START WITH 1
@@ -72,9 +116,9 @@ CREATE TABLE saaras_db.route (
     route_name character varying NOT NULL,
     route_prefix text,
     create_ts timestamp with time zone DEFAULT now(),
-    update_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
-    service_id bigint NOT NULL
+    service_id bigint NOT NULL,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.route_route_id_seq
     START WITH 1
@@ -93,8 +137,8 @@ CREATE TABLE saaras_db.route_upstream (
     route_id bigint NOT NULL,
     upstream_id bigint NOT NULL,
     create_ts timestamp with time zone DEFAULT now(),
-    update_ts timestamp with time zone DEFAULT now(),
-    delete_flag boolean DEFAULT false
+    delete_flag boolean DEFAULT false,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.route_upstream_route_id_seq
     START WITH 1
@@ -121,11 +165,11 @@ CREATE TABLE saaras_db.secret (
     secret_id bigint NOT NULL,
     secret_name character varying NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
-    update_ts timestamp with time zone DEFAULT now() NOT NULL,
     delete_flag boolean DEFAULT false NOT NULL,
     secret_key character varying,
     secret_cert character varying,
-    secret_sni character varying
+    secret_sni character varying,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.secret_secret_id_seq
     START WITH 1
@@ -139,16 +183,16 @@ CREATE TABLE saaras_db.service (
     service_name character varying NOT NULL,
     fqdn character varying,
     create_ts timestamp with time zone DEFAULT now(),
-    update_ts timestamp with time zone DEFAULT now(),
-    delete_flag boolean DEFAULT false
+    delete_flag boolean DEFAULT false,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE TABLE saaras_db.service_secret (
     service_secret_id bigint NOT NULL,
     service_id bigint NOT NULL,
     secret_id bigint NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
-    update_ts timestamp with time zone DEFAULT now() NOT NULL,
-    delete_flag boolean DEFAULT false NOT NULL
+    delete_flag boolean DEFAULT false NOT NULL,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.service_secret_secret_id_seq
     START WITH 1
@@ -188,18 +232,18 @@ CREATE TABLE saaras_db.upstream (
     upstream_ip character varying,
     upstream_port integer,
     create_ts timestamp with time zone DEFAULT now(),
-    update_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
     upstream_weight integer DEFAULT 100,
     upstream_hc_path character varying,
     upstream_hc_host character varying,
-    upstream_hc_intervalseconds bigint,
+    upstream_hc_intervalseconds integer,
     upstream_hc_unhealthythresholdcount integer,
     upstream_hc_healthythresholdcount integer,
     upstream_strategy character varying,
     upstream_validation_cacertificate character varying,
     upstream_validation_subjectname character varying,
-    upstream_hc_timeoutseconds bigint
+    upstream_hc_timeoutseconds integer,
+    update_ts timestamp with time zone DEFAULT now()
 );
 CREATE SEQUENCE saaras_db.upstream_upstream_id_seq
     START WITH 1
@@ -269,6 +313,22 @@ ALTER TABLE ONLY saaras_db.upstream
     ADD CONSTRAINT upstream_pkey PRIMARY KEY (upstream_id);
 ALTER TABLE ONLY saaras_db.upstream
     ADD CONSTRAINT upstream_upstream_name_key UNIQUE (upstream_name);
+CREATE TRIGGER set_saaras_db_proxy_service_update_ts BEFORE UPDATE ON saaras_db.proxy_service FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_proxy_service_update_ts ON saaras_db.proxy_service IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_proxy_update_ts BEFORE UPDATE ON saaras_db.proxy FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_proxy_update_ts ON saaras_db.proxy IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_route_update_ts BEFORE UPDATE ON saaras_db.route FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_route_update_ts ON saaras_db.route IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_route_upstream_update_ts BEFORE UPDATE ON saaras_db.route_upstream FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_route_upstream_update_ts ON saaras_db.route_upstream IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_secret_update_ts BEFORE UPDATE ON saaras_db.secret FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_secret_update_ts ON saaras_db.secret IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_service_secret_update_ts BEFORE UPDATE ON saaras_db.service_secret FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_service_secret_update_ts ON saaras_db.service_secret IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_service_update_ts BEFORE UPDATE ON saaras_db.service FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_service_update_ts ON saaras_db.service IS 'trigger to set value of column "update_ts" to current timestamp on row update';
+CREATE TRIGGER set_saaras_db_upstream_update_ts BEFORE UPDATE ON saaras_db.upstream FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
+COMMENT ON TRIGGER set_saaras_db_upstream_update_ts ON saaras_db.upstream IS 'trigger to set value of column "update_ts" to current timestamp on row update';
 ALTER TABLE ONLY saaras_db.artifact
     ADD CONSTRAINT artifact_secret_id_fkey FOREIGN KEY (secret_id) REFERENCES saaras_db.secret(secret_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.proxy_service
