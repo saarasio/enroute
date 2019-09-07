@@ -433,6 +433,65 @@ func POST_Service_Copy(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+func POST_Service_DeepCopy(c echo.Context) error {
+	// Copy service
+	// Copy routes for service
+	// Copy upstream for routes
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name_src := c.Param("service_name_src")
+	service_name_dst := c.Param("service_name_dst")
+
+	code, buf, p := db_get_service_details(service_name_src, log)
+	if code != http.StatusOK {
+		return c.JSONBlob(code, []byte(buf))
+	}
+
+	log.Infof("POST_Service_DeepCopy() Got service detail [%+v]\n", p)
+
+	if len(p.Data.SaarasDbService) > 0 {
+		// Copy service using
+		log.Infof("POST_Service_DeepCopy() Copy service [%s] to [%s]\n", service_name_src, service_name_dst)
+		code, buf := db_copy_service(service_name_src, service_name_dst, log)
+		if code != http.StatusCreated {
+			return c.JSONBlob(code, []byte(buf))
+		}
+
+		log.Infof("POST_Service_DeepCopy() Copy service result [%s]\n", buf)
+
+		for _, oneRoute := range p.Data.SaarasDbService[0].Routes {
+
+			// Copy service
+			code, buf, r_in_db := db_get_one_service_route(service_name_src, oneRoute.RouteName, true, log)
+			if code != http.StatusOK {
+				return c.JSONBlob(code, []byte(buf))
+			}
+
+			log.Infof("POST_Service_DeepCopy() Got route detail [%+v]\n", r_in_db)
+
+			// Copy routes for service
+			code, buf = db_insert_service_route(service_name_dst, r_in_db, log)
+			if code != http.StatusCreated {
+				return c.JSONBlob(code, []byte(buf))
+			}
+
+			log.Infof("POST_Service_DeepCopy() Copy route result [%s]\n", buf)
+
+			for _, oneRouteUpstream := range oneRoute.RouteUpstreams {
+				u_name := oneRouteUpstream.Upstream.UpstreamName
+				code, buf := db_associate_service_route_upstream(service_name_dst, oneRoute.RouteName, u_name, log)
+				log.Infof("POST_Service_DeepCopy() Associate upstream result [%s]\n", buf)
+				if code != http.StatusCreated {
+					return c.JSONBlob(code, []byte(buf))
+				}
+			}
+		}
+	}
+
+	return c.JSONBlob(http.StatusCreated, []byte("{\"affected_rows\":1}"))
+}
+
 func POST_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -655,6 +714,71 @@ func PATCH_Service_Route(c echo.Context) error {
 	return c.JSONBlob(code3, []byte(buf3))
 }
 
+type ServiceDetail struct {
+	Data struct {
+		SaarasDbService []struct {
+			ServiceName string `json:"service_name"`
+			Routes      []struct {
+				RouteName      string `json:"route_name"`
+				RouteUpstreams []struct {
+					Upstream struct {
+						UpstreamName string `json:"upstream_name"`
+					} `json:"upstream"`
+				} `json:"route_upstreams"`
+			} `json:"routes"`
+			ServiceSecrets []interface{} `json:"service_secrets"`
+		} `json:"saaras_db_service"`
+	} `json:"data"`
+}
+
+func db_get_service_details(service_name string, log *logrus.Entry) (int, string, *ServiceDetail) {
+
+	var QGetServiceDetail = `
+query get_saaras_db_proxy_names($service_name: String!) {
+  saaras_db_service(where: {service_name: {_eq: $service_name}}) {
+    service_name
+    routes {
+      route_name
+      route_upstreams {
+        upstream {
+          upstream_name
+        }
+      }
+    }
+    service_secrets {
+      secret {
+        secret_name
+      }
+    }
+  }
+}
+`
+
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	args["service_name"] = service_name
+	if err := saaras.RunDBQuery(url, QGetServiceDetail, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+		return http.StatusBadRequest, buf.String(), nil
+	}
+
+	log.Infof("db_get_service_details(): Q Response: [%+v]\n", buf.String())
+
+	var gr ServiceDetail
+	log.Debugf("Decoding :\n %s\n", buf.String())
+	if err := json.NewDecoder(&buf).Decode(&gr); err != nil {
+		errors.Wrap(err, "decoding response")
+		log.Errorf("Error when decoding json [%v]\n", err)
+	}
+
+	log.Infof("db_get_service_details(): Decoded Response: [%+v]\n", gr)
+
+	return http.StatusOK, "", &gr
+}
+
 func POST_Service_Route_Copy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -807,17 +931,11 @@ func DELETE_Service_Route_OneRoute(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-func POST_Service_Route_Upstream_Associate(c echo.Context) error {
+func db_associate_service_route_upstream(service_name, route_name, upstream_name string, log *logrus.Entry) (int, string) {
+
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
-
-	log2 := logrus.StandardLogger()
-	log := log2.WithField("context", "web-http")
-
-	service_name := c.Param("service_name")
-	route_name := c.Param("route_name")
-	upstream_name := c.Param("upstream_name")
 
 	args["service_name"] = service_name
 	args["route_name"] = route_name
@@ -828,7 +946,21 @@ func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 	if err := saaras.RunDBQuery(url, QAssociateRouteUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusCreated, buf.Bytes())
+
+	return http.StatusCreated, buf.String()
+}
+
+func POST_Service_Route_Upstream_Associate(c echo.Context) error {
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name := c.Param("service_name")
+	route_name := c.Param("route_name")
+	upstream_name := c.Param("upstream_name")
+
+	code, buf := db_associate_service_route_upstream(service_name, route_name, upstream_name, log)
+	return c.JSONBlob(code, []byte(buf))
 }
 
 func GET_Service_Route_Upstream(c echo.Context) error {
@@ -975,5 +1107,6 @@ func Add_service_routes(e *echo.Echo) {
 
 	// Service verb
 	e.POST("/service/copy/:service_name_src/:service_name_dst", POST_Service_Copy)
+	e.POST("/service/deepcopy/:service_name_src/:service_name_dst", POST_Service_DeepCopy)
 	e.POST("/service/copy/:service_name_src/:service_name_dst/route/:route_name", POST_Service_Route_Copy)
 }
