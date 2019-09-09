@@ -13,5 +13,5 @@ func main() {
 	webhttp.Add_upstream_routes(e)
 	webhttp.Add_secret_routes(e)
 	e.Use(middleware.Logger())
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start("127.0.0.1:1323"))
 }
