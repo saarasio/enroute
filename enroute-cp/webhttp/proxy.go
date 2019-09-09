@@ -315,8 +315,9 @@ query get_one_proxy_detail($proxy_name:String!) {
 }
 `
 
-var HOST string = `localhost`
-var PORT string = `8081`
+// Read from DB_HOST and DB_PORT environment variables
+var HOST string
+var PORT string
 
 func POST_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
