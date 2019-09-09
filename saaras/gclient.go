@@ -29,6 +29,8 @@
 //  httpclient := &http.Client{}
 //  client := graphql.NewClient("https://countries.trevorblades.com/", graphql.WithHTTPClient(httpclient))
 
+// Derived from - https://godoc.org/github.com/machinebox/graphql
+
 package saaras
 
 import (
