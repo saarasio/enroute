@@ -8,6 +8,7 @@ import (
 
 func main() {
 	e := echo.New()
+	e.HideBanner = true
 	webhttp.Add_proxy_routes(e)
 	webhttp.Add_service_routes(e)
 	webhttp.Add_upstream_routes(e)
