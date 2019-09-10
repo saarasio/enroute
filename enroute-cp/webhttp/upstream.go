@@ -111,7 +111,7 @@ mutation update_upstream(
 
 	code2, buf2, u_in_db := db_get_one_upstream(upstream_name, true, log)
 
-	if code2 != http.StatusOK {
+	if code2 != http.StatusOK && code2 != http.StatusCreated {
 		return c.JSONBlob(code2, []byte(buf2))
 	}
 
@@ -157,8 +157,6 @@ mutation update_upstream(
 		u_in_db.Upstream_hc_timeoutseconds = u.Upstream_hc_timeoutseconds
 	}
 
-	log.Infof(" Sending upstream values [%+v]\n", u_in_db)
-
 	//{
 	//  "upstream_name": "test3",
 	//  "upstream_ip": "1.1.1.1",
@@ -199,6 +197,14 @@ mutation update_upstream(
 	if u_in_db.Upstream_hc_timeoutseconds == "" {
 		u_in_db.Upstream_hc_timeoutseconds = "-1"
 	}
+
+	code3, buf3 := validate_upstream(u_in_db)
+
+	if code3 != http.StatusOK {
+		return c.JSONBlob(code3, []byte(buf3))
+	}
+
+	log.Infof(" Sending upstream values [%+v]\n", u_in_db)
 
 	args["upstream_name"] = u_in_db.Upstream_name
 	args["upstream_ip"] = u_in_db.Upstream_ip
@@ -279,6 +285,19 @@ func validate_upstream(u *Upstream) (int, string) {
 	if len(u.Upstream_port) == 0 {
 		return http.StatusBadRequest, "Please provide Port using Port field"
 	}
+
+	port, err := strconv.Atoi(u.Upstream_port)
+
+	if port < 1 || port > 65535 || err != nil {
+		return http.StatusBadRequest, "Please provide a valid port value."
+	}
+
+	weight, err2 := strconv.Atoi(u.Upstream_weight)
+
+	if weight < 0 || err2 != nil {
+		return http.StatusBadRequest, "{ \"Error\" : \"Please provide a valid weight value.\" }"
+	}
+
 	// TODO: Should we make health check path mandatory? Without the path, the health checker is
 	// is not programmed and it is not getting programmed on envoy through CDS/EDS
 	if len(u.Upstream_hc_path) > 0 {

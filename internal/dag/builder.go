@@ -473,6 +473,7 @@ func stringOrDefault(s, def string) string {
 
 func (b *builder) computeIngressRoutes() {
 	for _, ir := range b.validIngressRoutes() {
+		//fmt.Printf("computeIngressRoutes(): Inspecting [%s] \n", ir.Spec.VirtualHost.Fqdn)
 		if ir.Spec.VirtualHost == nil {
 			// mark delegate ingressroute orphaned.
 			b.setOrphaned(ir)
@@ -481,17 +482,20 @@ func (b *builder) computeIngressRoutes() {
 
 		// ensure root ingressroute lives in allowed namespace
 		if !b.rootAllowed(ir) {
+			//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute cannot be defined in this namespace \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "root IngressRoute cannot be defined in this namespace"})
 			continue
 		}
 
 		host := ir.Spec.VirtualHost.Fqdn
 		if isBlank(host) {
+			//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute Fqdn must be specified \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "Spec.VirtualHost.Fqdn must be specified"})
 			continue
 		}
 
 		if strings.Contains(host, "*") {
+			//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute Fqdn cannot use wildcard \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Spec.VirtualHost.Fqdn %q cannot use wildcards", host), Vhost: host})
 			continue
 		}
@@ -514,6 +518,7 @@ func (b *builder) computeIngressRoutes() {
 
 			// If not passthrough and secret is invalid, then set status
 			if secretInvalidOrNotFound && !passthrough {
+				//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute TLS secret not found \n", ir.Spec.VirtualHost.Fqdn)
 				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed", tls.SecretName)})
 			}
 		}
@@ -568,11 +573,13 @@ func (b *builder) DAG() *DAG {
 			case *VirtualHost:
 				// suppress virtual hosts without routes.
 				if len(vh.routes) < 1 {
+					//fmt.Printf("DAG(): Suppressing Virtual Host [%+v]\n", vh)
 					delete(l.VirtualHosts, k)
 				}
 			case *SecureVirtualHost:
 				// suppress secure virtual hosts without secrets or tcpproxy.
 				if vh.Secret == nil && vh.TCPProxy == nil {
+					//fmt.Printf("DAG(): Suppressing Secure Virtual Host [%+v]\n", vh)
 					delete(l.VirtualHosts, k)
 				}
 			}
@@ -640,6 +647,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 	for _, route := range ir.Spec.Routes {
 		// route cannot both delegate and point to services
 		if len(route.Services) > 0 && route.Delegate != nil {
+			//fmt.Printf("processRoutes(): [%s] cannot specify serivce and delegate in same route \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: cannot specify services and delegate in the same route", route.Match), Vhost: host})
 			return
 		}
@@ -647,6 +655,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 		// base case: The route points to services, so we add them to the vhost
 		if len(route.Services) > 0 {
 			if !matchesPathPrefix(route.Match, prefixMatch) {
+				//fmt.Printf("processRoutes(): [%s] path prefix does not match parent path prefix\n", ir.Spec.VirtualHost.Fqdn)
 				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("the path prefix %q does not match the parent's path prefix %q", route.Match, prefixMatch), Vhost: host})
 				return
 			}
@@ -661,10 +670,12 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 			}
 			for _, service := range route.Services {
 				if service.Port < 1 || service.Port > 65535 {
+					//fmt.Printf("processRoutes(): [%s] service port not in range, service Port [%q] [%d] [%+v]\n", ir.Spec.VirtualHost.Fqdn, service.Port, service.Port, service.Port)
 					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: port must be in the range 1-65535", route.Match, service.Name), Vhost: host})
 					return
 				}
 				if service.Weight < 0 {
+					//fmt.Printf("processRoutes(): [%s] weight must be greater than zero\n", ir.Spec.VirtualHost.Fqdn)
 					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: weight must be greater than or equal to zero", route.Match, service.Name), Vhost: host})
 					return
 				}
@@ -673,6 +684,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 				//fmt.Printf("processRoutes() -> dump builder state \n")
 				//spew.Dump(b)
 				if s == nil {
+					//fmt.Printf("processRoutes(): [%s] service invalid or missing \n", ir.Spec.VirtualHost.Fqdn)
 					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
 					return
 				}
