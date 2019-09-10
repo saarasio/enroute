@@ -59,28 +59,16 @@ mutation delete_service_route($route_name: String!, $service_name: String!) {
 
 var QGetServiceRouteUpstreams = `
 query get_upstream($service_name: String!, $route_name: String!) {
-  saaras_db_service(where: {_and: {service_name: {_eq: $service_name}, routes: {route_name: {_eq: $route_name}}}}) {
-    routes {
-      route_id
-      route_name
-      route_upstreams {
-        upstream {
-	  upstream_id
-	  upstream_name
-	  upstream_ip
-	  upstream_port
-	  upstream_hc_path
-	  upstream_hc_host
-	  upstream_hc_intervalseconds
-	  upstream_hc_timeoutseconds
-	  upstream_hc_unhealthythresholdcount
-	  upstream_hc_healthythresholdcount
-	  upstream_strategy
-	  upstream_validation_cacertificate
-	  upstream_validation_subjectname
-	  create_ts
-	  update_ts
-        }
+  saaras_db_route(where: {_and: {service: {service_name: {_eq: $service_name}}, route_name: {_eq: $route_name}}}) {
+    route_name
+    route_prefix
+    route_upstreams {
+      upstream {
+        upstream_name
+        upstream_ip
+        upstream_port
+        create_ts
+        update_ts
       }
     }
   }
