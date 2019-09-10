@@ -29,6 +29,7 @@ query get_upstream {
     upstream_strategy
     upstream_validation_cacertificate
     upstream_validation_subjectname
+	 upstream_weight
     create_ts
     update_ts
   }
@@ -414,6 +415,7 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 		UpstreamName                      string    `json:"upstream_name"`
 		UpstreamPort                      int       `json:"upstream_port"`
 		UpstreamStrategy                  string    `json:"upstream_strategy"`
+		UpstreamWeight                    int       `json:"upstream_weight"`
 		UpstreamValidationCacertificate   string    `json:"upstream_validation_cacertificate"`
 		UpstreamValidationSubjectname     string    `json:"upstream_validation_subjectname"`
 	}
@@ -450,6 +452,7 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 			u.Upstream_strategy = gr.Data.SaarasDbUpstream[0].UpstreamStrategy
 			u.Upstream_validation_cacertificate = gr.Data.SaarasDbUpstream[0].UpstreamValidationCacertificate
 			u.Upstream_validation_subjectname = gr.Data.SaarasDbUpstream[0].UpstreamValidationSubjectname
+			u.Upstream_weight = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamWeight), 10)
 		}
 
 	}

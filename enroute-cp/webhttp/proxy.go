@@ -296,16 +296,18 @@ query get_one_proxy_detail($proxy_name:String!) {
               upstream_name
               upstream_ip
               upstream_port
-              upstream_hc_healthythresholdcount
+              upstream_hc_path
               upstream_hc_host
               upstream_hc_intervalseconds
-              upstream_hc_path
               upstream_hc_timeoutseconds
               upstream_hc_unhealthythresholdcount
+              upstream_hc_healthythresholdcount
               upstream_strategy
               upstream_validation_cacertificate
               upstream_validation_subjectname
               upstream_weight
+    			  create_ts
+    			  update_ts
             }
           }
         }
@@ -573,6 +575,12 @@ func GET_Proxy_Service_Association(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+func GET_Health_Check(c echo.Context) error {
+	var buf bytes.Buffer
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
 func Add_proxy_routes(e *echo.Echo) {
 	// Proxy CRUD
 	e.GET("/proxy", GET_Proxy)
@@ -593,4 +601,6 @@ func Add_proxy_routes(e *echo.Echo) {
 	// Support for verbs
 	e.GET("/proxy/dump", GET_Proxy_Detail)
 	e.GET("/proxy/dump/:proxy_name", GET_One_Proxy_Detail)
+
+	e.GET("/health", GET_Health_Check)
 }
