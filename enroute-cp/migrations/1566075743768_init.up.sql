@@ -127,11 +127,6 @@ CREATE SEQUENCE saaras_db.route_route_id_seq
     NO MAXVALUE
     CACHE 1;
 ALTER SEQUENCE saaras_db.route_route_id_seq OWNED BY saaras_db.route.route_id;
-CREATE TABLE saaras_db.route_temp (
-    route_name character varying NOT NULL,
-    route_prefix character varying NOT NULL,
-    service_name character varying NOT NULL
-);
 CREATE TABLE saaras_db.route_upstream (
     route_upstream_id bigint NOT NULL,
     route_id bigint NOT NULL,
@@ -222,10 +217,6 @@ CREATE SEQUENCE saaras_db.service_service_id_seq
     NO MAXVALUE
     CACHE 1;
 ALTER SEQUENCE saaras_db.service_service_id_seq OWNED BY saaras_db.service.service_id;
-CREATE TABLE saaras_db.service_temp (
-    service_name character varying NOT NULL,
-    fqdn character varying NOT NULL
-);
 CREATE TABLE saaras_db.upstream (
     upstream_id bigint NOT NULL,
     upstream_name character varying NOT NULL,
@@ -289,8 +280,6 @@ ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_service_id_route_name_key UNIQUE (service_id, route_name);
 ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_service_id_route_prefix_key UNIQUE (service_id, route_prefix);
-ALTER TABLE ONLY saaras_db.route_temp
-    ADD CONSTRAINT route_temp_pkey PRIMARY KEY (route_name);
 ALTER TABLE ONLY saaras_db.route_upstream
     ADD CONSTRAINT route_upstream_pkey PRIMARY KEY (route_upstream_id);
 ALTER TABLE ONLY saaras_db.route_upstream
@@ -307,8 +296,6 @@ ALTER TABLE ONLY saaras_db.service_secret
     ADD CONSTRAINT service_secret_service_id_secret_id_key UNIQUE (service_id, secret_id);
 ALTER TABLE ONLY saaras_db.service
     ADD CONSTRAINT service_service_name_key UNIQUE (service_name);
-ALTER TABLE ONLY saaras_db.service_temp
-    ADD CONSTRAINT service_temp_pkey PRIMARY KEY (service_name);
 ALTER TABLE ONLY saaras_db.upstream
     ADD CONSTRAINT upstream_pkey PRIMARY KEY (upstream_id);
 ALTER TABLE ONLY saaras_db.upstream

@@ -181,17 +181,6 @@
       event_triggers: []
       insert_permissions: []
       is_enum: false
-      object_relationships: []
-      select_permissions: []
-      table:
-        name: service_temp
-        schema: saaras_db
-      update_permissions: []
-    - array_relationships: []
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions: []
-      is_enum: false
       object_relationships:
       - comment: null
         name: secret
@@ -200,17 +189,6 @@
       select_permissions: []
       table:
         name: artifact
-        schema: saaras_db
-      update_permissions: []
-    - array_relationships: []
-      delete_permissions: []
-      event_triggers: []
-      insert_permissions: []
-      is_enum: false
-      object_relationships: []
-      select_permissions: []
-      table:
-        name: route_temp
         schema: saaras_db
       update_permissions: []
     - array_relationships:
