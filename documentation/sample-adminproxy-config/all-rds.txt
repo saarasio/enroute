@@ -1,0 +1,123 @@
+version_info: "4"
+resources: <
+  [type.googleapis.com/envoy.api.v2.RouteConfiguration]: <
+    name: "ingress_http"
+    virtual_hosts: <
+      name: "ingresspipe.io"
+      domains: "ingresspipe.io"
+      domains: "ingresspipe.io:*"
+      routes: <
+        match: <
+          prefix: "/v1/query"
+        >
+        redirect: <
+          https_redirect: true
+        >
+      >
+      routes: <
+        match: <
+          prefix: "/v1/graphql"
+        >
+        redirect: <
+          https_redirect: true
+        >
+      >
+      routes: <
+        match: <
+          prefix: "/console"
+        >
+        redirect: <
+          https_redirect: true
+        >
+      >
+      routes: <
+        match: <
+          prefix: "/"
+        >
+        redirect: <
+          https_redirect: true
+        >
+      >
+    >
+  >
+>
+resources: <
+  [type.googleapis.com/envoy.api.v2.RouteConfiguration]: <
+    name: "ingress_https"
+    virtual_hosts: <
+      name: "ingresspipe.io"
+      domains: "ingresspipe.io"
+      domains: "ingresspipe.io:*"
+      routes: <
+        match: <
+          prefix: "/v1/query"
+        >
+        route: <
+          cluster: "adminproxy/db_serve_process/8081/265dda2414"
+        >
+        request_headers_to_add: <
+          header: <
+            key: "x-request-start"
+            value: "t=%START_TIME(%s.%3f)%"
+          >
+          append: <
+            value: true
+          >
+        >
+      >
+      routes: <
+        match: <
+          prefix: "/v1/graphql"
+        >
+        route: <
+          cluster: "adminproxy/db_serve_process/8081/265dda2414"
+        >
+        request_headers_to_add: <
+          header: <
+            key: "x-request-start"
+            value: "t=%START_TIME(%s.%3f)%"
+          >
+          append: <
+            value: true
+          >
+        >
+      >
+      routes: <
+        match: <
+          prefix: "/console"
+        >
+        route: <
+          cluster: "adminproxy/db_serve_process/8081/265dda2414"
+        >
+        request_headers_to_add: <
+          header: <
+            key: "x-request-start"
+            value: "t=%START_TIME(%s.%3f)%"
+          >
+          append: <
+            value: true
+          >
+        >
+      >
+      routes: <
+        match: <
+          prefix: "/"
+        >
+        route: <
+          cluster: "adminproxy/webapp_serve_process/1323/0bb4da595b"
+        >
+        request_headers_to_add: <
+          header: <
+            key: "x-request-start"
+            value: "t=%START_TIME(%s.%3f)%"
+          >
+          append: <
+            value: true
+          >
+        >
+      >
+    >
+  >
+>
+type_url: "type.googleapis.com/envoy.api.v2.RouteConfiguration"
+nonce: "4"

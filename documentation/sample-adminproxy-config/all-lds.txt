@@ -1,0 +1,220 @@
+version_info: "4"
+resources: <
+  [type.googleapis.com/envoy.api.v2.Listener]: <
+    name: "ingress_http"
+    address: <
+      socket_address: <
+        address: "0.0.0.0"
+        port_value: 8080
+      >
+    >
+    filter_chains: <
+      filters: <
+        name: "envoy.http_connection_manager"
+        typed_config: <
+          [type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager]: <
+            stat_prefix: "ingress_http"
+            rds: <
+              config_source: <
+                api_config_source: <
+                  api_type: GRPC
+                  grpc_services: <
+                    envoy_grpc: <
+                      cluster_name: "contour"
+                    >
+                  >
+                >
+              >
+              route_config_name: "ingress_http"
+            >
+            http_filters: <
+              name: "envoy.gzip"
+            >
+            http_filters: <
+              name: "envoy.grpc_web"
+            >
+            http_filters: <
+              name: "envoy.router"
+            >
+            http_protocol_options: <
+              accept_http_10: true
+            >
+            idle_timeout: <
+              seconds: 60
+            >
+            access_log: <
+              name: "envoy.file_access_log"
+              typed_config: <
+                [type.googleapis.com/envoy.config.accesslog.v2.FileAccessLog]: <
+                  path: "/dev/stdout"
+                >
+              >
+            >
+            use_remote_address: <
+              value: true
+            >
+            normalize_path: <
+              value: true
+            >
+          >
+        >
+      >
+    >
+  >
+>
+resources: <
+  [type.googleapis.com/envoy.api.v2.Listener]: <
+    name: "ingress_https"
+    address: <
+      socket_address: <
+        address: "0.0.0.0"
+        port_value: 8443
+      >
+    >
+    filter_chains: <
+      filter_chain_match: <
+        server_names: "ingresspipe.io"
+      >
+      tls_context: <
+        common_tls_context: <
+          tls_params: <
+            tls_minimum_protocol_version: TLSv1_1
+            tls_maximum_protocol_version: TLSv1_3
+            cipher_suites: "[ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]"
+            cipher_suites: "[ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]"
+            cipher_suites: "ECDHE-ECDSA-AES128-SHA"
+            cipher_suites: "ECDHE-RSA-AES128-SHA"
+            cipher_suites: "ECDHE-ECDSA-AES256-GCM-SHA384"
+            cipher_suites: "ECDHE-RSA-AES256-GCM-SHA384"
+            cipher_suites: "ECDHE-ECDSA-AES256-SHA"
+            cipher_suites: "ECDHE-RSA-AES256-SHA"
+          >
+          tls_certificate_sds_secret_configs: <
+            name: "adminproxy/IngressPipeFromCertbot/929cb8a68c"
+            sds_config: <
+              api_config_source: <
+                api_type: GRPC
+                grpc_services: <
+                  envoy_grpc: <
+                    cluster_name: "contour"
+                  >
+                >
+              >
+            >
+          >
+          alpn_protocols: "h2"
+          alpn_protocols: "http/1.1"
+        >
+      >
+      filters: <
+        name: "envoy.http_connection_manager"
+        typed_config: <
+          [type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager]: <
+            stat_prefix: "ingress_https"
+            rds: <
+              config_source: <
+                api_config_source: <
+                  api_type: GRPC
+                  grpc_services: <
+                    envoy_grpc: <
+                      cluster_name: "contour"
+                    >
+                  >
+                >
+              >
+              route_config_name: "ingress_https"
+            >
+            http_filters: <
+              name: "envoy.gzip"
+            >
+            http_filters: <
+              name: "envoy.grpc_web"
+            >
+            http_filters: <
+              name: "envoy.router"
+            >
+            http_protocol_options: <
+              accept_http_10: true
+            >
+            idle_timeout: <
+              seconds: 60
+            >
+            access_log: <
+              name: "envoy.file_access_log"
+              typed_config: <
+                [type.googleapis.com/envoy.config.accesslog.v2.FileAccessLog]: <
+                  path: "/dev/stdout"
+                >
+              >
+            >
+            use_remote_address: <
+              value: true
+            >
+            normalize_path: <
+              value: true
+            >
+          >
+        >
+      >
+    >
+    listener_filters: <
+      name: "envoy.listener.tls_inspector"
+    >
+  >
+>
+resources: <
+  [type.googleapis.com/envoy.api.v2.Listener]: <
+    name: "stats-health"
+    address: <
+      socket_address: <
+        address: "0.0.0.0"
+        port_value: 8002
+      >
+    >
+    filter_chains: <
+      filters: <
+        name: "envoy.http_connection_manager"
+        typed_config: <
+          [type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager]: <
+            stat_prefix: "stats"
+            route_config: <
+              virtual_hosts: <
+                name: "backend"
+                domains: "*"
+                routes: <
+                  match: <
+                    prefix: "/stats"
+                  >
+                  route: <
+                    cluster: "service-stats"
+                  >
+                >
+              >
+            >
+            http_filters: <
+              name: "envoy.health_check"
+              typed_config: <
+                [type.googleapis.com/envoy.config.filter.http.health_check.v2.HealthCheck]: <
+                  pass_through_mode: <
+                  >
+                  headers: <
+                    name: ":path"
+                    exact_match: "/healthz"
+                  >
+                >
+              >
+            >
+            http_filters: <
+              name: "envoy.router"
+            >
+            normalize_path: <
+              value: true
+            >
+          >
+        >
+      >
+    >
+  >
+>
+type_url: "type.googleapis.com/envoy.api.v2.Listener"
+nonce: "4"

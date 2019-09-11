@@ -1,0 +1,95 @@
+version_info: "4"
+resources: <
+  [type.googleapis.com/envoy.api.v2.Cluster]: <
+    name: "adminproxy/db_serve_process/8081/265dda2414"
+    alt_stat_name: "adminproxy_db_serve_process_8081"
+    type: EDS
+    eds_cluster_config: <
+      eds_config: <
+        api_config_source: <
+          api_type: GRPC
+          grpc_services: <
+            envoy_grpc: <
+              cluster_name: "contour"
+            >
+          >
+        >
+      >
+      service_name: "adminproxy/db_serve_process"
+    >
+    connect_timeout: <
+      nanos: 250000000
+    >
+    health_checks: <
+      timeout: <
+        seconds: 2
+      >
+      interval: <
+        seconds: 10
+      >
+      unhealthy_threshold: <
+        value: 3
+      >
+      healthy_threshold: <
+        value: 2
+      >
+      http_health_check: <
+        host: "127.0.0.1"
+        path: "/v1/version"
+      >
+    >
+    common_lb_config: <
+      healthy_panic_threshold: <
+      >
+    >
+    drain_connections_on_host_removal: true
+  >
+>
+resources: <
+  [type.googleapis.com/envoy.api.v2.Cluster]: <
+    name: "adminproxy/webapp_serve_process/1323/0bb4da595b"
+    alt_stat_name: "adminproxy_webapp_serve_process_1323"
+    type: EDS
+    eds_cluster_config: <
+      eds_config: <
+        api_config_source: <
+          api_type: GRPC
+          grpc_services: <
+            envoy_grpc: <
+              cluster_name: "contour"
+            >
+          >
+        >
+      >
+      service_name: "adminproxy/webapp_serve_process"
+    >
+    connect_timeout: <
+      nanos: 250000000
+    >
+    health_checks: <
+      timeout: <
+        seconds: 2
+      >
+      interval: <
+        seconds: 10
+      >
+      unhealthy_threshold: <
+        value: 3
+      >
+      healthy_threshold: <
+        value: 2
+      >
+      http_health_check: <
+        host: "127.0.0.1"
+        path: "/health"
+      >
+    >
+    common_lb_config: <
+      healthy_panic_threshold: <
+      >
+    >
+    drain_connections_on_host_removal: true
+  >
+>
+type_url: "type.googleapis.com/envoy.api.v2.Cluster"
+nonce: "4"

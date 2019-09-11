@@ -1,0 +1,42 @@
+{
+    "data": {
+        "saaras_db_upstream": [
+            {
+                "create_ts": "2019-09-09T17:38:44.516337+00:00",
+                "update_ts": "2019-09-10T19:28:22.654599+00:00",
+                "upstream_hc_healthythresholdcount": 0,
+                "upstream_hc_host": "127.0.0.1",
+                "upstream_hc_intervalseconds": 0,
+                "upstream_hc_path": "/health",
+                "upstream_hc_timeoutseconds": 0,
+                "upstream_hc_unhealthythresholdcount": 0,
+                "upstream_id": 2,
+                "upstream_ip": "127.0.0.1",
+                "upstream_name": "webapp_serve_process",
+                "upstream_port": 1323,
+                "upstream_strategy": "",
+                "upstream_validation_cacertificate": "",
+                "upstream_validation_subjectname": "",
+                "upstream_weight": 99
+            },
+            {
+                "create_ts": "2019-09-09T18:28:18.684243+00:00",
+                "update_ts": "2019-09-10T23:38:09.361994+00:00",
+                "upstream_hc_healthythresholdcount": 0,
+                "upstream_hc_host": "127.0.0.1",
+                "upstream_hc_intervalseconds": 0,
+                "upstream_hc_path": "/v1/version",
+                "upstream_hc_timeoutseconds": 0,
+                "upstream_hc_unhealthythresholdcount": 0,
+                "upstream_id": 3,
+                "upstream_ip": "127.0.0.1",
+                "upstream_name": "db_serve_process",
+                "upstream_port": 8081,
+                "upstream_strategy": "",
+                "upstream_validation_cacertificate": "",
+                "upstream_validation_subjectname": "",
+                "upstream_weight": 98
+            }
+        ]
+    }
+}
