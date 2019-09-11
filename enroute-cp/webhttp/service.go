@@ -572,8 +572,6 @@ func GET_One_Service_Detail(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-
-
 func DELETE_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
