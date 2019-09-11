@@ -177,6 +177,39 @@ mutation delete_route_upstream($service_name: String!, $route_name: String!, $up
 }
 `
 
+var QGetOneServiceDetail = `
+query get_upstream($service_name: String!) {
+  saaras_db_service(where: {service_name: {_eq: $service_name}}) {
+    service_id
+    service_name
+    fqdn
+    create_ts
+    routes {
+      route_id
+      route_name
+      route_upstreams {
+        upstream {
+          upstream_id
+          upstream_name
+          upstream_ip
+          upstream_port
+        }
+      }
+      route_prefix
+    }
+    service_secrets {
+      secret {
+        secret_id
+        secret_name
+        secret_sni
+        secret_key
+        secret_cert
+      }
+    }
+  }
+}
+`
+
 func db_update_service(s *Service, log *logrus.Entry) (int, string) {
 
 	var QPatchService = `
@@ -518,6 +551,28 @@ func GET_One_Service(c echo.Context) error {
 	code, buf, _ := db_get_one_service(service_name, false, log)
 	return c.JSONBlob(code, []byte(buf))
 }
+
+func GET_One_Service_Detail(c echo.Context) error {
+
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	service_name := c.Param("service_name")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	args["service_name"] = service_name
+	if err := saaras.RunDBQuery(url, QGetOneServiceDetail, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+
 
 func DELETE_Service(c echo.Context) error {
 	var buf bytes.Buffer
@@ -1097,4 +1152,5 @@ func Add_service_routes(e *echo.Echo) {
 	e.POST("/service/copy/:service_name_src/:service_name_dst", POST_Service_Copy)
 	e.POST("/service/deepcopy/:service_name_src/:service_name_dst", POST_Service_DeepCopy)
 	e.POST("/service/copy/:service_name_src/:service_name_dst/route/:route_name", POST_Service_Route_Copy)
+	e.GET("/service/dump/:service_name", GET_One_Service_Detail)
 }
