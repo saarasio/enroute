@@ -1149,6 +1149,6 @@ func Add_service_routes(e *echo.Echo) {
 	// Service verb
 	e.POST("/service/copy/:service_name_src/:service_name_dst", POST_Service_Copy)
 	e.POST("/service/deepcopy/:service_name_src/:service_name_dst", POST_Service_DeepCopy)
-	e.POST("/service/copy/:service_name_src/:service_name_dst/route/:route_name", POST_Service_Route_Copy)
+	e.POST("/service/copyroute/:service_name_src/:service_name_dst/route/:route_name", POST_Service_Route_Copy)
 	e.GET("/service/dump/:service_name", GET_One_Service_Detail)
 }
