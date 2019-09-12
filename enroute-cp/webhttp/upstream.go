@@ -236,17 +236,17 @@ func db_insert_upstream(u *Upstream, log *logrus.Entry) (int, string) {
 	mutation insert_upstream(
 		$upstream_name: String!, 
 		$upstream_ip: String!, 
+		$upstream_hc_path: String!, 
 		$upstream_port: Int!,
-		$upstream_hc_path: String!,
-		$upstream_hc_host: String!
+		$upstream_weight: Int
 	) {
 	  insert_saaras_db_upstream(
 	    objects: {
 	      upstream_name: $upstream_name, 
 	      upstream_ip: $upstream_ip, 
+	      upstream_hc_path: $upstream_hc_path, 
 	      upstream_port: $upstream_port,
-	      upstream_hc_path: $upstream_hc_path,
-	      upstream_hc_host: $upstream_hc_host
+	      upstream_weight: $upstream_weight
 	    }
 	  ) {
 	    affected_rows
@@ -260,16 +260,20 @@ func db_insert_upstream(u *Upstream, log *logrus.Entry) (int, string) {
 
 	args["upstream_name"] = u.Upstream_name
 	args["upstream_ip"] = u.Upstream_ip
-	args["upstream_port"] = u.Upstream_port
 	args["upstream_hc_path"] = u.Upstream_hc_path
-	args["upstream_hc_host"] = u.Upstream_hc_host
+	args["upstream_port"] = u.Upstream_port
+	args["upstream_weight"] = u.Upstream_weight
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	log.Infof("db_insert_upstream() with [%+v]\n", buf)
 
 	if err := saaras.RunDBQuery(url, QCreateUpstream, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 		return http.StatusBadRequest, buf.String()
 	}
+
+	log.Infof("db_insert_upstream() returned with status [%+s]\n", buf.String())
 
 	return http.StatusCreated, buf.String()
 }
@@ -303,13 +307,13 @@ func validate_upstream(u *Upstream) (int, string) {
 	// is not programmed and it is not getting programmed on envoy through CDS/EDS
 	if len(u.Upstream_hc_path) > 0 {
 	} else {
-		return http.StatusBadRequest, "Please provide a value for upstream_hc_path"
+		return http.StatusBadRequest, "{ \"Error\" : \"Please provide a value for upstream_hc_path\" }"
 	}
 
-	if len(u.Upstream_hc_host) > 0 {
-	} else {
-		return http.StatusBadRequest, "Please provide a value for upstream_hc_host"
-	}
+	//if len(u.Upstream_hc_host) > 0 {
+	//} else {
+	//		  return http.StatusBadRequest, "\"Error\" : \"Please provide a value for upstream_hc_host\""
+	//}
 
 	return http.StatusOK, ""
 }
@@ -338,6 +342,8 @@ func POST_Upstream(c echo.Context) error {
 	if code != http.StatusOK {
 		return c.JSONBlob(code, []byte(buf))
 	}
+
+	log.Infof("POST_Upstream() calling db_insert_upstream() with [%+v]\n", u)
 
 	code2, buf2 := db_insert_upstream(u, log)
 	return c.JSONBlob(code2, []byte(buf2))
@@ -485,6 +491,7 @@ func POST_Upstream_Copy(c echo.Context) error {
 	}
 
 	u.Upstream_name = upstream_name_dst
+	// TODO: Post with a query with all fields. the db_insert_upstream call right now only copies a few fields
 	code2, buf2 := db_insert_upstream(u, log)
 	return c.JSONBlob(code2, []byte(buf2))
 
