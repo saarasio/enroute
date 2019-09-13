@@ -4,6 +4,13 @@ definitions:
       name:
         type: string
     type: object
+  webhttp.Route:
+    properties:
+      route_name:
+        type: string
+      route_prefix:
+        type: string
+    type: object
   webhttp.Service:
     properties:
       fqdn:
@@ -233,7 +240,7 @@ paths:
       parameters:
       - description: Service to create
         in: body
-        name: Name
+        name: Service
         required: true
         schema:
           $ref: '#/definitions/webhttp.Service'
@@ -314,6 +321,381 @@ paths:
           schema:
             type: ""
       summary: Update a service
+      tags:
+      - service
+  /service/{service_name}/proxy:
+    get:
+      consumes:
+      - application/json
+      description: Fetch list of proxies on which this service is programmed
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Fetch list of proxies on which this service is programmed
+      tags:
+      - service
+      - proxy
+  /service/{service_name}/route:
+    get:
+      consumes:
+      - application/json
+      description: Get all routes for a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Get all routes for a service
+      tags:
+      - service
+      - route
+    post:
+      consumes:
+      - application/json
+      description: Create a route associated with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Route to create
+        in: body
+        name: Route
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Route'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Create a route associated with a service
+      tags:
+      - service
+      - route
+  /service/{service_name}/route/{route_name}:
+    get:
+      consumes:
+      - application/json
+      description: Delete the route associated with the service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route to delete
+        in: path
+        name: route_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Delete the route associated with the service
+      tags:
+      - service
+      - route
+    patch:
+      consumes:
+      - application/json
+      description: Update a route associated with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of service
+        in: path
+        name: route_name
+        required: true
+        type: string
+      - description: Route to update
+        in: body
+        name: Route
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Route'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Update a route associated with a service
+      tags:
+      - service
+      - route
+  /service/{service_name}/route/{route_name}/upstream:
+    get:
+      consumes:
+      - application/json
+      description: Get all upstreams associated with a service route
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route
+        in: path
+        name: route_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Get all upstreams associated with a service route
+      tags:
+      - service
+      - route
+      - upstream
+  /service/{service_name}/route/{route_name}/upstream/{upstream_name}:
+    get:
+      consumes:
+      - application/json
+      description: Disassociate an upstream with a service route. This does not delete
+        the upstream.
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route
+        in: path
+        name: route_name
+        required: true
+        type: string
+      - description: Name of upstream to disassociate with service route
+        in: path
+        name: upstream_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Disassociate an upstream with a service route
+      tags:
+      - service
+      - route
+      - upstream
+  /service/{service_name}/secret:
+    get:
+      consumes:
+      - application/json
+      description: List all secrets associated with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List all secrets associated with a service
+      tags:
+      - service
+      - secret
+  /service/{service_name}/secret/{secret_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Disassociate a secret with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of secret
+        in: path
+        name: secret_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Disassociate a secret with a service
+      tags:
+      - service
+      - secret
+    post:
+      consumes:
+      - application/json
+      description: Associate a secret with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of secret
+        in: path
+        name: secret_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Associate a secret with a service
+      tags:
+      - service
+      - secret
+  /service/copy/{service_name_src}/{service_name_dst}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name_src
+        required: true
+        type: string
+      - description: Name of service
+        in: path
+        name: service_name_dst
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Copy service
+      tags:
+      - service
+  /service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name}:
+    post:
+      consumes:
+      - application/json
+      description: Copy a route on source service to a destination service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name_src
+        required: true
+        type: string
+      - description: Name of service
+        in: path
+        name: service_name_dst
+        required: true
+        type: string
+      - description: Name of service
+        in: path
+        name: route_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Copy a route on source service to a destination service
+      tags:
+      - service
+      - route
+  /service/deepcopy/{service_name_src}/{service_name_dst}:
+    post:
+      consumes:
+      - application/json
+      description: Deep copy service copies service, associated routes and upstream
+        associations. Upstream copies are not created.
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name_src
+        required: true
+        type: string
+      - description: Name of service
+        in: path
+        name: service_name_dst
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Deep copy service
+      tags:
+      - service
+      - route
+  /service/dump/{service_name}:
+    get:
+      consumes:
+      - application/json
+      description: Fetch detail of specified service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Fetch detail of specified service
       tags:
       - service
 swagger: "2.0"

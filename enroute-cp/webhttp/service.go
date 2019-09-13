@@ -451,6 +451,14 @@ func validate_service(s *Service) (int, string) {
 	return http.StatusOK, ""
 }
 
+// @Summary Copy service
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param service_name_src path string true "Name of service" 
+// @Param service_name_dst path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/copy/{service_name_src}/{service_name_dst} [post]
 func POST_Service_Copy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -463,6 +471,15 @@ func POST_Service_Copy(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary Deep copy service
+// @Description Deep copy service copies service, associated routes and upstream associations. Upstream copies are not created.
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name_src path string true "Name of service" 
+// @Param service_name_dst path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/deepcopy/{service_name_src}/{service_name_dst} [post]
 func POST_Service_DeepCopy(c echo.Context) error {
 	// Copy service
 	// Copy routes for service
@@ -527,7 +544,7 @@ func POST_Service_DeepCopy(c echo.Context) error {
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Param Name body webhttp.Service true "Service to create" 
+// @Param Service body webhttp.Service true "Service to create" 
 // @Success 201 {} integer OK
 // @Router /service [post]
 func POST_Service(c echo.Context) error {
@@ -584,6 +601,14 @@ func GET_One_Service(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary Fetch detail of specified service
+// @Description Fetch detail of specified service
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/dump/{service_name} [get]
 func GET_One_Service_Detail(c echo.Context) error {
 
 	var buf bytes.Buffer
@@ -630,6 +655,14 @@ func DELETE_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Fetch list of proxies on which this service is programmed
+// @Description Fetch list of proxies on which this service is programmed
+// @Tags service, proxy
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/proxy [get]
 func GET_Service_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -738,6 +771,15 @@ func validate_service_route(r *Route) (int, string) {
 	return http.StatusOK, ""
 }
 
+// @Summary Create a route associated with a service
+// @Description Create a route associated with a service
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param Route body webhttp.Route true "Route to create" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route [post]
 func POST_Service_Route(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -759,6 +801,16 @@ func POST_Service_Route(c echo.Context) error {
 	return c.JSONBlob(code2, []byte(buf2))
 }
 
+// @Summary Update a route associated with a service
+// @Description Update a route associated with a service
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param route_name path string true "Name of service" 
+// @Param Route body webhttp.Route true "Route to update" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route/{route_name} [patch]
 func PATCH_Service_Route(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -860,6 +912,16 @@ query get_saaras_db_proxy_names($service_name: String!) {
 	return http.StatusOK, "", &gr
 }
 
+// @Summary Copy a route on source service to a destination service
+// @Description Copy a route on source service to a destination service
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name_src path string true "Name of service" 
+// @Param service_name_dst path string true "Name of service" 
+// @Param route_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name} [post]
 func POST_Service_Route_Copy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -883,6 +945,14 @@ func POST_Service_Route_Copy(c echo.Context) error {
 	return c.JSONBlob(code3, []byte(buf3))
 }
 
+// @Summary Get all routes for a service
+// @Description Get all routes for a service
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route [get]
 func GET_Service_Route(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -972,6 +1042,15 @@ func db_get_one_service_route(service_name string, route_name string, decode boo
 
 }
 
+// @Summary Get information for a route for given service
+// @Description Get information for a route for given service
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param route_name path string true "Name of route" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route/{route_name} [get]
 func GET_Service_Route_OneRoute(c echo.Context) error {
 	var args map[string]string
 	args = make(map[string]string)
@@ -990,6 +1069,15 @@ func GET_Service_Route_OneRoute(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary Delete the route associated with the service
+// @Description Delete the route associated with the service
+// @Tags service, route
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param route_name path string true "Name of route to delete" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route/{route_name} [get]
 func DELETE_Service_Route_OneRoute(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1031,6 +1119,16 @@ func db_associate_service_route_upstream(service_name, route_name, upstream_name
 	return http.StatusCreated, buf.String()
 }
 
+// @Summary Associate an upstream with a service route
+// @Description Associate an upstream with a service route
+// @Tags service, route, upstream
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param route_name path string true "Name of route" 
+// @Param upstream_name path string true "Name of upstream to associate with service route" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route/{route_name}/upstream/{upstream_name} [get]
 func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -1044,6 +1142,15 @@ func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary Get all upstreams associated with a service route
+// @Description Get all upstreams associated with a service route
+// @Tags service, route, upstream
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param route_name path string true "Name of route" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route/{route_name}/upstream [get]
 func GET_Service_Route_Upstream(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1066,6 +1173,16 @@ func GET_Service_Route_Upstream(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Disassociate an upstream with a service route
+// @Description Disassociate an upstream with a service route. This does not delete the upstream.
+// @Tags service, route, upstream
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param route_name path string true "Name of route" 
+// @Param upstream_name path string true "Name of upstream to disassociate with service route" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/route/{route_name}/upstream/{upstream_name} [get]
 func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1090,6 +1207,14 @@ func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary List all secrets associated with a service
+// @Description List all secrets associated with a service
+// @Tags service, secret
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/secret [get]
 func GET_Service_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1110,6 +1235,15 @@ func GET_Service_Secret(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Associate a secret with a service
+// @Description Associate a secret with a service
+// @Tags service, secret
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param secret_name path string true "Name of secret" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/secret/{secret_name} [post]
 func POST_Service_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1132,6 +1266,15 @@ func POST_Service_Secret(c echo.Context) error {
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
+// @Summary Disassociate a secret with a service
+// @Description Disassociate a secret with a service
+// @Tags service, secret
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Param secret_name path string true "Name of secret" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name}/secret/{secret_name} [delete]
 func DELETE_Service_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

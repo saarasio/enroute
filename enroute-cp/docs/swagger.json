@@ -336,7 +336,7 @@
                 "parameters": [
                     {
                         "description": "Service to create",
-                        "name": "Name",
+                        "name": "Service",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -348,6 +348,163 @@
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/copy/{service_name_src}/{service_name_dst}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Copy service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name_src",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name_dst",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name}": {
+            "post": {
+                "description": "Copy a route on source service to a destination service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route"
+                ],
+                "summary": "Copy a route on source service to a destination service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name_src",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name_dst",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "route_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/deepcopy/{service_name_src}/{service_name_dst}": {
+            "post": {
+                "description": "Deep copy service copies service, associated routes and upstream associations. Upstream copies are not created.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route"
+                ],
+                "summary": "Deep copy service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name_src",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name_dst",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/dump/{service_name}": {
+            "get": {
+                "description": "Fetch detail of specified service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Fetch detail of specified service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": ""
                         }
@@ -456,6 +613,401 @@
                     }
                 }
             }
+        },
+        "/service/{service_name}/proxy": {
+            "get": {
+                "description": "Fetch list of proxies on which this service is programmed",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "proxy"
+                ],
+                "summary": "Fetch list of proxies on which this service is programmed",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{service_name}/route": {
+            "get": {
+                "description": "Get all routes for a service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route"
+                ],
+                "summary": "Get all routes for a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a route associated with a service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route"
+                ],
+                "summary": "Create a route associated with a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Route to create",
+                        "name": "Route",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/webhttp.Route"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{service_name}/route/{route_name}": {
+            "get": {
+                "description": "Delete the route associated with the service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route"
+                ],
+                "summary": "Delete the route associated with the service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of route to delete",
+                        "name": "route_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update a route associated with a service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route"
+                ],
+                "summary": "Update a route associated with a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "route_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Route to update",
+                        "name": "Route",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/webhttp.Route"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{service_name}/route/{route_name}/upstream": {
+            "get": {
+                "description": "Get all upstreams associated with a service route",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route",
+                    "upstream"
+                ],
+                "summary": "Get all upstreams associated with a service route",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of route",
+                        "name": "route_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{service_name}/route/{route_name}/upstream/{upstream_name}": {
+            "get": {
+                "description": "Disassociate an upstream with a service route. This does not delete the upstream.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "route",
+                    "upstream"
+                ],
+                "summary": "Disassociate an upstream with a service route",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of route",
+                        "name": "route_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of upstream to disassociate with service route",
+                        "name": "upstream_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{service_name}/secret": {
+            "get": {
+                "description": "List all secrets associated with a service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "secret"
+                ],
+                "summary": "List all secrets associated with a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{service_name}/secret/{secret_name}": {
+            "post": {
+                "description": "Associate a secret with a service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "secret"
+                ],
+                "summary": "Associate a secret with a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of secret",
+                        "name": "secret_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Disassociate a secret with a service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service",
+                    "secret"
+                ],
+                "summary": "Disassociate a secret with a service",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of service",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of secret",
+                        "name": "secret_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -463,6 +1015,17 @@
             "type": "object",
             "properties": {
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "webhttp.Route": {
+            "type": "object",
+            "properties": {
+                "route_name": {
+                    "type": "string"
+                },
+                "route_prefix": {
                     "type": "string"
                 }
             }
