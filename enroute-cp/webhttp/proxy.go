@@ -380,7 +380,7 @@ func GET_Proxy(c echo.Context) error {
 
 // @Summary Get all proxy details
 // @Description Get a detailed version of list of proxies
-// @Tags proxy
+// @Tags proxy, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Success 200 {} integer OK
@@ -403,7 +403,7 @@ func GET_Proxy_Detail(c echo.Context) error {
 
 // @Summary Get details of specified proxy
 // @Description Get a detailed version of specified proxy
-// @Tags proxy
+// @Tags proxy, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Param proxy_name path string true "Name of proxy for which to list services" 
@@ -596,7 +596,7 @@ func Add_proxy_routes(e *echo.Echo) {
 	e.GET("/proxy/:proxy_name/service/:service_name", GET_Proxy_Service_Association)
 	e.DELETE("/proxy/:proxy_name/service/:service_name", DELETE_Proxy_Service_Association)
 
-	// Support for verbs
+	// Support for operational-verbs
 	e.GET("/proxy/dump", GET_Proxy_Detail)
 	e.GET("/proxy/dump/:proxy_name", GET_One_Proxy_Detail)
 

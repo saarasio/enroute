@@ -237,6 +237,7 @@ paths:
       summary: Get all proxy details
       tags:
       - proxy
+      - operational-verbs
   /proxy/dump/{proxy_name}:
     get:
       consumes:
@@ -258,6 +259,7 @@ paths:
       summary: Get details of specified proxy
       tags:
       - proxy
+      - operational-verbs
   /secret:
     get:
       consumes:
@@ -770,6 +772,7 @@ paths:
       summary: Copy service
       tags:
       - service
+      - operational-verbs
   /service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name}:
     post:
       consumes:
@@ -802,6 +805,7 @@ paths:
       tags:
       - service
       - route
+      - operational-verbs
   /service/deepcopy/{service_name_src}/{service_name_dst}:
     post:
       consumes:
@@ -830,6 +834,7 @@ paths:
       tags:
       - service
       - route
+      - operational-verbs
   /service/dump/{service_name}:
     get:
       consumes:
@@ -851,6 +856,7 @@ paths:
       summary: Fetch detail of specified service
       tags:
       - service
+      - operational-verbs
   /upstream:
     get:
       consumes:
@@ -999,4 +1005,5 @@ paths:
       summary: Copy an upstream
       tags:
       - upstream
+      - operational-verbs
 swagger: "2.0"

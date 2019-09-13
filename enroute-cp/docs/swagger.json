@@ -77,7 +77,8 @@
                     "application/json"
                 ],
                 "tags": [
-                    "proxy"
+                    "proxy",
+                    "operational-verbs"
                 ],
                 "summary": "Get all proxy details",
                 "responses": {
@@ -100,7 +101,8 @@
                     "application/json"
                 ],
                 "tags": [
-                    "proxy"
+                    "proxy",
+                    "operational-verbs"
                 ],
                 "summary": "Get details of specified proxy",
                 "parameters": [
@@ -529,7 +531,8 @@
                     "application/json"
                 ],
                 "tags": [
-                    "service"
+                    "service",
+                    "operational-verbs"
                 ],
                 "summary": "Copy service",
                 "parameters": [
@@ -569,7 +572,8 @@
                 ],
                 "tags": [
                     "service",
-                    "route"
+                    "route",
+                    "operational-verbs"
                 ],
                 "summary": "Copy a route on source service to a destination service",
                 "parameters": [
@@ -616,7 +620,8 @@
                 ],
                 "tags": [
                     "service",
-                    "route"
+                    "route",
+                    "operational-verbs"
                 ],
                 "summary": "Deep copy service",
                 "parameters": [
@@ -655,7 +660,8 @@
                     "application/json"
                 ],
                 "tags": [
-                    "service"
+                    "service",
+                    "operational-verbs"
                 ],
                 "summary": "Fetch detail of specified service",
                 "parameters": [
@@ -1239,7 +1245,8 @@
                     "application/json"
                 ],
                 "tags": [
-                    "upstream"
+                    "upstream",
+                    "operational-verbs"
                 ],
                 "summary": "Copy an upstream",
                 "parameters": [

@@ -502,7 +502,7 @@ func GET_One_Upstream(c echo.Context) error {
 
 // @Summary Copy an upstream
 // @Description Make a copy from upstream_name_src to upstream_name_dst
-// @Tags upstream
+// @Tags upstream, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Param upstream_name_src path string true "Name of upstream" 
@@ -613,6 +613,6 @@ func Add_upstream_routes(e *echo.Echo) {
 	// Get all routes associated with this upstream
 	e.GET("/upstream/:upstream_name/route", GET_Upstream_Routes)
 
-	// Support for verbs
+	// Support for operational-verbs
 	e.POST("/upstream/copy/:upstream_name_src/:upstream_name_dst", POST_Upstream_Copy)
 }

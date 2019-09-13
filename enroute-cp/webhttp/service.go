@@ -452,7 +452,7 @@ func validate_service(s *Service) (int, string) {
 }
 
 // @Summary Copy service
-// @Tags service
+// @Tags service, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Param service_name_src path string true "Name of service" 
@@ -473,7 +473,7 @@ func POST_Service_Copy(c echo.Context) error {
 
 // @Summary Deep copy service
 // @Description Deep copy service copies service, associated routes and upstream associations. Upstream copies are not created.
-// @Tags service, route
+// @Tags service, route, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Param service_name_src path string true "Name of service" 
@@ -603,7 +603,7 @@ func GET_One_Service(c echo.Context) error {
 
 // @Summary Fetch detail of specified service
 // @Description Fetch detail of specified service
-// @Tags service
+// @Tags service, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service" 
@@ -914,7 +914,7 @@ query get_saaras_db_proxy_names($service_name: String!) {
 
 // @Summary Copy a route on source service to a destination service
 // @Description Copy a route on source service to a destination service
-// @Tags service, route
+// @Tags service, route, operational-verbs
 // @Accept  json
 // @Produce  json
 // @Param service_name_src path string true "Name of service" 
