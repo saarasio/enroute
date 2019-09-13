@@ -3,7 +3,7 @@ package webhttp
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/saaras"
 	"net/http"

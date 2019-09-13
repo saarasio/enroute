@@ -2,14 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	webhttp "github.com/saarasio/enroute/enroute-cp/webhttp"
 	"os"
+	"github.com/swaggo/echo-swagger"
+	_ "github.com/saarasio/enroute/enroute-cp/docs"
 )
+
+// @title Enroute API
+// @version 1.0
+// @description Provide API to configure multiple envoy proxies
+
+// @contact.name API Support
+// @contact.url https://saaras.io/
 
 func main() {
 	e := echo.New()
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.HideBanner = true
 	webhttp.Add_proxy_routes(e)
 	webhttp.Add_service_routes(e)

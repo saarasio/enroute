@@ -42,6 +42,9 @@ install:
 download:
 	go mod download
 
+apidocs:
+	cd enroute-cp && swag init -g webhttp.go && cd ..
+
 container:
 	docker build . -t $(IMAGE):$(VERSION)
 	docker build . -t $(IMAGE):latest

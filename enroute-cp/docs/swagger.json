@@ -1,0 +1,14 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Provide API to configure multiple envoy proxies",
+        "title": "Enroute API",
+        "contact": {
+            "name": "API Support",
+            "url": "https://saaras.io/"
+        },
+        "license": {},
+        "version": "1.0"
+    },
+    "paths": {}
+}
