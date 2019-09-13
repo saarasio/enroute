@@ -299,6 +299,171 @@
                 }
             }
         },
+        "/secret": {
+            "get": {
+                "description": "Get a list of all secrets for all services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "secret"
+                ],
+                "summary": "List all secrets",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "secret"
+                ],
+                "summary": "Create a secret",
+                "parameters": [
+                    {
+                        "description": "Secret to create",
+                        "name": "Secret",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/webhttp.Secret"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/secret/{secret_name}": {
+            "delete": {
+                "description": "Get a list of all secrets for all services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "secret"
+                ],
+                "summary": "List all secrets",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of secret",
+                        "name": "secret_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/secret/{secret_name}/cert": {
+            "post": {
+                "description": "Set the secret cert from file\nExample curl -X POST -F 'Secret_cert=@certificate.pem' http://localhost:1323/secret/testsecret/cert | python -m json.tool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "secret"
+                ],
+                "summary": "Set the secret cert from file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of secret",
+                        "name": "secret_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Location of file holding the secret cert",
+                        "name": "secret_cert",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/secret/{secret_name}/key": {
+            "post": {
+                "description": "Set the secret key from file\nExample curl -X POST -F 'Secret_key=@private_key.pem' http://localhost:1323/secret/testsecret/key | python -m json.tool",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "secret"
+                ],
+                "summary": "Set the secret key from file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of secret",
+                        "name": "secret_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Location of file holding the secret key",
+                        "name": "secret_key",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
         "/service": {
             "get": {
                 "description": "Get a list of all services for all proxies",
@@ -1008,6 +1173,231 @@
                     }
                 }
             }
+        },
+        "/upstream": {
+            "get": {
+                "description": "Get a list of all upstreams",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream"
+                ],
+                "summary": "List all upstreams",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream"
+                ],
+                "summary": "Create an upstream",
+                "parameters": [
+                    {
+                        "description": "Upstream to create",
+                        "name": "Upstream",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/webhttp.Upstream"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/upstream/copy/{upstream_name_src}/{upstream_name_dst}": {
+            "get": {
+                "description": "Make a copy from upstream_name_src to upstream_name_dst",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream"
+                ],
+                "summary": "Copy an upstream",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of upstream",
+                        "name": "upstream_name_src",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of upstream",
+                        "name": "upstream_name_dst",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/upstream/{upstream_name}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream"
+                ],
+                "summary": "Get info of an upstream",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of upstream to delete",
+                        "name": "upstream_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream"
+                ],
+                "summary": "Delete an upstream",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of upstream to delete",
+                        "name": "upstream_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream"
+                ],
+                "summary": "Update an upstream",
+                "parameters": [
+                    {
+                        "description": "Upstream to update",
+                        "name": "Upstream",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/webhttp.Upstream"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of upstream to update",
+                        "name": "upstream_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/upstream/{upstream_name}/route": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upstream",
+                    "route"
+                ],
+                "summary": "Get routes to which this upstream is associated",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of upstream",
+                        "name": "upstream_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1030,6 +1420,23 @@
                 }
             }
         },
+        "webhttp.Secret": {
+            "type": "object",
+            "properties": {
+                "secret_cert": {
+                    "type": "string"
+                },
+                "secret_key": {
+                    "type": "string"
+                },
+                "secret_name": {
+                    "type": "string"
+                },
+                "secret_sni": {
+                    "type": "string"
+                }
+            }
+        },
         "webhttp.Service": {
             "type": "object",
             "properties": {
@@ -1037,6 +1444,50 @@
                     "type": "string"
                 },
                 "service_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "webhttp.Upstream": {
+            "type": "object",
+            "properties": {
+                "upstream_hc_healthythresholdcount": {
+                    "type": "string"
+                },
+                "upstream_hc_host": {
+                    "type": "string"
+                },
+                "upstream_hc_intervalseconds": {
+                    "type": "string"
+                },
+                "upstream_hc_path": {
+                    "type": "string"
+                },
+                "upstream_hc_timeoutseconds": {
+                    "type": "string"
+                },
+                "upstream_hc_unhealthythresholdcount": {
+                    "type": "string"
+                },
+                "upstream_ip": {
+                    "type": "string"
+                },
+                "upstream_name": {
+                    "type": "string"
+                },
+                "upstream_port": {
+                    "type": "string"
+                },
+                "upstream_strategy": {
+                    "type": "string"
+                },
+                "upstream_validation_cacertificate": {
+                    "type": "string"
+                },
+                "upstream_validation_subjectname": {
+                    "type": "string"
+                },
+                "upstream_weight": {
                     "type": "string"
                 }
             }

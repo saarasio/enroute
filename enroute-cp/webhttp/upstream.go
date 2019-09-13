@@ -60,6 +60,14 @@ query get_upstream_routes($upstream_name: String!) {
 }
 `
 
+// @Summary Update an upstream
+// @Tags upstream
+// @Accept  json
+// @Produce  json
+// @Param Upstream body webhttp.Upstream true "Upstream to update" 
+// @Param upstream_name path string true "Name of upstream to update" 
+// @Success 200 {} integer OK
+// @Router /upstream/{upstream_name} [patch]
 func PATCH_Upstream(c echo.Context) error {
 
 	var QPatchUpstream = `
@@ -328,6 +336,13 @@ func validate_upstream(u *Upstream) (int, string) {
 //            upstream_validation_cacertificate
 //            upstream_validation_subjectname
 
+// @Summary Create an upstream
+// @Tags upstream
+// @Accept  json
+// @Produce  json
+// @Param Upstream body webhttp.Upstream true "Upstream to create" 
+// @Success 200 {} integer OK
+// @Router /upstream [post]
 func POST_Upstream(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -468,6 +483,13 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 	return http.StatusOK, buf.String(), &u
 }
 
+// @Summary Get info of an upstream
+// @Tags upstream
+// @Accept  json
+// @Produce  json
+// @Param upstream_name path string true "Name of upstream to delete" 
+// @Success 200 {} integer OK
+// @Router /upstream/{upstream_name} [get]
 func GET_One_Upstream(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -478,6 +500,15 @@ func GET_One_Upstream(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary Copy an upstream
+// @Description Make a copy from upstream_name_src to upstream_name_dst
+// @Tags upstream
+// @Accept  json
+// @Produce  json
+// @Param upstream_name_src path string true "Name of upstream" 
+// @Param upstream_name_dst path string true "Name of upstream" 
+// @Success 200 {} integer OK
+// @Router /upstream/copy/{upstream_name_src}/{upstream_name_dst} [get]
 func POST_Upstream_Copy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -497,6 +528,13 @@ func POST_Upstream_Copy(c echo.Context) error {
 
 }
 
+// @Summary List all upstreams
+// @Description Get a list of all upstreams
+// @Tags upstream
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /upstream [get]
 func GET_Upstream(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -513,6 +551,13 @@ func GET_Upstream(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Delete an upstream
+// @Tags upstream
+// @Accept  json
+// @Produce  json
+// @Param upstream_name path string true "Name of upstream to delete" 
+// @Success 200 {} integer OK
+// @Router /upstream/{upstream_name} [delete]
 func DELETE_Upstream(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -531,6 +576,13 @@ func DELETE_Upstream(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Get routes to which this upstream is associated
+// @Tags upstream, route
+// @Accept  json
+// @Produce  json
+// @Param upstream_name path string true "Name of upstream" 
+// @Success 200 {} integer OK
+// @Router /upstream/{upstream_name}/route [get]
 func GET_Upstream_Routes(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

@@ -86,6 +86,13 @@ mutation update_secret_key($secret_name: String!, $secret_cert: String!){
 }
 `
 
+// @Summary Create a secret
+// @Tags secret
+// @Accept  json
+// @Produce  json
+// @Param Secret body webhttp.Secret true "Secret to create" 
+// @Success 200 {} integer OK
+// @Router /secret [post]
 func POST_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -118,6 +125,17 @@ func POST_Secret(c echo.Context) error {
 
 // POST key from a file
 // curl -X POST -F 'Secret_key=@private_key.pem' http://localhost:1323/secret/testsecret/key | python -m json.tool
+
+// @Summary Set the secret key from file
+// @Description Set the secret key from file
+// @Description Example curl -X POST -F 'Secret_key=@private_key.pem' http://localhost:1323/secret/testsecret/key | python -m json.tool
+// @Tags secret
+// @Accept  json
+// @Produce  json
+// @Param secret_name path string true "Name of secret" 
+// @Param secret_key formData file true "Location of file holding the secret key" 
+// @Success 200 {} integer OK
+// @Router /secret/{secret_name}/key [post]
 func POST_Secret_Key(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -155,6 +173,17 @@ func POST_Secret_Key(c echo.Context) error {
 
 // POST key from a file
 // curl -X POST -F 'Secret_cert=@certificate.pem' http://localhost:1323/secret/testsecret/cert | python -m json.tool
+
+// @Summary Set the secret cert from file
+// @Description Set the secret cert from file
+// @Description Example curl -X POST -F 'Secret_cert=@certificate.pem' http://localhost:1323/secret/testsecret/cert | python -m json.tool
+// @Tags secret
+// @Accept  json
+// @Produce  json
+// @Param secret_name path string true "Name of secret" 
+// @Param secret_cert formData file true "Location of file holding the secret cert" 
+// @Success 200 {} integer OK
+// @Router /secret/{secret_name}/cert [post]
 func POST_Secret_Cert(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -190,6 +219,13 @@ func POST_Secret_Cert(c echo.Context) error {
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
+// @Summary List all secrets
+// @Description Get a list of all secrets for all services
+// @Tags secret
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /secret [get]
 func GET_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -206,6 +242,14 @@ func GET_Secret(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary List all secrets
+// @Description Get a list of all secrets for all services
+// @Tags secret
+// @Accept  json
+// @Produce  json
+// @Param secret_name path string true "Name of secret" 
+// @Success 200 {} integer OK
+// @Router /secret/{secret_name} [delete]
 func DELETE_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

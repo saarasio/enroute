@@ -11,11 +11,51 @@ definitions:
       route_prefix:
         type: string
     type: object
+  webhttp.Secret:
+    properties:
+      secret_cert:
+        type: string
+      secret_key:
+        type: string
+      secret_name:
+        type: string
+      secret_sni:
+        type: string
+    type: object
   webhttp.Service:
     properties:
       fqdn:
         type: string
       service_name:
+        type: string
+    type: object
+  webhttp.Upstream:
+    properties:
+      upstream_hc_healthythresholdcount:
+        type: string
+      upstream_hc_host:
+        type: string
+      upstream_hc_intervalseconds:
+        type: string
+      upstream_hc_path:
+        type: string
+      upstream_hc_timeoutseconds:
+        type: string
+      upstream_hc_unhealthythresholdcount:
+        type: string
+      upstream_ip:
+        type: string
+      upstream_name:
+        type: string
+      upstream_port:
+        type: string
+      upstream_strategy:
+        type: string
+      upstream_validation_cacertificate:
+        type: string
+      upstream_validation_subjectname:
+        type: string
+      upstream_weight:
         type: string
     type: object
 info:
@@ -218,6 +258,119 @@ paths:
       summary: Get details of specified proxy
       tags:
       - proxy
+  /secret:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all secrets for all services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List all secrets
+      tags:
+      - secret
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Secret to create
+        in: body
+        name: Secret
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Secret'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Create a secret
+      tags:
+      - secret
+  /secret/{secret_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Get a list of all secrets for all services
+      parameters:
+      - description: Name of secret
+        in: path
+        name: secret_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List all secrets
+      tags:
+      - secret
+  /secret/{secret_name}/cert:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Set the secret cert from file
+        Example curl -X POST -F 'Secret_cert=@certificate.pem' http://localhost:1323/secret/testsecret/cert | python -m json.tool
+      parameters:
+      - description: Name of secret
+        in: path
+        name: secret_name
+        required: true
+        type: string
+      - description: Location of file holding the secret cert
+        in: formData
+        name: secret_cert
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Set the secret cert from file
+      tags:
+      - secret
+  /secret/{secret_name}/key:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Set the secret key from file
+        Example curl -X POST -F 'Secret_key=@private_key.pem' http://localhost:1323/secret/testsecret/key | python -m json.tool
+      parameters:
+      - description: Name of secret
+        in: path
+        name: secret_name
+        required: true
+        type: string
+      - description: Location of file holding the secret key
+        in: formData
+        name: secret_key
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Set the secret key from file
+      tags:
+      - secret
   /service:
     get:
       consumes:
@@ -698,4 +851,152 @@ paths:
       summary: Fetch detail of specified service
       tags:
       - service
+  /upstream:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all upstreams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List all upstreams
+      tags:
+      - upstream
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Upstream to create
+        in: body
+        name: Upstream
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Upstream'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Create an upstream
+      tags:
+      - upstream
+  /upstream/{upstream_name}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Name of upstream to delete
+        in: path
+        name: upstream_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Delete an upstream
+      tags:
+      - upstream
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Name of upstream to delete
+        in: path
+        name: upstream_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Get info of an upstream
+      tags:
+      - upstream
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Upstream to update
+        in: body
+        name: Upstream
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Upstream'
+          type: object
+      - description: Name of upstream to update
+        in: path
+        name: upstream_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Update an upstream
+      tags:
+      - upstream
+  /upstream/{upstream_name}/route:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Name of upstream
+        in: path
+        name: upstream_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Get routes to which this upstream is associated
+      tags:
+      - upstream
+      - route
+  /upstream/copy/{upstream_name_src}/{upstream_name_dst}:
+    get:
+      consumes:
+      - application/json
+      description: Make a copy from upstream_name_src to upstream_name_dst
+      parameters:
+      - description: Name of upstream
+        in: path
+        name: upstream_name_src
+        required: true
+        type: string
+      - description: Name of upstream
+        in: path
+        name: upstream_name_dst
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Copy an upstream
+      tags:
+      - upstream
 swagger: "2.0"
