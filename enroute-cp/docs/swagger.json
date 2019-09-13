@@ -224,6 +224,43 @@
                     }
                 }
             },
+            "post": {
+                "description": "Associate a service with proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Associate a service with proxy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of proxy for which to list service",
+                        "name": "proxy_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service to list",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Disassociate a service from proxy",
                 "consumes": [

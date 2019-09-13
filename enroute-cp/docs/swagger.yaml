@@ -143,6 +143,31 @@ paths:
       summary: Return specified service associated with this proxy
       tags:
       - proxy
+    post:
+      consumes:
+      - application/json
+      description: Associate a service with proxy
+      parameters:
+      - description: Name of proxy for which to list service
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      - description: Name of service to list
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Associate a service with proxy
+      tags:
+      - proxy
   /proxy/dump:
     get:
       consumes:
