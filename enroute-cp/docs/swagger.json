@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Provide API to configure multiple envoy proxies",
+        "description": "APIs to configure multiple envoy proxies",
         "title": "Enroute API",
         "contact": {
             "name": "API Support",
@@ -31,6 +31,244 @@
                             "type": ""
                         }
                     }
+                }
+            },
+            "post": {
+                "description": "Create a proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Create a proxy",
+                "parameters": [
+                    {
+                        "description": "Name of proxy to create",
+                        "name": "Name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/webhttp.Proxy"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/proxy/dump": {
+            "get": {
+                "description": "Get a detailed version of list of proxies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Get all proxy details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/proxy/dump/{proxy_name}": {
+            "get": {
+                "description": "Get a detailed version of specified proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Get details of specified proxy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of proxy for which to list services",
+                        "name": "proxy_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/proxy/{proxy_name}": {
+            "delete": {
+                "description": "Delete a proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Delete a proxy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of proxy to delete",
+                        "name": "proxy_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/proxy/{proxy_name}/service": {
+            "get": {
+                "description": "Get all services associated with a proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "List services associated with proxy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of proxy for which to list services",
+                        "name": "proxy_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        },
+        "/proxy/{proxy_name}/service/{service_name}": {
+            "get": {
+                "description": "Return specified service associated with this proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Return specified service associated with this proxy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of proxy for which to list service",
+                        "name": "proxy_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service to list",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Disassociate a service from proxy",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "Disassociate a service from proxy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of proxy for which to list service",
+                        "name": "proxy_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name of service to list",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "webhttp.Proxy": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
                 }
             }
         }

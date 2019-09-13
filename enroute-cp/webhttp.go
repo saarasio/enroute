@@ -12,7 +12,7 @@ import (
 
 // @title Enroute API
 // @version 1.0
-// @description Provide API to configure multiple envoy proxies
+// @description APIs to configure multiple envoy proxies
 
 // @contact.name API Support
 // @contact.url https://saaras.io/

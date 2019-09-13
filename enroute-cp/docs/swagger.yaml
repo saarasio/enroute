@@ -1,8 +1,14 @@
+definitions:
+  webhttp.Proxy:
+    properties:
+      name:
+        type: string
+    type: object
 info:
   contact:
     name: API Support
     url: https://saaras.io/
-  description: Provide API to configure multiple envoy proxies
+  description: APIs to configure multiple envoy proxies
   license: {}
   title: Enroute API
   version: "1.0"
@@ -20,6 +26,157 @@ paths:
           schema:
             type: ""
       summary: List proxies
+      tags:
+      - proxy
+    post:
+      consumes:
+      - application/json
+      description: Create a proxy
+      parameters:
+      - description: Name of proxy to create
+        in: body
+        name: Name
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Proxy'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: ""
+      summary: Create a proxy
+      tags:
+      - proxy
+  /proxy/{proxy_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a proxy
+      parameters:
+      - description: Name of proxy to delete
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Delete a proxy
+      tags:
+      - proxy
+  /proxy/{proxy_name}/service:
+    get:
+      consumes:
+      - application/json
+      description: Get all services associated with a proxy
+      parameters:
+      - description: Name of proxy for which to list services
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List services associated with proxy
+      tags:
+      - proxy
+  /proxy/{proxy_name}/service/{service_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Disassociate a service from proxy
+      parameters:
+      - description: Name of proxy for which to list service
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      - description: Name of service to list
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Disassociate a service from proxy
+      tags:
+      - proxy
+    get:
+      consumes:
+      - application/json
+      description: Return specified service associated with this proxy
+      parameters:
+      - description: Name of proxy for which to list service
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      - description: Name of service to list
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Return specified service associated with this proxy
+      tags:
+      - proxy
+  /proxy/dump:
+    get:
+      consumes:
+      - application/json
+      description: Get a detailed version of list of proxies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Get all proxy details
+      tags:
+      - proxy
+  /proxy/dump/{proxy_name}:
+    get:
+      consumes:
+      - application/json
+      description: Get a detailed version of specified proxy
+      parameters:
+      - description: Name of proxy for which to list services
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Get details of specified proxy
       tags:
       - proxy
 swagger: "2.0"

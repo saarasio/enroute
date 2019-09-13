@@ -321,6 +321,14 @@ query get_one_proxy_detail($proxy_name:String!) {
 var HOST string
 var PORT string
 
+// @Summary Create a proxy
+// @Description Create a proxy
+// @Tags proxy
+// @Accept  json
+// @Produce  json
+// @Param Name body webhttp.Proxy true "Name of proxy to create" 
+// @Success 201 {} integer OK
+// @Router /proxy [post]
 func POST_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -405,6 +413,13 @@ func GET_Proxy(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Get all proxy details
+// @Description Get a detailed version of list of proxies
+// @Tags proxy
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/dump [get]
 func GET_Proxy_Detail(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -421,6 +436,14 @@ func GET_Proxy_Detail(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Get details of specified proxy
+// @Description Get a detailed version of specified proxy
+// @Tags proxy
+// @Accept  json
+// @Produce  json
+// @Param proxy_name path string true "Name of proxy for which to list services" 
+// @Success 200 {} integer OK
+// @Router /proxy/dump/{proxy_name} [get]
 func GET_One_Proxy_Detail(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -440,6 +463,14 @@ func GET_One_Proxy_Detail(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary List services associated with proxy
+// @Description Get all services associated with a proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy for which to list services" 
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/{proxy_name}/service [get]
 func GET_Proxy_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -458,6 +489,14 @@ func GET_Proxy_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Delete a proxy
+// @Description Delete a proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy to delete" 
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/{proxy_name} [delete]
 func DELETE_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -466,16 +505,8 @@ func DELETE_Proxy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
 
-	p := new(Proxy)
-	if err := c.Bind(p); err != nil {
-		return err
-	}
-
-	if len(p.Name) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide name of proxy using Name field")
-	}
-
-	args["proxy_name"] = p.Name
+	proxy_name := c.Param("proxy_name")
+	args["proxy_name"] = proxy_name
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	if err := saaras.RunDBQuery(url, QDeleteProxy, &buf, args, log); err != nil {
@@ -516,6 +547,16 @@ func DELETE_Proxy_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Associate a service with proxy
+// @Description Associate a service with proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy for which to list service" 
+// @Param service_name path string true "Name of service to list" 
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/{proxy_name}/service/{service_name} [post]
+
 func POST_Proxy_Service_Association(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -538,6 +579,15 @@ func POST_Proxy_Service_Association(c echo.Context) error {
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
+// @Summary Disassociate a service from proxy
+// @Description Disassociate a service from proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy for which to list service" 
+// @Param service_name path string true "Name of service to list" 
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/{proxy_name}/service/{service_name} [delete]
 func DELETE_Proxy_Service_Association(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -560,6 +610,15 @@ func DELETE_Proxy_Service_Association(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Return specified service associated with this proxy
+// @Description Return specified service associated with this proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy for which to list service" 
+// @Param service_name path string true "Name of service to list" 
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/{proxy_name}/service/{service_name} [get]
 func GET_Proxy_Service_Association(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -592,7 +651,7 @@ func Add_proxy_routes(e *echo.Echo) {
 	// Proxy CRUD
 	e.GET("/proxy", GET_Proxy)
 	e.POST("/proxy", POST_Proxy)
-	e.DELETE("/proxy", DELETE_Proxy)
+	e.DELETE("/proxy/:proxy_name", DELETE_Proxy)
 
 	// Proxy to Service association with implied service CRUD
 	// Only the GET makes sense here?
