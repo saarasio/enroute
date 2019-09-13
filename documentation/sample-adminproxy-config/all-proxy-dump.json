@@ -118,6 +118,33 @@
                                         }
                                     ],
                                     "update_ts": "2019-09-10T23:38:09.361994+00:00"
+                                },
+                                {
+                                    "create_ts": "2019-09-13T06:12:59.235728+00:00",
+                                    "route_id": 60,
+                                    "route_name": "swagger",
+                                    "route_prefix": "/swagger",
+                                    "route_upstreams": [
+                                        {
+                                            "upstream": {
+                                                "upstream_hc_healthythresholdcount": null,
+                                                "upstream_hc_host": null,
+                                                "upstream_hc_intervalseconds": null,
+                                                "upstream_hc_path": null,
+                                                "upstream_hc_timeoutseconds": null,
+                                                "upstream_hc_unhealthythresholdcount": null,
+                                                "upstream_id": 56,
+                                                "upstream_ip": null,
+                                                "upstream_name": "webapp_requests",
+                                                "upstream_port": null,
+                                                "upstream_strategy": null,
+                                                "upstream_validation_cacertificate": null,
+                                                "upstream_validation_subjectname": null,
+                                                "upstream_weight": 100
+                                            }
+                                        }
+                                    ],
+                                    "update_ts": "2019-09-13T06:13:58.868099+00:00"
                                 }
                             ],
                             "service_id": 1,
@@ -134,7 +161,7 @@
                                     }
                                 }
                             ],
-                            "update_ts": "2019-09-11T16:59:41.082485+00:00"
+                            "update_ts": "2019-09-13T06:13:58.868099+00:00"
                         }
                     }
                 ],
@@ -144,8 +171,129 @@
                 "create_ts": "2019-09-10T18:58:57.015882+00:00",
                 "proxy_id": 6,
                 "proxy_name": "test",
-                "proxy_services": [],
-                "update_ts": "2019-09-10T19:28:32.240874+00:00"
+                "proxy_services": [
+                    {
+                        "service": {
+                            "create_ts": "2019-09-12T00:14:21.68843+00:00",
+                            "fqdn": "ec2-13-57-185-185.us-west-1.compute.amazonaws.com",
+                            "routes": [
+                                {
+                                    "create_ts": "2019-09-12T00:19:06.462858+00:00",
+                                    "route_id": 19,
+                                    "route_name": "default",
+                                    "route_prefix": "/",
+                                    "route_upstreams": [
+                                        {
+                                            "upstream": {
+                                                "upstream_hc_healthythresholdcount": 0,
+                                                "upstream_hc_host": "",
+                                                "upstream_hc_intervalseconds": 0,
+                                                "upstream_hc_path": "/",
+                                                "upstream_hc_timeoutseconds": 0,
+                                                "upstream_hc_unhealthythresholdcount": 0,
+                                                "upstream_id": 16,
+                                                "upstream_ip": "127.0.0.1",
+                                                "upstream_name": "default",
+                                                "upstream_port": 8088,
+                                                "upstream_strategy": "",
+                                                "upstream_validation_cacertificate": "",
+                                                "upstream_validation_subjectname": "",
+                                                "upstream_weight": 100
+                                            }
+                                        }
+                                    ],
+                                    "update_ts": "2019-09-12T01:26:36.670481+00:00"
+                                },
+                                {
+                                    "create_ts": "2019-09-12T01:50:11.47308+00:00",
+                                    "route_id": 22,
+                                    "route_name": "proxy_admin",
+                                    "route_prefix": "/admin",
+                                    "route_upstreams": [
+                                        {
+                                            "upstream": {
+                                                "upstream_hc_healthythresholdcount": null,
+                                                "upstream_hc_host": null,
+                                                "upstream_hc_intervalseconds": null,
+                                                "upstream_hc_path": "/admin",
+                                                "upstream_hc_timeoutseconds": null,
+                                                "upstream_hc_unhealthythresholdcount": null,
+                                                "upstream_id": 21,
+                                                "upstream_ip": "127.0.0.1",
+                                                "upstream_name": "proxy_admin",
+                                                "upstream_port": 9001,
+                                                "upstream_strategy": null,
+                                                "upstream_validation_cacertificate": null,
+                                                "upstream_validation_subjectname": null,
+                                                "upstream_weight": 100
+                                            }
+                                        }
+                                    ],
+                                    "update_ts": "2019-09-12T02:01:23.085169+00:00"
+                                },
+                                {
+                                    "create_ts": "2019-09-12T02:06:49.882298+00:00",
+                                    "route_id": 26,
+                                    "route_name": "proxy_listeners",
+                                    "route_prefix": "/listeners",
+                                    "route_upstreams": [
+                                        {
+                                            "upstream": {
+                                                "upstream_hc_healthythresholdcount": null,
+                                                "upstream_hc_host": null,
+                                                "upstream_hc_intervalseconds": null,
+                                                "upstream_hc_path": "/admin",
+                                                "upstream_hc_timeoutseconds": null,
+                                                "upstream_hc_unhealthythresholdcount": null,
+                                                "upstream_id": 21,
+                                                "upstream_ip": "127.0.0.1",
+                                                "upstream_name": "proxy_admin",
+                                                "upstream_port": 9001,
+                                                "upstream_strategy": null,
+                                                "upstream_validation_cacertificate": null,
+                                                "upstream_validation_subjectname": null,
+                                                "upstream_weight": 100
+                                            }
+                                        }
+                                    ],
+                                    "update_ts": "2019-09-12T02:07:32.451421+00:00"
+                                },
+                                {
+                                    "create_ts": "2019-09-12T02:08:00.49249+00:00",
+                                    "route_id": 28,
+                                    "route_name": "proxy_clusters",
+                                    "route_prefix": "/clusters",
+                                    "route_upstreams": [
+                                        {
+                                            "upstream": {
+                                                "upstream_hc_healthythresholdcount": null,
+                                                "upstream_hc_host": null,
+                                                "upstream_hc_intervalseconds": null,
+                                                "upstream_hc_path": "/admin",
+                                                "upstream_hc_timeoutseconds": null,
+                                                "upstream_hc_unhealthythresholdcount": null,
+                                                "upstream_id": 21,
+                                                "upstream_ip": "127.0.0.1",
+                                                "upstream_name": "proxy_admin",
+                                                "upstream_port": 9001,
+                                                "upstream_strategy": null,
+                                                "upstream_validation_cacertificate": null,
+                                                "upstream_validation_subjectname": null,
+                                                "upstream_weight": 100
+                                            }
+                                        }
+                                    ],
+                                    "update_ts": "2019-09-12T02:08:08.684786+00:00"
+                                }
+                            ],
+                            "service_id": 30,
+                            "service_name": "petstore",
+                            "service_secrets": [],
+                            "update_ts": "2019-09-12T17:56:35.391847+00:00"
+                        }
+                    }
+                ],
+                "update_ts": "2019-09-12T00:40:31.5032+00:00"
             }
         ]
     }
