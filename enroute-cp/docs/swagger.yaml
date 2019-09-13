@@ -6,5 +6,20 @@ info:
   license: {}
   title: Enroute API
   version: "1.0"
-paths: {}
+paths:
+  /proxy:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all proxies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List proxies
+      tags:
+      - proxy
 swagger: "2.0"

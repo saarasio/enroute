@@ -382,6 +382,13 @@ func POST_Proxy_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusCreated, buf.Bytes())
 }
 
+// @Summary List proxies
+// @Description Get a list of all proxies
+// @Tags proxy
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy [get]
 func GET_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

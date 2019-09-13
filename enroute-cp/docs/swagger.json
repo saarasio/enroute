@@ -10,5 +10,29 @@
         "license": {},
         "version": "1.0"
     },
-    "paths": {}
+    "paths": {
+        "/proxy": {
+            "get": {
+                "description": "Get a list of all proxies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "proxy"
+                ],
+                "summary": "List proxies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
