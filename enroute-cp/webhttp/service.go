@@ -251,6 +251,15 @@ func db_update_service(s *Service, log *logrus.Entry) (int, string) {
 
 }
 
+// @Summary Update a service
+// @Description Update a service
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param Service body webhttp.Service true "Fields of service to update" 
+// @Param service_name path string true "name of service to update" 
+// @Success 201 {} integer OK
+// @Router /service/{service_name} [patch]
 func PATCH_Service(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -513,6 +522,14 @@ func POST_Service_DeepCopy(c echo.Context) error {
 	return c.JSONBlob(http.StatusCreated, []byte("{\"affected_rows\":1}"))
 }
 
+// @Summary Create a service
+// @Description Create a service
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param Name body webhttp.Service true "Service to create" 
+// @Success 201 {} integer OK
+// @Router /service [post]
 func POST_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -533,6 +550,13 @@ func POST_Service(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary List all services
+// @Description Get a list of all services for all proxies
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /service [get]
 func GET_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -542,6 +566,14 @@ func GET_Service(c echo.Context) error {
 	return c.JSONBlob(code, []byte(buf))
 }
 
+// @Summary Fetch some details of specified service
+// @Description Fetch some details of specified service
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name} [get]
 func GET_One_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -572,6 +604,14 @@ func GET_One_Service_Detail(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Delete the specified service
+// @Description Delete specified service
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param service_name path string true "Name of service" 
+// @Success 200 {} integer OK
+// @Router /service/{service_name} [delete]
 func DELETE_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

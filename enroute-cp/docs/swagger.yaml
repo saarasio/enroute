@@ -4,6 +4,13 @@ definitions:
       name:
         type: string
     type: object
+  webhttp.Service:
+    properties:
+      fqdn:
+        type: string
+      service_name:
+        type: string
+    type: object
 info:
   contact:
     name: API Support
@@ -204,4 +211,109 @@ paths:
       summary: Get details of specified proxy
       tags:
       - proxy
+  /service:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all services for all proxies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: List all services
+      tags:
+      - service
+    post:
+      consumes:
+      - application/json
+      description: Create a service
+      parameters:
+      - description: Service to create
+        in: body
+        name: Name
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Service'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: ""
+      summary: Create a service
+      tags:
+      - service
+  /service/{service_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete specified service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Delete the specified service
+      tags:
+      - service
+    get:
+      consumes:
+      - application/json
+      description: Fetch some details of specified service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      summary: Fetch some details of specified service
+      tags:
+      - service
+    patch:
+      consumes:
+      - application/json
+      description: Update a service
+      parameters:
+      - description: Fields of service to update
+        in: body
+        name: Service
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.Service'
+          type: object
+      - description: name of service to update
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: ""
+      summary: Update a service
+      tags:
+      - service
 swagger: "2.0"

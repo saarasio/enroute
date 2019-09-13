@@ -19,13 +19,16 @@ import (
 
 func main() {
 	e := echo.New()
+
+	// middleware
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.Use(middleware.Logger())
+
 	e.HideBanner = true
 	webhttp.Add_proxy_routes(e)
 	webhttp.Add_service_routes(e)
 	webhttp.Add_upstream_routes(e)
 	webhttp.Add_secret_routes(e)
-	e.Use(middleware.Logger())
 	webhttp.HOST = os.Getenv("DB_HOST")
 	webhttp.PORT = os.Getenv("DB_PORT")
 
