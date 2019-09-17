@@ -66,6 +66,17 @@ query get_proxies {
 }
 `
 
+var QGetOneProxy string = `
+query get_proxies($proxy_name: String!) {
+  saaras_db_proxy(where: {proxy_name: {_eq: $proxy_name}}) {
+    proxy_id
+    proxy_name
+    create_ts
+    update_ts
+  }
+}
+`
+
 var QDeleteProxy string = `
 mutation delete_proxy($proxy_name: String!) {
   delete_saaras_db_proxy(where: {proxy_name: {_eq: $proxy_name}}) {
@@ -488,6 +499,35 @@ func DELETE_Proxy(c echo.Context) error {
 
 }
 
+// @Summary Get information about a proxy
+// @Description Get information about a proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy to delete"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} integer OK
+// @Router /proxy/{proxy_name} [get]
+// @Security ApiKeyAuth
+func GET_One_Proxy(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	proxy_name := c.Param("proxy_name")
+	args["proxy_name"] = proxy_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQuery(url, QGetOneProxy, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+
+}
+
 // @Summary Associate a service with proxy
 // @Description Associate a service with proxy
 // @Tags proxy
@@ -595,6 +635,7 @@ func Add_proxy_routes(e *echo.Echo) {
 	e.GET("/proxy", GET_Proxy)
 	e.POST("/proxy", POST_Proxy)
 	e.DELETE("/proxy/:proxy_name", DELETE_Proxy)
+	e.GET("/proxy/:proxy_name", GET_One_Proxy)
 
 	// Proxy to Service association with implied service CRUD
 	// Only the GET makes sense here?
