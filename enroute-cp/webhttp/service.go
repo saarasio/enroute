@@ -280,7 +280,7 @@ func PATCH_Service(c echo.Context) error {
 	// For service, right now, only Fqdn can be patched.
 	// Ensure that we are passed a valid Fqdn
 	if len(s.Fqdn) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide fqdn using Fqdn field")
+	  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide fqdn using Fqdn field\"}")
 	}
 
 	// Overwrite Fqdn value
@@ -442,11 +442,11 @@ func db_copy_service(service_name_src string, service_name_dst string, log *logr
 
 func validate_service(s *Service) (int, string) {
 	if len(s.Service_name) == 0 {
-		return http.StatusBadRequest, "Please provide service name using Name field"
+			  return http.StatusBadRequest, "{\"Error\" : \"Please provide service name using Name field\"}"
 	}
 
 	if len(s.Fqdn) == 0 {
-		return http.StatusBadRequest, "Please provide fqdn using Fqdn field"
+			  return http.StatusBadRequest, "{\"Error\" : \"Please provide fqdn using Fqdn field\"}"
 	}
 
 	return http.StatusOK, ""
@@ -770,14 +770,14 @@ mutation insert_service_route($route_name: String!, $route_prefix: String!, $ser
 
 func validate_service_route(r *Route) (int, string) {
 	if len(r.Route_name) == 0 {
-		return http.StatusBadRequest, "Please provide route name using Name field"
+	  return http.StatusBadRequest, "{\"Error\" : \"Please provide route name using Name field\"}"
 	}
 
 	if len(r.Route_prefix) == 0 {
-		return http.StatusBadRequest, "Please provide route prefix using Prefix field"
+		return http.StatusBadRequest, "{\"Error\" : \"Please provide route prefix using Prefix field\"}"
 	}
 
-	return http.StatusOK, ""
+	return http.StatusOK, "{}"
 }
 
 // @Summary Create a route associated with a service
@@ -843,7 +843,7 @@ func PATCH_Service_Route(c echo.Context) error {
 
 	// Since only prefix is something that you can update in the route, overwrite the prefix
 	if len(r.Route_prefix) == 0 {
-		return c.JSONBlob(http.StatusBadRequest, []byte("Please provide a Route_prefix to patch route"))
+		return c.JSONBlob(http.StatusBadRequest, []byte("{\"Error\" : \"Please provide route prefix using Route_Prefix field\"}"))
 	}
 
 	r_in_db.Route_prefix = r.Route_prefix
