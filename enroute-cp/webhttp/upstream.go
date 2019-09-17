@@ -130,6 +130,8 @@ mutation update_upstream(
 		return err
 	}
 
+	log.Infof(" Read upstream [%+v] \n", u)
+
 	if len(u.Upstream_ip) > 0 {
 		u_in_db.Upstream_ip = u.Upstream_ip
 	}
@@ -478,9 +480,8 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 			u.Upstream_weight = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamWeight), 10)
 		}
 
+		log.Infof("Decoded to upstream [%v]\n", u)
 	}
-
-	log.Infof("Decoded to upstream [%v]\n", u)
 
 	return http.StatusOK, buf.String(), &u
 }

@@ -270,6 +270,8 @@ func PATCH_Service(c echo.Context) error {
 		return err
 	}
 
+	log.Infof("Received service [%v]\n", s)
+
 	service_name := c.Param("service_name")
 
 	code, buf, s_in_db := db_get_one_service(service_name, true, log)

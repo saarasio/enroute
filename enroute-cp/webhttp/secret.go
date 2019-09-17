@@ -147,6 +147,9 @@ func POST_Secret_Key(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	file, err := c.FormFile("Secret_key")
+	if file == nil {
+	  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Secret_key empty\"}")
+	}
 	src, err := file.Open()
 	if err != nil {
 		return err
@@ -159,7 +162,7 @@ func POST_Secret_Key(c echo.Context) error {
 	secret_name := c.Param("secret_name")
 
 	if len(secret_name) == 0 {
-		return c.JSON(http.StatusBadRequest, "Please provide secret name")
+			  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide secret name\"}")
 	}
 
 	args["secret_name"] = secret_name
@@ -196,6 +199,9 @@ func POST_Secret_Cert(c echo.Context) error {
 	log := log2.WithField("context", "web-http")
 
 	file, err := c.FormFile("Secret_cert")
+	if file == nil {
+	  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Secret_cert empty\"}")
+	}
 	src, err := file.Open()
 	if err != nil {
 		return err
