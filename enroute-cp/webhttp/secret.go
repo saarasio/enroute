@@ -90,9 +90,10 @@ mutation update_secret_key($secret_name: String!, $secret_cert: String!){
 // @Tags secret
 // @Accept  json
 // @Produce  json
-// @Param Secret body webhttp.Secret true "Secret to create" 
+// @Param Secret body webhttp.Secret true "Secret to create"
 // @Success 200 {} integer OK
 // @Router /secret [post]
+// @Security ApiKeyAuth
 func POST_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -132,10 +133,11 @@ func POST_Secret(c echo.Context) error {
 // @Tags secret
 // @Accept  json
 // @Produce  json
-// @Param secret_name path string true "Name of secret" 
-// @Param secret_key formData file true "Location of file holding the secret key" 
+// @Param secret_name path string true "Name of secret"
+// @Param secret_key formData file true "Location of file holding the secret key"
 // @Success 200 {} integer OK
 // @Router /secret/{secret_name}/key [post]
+// @Security ApiKeyAuth
 func POST_Secret_Key(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -180,10 +182,11 @@ func POST_Secret_Key(c echo.Context) error {
 // @Tags secret
 // @Accept  json
 // @Produce  json
-// @Param secret_name path string true "Name of secret" 
-// @Param secret_cert formData file true "Location of file holding the secret cert" 
+// @Param secret_name path string true "Name of secret"
+// @Param secret_cert formData file true "Location of file holding the secret cert"
 // @Success 200 {} integer OK
 // @Router /secret/{secret_name}/cert [post]
+// @Security ApiKeyAuth
 func POST_Secret_Cert(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -226,6 +229,7 @@ func POST_Secret_Cert(c echo.Context) error {
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /secret [get]
+// @Security ApiKeyAuth
 func GET_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -242,14 +246,14 @@ func GET_Secret(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
-// @Summary List all secrets
-// @Description Get a list of all secrets for all services
+// @Summary Delete a secret
 // @Tags secret
 // @Accept  json
 // @Produce  json
-// @Param secret_name path string true "Name of secret" 
+// @Param secret_name path string true "Name of secret"
 // @Success 200 {} integer OK
 // @Router /secret/{secret_name} [delete]
+// @Security ApiKeyAuth
 func DELETE_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

@@ -326,9 +326,10 @@ var PORT string
 // @Tags proxy
 // @Accept  json
 // @Produce  json
-// @Param Name body webhttp.Proxy true "Name of proxy to create" 
+// @Param Name body webhttp.Proxy true "Name of proxy to create"
 // @Success 201 {} integer OK
 // @Router /proxy [post]
+// @Security ApiKeyAuth
 func POST_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -362,6 +363,7 @@ func POST_Proxy(c echo.Context) error {
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy [get]
+// @Security ApiKeyAuth
 func GET_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -385,6 +387,7 @@ func GET_Proxy(c echo.Context) error {
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy/dump [get]
+// @Security ApiKeyAuth
 func GET_Proxy_Detail(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -406,9 +409,10 @@ func GET_Proxy_Detail(c echo.Context) error {
 // @Tags proxy, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Param proxy_name path string true "Name of proxy for which to list services" 
+// @Param proxy_name path string true "Name of proxy for which to list services"
 // @Success 200 {} integer OK
 // @Router /proxy/dump/{proxy_name} [get]
+// @Security ApiKeyAuth
 func GET_One_Proxy_Detail(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -431,11 +435,12 @@ func GET_One_Proxy_Detail(c echo.Context) error {
 // @Summary List services associated with proxy
 // @Description Get all services associated with a proxy
 // @Tags proxy
-// @Param proxy_name path string true "Name of proxy for which to list services" 
+// @Param proxy_name path string true "Name of proxy for which to list services"
 // @Accept  json
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy/{proxy_name}/service [get]
+// @Security ApiKeyAuth
 func GET_Proxy_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -457,11 +462,12 @@ func GET_Proxy_Service(c echo.Context) error {
 // @Summary Delete a proxy
 // @Description Delete a proxy
 // @Tags proxy
-// @Param proxy_name path string true "Name of proxy to delete" 
+// @Param proxy_name path string true "Name of proxy to delete"
 // @Accept  json
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy/{proxy_name} [delete]
+// @Security ApiKeyAuth
 func DELETE_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -485,12 +491,13 @@ func DELETE_Proxy(c echo.Context) error {
 // @Summary Associate a service with proxy
 // @Description Associate a service with proxy
 // @Tags proxy
-// @Param proxy_name path string true "Name of proxy for which to list service" 
-// @Param service_name path string true "Name of service to list" 
+// @Param proxy_name path string true "Name of proxy for which to list service"
+// @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy/{proxy_name}/service/{service_name} [post]
+// @Security ApiKeyAuth
 func POST_Proxy_Service_Association(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -516,12 +523,13 @@ func POST_Proxy_Service_Association(c echo.Context) error {
 // @Summary Disassociate a service from proxy
 // @Description Disassociate a service from proxy
 // @Tags proxy
-// @Param proxy_name path string true "Name of proxy for which to list service" 
-// @Param service_name path string true "Name of service to list" 
+// @Param proxy_name path string true "Name of proxy for which to list service"
+// @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy/{proxy_name}/service/{service_name} [delete]
+// @Security ApiKeyAuth
 func DELETE_Proxy_Service_Association(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -547,12 +555,13 @@ func DELETE_Proxy_Service_Association(c echo.Context) error {
 // @Summary Return specified service associated with this proxy
 // @Description Return specified service associated with this proxy
 // @Tags proxy
-// @Param proxy_name path string true "Name of proxy for which to list service" 
-// @Param service_name path string true "Name of service to list" 
+// @Param proxy_name path string true "Name of proxy for which to list service"
+// @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /proxy/{proxy_name}/service/{service_name} [get]
+// @Security ApiKeyAuth
 func GET_Proxy_Service_Association(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

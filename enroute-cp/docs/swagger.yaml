@@ -79,6 +79,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: List proxies
       tags:
       - proxy
@@ -101,6 +103,8 @@ paths:
           description: Created
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Create a proxy
       tags:
       - proxy
@@ -122,6 +126,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Delete a proxy
       tags:
       - proxy
@@ -143,6 +149,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: List services associated with proxy
       tags:
       - proxy
@@ -169,6 +177,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Disassociate a service from proxy
       tags:
       - proxy
@@ -194,6 +204,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Return specified service associated with this proxy
       tags:
       - proxy
@@ -219,6 +231,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Associate a service with proxy
       tags:
       - proxy
@@ -234,6 +248,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Get all proxy details
       tags:
       - proxy
@@ -256,6 +272,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Get details of specified proxy
       tags:
       - proxy
@@ -272,6 +290,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: List all secrets
       tags:
       - secret
@@ -293,6 +313,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Create a secret
       tags:
       - secret
@@ -300,7 +322,6 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Get a list of all secrets for all services
       parameters:
       - description: Name of secret
         in: path
@@ -314,7 +335,9 @@ paths:
           description: OK
           schema:
             type: ""
-      summary: List all secrets
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a secret
       tags:
       - secret
   /secret/{secret_name}/cert:
@@ -342,6 +365,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Set the secret cert from file
       tags:
       - secret
@@ -370,6 +395,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Set the secret key from file
       tags:
       - secret
@@ -385,6 +412,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: List all services
       tags:
       - service
@@ -407,6 +436,8 @@ paths:
           description: Created
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Create a service
       tags:
       - service
@@ -428,6 +459,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Delete the specified service
       tags:
       - service
@@ -448,6 +481,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Fetch some details of specified service
       tags:
       - service
@@ -475,6 +510,8 @@ paths:
           description: Created
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Update a service
       tags:
       - service
@@ -496,6 +533,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Fetch list of proxies on which this service is programmed
       tags:
       - service
@@ -518,6 +557,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Get all routes for a service
       tags:
       - service
@@ -546,6 +587,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Create a route associated with a service
       tags:
       - service
@@ -573,6 +616,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Delete the route associated with the service
       tags:
       - service
@@ -606,6 +651,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Update a route associated with a service
       tags:
       - service
@@ -633,6 +680,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Get all upstreams associated with a service route
       tags:
       - service
@@ -667,6 +716,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Disassociate an upstream with a service route
       tags:
       - service
@@ -690,6 +741,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: List all secrets associated with a service
       tags:
       - service
@@ -717,6 +770,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Disassociate a secret with a service
       tags:
       - service
@@ -743,6 +798,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Associate a secret with a service
       tags:
       - service
@@ -769,6 +826,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Copy service
       tags:
       - service
@@ -801,6 +860,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Copy a route on source service to a destination service
       tags:
       - service
@@ -830,6 +891,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Deep copy service
       tags:
       - service
@@ -853,6 +916,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Fetch detail of specified service
       tags:
       - service
@@ -869,6 +934,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: List all upstreams
       tags:
       - upstream
@@ -890,6 +957,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Create an upstream
       tags:
       - upstream
@@ -910,6 +979,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Delete an upstream
       tags:
       - upstream
@@ -929,6 +1000,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Get info of an upstream
       tags:
       - upstream
@@ -955,6 +1028,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Update an upstream
       tags:
       - upstream
@@ -975,6 +1050,8 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Get routes to which this upstream is associated
       tags:
       - upstream
@@ -1002,8 +1079,15 @@ paths:
           description: OK
           schema:
             type: ""
+      security:
+      - ApiKeyAuth: []
       summary: Copy an upstream
       tags:
       - upstream
       - operational-verbs
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

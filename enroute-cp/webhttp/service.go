@@ -256,10 +256,11 @@ func db_update_service(s *Service, log *logrus.Entry) (int, string) {
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Param Service body webhttp.Service true "Fields of service to update" 
-// @Param service_name path string true "name of service to update" 
+// @Param Service body webhttp.Service true "Fields of service to update"
+// @Param service_name path string true "name of service to update"
 // @Success 201 {} integer OK
 // @Router /service/{service_name} [patch]
+// @Security ApiKeyAuth
 func PATCH_Service(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -455,10 +456,11 @@ func validate_service(s *Service) (int, string) {
 // @Tags service, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Param service_name_src path string true "Name of service" 
-// @Param service_name_dst path string true "Name of service" 
+// @Param service_name_src path string true "Name of service"
+// @Param service_name_dst path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/copy/{service_name_src}/{service_name_dst} [post]
+// @Security ApiKeyAuth
 func POST_Service_Copy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -476,10 +478,11 @@ func POST_Service_Copy(c echo.Context) error {
 // @Tags service, route, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Param service_name_src path string true "Name of service" 
-// @Param service_name_dst path string true "Name of service" 
+// @Param service_name_src path string true "Name of service"
+// @Param service_name_dst path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/deepcopy/{service_name_src}/{service_name_dst} [post]
+// @Security ApiKeyAuth
 func POST_Service_DeepCopy(c echo.Context) error {
 	// Copy service
 	// Copy routes for service
@@ -544,9 +547,10 @@ func POST_Service_DeepCopy(c echo.Context) error {
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Param Service body webhttp.Service true "Service to create" 
+// @Param Service body webhttp.Service true "Service to create"
 // @Success 201 {} integer OK
 // @Router /service [post]
+// @Security ApiKeyAuth
 func POST_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -574,6 +578,7 @@ func POST_Service(c echo.Context) error {
 // @Produce  json
 // @Success 200 {} integer OK
 // @Router /service [get]
+// @Security ApiKeyAuth
 func GET_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -588,9 +593,10 @@ func GET_Service(c echo.Context) error {
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
+// @Param service_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/{service_name} [get]
+// @Security ApiKeyAuth
 func GET_One_Service(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -606,9 +612,10 @@ func GET_One_Service(c echo.Context) error {
 // @Tags service, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
+// @Param service_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/dump/{service_name} [get]
+// @Security ApiKeyAuth
 func GET_One_Service_Detail(c echo.Context) error {
 
 	var buf bytes.Buffer
@@ -634,9 +641,10 @@ func GET_One_Service_Detail(c echo.Context) error {
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
+// @Param service_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/{service_name} [delete]
+// @Security ApiKeyAuth
 func DELETE_Service(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -660,9 +668,10 @@ func DELETE_Service(c echo.Context) error {
 // @Tags service, proxy
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
+// @Param service_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/proxy [get]
+// @Security ApiKeyAuth
 func GET_Service_Proxy(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -776,10 +785,11 @@ func validate_service_route(r *Route) (int, string) {
 // @Tags service, route
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param Route body webhttp.Route true "Route to create" 
+// @Param service_name path string true "Name of service"
+// @Param Route body webhttp.Route true "Route to create"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route [post]
+// @Security ApiKeyAuth
 func POST_Service_Route(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -806,11 +816,12 @@ func POST_Service_Route(c echo.Context) error {
 // @Tags service, route
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param route_name path string true "Name of service" 
-// @Param Route body webhttp.Route true "Route to update" 
+// @Param service_name path string true "Name of service"
+// @Param route_name path string true "Name of service"
+// @Param Route body webhttp.Route true "Route to update"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route/{route_name} [patch]
+// @Security ApiKeyAuth
 func PATCH_Service_Route(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -917,11 +928,12 @@ query get_saaras_db_proxy_names($service_name: String!) {
 // @Tags service, route, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Param service_name_src path string true "Name of service" 
-// @Param service_name_dst path string true "Name of service" 
-// @Param route_name path string true "Name of service" 
+// @Param service_name_src path string true "Name of service"
+// @Param service_name_dst path string true "Name of service"
+// @Param route_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name} [post]
+// @Security ApiKeyAuth
 func POST_Service_Route_Copy(c echo.Context) error {
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
@@ -950,9 +962,10 @@ func POST_Service_Route_Copy(c echo.Context) error {
 // @Tags service, route
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
+// @Param service_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route [get]
+// @Security ApiKeyAuth
 func GET_Service_Route(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1047,10 +1060,11 @@ func db_get_one_service_route(service_name string, route_name string, decode boo
 // @Tags service, route
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param route_name path string true "Name of route" 
+// @Param service_name path string true "Name of service"
+// @Param route_name path string true "Name of route"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route/{route_name} [get]
+// @Security ApiKeyAuth
 func GET_Service_Route_OneRoute(c echo.Context) error {
 	var args map[string]string
 	args = make(map[string]string)
@@ -1074,10 +1088,11 @@ func GET_Service_Route_OneRoute(c echo.Context) error {
 // @Tags service, route
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param route_name path string true "Name of route to delete" 
+// @Param service_name path string true "Name of service"
+// @Param route_name path string true "Name of route to delete"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route/{route_name} [get]
+// @Security ApiKeyAuth
 func DELETE_Service_Route_OneRoute(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1124,11 +1139,12 @@ func db_associate_service_route_upstream(service_name, route_name, upstream_name
 // @Tags service, route, upstream
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param route_name path string true "Name of route" 
-// @Param upstream_name path string true "Name of upstream to associate with service route" 
+// @Param service_name path string true "Name of service"
+// @Param route_name path string true "Name of route"
+// @Param upstream_name path string true "Name of upstream to associate with service route"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route/{route_name}/upstream/{upstream_name} [get]
+// @Security ApiKeyAuth
 func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
@@ -1147,10 +1163,11 @@ func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 // @Tags service, route, upstream
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param route_name path string true "Name of route" 
+// @Param service_name path string true "Name of service"
+// @Param route_name path string true "Name of route"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route/{route_name}/upstream [get]
+// @Security ApiKeyAuth
 func GET_Service_Route_Upstream(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1178,11 +1195,12 @@ func GET_Service_Route_Upstream(c echo.Context) error {
 // @Tags service, route, upstream
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param route_name path string true "Name of route" 
-// @Param upstream_name path string true "Name of upstream to disassociate with service route" 
+// @Param service_name path string true "Name of service"
+// @Param route_name path string true "Name of route"
+// @Param upstream_name path string true "Name of upstream to disassociate with service route"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/route/{route_name}/upstream/{upstream_name} [get]
+// @Security ApiKeyAuth
 func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1212,9 +1230,10 @@ func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 // @Tags service, secret
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
+// @Param service_name path string true "Name of service"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/secret [get]
+// @Security ApiKeyAuth
 func GET_Service_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1240,10 +1259,11 @@ func GET_Service_Secret(c echo.Context) error {
 // @Tags service, secret
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param secret_name path string true "Name of secret" 
+// @Param service_name path string true "Name of service"
+// @Param secret_name path string true "Name of secret"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/secret/{secret_name} [post]
+// @Security ApiKeyAuth
 func POST_Service_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1271,10 +1291,11 @@ func POST_Service_Secret(c echo.Context) error {
 // @Tags service, secret
 // @Accept  json
 // @Produce  json
-// @Param service_name path string true "Name of service" 
-// @Param secret_name path string true "Name of secret" 
+// @Param service_name path string true "Name of service"
+// @Param secret_name path string true "Name of secret"
 // @Success 200 {} integer OK
 // @Router /service/{service_name}/secret/{secret_name} [delete]
+// @Security ApiKeyAuth
 func DELETE_Service_Secret(c echo.Context) error {
 	var buf bytes.Buffer
 	var args map[string]string

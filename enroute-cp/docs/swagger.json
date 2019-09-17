@@ -13,6 +13,11 @@
     "paths": {
         "/proxy": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all proxies",
                 "consumes": [
                     "application/json"
@@ -34,6 +39,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a proxy",
                 "consumes": [
                     "application/json"
@@ -69,6 +79,11 @@
         },
         "/proxy/dump": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a detailed version of list of proxies",
                 "consumes": [
                     "application/json"
@@ -93,6 +108,11 @@
         },
         "/proxy/dump/{proxy_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a detailed version of specified proxy",
                 "consumes": [
                     "application/json"
@@ -126,6 +146,11 @@
         },
         "/proxy/{proxy_name}": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a proxy",
                 "consumes": [
                     "application/json"
@@ -158,6 +183,11 @@
         },
         "/proxy/{proxy_name}/service": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all services associated with a proxy",
                 "consumes": [
                     "application/json"
@@ -190,6 +220,11 @@
         },
         "/proxy/{proxy_name}/service/{service_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Return specified service associated with this proxy",
                 "consumes": [
                     "application/json"
@@ -227,6 +262,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Associate a service with proxy",
                 "consumes": [
                     "application/json"
@@ -264,6 +304,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Disassociate a service from proxy",
                 "consumes": [
                     "application/json"
@@ -303,6 +348,11 @@
         },
         "/secret": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all secrets for all services",
                 "consumes": [
                     "application/json"
@@ -324,6 +374,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -358,7 +413,11 @@
         },
         "/secret/{secret_name}": {
             "delete": {
-                "description": "Get a list of all secrets for all services",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -368,7 +427,7 @@
                 "tags": [
                     "secret"
                 ],
-                "summary": "List all secrets",
+                "summary": "Delete a secret",
                 "parameters": [
                     {
                         "type": "string",
@@ -390,6 +449,11 @@
         },
         "/secret/{secret_name}/cert": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Set the secret cert from file\nExample curl -X POST -F 'Secret_cert=@certificate.pem' http://localhost:1323/secret/testsecret/cert | python -m json.tool",
                 "consumes": [
                     "application/json"
@@ -429,6 +493,11 @@
         },
         "/secret/{secret_name}/key": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Set the secret key from file\nExample curl -X POST -F 'Secret_key=@private_key.pem' http://localhost:1323/secret/testsecret/key | python -m json.tool",
                 "consumes": [
                     "application/json"
@@ -468,6 +537,11 @@
         },
         "/service": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all services for all proxies",
                 "consumes": [
                     "application/json"
@@ -489,6 +563,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a service",
                 "consumes": [
                     "application/json"
@@ -524,6 +603,11 @@
         },
         "/service/copy/{service_name_src}/{service_name_dst}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -563,6 +647,11 @@
         },
         "/service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Copy a route on source service to a destination service",
                 "consumes": [
                     "application/json"
@@ -611,6 +700,11 @@
         },
         "/service/deepcopy/{service_name_src}/{service_name_dst}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Deep copy service copies service, associated routes and upstream associations. Upstream copies are not created.",
                 "consumes": [
                     "application/json"
@@ -652,6 +746,11 @@
         },
         "/service/dump/{service_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Fetch detail of specified service",
                 "consumes": [
                     "application/json"
@@ -685,6 +784,11 @@
         },
         "/service/{service_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Fetch some details of specified service",
                 "consumes": [
                     "application/json"
@@ -715,6 +819,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete specified service",
                 "consumes": [
                     "application/json"
@@ -745,6 +854,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update a service",
                 "consumes": [
                     "application/json"
@@ -787,6 +901,11 @@
         },
         "/service/{service_name}/proxy": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Fetch list of proxies on which this service is programmed",
                 "consumes": [
                     "application/json"
@@ -820,6 +939,11 @@
         },
         "/service/{service_name}/route": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all routes for a service",
                 "consumes": [
                     "application/json"
@@ -851,6 +975,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a route associated with a service",
                 "consumes": [
                     "application/json"
@@ -894,6 +1023,11 @@
         },
         "/service/{service_name}/route/{route_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete the route associated with the service",
                 "consumes": [
                     "application/json"
@@ -932,6 +1066,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update a route associated with a service",
                 "consumes": [
                     "application/json"
@@ -982,6 +1121,11 @@
         },
         "/service/{service_name}/route/{route_name}/upstream": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all upstreams associated with a service route",
                 "consumes": [
                     "application/json"
@@ -1023,6 +1167,11 @@
         },
         "/service/{service_name}/route/{route_name}/upstream/{upstream_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Disassociate an upstream with a service route. This does not delete the upstream.",
                 "consumes": [
                     "application/json"
@@ -1071,6 +1220,11 @@
         },
         "/service/{service_name}/secret": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "List all secrets associated with a service",
                 "consumes": [
                     "application/json"
@@ -1104,6 +1258,11 @@
         },
         "/service/{service_name}/secret/{secret_name}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Associate a secret with a service",
                 "consumes": [
                     "application/json"
@@ -1142,6 +1301,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Disassociate a secret with a service",
                 "consumes": [
                     "application/json"
@@ -1182,6 +1346,11 @@
         },
         "/upstream": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get a list of all upstreams",
                 "consumes": [
                     "application/json"
@@ -1203,6 +1372,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1237,6 +1411,11 @@
         },
         "/upstream/copy/{upstream_name_src}/{upstream_name_dst}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Make a copy from upstream_name_src to upstream_name_dst",
                 "consumes": [
                     "application/json"
@@ -1277,6 +1456,11 @@
         },
         "/upstream/{upstream_name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1306,6 +1490,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1335,6 +1524,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1376,6 +1570,11 @@
         },
         "/upstream/{upstream_name}/route": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1498,6 +1697,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
