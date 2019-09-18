@@ -444,7 +444,7 @@ func db_copy_service(service_name_src string, service_name_dst string, log *logr
 
 func validate_service(s *Service) (int, string) {
 	if len(s.Service_name) == 0 {
-			  return http.StatusBadRequest, "{\"Error\" : \"Please provide service name using Name field\"}"
+			  return http.StatusBadRequest, "{\"Error\" : \"Please provide service name using Service_name field\"}"
 	}
 
 	if len(s.Fqdn) == 0 {
