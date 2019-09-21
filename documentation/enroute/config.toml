@@ -1,0 +1,24 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "Enroute"
+description = "Enroute is a barebones controller to manage multiple Envoy proxies"
+Paginate = 4
+[Params]
+  RSSLink = "/index.xml"
+  author = "newpixcom" # add your company name
+  github = "https://github.com/saaras-io/yastack" # add your github profile name
+  twitter = "" # add your twitter profile
+  email = "founders@saaras.io"
+
+[[menu.main]]
+    name = "APIs"
+    weight = -100
+    url = "https://ingresspipe.io:8443/swagger/index.html"
+[[menu.main]]
+    name = "Cookbook"
+    weight = -100
+    url = "/cookbook/"
+[[menu.main]]
+    name = "Faq"
+    weight = -100
+    url = "/faq/"

@@ -1,0 +1,55 @@
+{{ define "title"}} {{ .Site.Title}} {{end}}
+{{ define "header"}} {{ partial "header" .}} {{end}}
+{{ define "main"}}
+
+<div id="main">
+  <div id="hero">
+    <h1>{{.Title}}</h1>
+    <p> Centrally manage configuration of multiple Envoy proxies </p>
+  </div>
+  <div id="action-buttons">
+     <a class="button outline big" href="https://github.com/saaras-io/yastack" onclick="_gaq.push(['_trackEvent', 'kube', 'github']);">View on Github</a>
+  </div>
+  <div id="kube-features">
+    <div class="row gutters">
+      <div class="col col-4 item">
+        <figure>
+          <img alt="Baseline" height="48" src="{{ "/img/kube/wrench.png" | relURL }}" width="48">
+        </figure>
+        <h3>Complete control over config</h3>
+        <p>Enroute defines fine grained APIs to push config to underlying proxies. It can effectively stream xDS config for each of the proxies.</p>
+      </div>
+      <div class="col col-4 item">
+        <figure>
+          <img alt="Typography" height="48" src="{{ "/img/kube/centralized.png" | relURL }}" width="48">
+        </figure>
+        <h3>Resilient</h3>
+        <p>Enroute's dual plane architecture makes it resilient against loss of communication with control plane.</p>
+      </div>
+      <div class="col col-4 item">
+        <figure>
+          <img alt="Minimalism" height="48" src="{{ "/img/kube/cogwheel.png" | relURL }}" width="48">
+        </figure>
+        <h3>Interoperable</h3>
+        <p>Interoperate with clouds and other sub-systems</p>
+      </div>
+    </div>
+    <div class="row gutters">
+      <div class="col col-4 item">
+        <h4>Powerful</h4>
+        <p>Multiple redundant tasks are abstracted as a simple API to faclilate quick config</p>
+      </div>
+      <div class="col col-4 item">
+        <h4>Minimal</h4>
+        <p>Enroute is built on unix philosophy of doing one thing really well. Its primary purpose is to manage Envoy proxies. It doesn't force other choices on the user.</p>
+      </div>
+      <div class="col col-4 item">
+        <h4>Intutive</h4>
+        <p>Enroute uses intutive well known abstractions to help configure proxies.</p>
+      </div>
+
+  </div>
+</div>
+</div>
+{{ end }}
+{{ define "footer"}} {{ partial "footer" .}} {{end}}
