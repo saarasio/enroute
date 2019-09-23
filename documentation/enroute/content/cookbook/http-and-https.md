@@ -19,6 +19,8 @@ We demonstrate the use-case using the petstore example.
 ###### Application architecture
 The customer use-case needs configuration of two proxies to achieve this. One runs the application without the certificate and another one runs it with the certificate.
 
+<a href=""><img alt="Brand" src="/img/ApplicationArch.png"></a>
+
 ## Control Plane
 ###### Control Plane for proxy configuration
 We spin up a control plane to create proxies and applications. Each of the data plane components connect to this control plane to read their config.
