@@ -3,6 +3,7 @@ languageCode = "en-us"
 title = "Enroute"
 description = "Enroute is a barebones controller to manage multiple Envoy proxies"
 Paginate = 4
+googleAnalytics = "UA-129736951-2"
 [Params]
   RSSLink = "/index.xml"
   author = "newpixcom" # add your company name
