@@ -166,7 +166,7 @@ Here is how you view all the services -
 
 ```
 
-$ curl -s https://ingresspipe.io:8443/service -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s https://ingresspipe.io:8443/service -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_service": [
@@ -193,7 +193,7 @@ $ curl -s https://ingresspipe.io:8443/service -H "Authorization: Bearer treehugg
 To view just one service, qualify the above command with service name -
 
 ```
-$ curl -s https://ingresspipe.io:8443/service/petstore -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s https://ingresspipe.io:8443/service/petstore -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_service": [
@@ -215,7 +215,7 @@ $ curl -s https://ingresspipe.io:8443/service/petstore -H "Authorization: Bearer
 Routes are rules to provide L7 routing information to Envoy. To create a route for the petstore, use the following command.
 
 ```
-$ curl -s -X POST https://ingresspipe.io:8443/service/petstore/route -H "Content-Type: application/json" -H "Authorization: Bearer treehugger" -d '{"Route_name":"default", "Route_prefix":"/"}' | python -m json.tool
+$ curl -s -X POST https://ingresspipe.io:8443/service/petstore/route -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" -d '{"Route_name":"default", "Route_prefix":"/"}' | python -m json.tool
 {
     "data": {
         "insert_saaras_db_route": {
@@ -229,7 +229,7 @@ $ curl -s -X POST https://ingresspipe.io:8443/service/petstore/route -H "Content
 You can also see a service, its routes and associated upstream using the **dump** api for a service. We can look at a service and its associated route using the following command -
 
 ```
-curl -s https://ingresspipe.io:8443/service/dump/petstore -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s https://ingresspipe.io:8443/service/dump/petstore -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_service": [
@@ -257,7 +257,7 @@ curl -s https://ingresspipe.io:8443/service/dump/petstore -H "Authorization: Bea
 Next we create an upstream that will serve this traffic -
 
 ```
-$ curl -s -X POST https://ingresspipe.io:8443/upstream -H "Content-Type: application/json" -H "Authorization: Bearer treehugger" -d '{"Upstream_name":"default", "Upstream_ip":"172.31.18.10", "Upstream_port":"8088", "Upstream_weight":"100", "Upstream_hc_path": "/" }' | python -m json.tool
+$ curl -s -X POST https://ingresspipe.io:8443/upstream -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" -d '{"Upstream_name":"default", "Upstream_ip":"172.31.18.10", "Upstream_port":"8088", "Upstream_weight":"100", "Upstream_hc_path": "/" }' | python -m json.tool
 {
     "data": {
         "insert_saaras_db_upstream": {
@@ -273,7 +273,7 @@ Use the following command to view the upstream -
 
 ```
 
-$ curl -s  https://ingresspipe.io:8443/upstream/default -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s  https://ingresspipe.io:8443/upstream/default -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_upstream": [
@@ -306,7 +306,7 @@ $ curl -s  https://ingresspipe.io:8443/upstream/default -H "Authorization: Beare
 We have created a service, a route for this service. Next we created an upstream. However this upstream is not associated with the route. Here we associate the upstream with the route -
 
 ```
-$ curl -s -X POST https://ingresspipe.io:8443/service/petstore/route/default/upstream/default -H "Content-Type: application/json" -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s -X POST https://ingresspipe.io:8443/service/petstore/route/default/upstream/default -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "insert_saaras_db_route_upstream": {
@@ -319,7 +319,7 @@ $ curl -s -X POST https://ingresspipe.io:8443/service/petstore/route/default/ups
 ###### Dump service to view (service -> route -> upstream)
 
 ```
-$ curl -s https://ingresspipe.io:8443/service/dump/petstore -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s https://ingresspipe.io:8443/service/dump/petstore -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_service": [
@@ -355,13 +355,13 @@ $ curl -s https://ingresspipe.io:8443/service/dump/petstore -H "Authorization: B
 ###### Associate the service with petstore proxy
 
 ```
-curl -s -X POST https://ingresspipe.io:8443/proxy/petstore/service/petstore -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST https://ingresspipe.io:8443/proxy/petstore/service/petstore -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 ###### Dump petstore proxy config
 
 ```
-$ curl -s https://ingresspipe.io:8443/proxy/dump/petstore -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s https://ingresspipe.io:8443/proxy/dump/petstore -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_proxy": [
@@ -509,7 +509,7 @@ $ curl -s https://ingresspipe.io:8443/proxy/dump/petstore -H "Authorization: Bea
 ## Create service to serve application over HTTPS - use *deepcopy*
 
 ```
-curl -s -X POST https://ingresspipe.io:8443/service/deepcopy/petstore/petstore-https -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST https://ingresspipe.io:8443/service/deepcopy/petstore/petstore-https -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 ## Create and associate Secret to the newly created service
@@ -521,37 +521,37 @@ Next we show how create a secret and upload a key and a cert for that secret
 1. **Create a secret**
 
 ```
-curl -s -X POST https://ingresspipe.io:8443/secret -d '{"Secret_name":"petstore-https-secret"}' -H "Content-Type: application/json" -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST https://ingresspipe.io:8443/secret -d '{"Secret_name":"petstore-https-secret"}' -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 2. **Upload a key**
 
 ```
-curl -vvv -X POST -F 'Secret_key=@privkey.pem' https://ingresspipe.io:8443/secret/petstore-https-secret/key -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -vvv -X POST -F 'Secret_key=@privkey.pem' https://ingresspipe.io:8443/secret/petstore-https-secret/key -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 3. **Upload a cert**
 
 ```
-curl -vvv -X POST -F 'Secret_cert=@fullchain.pem' https://ingresspipe.io:8443/secret/petstore-https-secret/cert -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -vvv -X POST -F 'Secret_cert=@fullchain.pem' https://ingresspipe.io:8443/secret/petstore-https-secret/cert -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 ###### Attach the secret to a service
 
 ```
-curl -s -X POST https://ingresspipe.io:8443/service/petstore-https/secret/petstore-https-secret -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST https://ingresspipe.io:8443/service/petstore-https/secret/petstore-https-secret -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 ###### Associate the service with petstore-https proxy
 
 ```
-curl -s -X POST https://ingresspipe.io:8443/proxy/petstore-https/service/petstore-https -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST https://ingresspipe.io:8443/proxy/petstore-https/service/petstore-https -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 ```
 
 ## Dump petstore-https proxy config
 
 ```
-$ curl -s https://ingresspipe.io:8443/proxy/dump/petstore-https -H "Authorization: Bearer treehugger" | python -m json.tool
+$ curl -s https://ingresspipe.io:8443/proxy/dump/petstore-https -H "Authorization: Bearer treeseverywhere" | python -m json.tool
 {
     "data": {
         "saaras_db_proxy": [
