@@ -12,7 +12,7 @@ Enroute is a L7 routing controller for Envoy proxies. Complete configuration of 
 
 Enroute is implemented as a control plane that is the central repository for all Envoy config. The data plane component implements the xDS server. The dual plane architecture is also resilient across failure of connectivity between control plane and data plane.
 
-<a href=""><img alt="Brand" src="/img/EnrouteArch.png"></a>
+<a href=""><img alt="Brand" src="/img/EnrouteArch2.png"></a>
 
 ## Enroute vs Service Mesh
 

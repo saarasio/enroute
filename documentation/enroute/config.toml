@@ -13,7 +13,7 @@ googleAnalytics = "UA-129736951-2"
 
 [[menu.main]]
     name = "APIs"
-    weight = -100
+    weight = -90
     url = "https://ingresspipe.io:8443/swagger/index.html"
 [[menu.main]]
     name = "Cookbook"
@@ -21,5 +21,5 @@ googleAnalytics = "UA-129736951-2"
     url = "/cookbook/"
 [[menu.main]]
     name = "Faq"
-    weight = -100
+    weight = -90
     url = "/faq/"
