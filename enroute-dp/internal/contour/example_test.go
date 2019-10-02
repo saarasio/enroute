@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/saarasio/enroute/internal/contour"
+	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 )
 
 func ExampleCond() {

@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/saarasio/enroute/apis/generated/clientset/versioned"
-	contourv1beta1 "github.com/saarasio/enroute/apis/generated/clientset/versioned/typed/contour/v1beta1"
-	fakecontourv1beta1 "github.com/saarasio/enroute/apis/generated/clientset/versioned/typed/contour/v1beta1/fake"
+	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
+	contourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/contour/v1beta1"
+	fakecontourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/contour/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

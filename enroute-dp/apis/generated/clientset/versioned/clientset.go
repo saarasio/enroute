@@ -19,7 +19,7 @@ limitations under the License.
 package versioned
 
 import (
-	contourv1beta1 "github.com/saarasio/enroute/apis/generated/clientset/versioned/typed/contour/v1beta1"
+	contourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/contour/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

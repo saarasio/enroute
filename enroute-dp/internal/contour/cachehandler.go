@@ -22,9 +22,9 @@ import (
 
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/saarasio/enroute/internal/dag"
-	"github.com/saarasio/enroute/internal/k8s"
-	"github.com/saarasio/enroute/internal/metrics"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/k8s"
+	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/sirupsen/logrus"
 )
 

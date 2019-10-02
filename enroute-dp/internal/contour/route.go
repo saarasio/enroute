@@ -22,8 +22,8 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/cache"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/types"
-	"github.com/saarasio/enroute/internal/dag"
-	"github.com/saarasio/enroute/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 )
 
 // RouteCache manages the contents of the gRPC RDS cache.

@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/saarasio/enroute/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"time"
 )
 

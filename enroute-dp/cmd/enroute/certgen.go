@@ -19,7 +19,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/saarasio/enroute/internal/certgen"
+	"github.com/saarasio/enroute/enroute-dp/internal/certgen"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"k8s.io/client-go/kubernetes"
 )

@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1beta1 "github.com/saarasio/enroute/apis/generated/clientset/versioned/typed/contour/v1beta1"
+	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/contour/v1beta1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )

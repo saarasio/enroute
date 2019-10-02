@@ -1,7 +1,7 @@
 package saaras
 
 import (
-	"github.com/saarasio/enroute/internal/config"
+	"github.com/saarasio/enroute/enroute-dp/internal/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

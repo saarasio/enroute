@@ -22,7 +22,7 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/client-go/tools/cache"
 
-	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
 )
 
 // A KubernetesCache holds Kubernetes objects and associated configuration and produces

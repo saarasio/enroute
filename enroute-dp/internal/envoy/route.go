@@ -20,7 +20,7 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
 	"github.com/gogo/protobuf/types"
-	"github.com/saarasio/enroute/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 )
 
 // RouteRoute creates a route.Route_Route for the services supplied.

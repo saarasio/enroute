@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
 	"k8s.io/api/core/v1"
 )
 

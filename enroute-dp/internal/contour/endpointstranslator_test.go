@@ -21,7 +21,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 	"github.com/gogo/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
-	"github.com/saarasio/enroute/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	v1 "k8s.io/api/core/v1"
 )
 

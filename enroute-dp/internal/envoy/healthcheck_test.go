@@ -19,8 +19,8 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/google/go-cmp/cmp"
-	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
-	"github.com/saarasio/enroute/internal/dag"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 )
 
 func TestHealthCheck(t *testing.T) {

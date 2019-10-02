@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/saarasio/enroute/apis/generated/clientset/versioned"
-	contour "github.com/saarasio/enroute/apis/generated/informers/externalversions/contour"
-	internalinterfaces "github.com/saarasio/enroute/apis/generated/informers/externalversions/internalinterfaces"
+	versioned "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
+	contour "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions/contour"
+	internalinterfaces "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

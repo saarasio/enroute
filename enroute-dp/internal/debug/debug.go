@@ -19,8 +19,8 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"github.com/saarasio/enroute/internal/dag"
-	"github.com/saarasio/enroute/internal/httpsvc"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/httpsvc"
 )
 
 // Service serves various http endpoints including /debug/pprof.

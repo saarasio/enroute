@@ -16,7 +16,7 @@ package dag
 import (
 	"time"
 
-	"github.com/saarasio/enroute/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
 )
 
 func retryPolicy(rp *v1beta1.RetryPolicy) *RetryPolicy {

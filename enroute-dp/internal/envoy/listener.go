@@ -25,7 +25,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/util"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/types"
-	"github.com/saarasio/enroute/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 )
 
 // HTTPDefaultIdleTimeout sets the idle timeout for HTTP connections
@@ -38,7 +38,7 @@ const HTTPDefaultIdleTimeout = 60 * time.Second
 // TCPDefaultIdleTimeout sets the idle timeout in seconds for
 // connections through a TCP Proxy type filter.
 // It's defaulted to two and a half hours for reasons documented at
-// https://github.com/saarasio/enroute/issues/1074
+// https://github.com/saarasio/enroute/enroute-dp/issues/1074
 // Set to 9001 because now it's OVER NINE THOUSAND.
 // Exported so the same value can be used here and in e2e tests.
 const TCPDefaultIdleTimeout = 9001 * time.Second

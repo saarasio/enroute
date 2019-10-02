@@ -21,8 +21,8 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
 	"github.com/envoyproxy/go-control-plane/pkg/cache"
 	"github.com/gogo/protobuf/proto"
-	"github.com/saarasio/enroute/internal/dag"
-	"github.com/saarasio/enroute/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 )
 
 const (

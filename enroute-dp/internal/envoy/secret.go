@@ -6,7 +6,7 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	"github.com/saarasio/enroute/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 )
 
 // Secretname returns the name of the SDS secret for this secret.

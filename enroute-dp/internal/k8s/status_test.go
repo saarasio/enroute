@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"testing"
 
-	ingressroutev1beta1 "github.com/saarasio/enroute/apis/contour/v1beta1"
-	"github.com/saarasio/enroute/apis/generated/clientset/versioned/fake"
+	ingressroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8stesting "k8s.io/client-go/testing"

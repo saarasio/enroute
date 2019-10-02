@@ -23,7 +23,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/saarasio/enroute/internal/httpsvc"
+	"github.com/saarasio/enroute/enroute-dp/internal/httpsvc"
 )
 
 // Metrics provide Prometheus metrics for the app

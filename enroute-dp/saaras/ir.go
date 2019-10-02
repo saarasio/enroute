@@ -3,7 +3,7 @@ package saaras
 import (
 	"fmt"
 	_ "github.com/davecgh/go-spew/spew"
-	"github.com/saarasio/enroute/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

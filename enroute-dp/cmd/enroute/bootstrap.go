@@ -17,7 +17,7 @@ import (
 	"os"
 
 	"github.com/gogo/protobuf/jsonpb"
-	"github.com/saarasio/enroute/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 

@@ -26,7 +26,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/util"
 	"github.com/gogo/protobuf/types"
 	"github.com/google/go-cmp/cmp"
-	"github.com/saarasio/enroute/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )

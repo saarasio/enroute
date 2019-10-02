@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
 	//"github.com/davecgh/go-spew/spew"
 )
 
@@ -240,7 +240,7 @@ func (b *builder) lookupSecureVirtualHost(name string) *SecureVirtualHost {
 // TODO: the port value is not actually used as a port
 // anywhere. It's only used to choose between
 // 80 (for insecure) or 443 (for secure). This should be
-// fixed, see https://github.com/saarasio/enroute/issues/1135
+// fixed, see https://github.com/saarasio/enroute/enroute-dp/issues/1135
 func (b *builder) listener(port int) *Listener {
 	l, ok := b.listeners[port]
 	if !ok {

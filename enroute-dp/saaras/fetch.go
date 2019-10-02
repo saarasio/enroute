@@ -1,8 +1,8 @@
 package saaras
 
 import (
-	"github.com/saarasio/enroute/internal/contour"
-	"github.com/saarasio/enroute/internal/workgroup"
+	"github.com/saarasio/enroute/enroute-dp/internal/contour"
+	"github.com/saarasio/enroute/enroute-dp/internal/workgroup"
 	"github.com/sirupsen/logrus"
 	"time"
 )

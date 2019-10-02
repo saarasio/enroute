@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 
 	jsonpatch "github.com/evanphx/json-patch"
-	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
-	clientset "github.com/saarasio/enroute/apis/generated/clientset/versioned"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
 	"k8s.io/apimachinery/pkg/types"
 )
 

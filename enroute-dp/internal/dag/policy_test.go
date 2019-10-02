@@ -18,7 +18,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/saarasio/enroute/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
 )
 
 func TestRetryPolicyIngressRoute(t *testing.T) {

@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/saarasio/enroute/internal/dag"
-	"github.com/saarasio/enroute/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 )
 
 // quick and dirty dot debugging package

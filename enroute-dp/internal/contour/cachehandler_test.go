@@ -17,9 +17,9 @@ import (
 	"reflect"
 	"testing"
 
-	ingressroutev1 "github.com/saarasio/enroute/apis/contour/v1beta1"
-	"github.com/saarasio/enroute/internal/dag"
-	"github.com/saarasio/enroute/internal/metrics"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

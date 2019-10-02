@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/saarasio/enroute/internal/workgroup"
+	"github.com/saarasio/enroute/enroute-dp/internal/workgroup"
 )
 
 func ExampleGroup_Run() {

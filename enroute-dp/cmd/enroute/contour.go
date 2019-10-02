@@ -18,7 +18,7 @@ import (
 	"os"
 
 	"github.com/envoyproxy/go-control-plane/pkg/cache"
-	clientset "github.com/saarasio/enroute/apis/generated/clientset/versioned"
+	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
 	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"k8s.io/client-go/kubernetes"

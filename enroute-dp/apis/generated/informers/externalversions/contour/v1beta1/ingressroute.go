@@ -21,10 +21,10 @@ package v1beta1
 import (
 	time "time"
 
-	contourv1beta1 "github.com/saarasio/enroute/apis/contour/v1beta1"
-	versioned "github.com/saarasio/enroute/apis/generated/clientset/versioned"
-	internalinterfaces "github.com/saarasio/enroute/apis/generated/informers/externalversions/internalinterfaces"
-	v1beta1 "github.com/saarasio/enroute/apis/generated/listers/contour/v1beta1"
+	contourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	versioned "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
+	internalinterfaces "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions/internalinterfaces"
+	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/listers/contour/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
