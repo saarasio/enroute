@@ -1,0 +1,22 @@
+curl -s -X POST http://localhost:1323/proxy -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Name":"adminproxy"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/service -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Service_Name":"adminservice", "fqdn":"ingresspipe.io"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/service/adminservice/route -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Route_Name":"webapp_requests", "Route_prefix":"/"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/upstream -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Upstream_Name":"webapp_upstream", "upstream_hc_path":"/health", "upstream_ip":"127.0.0.1", "upstream_port":"1323", "upstream_weight":"100"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/service/adminservice/route/webapp_requests/upstream/webapp_upstream -H "Authorization: Bearer treehugger"
+curl -s -X POST http://localhost:1323/proxy/adminproxy/service/adminservice -H "Authorization: Bearer treehugger"  | python -m json.tool
+curl ingresspipe.io:8080/proxy/dump --resolve ingresspipe.io:8080:127.0.0.1 -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST http://localhost:1323/secret -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Secret_name":"IngressPipeFromCertbot"}' | python -m json.tool
+curl -s -X POST -H "Authorization: Bearer treehugger" -F 'Secret_key=@ingresspipe.io.key.pem' localhost:1323/secret/IngressPipeFromCertbot/key | python -m json.tool
+curl -s -X POST -H "Authorization: Bearer treehugger" -F 'Secret_cert=@ingresspipe.io.fullchain.pem' localhost:1323/secret/IngressPipeFromCertbot/cert | python -m json.tool
+curl -s -X POST -H "Authorization: Bearer treehugger" localhost:1323/service/adminservice/secret/IngressPipeFromCertbot | python -m json.tool
+
+
+curl -s -X POST http://localhost:1323/service -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Service_Name":"ingresspipe-docs", "fqdn":"docs.ingresspipe.io"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/service/ingresspipe-docs/route -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Route_Name":"root", "Route_prefix":"/"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/upstream -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Upstream_Name":"docs_serve_process", "upstream_hc_path":"/", "upstream_ip":"127.0.0.1", "upstream_port":"1313", "upstream_weight":"100"}' | python -m json.tool
+curl -s -X POST http://localhost:1323/service/ingresspipe-docs/route/root/upstream/docs_serve_process -H "Authorization: Bearer treehugger" | python -m json.tool
+curl -s -X POST http://localhost:1323/secret -H "Authorization: Bearer treehugger" -H "Content-Type: application/json" -d '{"Secret_name":"docs-ingresspipe-secret"}' | python -m json.tool
+curl -s -X POST -H "Authorization: Bearer treehugger" -F 'Secret_key=@docs.ingresspipe.io.key.pem' localhost:1323/secret/docs-ingresspipe-secret/key | python -m json.tool
+curl -s -X POST -H "Authorization: Bearer treehugger" -F 'Secret_cert=@docs.ingresspipe.io.fullchain.pem' localhost:1323/secret/docs-ingresspipe-secret/cert | python -m json.tool
+curl -s -X POST -H "Authorization: Bearer treehugger" localhost:1323/service/ingresspipe-docs/secret/docs-ingresspipe-secret | python -m json.tool
+curl -s -X POST http://localhost:1323/proxy/adminproxy/service/ingresspipe-docs -H "Authorization: Bearer treehugger"  | python -m json.tool

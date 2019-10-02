@@ -1,0 +1,6 @@
+curl localhost:1323/proxy | python -m json.tool
+curl -X POST -H "Content-type: application/json" -d '{"Name":"adminproxy"}' http://localhost:1323/proxy | python -m json.tool
+
+# Service not created without a fqdn
+# Note the default value you want to use (127.0.0.1, localhost ?)
+curl -X POST -H "Content-type: application/json" -d '{"Service_Name":"adminservice", "Fqdn":"ingresspipe.io"}' http://localhost:1324/service | python -m json.tool
