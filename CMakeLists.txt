@@ -32,5 +32,7 @@ else()
     message(SEND_ERROR    "Git not found. Please install git")
 endif()
 
+set(image_registry "gcr.io")
+
 add_subdirectory(enroute-dp)
 add_subdirectory(enroute-cp)
