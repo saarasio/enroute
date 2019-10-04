@@ -9,6 +9,8 @@
    # (1.4.1) Make hasura binaries executable
    # (1.4.2) Copy hasura migrations script
 	# (1.5) Copy supervisord config file
+	# (1.6) Copy script that waits for hasura
+	# (1.7) Copy enroute-cp
    
 
 # (2) Setup environment variables
@@ -52,6 +54,13 @@ RUN chmod +x /bin/wait_for_postgres.sh
 # 1.5
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# 1.6
+COPY wait_for_hasura.sh  bin/
+RUN chmod +x /bin/wait_for_hasura.sh
+
+# 1.7 copy enroute-cp
+COPY enroute-cp /bin/
+
 # 2
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=server-on-docker
 ENV HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:@localhost:5432/postgres
@@ -65,6 +74,9 @@ RUN echo "host all  all    127.0.0.1/32  trust" >> /etc/postgresql/11/main/pg_hb
 
 # Allow other processes to reach posgresql on port 5432
 EXPOSE 5432
+
+# Allow other processes to reach hasura on port 8080
+EXPOSE 8080
 
 # Setup volume for postgresql
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]

@@ -57,8 +57,9 @@ func main() {
 		webhttp.HOST = "127.0.0.1"
 	}
 	if webhttp.PORT == "" {
-		webhttp.PORT = "8081"
+		webhttp.PORT = "8080"
 	}
+
 	fmt.Printf(" DB_HOST set to [%s] DB_PORT set to [%s]\n", webhttp.HOST, webhttp.PORT)
-	e.Logger.Fatal(e.Start("127.0.0.1:1323"))
+	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }
