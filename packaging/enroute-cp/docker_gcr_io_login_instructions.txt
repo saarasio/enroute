@@ -1,0 +1,35 @@
+Use this command to login into gcr.io
+
+cat saarasio.gcr.io.privatekey.json | docker login -u _json_key --password-stdin https://gcr.io
+
+Contents of saarasio.gcr.io.privatekey.json look like the following -
+
+
+
+{
+  "type": "service_account",
+  "project_id": "saarasio",
+  "private_key_id": "0a067f4b94a5d67406a4c3b1c92ebf866abbcf77",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDOnTnWhiPkpabu\nuhY8FasRuhTFOt210YjRUfGictNfpAqsbP/2yjUFkG6XAG+OFJdDmz0GT7mc3cOB\ny98SQ34zaKsJK+O+P9dQr5sqLCUttxvG9ijedSLe9sPOHo/P/oDGEyqzEIDppnki\nlXcaBLGOOEwxkn+LALPdIeM8wC6GEEc+coA9swbD+IKEkVb6HB7my+qlwfNO03QK\niq1zg3LuZ4mvjbxG8wX/eaziDNBS3NqvYDkYfLH3SZAJ5QTipWkE7LbP5kvvZoP8\nAcWjIyS2JDBOwkBz6jz9g66zpdPXYo7jLqjR+RRa33b/Eg4SnPJ3ONkcE+57MHww\n396gI37lAgMBAAECggEABNRDy5i+5LyVBTGN1equ4PzVXU3pR7NH17rq8Pu38Ase\nSr9IB26Te2VPv0OiaiUWD7j2y4lTpO/mR7W38q4ec8tMImM+TIm1UJEdm4hgLvDb\nDZCDMr4rt7H3i8iQFYQZhtnyjFUIob+1kGSVgmwZzgYaHvLIRalieI0u3AAAf4RZ\nPaviNGv6CcukF0DQp+fW+7scW0omcJnPJX4jW8iop3O9oP5deYeycF6q/02QT4Bw\nEz9HtZ0ePIPQ2KfzAcfWdDh+xZpvRKg1MUnwagbp5piI7uihSmbCpOjFito3nfsq\nKy2Ok0M97rPZzOcfK6DuxR2L5x2VgFFBzTQ4d0uqIwKBgQD5iF6tSywOTRD4ame6\nihed7VcVzk38OrTKBIKA1a0R4xOnK+oTcvfpfP+K1VFHAP9Q58kd2nmKdZOM47gw\nUTxQQtNxUhRAUBErGebOCqv9xjIIi3otMH7gASEJAwZZHCx6TMnggLRW18+kHUbV\nF5pl+nAimxjWVlKLmht4o14WswKBgQDT+BhPMJJs4aG2SeeKSp461GkVC9h5+q/j\n9CA3qOyqM+KShH/ynpFQeXVVHID2w5CENbC1K5wQKJa2IgsIKMrQVeG3KvzEcpJc\ncPCH/EenIfaB9c1uhTjuedCfqiUvRuSLyTW01Gu1IREyMk0vnY7Ls1JHHJarGW92\nS60v9JugBwKBgC0YnCOtZjTfcKW0dTKdKk98STTDqAxhf7LSxdMKytBkvXSE1zTU\nnkEwOe6ZRqsSXxH8Ebi3dyeywAvCS9NPmxrWOOhN8SL+VVv4vmGWRCcE3p30twvb\nq9JH4fSC+263TMJ9hi5wlCbtsbTzJY31Sg4MCJ/4b7CswRZBr51JyQNJAoGBAIQF\ny4ZPN3QvmJxELb25uhHkSMr+BMf8tt7hJ8vjH/zmsiEV++cukk2wSL9JMJ4BsppW\nIojE78A0t6IbVAmx9piKVTrTwHnO7pA7G+Vm4W4cvj+1zE0hFxOZtbIstFpc6m6S\nVSwa/jbjsKU2JVMZ7F29g+qcyM8q2Xyxp93tmZyzAoGACDTc8BDb2P5U/Rh4b52A\naIjj3JPw7xNu82kE+gyUxao/jcuDIJDIpslEI4864irIYUpRHxCAduVhD4tRBbdl\nb33tg+njjGqnHljV0b88aVtNVXKdhzkIC3EVkTEu1m8DNPlmw/sFRsGoa7x5g+S4\nGXdHpULeSh8LgbQ9nEDOy78=\n-----END PRIVATE KEY-----\n",
+  "client_email": "image-push@saarasio.iam.gserviceaccount.com",
+  "client_id": "100539922325328815452",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/image-push%40saarasio.iam.gserviceaccount.com"
+}
+
+There is also another project with project-id enroute-10102020. The credential file looks like this -
+
+{
+  "type": "service_account",
+  "project_id": "enroute-10102020",
+  "private_key_id": "b1349c1e7ea9f38a3c720ba74c588c61731fccd6",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC+9yHmQw7eeIU9\nZuQ7dtsTn1ctAvwiPqAhA8qhixNp4SahGG77mo4UyqPmUPJolUPKAvwkmWg8RdC6\nMxLGwVoEy8plkFlCPXbSQ5pWyDwuQWjx/UzPXqxEWXtLfk9cCxKt6JcPlXPGGEh6\nnA37edn0HaV6jV/CMLySi/kGeyvsaBh70f+nqTPgG4elDNbyI0LucNyeqA/8BJzX\n9GfvoDw/Bqx/aC3ADbWBluGKoFT1KlsjpoXLmYNxGhZAeUe4nv67ufb5G8I9lg5X\nSnF5GNBI5xkF81D0+dtyL0kzgR8Akd0t1nGEJIxrvwc2hBVLg4/VNZyay0vhn45a\nmzpezjftAgMBAAECggEACa+HLKKiEm6Sc3bQhKOWoPwn88R+/U2n2YTTtjXTmj8t\nMmaG2oQQSMWuYnQgl2VatthH6aNOQiBYYdlNTn9oDW44qcYUgOOVLzz2iwhE5SO0\nKvHp/2qR2jWfp0iUxdpZ7DAr2UJ/SMDajD12CBc6EsOeLQUWokbOibBHxShiJe9b\nK1jOK18Wizvi3WERW1Hl5xFCRWStM1WMAHj19vFq7YLVd6VH0qx7JeyHTW+C+K1G\n5PDTnL7i+hdrz4/pdQo8OXJ1vz86PGocGh0//oG3mqCFgBgTKARogFr7JU5lDOCF\nGv7mXSRhpfGEYS1GHXdqtUQSSjlOQZg9gV+O4Nn8kQKBgQDxCPlkpKTPyZeYFFLR\nf6hF3+c3zeogHC9IlZLfscjucr/S7pv2GVGVbUJ66kTNlFWoXH9vrEZo1IsASMHu\nU7hfuaQgKf1qgfYtR/9VpA9eiNxCxJdHhXtm6wYK4AKUanGvCF7cYx7wdLJhyHRo\nT7oxVaz6KU7H5j1aeHDENJMU/wKBgQDK0ljzaYFRHgef/NyfI/tbP+RrT76pU8Ll\ngmJEyIRKfeSoFatLrcwBFoLS6cSL/BNEoPlzWB+tykaLavP1gjDETuTrUVqb16Gw\nD39RJU82RH/kEhrJCxle55/izzeBZpApkA5tsZmSi0qyKTxmOeWyi/NCJqiIEkvI\njazArz9XEwKBgQDoj7EZYyZF+gsTSCC0VEiGyscr97i7LJaOoQqqXL4zG3Jr0Z+X\nbsxhsZ7gO6MQ+9s966lllUIGKXTIXGsJSavuaI6sHfeNyUE+ZWY+OmI94y0qGsaf\n0nHDVmZpHcQ/cQipShlE6TpT5TSr1h5C+xH6QeD5KdwCUerGnMio9tUm/wKBgC1t\nldzXWc6ocj7EbUn7zjXvBqN+lg7pIvMzE/2iB/eDYS7Aw8BMqi/oMd852vsbt9kc\nUSMjrtzHPKvHheMMiQ2/Ogj3DNtxHdcIcZTkTWyzRQ35fCRhpwoZyTcNALqsFUgp\n6wFo0SQArPdgwxWGjEtEi3Taoc7wgibmjLYPypkfAoGBAI1hbV1x2KWKdvzGdG4f\nZhPJgx0qQL/7PlLlQ8M6HtL77EyBI/nGJz6K+nDIlJswinP6S4O5fnJlXW54ehB2\nTvmjzq0cN5sh/DpEnfeSf+6VZ5caOQcAFOsGLbHs3E1CpatfiHYkH17CeO4G3bp8\nS8DyzqqUrqIxavq3J+IEFdED\n-----END PRIVATE KEY-----\n",
+  "client_email": "container-registry-access@enroute-10102020.iam.gserviceaccount.com",
+  "client_id": "112589298841021127066",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/container-registry-access%40enroute-10102020.iam.gserviceaccount.com"
+}
