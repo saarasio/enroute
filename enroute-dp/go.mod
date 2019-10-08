@@ -27,7 +27,7 @@ require (
 	github.com/swaggo/swag v1.6.3 // indirect
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5 // indirect
 	golang.org/x/sys v0.0.0-20190813064441-fde4db37ae7a // indirect
-	google.golang.org/genproto v0.0.0-20190611190200-a7e196e89fd3 // indirect
+	google.golang.org/genproto v0.0.0-20190611190212-a7e196e89fd3 // indirect
 	google.golang.org/grpc v1.22.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/inf.v0 v0.9.1 // indirect
