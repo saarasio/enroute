@@ -191,5 +191,30 @@ dump_upstream() {
 #dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
 #dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
 
-create_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SECRET_NAME} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
-list_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} 
+#create_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SECRET_NAME} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
+#list_secret ${AUTHORIZATION} ${ADMIN_HOST_URL}
+
+case "$1" in
+        create-service-route-upstream)
+		create_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${SERVICE_FQDN} ${DOCS_ROUTE_NAME} ${DOCS_ROUTE_PREFIX} ${UPSTREAM_NAME} ${UPSTREAM_IP} ${UPSTREAM_PORT} ${UPSTREAM_WEIGHT} ${UPSTREAM_HC_PATH}
+            ;;
+        delete-service-route-upstream)
+		delete_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${DOCS_ROUTE_NAME} ${UPSTREAM_NAME}
+            ;;
+        show-service-route-upstream)
+		dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
+            ;;
+	create-secret)
+		create_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SECRET_NAME} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
+            ;;
+	show-secret)
+		list_secret ${AUTHORIZATION} ${ADMIN_HOST_URL}
+	    ;;
+        show-service)
+		dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
+            ;;
+        *)
+            echo $"Usage: $0 {create-service-route-upstream|delete-service-route-upstream|show-service-route-upstream|show-service|show-secret|show-proxy}"
+            exit 1
+ 
+esac
