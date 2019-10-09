@@ -332,6 +332,8 @@ query get_one_proxy_detail($proxy_name:String!) {
 var HOST string
 var PORT string
 
+var SECRET string
+
 // @Summary Create a proxy
 // @Description Create a proxy
 // @Tags proxy

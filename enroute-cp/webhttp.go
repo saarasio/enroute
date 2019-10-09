@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-var SECRET = "treehugger"
-
 // @title Enroute API
 // @version 1.0
 // @description APIs to configure multiple envoy proxies
@@ -37,7 +35,7 @@ func main() {
 		KeyLookup:  "header:" + echo.HeaderAuthorization,
 		AuthScheme: "Bearer",
 		Validator: func(key string, c echo.Context) (bool, error) {
-			return key == SECRET, nil
+			return key == webhttp.SECRET, nil
 		},
 	}
 
@@ -52,6 +50,8 @@ func main() {
 	webhttp.Add_secret_routes(e)
 	webhttp.HOST = os.Getenv("DB_HOST")
 	webhttp.PORT = os.Getenv("DB_PORT")
+	webhttp.SECRET = os.Getenv("WEBAPP_SECRET")
+
 
 	if webhttp.HOST == "" {
 		webhttp.HOST = "127.0.0.1"
@@ -60,6 +60,6 @@ func main() {
 		webhttp.PORT = "8080"
 	}
 
-	fmt.Printf(" DB_HOST set to [%s] DB_PORT set to [%s]\n", webhttp.HOST, webhttp.PORT)
+	fmt.Printf(" DB_HOST set to [%s] DB_PORT set to [%s] SECRET set to [%s]\n", webhttp.HOST, webhttp.PORT, webhttp.SECRET)
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }
