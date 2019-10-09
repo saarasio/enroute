@@ -24,6 +24,11 @@ UPSTREAM_PORT="1313"
 UPSTREAM_WEIGHT="100"
 UPSTREAM_HC_PATH="/"
 
+# Variables for secret
+SECRET_NAME="wildcard-ingresspipe-io"
+SECRET_KEY_FILE="/home/ubuntu/enroute/documentation/certs/wildcard.ingresspipe.io.privkey.pem"
+SECRET_CERT_FILE="/home/ubuntu/enroute/documentation/certs/wildcard.ingresspipe.io.fullchain.pem"
+
 log() {
     TIMESTAMP=$(date -u "+%Y-%m-%dT%H:%M:%S.000+0000")
     MESSAGE=$1
@@ -81,9 +86,36 @@ create_service_route_upstream() {
 	
 	log "Dump service ${LOCAL_SERVICE_NAME}"
 	
-	curl -s ${LOCAL_ADMIN_HOST_URL}/service/dump/${LOCAL_SERVICE_NAME} -H "Authorization: Bearer treehugger" | jq
+	curl -s ${LOCAL_ADMIN_HOST_URL}/service/dump/${LOCAL_SERVICE_NAME} -H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" | jq
 
 	echo "End - create_service_route_upstream()"
+}
+
+create_secret() {
+	local LOCAL_AUTHORIZATION=$1
+	local LOCAL_ADMIN_HOST_URL=$2
+	local LOCAL_SECRET_NAME=$3
+	local LOCAL_SECRET_KEY_FILE=$4
+	local LOCAL_SECRET_CERT_FILE=$5
+
+	log "CREATE SECRET ${LOCAL_SECRET_NAME}"
+
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret \
+		-H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" \
+		-H "Content-Type: application/json" \
+		-d '{"Secret_Name":"'${LOCAL_SECRET_NAME}'"}' | jq
+
+	log "curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/key -F 'Secret_key=@'${LOCAL_SECRET_KEY_FILE}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/key -H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" -F 'Secret_key=@'${LOCAL_SECRET_KEY_FILE} | jq
+
+	log "curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/cert -F 'Secret_cert=@'${LOCAL_SECRET_CERT_FILE}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/cert -H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" -F 'Secret_cert=@'${LOCAL_SECRET_CERT_FILE} | jq
+}
+
+list_secret() {
+	local LOCAL_AUTHORIZATION=$1
+	local LOCAL_ADMIN_HOST_URL=$2
+	curl -s ${LOCAL_ADMIN_HOST_URL}/secret -H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" | jq
 }
 
 delete_service_route_upstream() {
@@ -150,11 +182,14 @@ dump_upstream() {
 	curl -s ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME} -H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" | jq
 }
 
-create_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${SERVICE_FQDN} ${DOCS_ROUTE_NAME} ${DOCS_ROUTE_PREFIX} ${UPSTREAM_NAME} ${UPSTREAM_IP} ${UPSTREAM_PORT} ${UPSTREAM_WEIGHT} ${UPSTREAM_HC_PATH}
-dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
-dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
-dump_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${UPSTREAM_NAME}
+#create_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${SERVICE_FQDN} ${DOCS_ROUTE_NAME} ${DOCS_ROUTE_PREFIX} ${UPSTREAM_NAME} ${UPSTREAM_IP} ${UPSTREAM_PORT} ${UPSTREAM_WEIGHT} ${UPSTREAM_HC_PATH}
+#dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
+#dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
+#dump_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${UPSTREAM_NAME}
+#
+#delete_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${DOCS_ROUTE_NAME} ${UPSTREAM_NAME}
+#dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
+#dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
 
-delete_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${DOCS_ROUTE_NAME} ${UPSTREAM_NAME}
-dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
-dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
+create_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SECRET_NAME} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
+list_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} 
