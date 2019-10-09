@@ -86,6 +86,14 @@ mutation update_secret_key($secret_name: String!, $secret_cert: String!){
 }
 `
 
+var QDeleteSecret = `
+mutation delete_secret($secret_name: String!){
+        delete_saaras_db_secret(where: {secret_name: {_eq: $secret_name}}) {
+                affected_rows
+        }
+}
+`
+
 // @Summary Create a secret
 // @Tags secret
 // @Accept  json
@@ -271,7 +279,7 @@ func DELETE_Secret(c echo.Context) error {
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	secret_name := c.Param("secret_name")
 	args["secret_name"] = secret_name
-	if err := saaras.RunDBQuery(url, QDeleteUpstream, &buf, args, log); err != nil {
+	if err := saaras.RunDBQuery(url, QDeleteSecret, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
