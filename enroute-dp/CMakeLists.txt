@@ -19,7 +19,7 @@ add_custom_command(TARGET ${target_name}
 #Push container
 add_custom_target(${target_name_push}
 		  DEPENDS ${target_name}
-		  COMMAND docker push ${image_registry}/enroute-cp:latest
+		  COMMAND docker push ${image_registry}/enroute-dp:latest
 		  )
 
 add_custom_target(${target_name_test}
