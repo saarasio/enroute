@@ -31,18 +31,18 @@ import (
 func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 	b := &bootstrap.Bootstrap{
 		DynamicResources: &bootstrap.Bootstrap_DynamicResources{
-			LdsConfig: ConfigSource("contour"),
-			CdsConfig: ConfigSource("contour"),
+			LdsConfig: ConfigSource("enroute"),
+			CdsConfig: ConfigSource("enroute"),
 		},
 		StaticResources: &bootstrap.Bootstrap_StaticResources{
 			Clusters: []api.Cluster{{
-				Name:                 "contour",
-				AltStatName:          strings.Join([]string{c.Namespace, "contour", strconv.Itoa(intOrDefault(c.XDSGRPCPort, 8001))}, "_"),
+				Name:                 "enroute",
+				AltStatName:          strings.Join([]string{c.Namespace, "enroute", strconv.Itoa(intOrDefault(c.XDSGRPCPort, 8001))}, "_"),
 				ConnectTimeout:       5 * time.Second,
 				ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_STRICT_DNS),
 				LbPolicy:             api.Cluster_ROUND_ROBIN,
 				LoadAssignment: &api.ClusterLoadAssignment{
-					ClusterName: "contour",
+					ClusterName: "enroute",
 					Endpoints: []endpoint.LocalityLbEndpoints{{
 						LbEndpoints: []endpoint.LbEndpoint{
 							LBEndpoint(stringOrDefault(c.XDSAddress, "127.0.0.1"), intOrDefault(c.XDSGRPCPort, 8001)),
@@ -137,7 +137,7 @@ func upstreamFileTLSContext(cafile, certfile, keyfile string) *auth.UpstreamTlsC
 						},
 					},
 					// TODO(youngnick): Does there need to be a flag wired down to here?
-					VerifySubjectAltName: []string{"contour"},
+					VerifySubjectAltName: []string{"enroute"},
 				},
 			},
 		},

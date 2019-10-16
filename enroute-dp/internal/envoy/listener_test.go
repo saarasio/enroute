@@ -190,7 +190,7 @@ func TestDownstreamTLSContext(t *testing.T) {
 							GrpcServices: []*core.GrpcService{{
 								TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
 									EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
-										ClusterName: "contour",
+										ClusterName: "enroute",
 									},
 								},
 							}},
@@ -233,7 +233,7 @@ func TestHTTPConnectionManager(t *testing.T) {
 											GrpcServices: []*core.GrpcService{{
 												TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
 													EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
-														ClusterName: "contour",
+														ClusterName: "enroute",
 													},
 												},
 											}},

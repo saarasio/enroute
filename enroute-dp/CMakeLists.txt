@@ -1,6 +1,7 @@
 set(target_name	enroute-dp)
 set(target_image  "${image_registry}/${target_name}")
 set(target_name_push "${target_name}_push")
+set(target_name_test "${target_name}_test")
 
 file(GLOB_RECURSE enroute_project_source ${CMAKE_SOURCE_DIR}/${target_name}/*.go)
 
@@ -18,5 +19,11 @@ add_custom_command(TARGET ${target_name}
 #Push container
 add_custom_target(${target_name_push}
 		  DEPENDS ${target_name}
-		  COMMAND docker push ${image_registry}/enroute-cp:latest .
+		  COMMAND docker push ${image_registry}/enroute-cp:latest
+		  )
+
+add_custom_target(${target_name_test}
+          ALL
+		  DEPENDS ${target_name}
+		  COMMAND make -C ${CMAKE_SOURCE_DIR}/${target_name} test
 		  )

@@ -1,3 +1,3 @@
-# Admin API port (80 -> 1323) - Run config against this port
-# Enroute control plane port (8080 -> 8080) - Provide this port when bootstrapping data plane
-sudo docker run gcr.io/enroute-10102020/enroute-cp -p 80:1323 -p 8080:8080
+# Admin API port (1323 -> 1323) - Run config against this port
+# Enroute control plane port (8888 -> 8080) - Provide this port when bootstrapping data plane
+docker run -v db_data:/var/lib/postgresql/11/main -p 8888:8080 -p 1323:1323 -e WEBAPP_SECRET="treeseverywhere" gcr.io/enroute-10102020/enroute-cp

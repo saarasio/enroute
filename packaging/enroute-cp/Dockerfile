@@ -79,7 +79,7 @@ EXPOSE 5432
 EXPOSE 8080
 
 # Setup volume for postgresql
-VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/11/main"]
 
 ENV WEBAPP_SECRET="treeseverywhere"
 

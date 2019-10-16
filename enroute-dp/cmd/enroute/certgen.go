@@ -78,7 +78,7 @@ func GenerateCerts(certConfig *certgenConfig) (map[string][]byte, error) {
 	contourCert, contourKey, err := certgen.NewCert(caCertPEM,
 		caKeyPEM,
 		expiry,
-		"contour",
+		"enroute",
 		certConfig.Namespace,
 	)
 	if err != nil {

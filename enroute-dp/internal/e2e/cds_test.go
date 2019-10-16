@@ -516,7 +516,7 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 				AltStatName:          "default_kuard_8080",
 				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   envoy.ConfigSource("contour"),
+					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -562,7 +562,7 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 				AltStatName:          "default_kuard_8080",
 				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   envoy.ConfigSource("contour"),
+					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -688,7 +688,7 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 				AltStatName:          "default_kuard_80",
 				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   envoy.ConfigSource("contour"),
+					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -700,7 +700,7 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 				AltStatName:          "default_kuard_80",
 				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   envoy.ConfigSource("contour"),
+					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -985,7 +985,7 @@ func cluster(name, servicename, statName string) *v2.Cluster {
 		ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 		AltStatName:          statName,
 		EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-			EdsConfig:   envoy.ConfigSource("contour"),
+			EdsConfig:   envoy.ConfigSource("enroute"),
 			ServiceName: servicename,
 		},
 		ConnectTimeout: 250 * time.Millisecond,

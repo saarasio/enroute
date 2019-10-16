@@ -3,15 +3,15 @@
 set -e
 
 # Variables to access webapp
-AUTHORIZATION="treehugger"
-ADMIN_HOST_URL="http://localhost"
+AUTHORIZATION="treeseverywhere10"
+ADMIN_HOST_URL="http://localhost:1323"
 
 # Variables to configure proxy
 PROXY_NAME="adminproxy"
 
 # Variables to configure service
 SERVICE_NAME="adminservice"
-SERVICE_FQDN="enroute-beta.ingresspipe.io"
+SERVICE_FQDN="enroute-controller.local"
 
 # Variables to configure route
 DOCS_ROUTE_NAME="route_docs"
@@ -90,6 +90,24 @@ create_service_route_upstream() {
 
 	echo "End - create_service_route_upstream()"
 }
+
+associate_proxy_service() {
+	echo "Begin - associate_proxy_service()"
+
+	local LOCAL_AUTHORIZATION=$1
+	local LOCAL_ADMIN_HOST_URL=$2
+	local LOCAL_PROXY_NAME=$3
+	local LOCAL_SERVICE_NAME=$4
+
+	log "Associate SERVICE ${LOCAL_SERVICE_NAME} <--> PROXY ${LOCAL_PROXY_NAME}"
+	
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/proxy/${LOCAL_PROXY_NAME}/service/${LOCAL_SERVICE_NAME} \
+		-H "Authorization: Bearer ${LOCAL_AUTHORIZATION}" \
+		-H "Content-Type: application/json" | jq
+
+	echo "End - associate_proxy_service()"
+}
+
 
 create_secret() {
 	local LOCAL_AUTHORIZATION=$1
@@ -195,14 +213,17 @@ dump_upstream() {
 #list_secret ${AUTHORIZATION} ${ADMIN_HOST_URL}
 
 case "$1" in
-        create-service-route-upstream)
+    create-service-route-upstream)
 		create_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${SERVICE_FQDN} ${DOCS_ROUTE_NAME} ${DOCS_ROUTE_PREFIX} ${UPSTREAM_NAME} ${UPSTREAM_IP} ${UPSTREAM_PORT} ${UPSTREAM_WEIGHT} ${UPSTREAM_HC_PATH}
             ;;
-        delete-service-route-upstream)
+    delete-service-route-upstream)
 		delete_service_route_upstream ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${DOCS_ROUTE_NAME} ${UPSTREAM_NAME}
             ;;
-        show-service-route-upstream)
+    show-service-route-upstream)
 		dump_proxy ${AUTHORIZATION} ${ADMIN_HOST_URL}
+            ;;
+    associate-service-to-proxy)
+        associate_proxy_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME}
             ;;
 	create-secret)
 		create_secret ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SECRET_NAME} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
@@ -210,11 +231,11 @@ case "$1" in
 	show-secret)
 		list_secret ${AUTHORIZATION} ${ADMIN_HOST_URL}
 	    ;;
-        show-service)
+    show-service)
 		dump_service ${AUTHORIZATION} ${ADMIN_HOST_URL} ${SERVICE_NAME}
             ;;
-        *)
-            echo $"Usage: $0 {create-service-route-upstream|delete-service-route-upstream|show-service-route-upstream|show-service|show-secret|show-proxy}"
+               *)
+            echo $"Usage: $0 {create-service-route-upstream|delete-service-route-upstream|associate-service-to-proxy|show-service-route-upstream|show-service|show-secret}"
             exit 1
  
 esac

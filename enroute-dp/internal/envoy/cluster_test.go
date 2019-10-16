@@ -77,7 +77,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -97,7 +97,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout:       250 * time.Millisecond,
@@ -118,7 +118,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout:       250 * time.Millisecond,
@@ -156,7 +156,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -191,7 +191,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -215,7 +215,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -243,7 +243,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -271,7 +271,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -299,7 +299,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -324,7 +324,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -344,7 +344,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -365,7 +365,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout: 250 * time.Millisecond,
@@ -388,7 +388,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_EDS),
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig:   ConfigSource("contour"),
+					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
 				ConnectTimeout:                250 * time.Millisecond,

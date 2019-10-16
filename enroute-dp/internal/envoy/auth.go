@@ -102,7 +102,7 @@ func DownstreamTLSContext(secretName string, tlsMinProtoVersion auth.TlsParamete
 			},
 			TlsCertificateSdsSecretConfigs: []*auth.SdsSecretConfig{{
 				Name:      secretName,
-				SdsConfig: ConfigSource("contour"),
+				SdsConfig: ConfigSource("enroute"),
 			}},
 			AlpnProtocols: alpnProtos,
 		},

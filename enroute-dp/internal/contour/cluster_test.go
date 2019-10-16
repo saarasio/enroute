@@ -49,7 +49,7 @@ func TestClusterCacheContents(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -62,7 +62,7 @@ func TestClusterCacheContents(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -98,7 +98,7 @@ func TestClusterCacheQuery(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -112,7 +112,7 @@ func TestClusterCacheQuery(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -128,7 +128,7 @@ func TestClusterCacheQuery(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -142,7 +142,7 @@ func TestClusterCacheQuery(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -158,7 +158,7 @@ func TestClusterCacheQuery(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -219,7 +219,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -256,7 +256,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/https",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -297,7 +297,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_kuard_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/http",
 					},
 					ConnectTimeout:       250 * time.Millisecond,
@@ -336,7 +336,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "beurocratic-company-test-domain-1_tiny-cog-department-test-instance_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "beurocratic-company-test-domain-1/tiny-cog-department-test-instance/svc-0",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -385,7 +385,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -397,7 +397,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_8080",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/alt",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -442,7 +442,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -505,7 +505,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -561,7 +561,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -604,7 +604,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -647,7 +647,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -697,7 +697,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -709,7 +709,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -752,7 +752,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_backend_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -797,7 +797,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_kuard_80",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/http",
 					},
 					ConnectTimeout: 250 * time.Millisecond,
@@ -847,7 +847,7 @@ func TestClusterVisit(t *testing.T) {
 					AltStatName:          "default_kuard_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/https",
 					},
 					ConnectTimeout: 250 * time.Millisecond,

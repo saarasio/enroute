@@ -33,12 +33,12 @@ func TestBootstrap(t *testing.T) {
   "static_resources": {
     "clusters": [
       {
-        "name": "contour",
-        "alt_stat_name": "testing-ns_contour_8001",
+        "name": "enroute",
+        "alt_stat_name": "testing-ns_enroute_8001",
         "type": "STRICT_DNS",
         "connect_timeout": "5s",
         "load_assignment": {
-          "cluster_name": "contour",
+          "cluster_name": "enroute",
           "endpoints": [
             {
               "lb_endpoints": [
@@ -109,7 +109,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -121,7 +121,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -149,12 +149,12 @@ func TestBootstrap(t *testing.T) {
   "static_resources": {
     "clusters": [
       {
-        "name": "contour",
-        "alt_stat_name": "testing-ns_contour_8001",
+        "name": "enroute",
+        "alt_stat_name": "testing-ns_enroute_8001",
         "type": "STRICT_DNS",
         "connect_timeout": "5s",
         "load_assignment": {
-          "cluster_name": "contour",
+          "cluster_name": "enroute",
           "endpoints": [
             {
               "lb_endpoints": [
@@ -225,7 +225,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -237,7 +237,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -264,12 +264,12 @@ func TestBootstrap(t *testing.T) {
   "static_resources": {
     "clusters": [
       {
-        "name": "contour",
-        "alt_stat_name": "testing-ns_contour_8001",
+        "name": "enroute",
+        "alt_stat_name": "testing-ns_enroute_8001",
         "type": "STRICT_DNS",
         "connect_timeout": "5s",
         "load_assignment": {
-          "cluster_name": "contour",
+          "cluster_name": "enroute",
           "endpoints": [
             {
               "lb_endpoints": [
@@ -340,7 +340,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -352,7 +352,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -380,12 +380,12 @@ func TestBootstrap(t *testing.T) {
   "static_resources": {
     "clusters": [
       {
-        "name": "contour",
-        "alt_stat_name": "testing-ns_contour_9200",
+        "name": "enroute",
+        "alt_stat_name": "testing-ns_enroute_9200",
         "type": "STRICT_DNS",
         "connect_timeout": "5s",
         "load_assignment": {
-          "cluster_name": "contour",
+          "cluster_name": "enroute",
           "endpoints": [
             {
               "lb_endpoints": [
@@ -456,7 +456,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -468,7 +468,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -494,12 +494,12 @@ func TestBootstrap(t *testing.T) {
   "static_resources": {
     "clusters": [
       {
-        "name": "contour",
-        "alt_stat_name": "testing-ns_contour_8001",
+        "name": "enroute",
+        "alt_stat_name": "testing-ns_enroute_8001",
         "type": "STRICT_DNS",
         "connect_timeout": "5s",
         "load_assignment": {
-          "cluster_name": "contour",
+          "cluster_name": "enroute",
           "endpoints": [
             {
               "lb_endpoints": [
@@ -570,7 +570,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -582,7 +582,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -611,12 +611,12 @@ func TestBootstrap(t *testing.T) {
   "static_resources": {
     "clusters": [
       {
-        "name": "contour",
-        "alt_stat_name": "testing-ns_contour_8001",
+        "name": "enroute",
+        "alt_stat_name": "testing-ns_enroute_8001",
         "type": "STRICT_DNS",
         "connect_timeout": "5s",
         "load_assignment": {
-          "cluster_name": "contour",
+          "cluster_name": "enroute",
           "endpoints": [
             {
               "lb_endpoints": [
@@ -669,7 +669,7 @@ func TestBootstrap(t *testing.T) {
                   "filename": "CA.cert"
                 },
                 "verify_subject_alt_name": [
-                  "contour"
+                  "enroute"
                 ]
               }
             }
@@ -709,7 +709,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]
@@ -721,7 +721,7 @@ func TestBootstrap(t *testing.T) {
         "grpc_services": [
           {
             "envoy_grpc": {
-              "cluster_name": "contour"
+              "cluster_name": "enroute"
             }
           }
         ]

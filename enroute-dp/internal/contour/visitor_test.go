@@ -65,7 +65,7 @@ func TestVisitClusters(t *testing.T) {
 					AltStatName:          "default_example_443",
 					ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
 					EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-						EdsConfig:   envoy.ConfigSource("contour"),
+						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/example",
 					},
 					ConnectTimeout: 250 * time.Millisecond,

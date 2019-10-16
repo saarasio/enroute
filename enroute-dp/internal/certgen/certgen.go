@@ -64,7 +64,7 @@ func WriteSecretsYAML(outputDir, namespace string, certdata map[string][]byte) e
 	if err != nil {
 		return err
 	}
-	err = writeKeyPairSecret(outputDir, "contour", namespace, certdata["contourcert.pem"], certdata["contourkey.pem"])
+	err = writeKeyPairSecret(outputDir, "enroute", namespace, certdata["contourcert.pem"], certdata["contourkey.pem"])
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func WriteSecretsKube(client *kubernetes.Clientset, namespace string, certdata m
 	if err != nil {
 		return err
 	}
-	err = writeKeyPairKube(client, "contour", namespace, certdata["contourcert.pem"], certdata["contourkey.pem"])
+	err = writeKeyPairKube(client, "enroute", namespace, certdata["contourcert.pem"], certdata["contourkey.pem"])
 	if err != nil {
 		return err
 	}

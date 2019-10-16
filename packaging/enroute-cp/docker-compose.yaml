@@ -1,24 +1,14 @@
 version: '3.6'
 services:
-  postgres:
-    image: postgres
+  enroute-cp:
+    image: gcr.io/enroute-10102020/enroute-cp:latest
     restart: always
     volumes:
-    - db_data:/var/lib/postgresql/data
-  graphql-engine:
-    image: hasura/graphql-engine:v1.0.0-beta.6.cli-migrations
-    volumes:
-    - ./:/hasura-migrations
+    - db_data:/var/lib/postgresql/11/main
     ports:
-    - "127.0.0.1:8081:8080"
-    depends_on:
-    - "postgres"
-    restart: always
+    - 8081:8080
+    - 1323:1323
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
-      HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations/migrations
-      ## uncomment next line to set an admin secret
-      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+    - WEBAPP_SECRET=treehugger
 volumes:
   db_data:

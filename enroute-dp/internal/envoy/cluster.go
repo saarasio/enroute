@@ -91,7 +91,7 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *v2.Cluster {
 	case 0:
 		// external name not set, cluster will be discovered via EDS
 		c.ClusterDiscoveryType = ClusterDiscoveryType(v2.Cluster_EDS)
-		c.EdsClusterConfig = edsconfig("contour", service)
+		c.EdsClusterConfig = edsconfig("enroute", service)
 	default:
 		// external name set, use hard coded DNS name
 		c.ClusterDiscoveryType = ClusterDiscoveryType(v2.Cluster_STRICT_DNS)

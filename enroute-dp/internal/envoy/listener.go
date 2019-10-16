@@ -97,7 +97,7 @@ func HTTPConnectionManager(routename, accessLogPath string) listener.Filter {
 									GrpcServices: []*core.GrpcService{{
 										TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
 											EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
-												ClusterName: "contour",
+												ClusterName: "enroute",
 											},
 										},
 									}},

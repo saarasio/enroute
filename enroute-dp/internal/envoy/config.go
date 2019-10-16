@@ -64,16 +64,16 @@ const yamlConfig = `dynamic_resources:
       api_type: GRPC
       grpc_services:
       - envoy_grpc:
-          cluster_name: contour
+          cluster_name: enroute
   cds_config:
     api_config_source:
       api_type: GRPC
       grpc_services:
       - envoy_grpc:
-          cluster_name: contour
+          cluster_name: enroute
 static_resources:
   clusters:
-  - name: contour
+  - name: enroute
     connect_timeout: { seconds: 5 }
     type: STRICT_DNS
     hosts:

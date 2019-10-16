@@ -15,7 +15,7 @@
                 "grpc_services": [
                     {
                         "envoy_grpc": {
-                            "cluster_name": "contour"
+                            "cluster_name": "enroute"
                         }
                     }
                 ]
@@ -27,7 +27,7 @@
                 "grpc_services": [
                     {
                         "envoy_grpc": {
-                            "cluster_name": "contour"
+                            "cluster_name": "enroute"
                         }
                     }
                 ]
@@ -37,7 +37,7 @@
     "static_resources": {
         "clusters": [
             {
-                "alt_stat_name": "saaras-enroute_contour_8001",
+                "alt_stat_name": "saaras-enroute_enroute_8001",
                 "circuit_breakers": {
                     "thresholds": [
                         {
@@ -58,7 +58,7 @@
                 "connect_timeout": "5s",
                 "http2_protocol_options": {},
                 "load_assignment": {
-                    "cluster_name": "contour",
+                    "cluster_name": "enroute",
                     "endpoints": [
                         {
                             "lb_endpoints": [
@@ -76,7 +76,7 @@
                         }
                     ]
                 },
-                "name": "contour",
+                "name": "enroute",
                 "type": "STRICT_DNS"
             },
             {
@@ -105,5 +105,8 @@
                 "type": "LOGICAL_DNS"
             }
         ]
+    },
+    "cluster_manager": {
+	"local_cluster_name" : "local-cluster-name"
     }
 }

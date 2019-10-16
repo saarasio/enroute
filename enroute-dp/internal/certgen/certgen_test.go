@@ -26,12 +26,12 @@ func TestGeneratedCertsValid(t *testing.T) {
 	now := time.Now()
 	expiry := now.Add(24 * 365 * time.Hour)
 
-	cacert, cakey, err := NewCA("contour", expiry)
+	cacert, cakey, err := NewCA("enroute", expiry)
 	if err != nil {
 		t.Fatalf("Failed to generate CA cert: %s", err)
 	}
 
-	contourcert, _, err := NewCert(cacert, cakey, expiry, "contour", "heptio-contour")
+	contourcert, _, err := NewCert(cacert, cakey, expiry, "enroute", "heptio-contour")
 	if err != nil {
 		t.Fatalf("Failed to generate Contour cert: %s", err)
 	}
@@ -50,9 +50,9 @@ func TestGeneratedCertsValid(t *testing.T) {
 		cert    []byte
 		dnsname string
 	}{
-		"contour cert": {
+		"enroute cert": {
 			cert:    contourcert,
-			dnsname: "contour",
+			dnsname: "enroute",
 		},
 		"envoy cert": {
 			cert:    envoycert,

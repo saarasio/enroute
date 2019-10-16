@@ -67,7 +67,7 @@ func (c *Client) dial() *grpc.ClientConn {
 			// override?
 			// The ServerName here needs to be one of the SANs available in
 			// the serving cert used by contour serve.
-			ServerName:   "contour",
+			ServerName:   "enroute",
 			Certificates: []tls.Certificate{certificate},
 			RootCAs:      certPool,
 		})
