@@ -11,7 +11,6 @@ add_custom_command(TARGET ${target_name}
 		  COMMAND GO111MODULE=on GOPATH=${CMAKE_BINARY_DIR}/packaging/ make -C ${CMAKE_SOURCE_DIR}/${target_name} install
 		  # Make enroute executable available to docker container
 		  COMMAND cp ${CMAKE_BINARY_DIR}/packaging/bin/enroute ${CMAKE_SOURCE_DIR}/${target_name}
-		  COMMAND make -C ${CMAKE_SOURCE_DIR}/${target_name} container
 		  COMMAND docker build ${CMAKE_SOURCE_DIR}/enroute-dp -t ${target_image}:latest
 		  # Remove enroute executable that was copied earlier
 		  COMMAND find ${CMAKE_SOURCE_DIR}/${target_name} -name enroute -type f -exec rm {} '\;'
