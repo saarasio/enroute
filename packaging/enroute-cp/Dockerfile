@@ -12,7 +12,6 @@
 	# (1.6) Copy script that waits for hasura
 	# (1.7) Copy enroute-cp
    
-
 # (2) Setup environment variables
 	# (2.1) Setup environment variables to run migrations script
 
@@ -66,6 +65,7 @@ ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=server-on-docker
 ENV HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:@localhost:5432/postgres
 ENV HASURA_GRAPHQL_ENABLE_CONSOLE="true"
 ENV HASURA_GRAPHQL_MIGRATIONS_DIR=/migrations
+ENV HASURA_GRAPHQL_SERVER_PORT=8888
 
 # Only allow connections from localhost
 RUN echo "host all  all    127.0.0.1/32  trust" >> /etc/postgresql/11/main/pg_hba.conf
@@ -76,7 +76,7 @@ RUN echo "host all  all    127.0.0.1/32  trust" >> /etc/postgresql/11/main/pg_hb
 EXPOSE 5432
 
 # Allow other processes to reach hasura on port 8080
-EXPOSE 8080
+EXPOSE 8888
 
 # Setup volume for postgresql
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/11/main"]
