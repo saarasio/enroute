@@ -14,7 +14,7 @@ TEMP_MIGRATIONS_DIR="/tmp/hasura-migrations"
 # check server port and ser default as 8080
 if [ -z ${HASURA_GRAPHQL_SERVER_PORT+x} ]; then
     log "port env var is not set, defaulting to 8080"
-    HASURA_GRAPHQL_SERVER_PORT=8080
+    HASURA_GRAPHQL_SERVER_PORT=8888
 fi
 if [ -z ${HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT+x} ]; then
     log "server timeout is not set defaulting to 30 seconds"
