@@ -58,14 +58,14 @@ if [ -d "$HASURA_GRAPHQL_MIGRATIONS_DIR" ]; then
     cd "$TEMP_MIGRATIONS_DIR"
     echo "endpoint: http://localhost:$HASURA_GRAPHQL_SERVER_PORT" > config.yaml
     echo "show_update_notification: false" >> config.yaml
-    hasura-cli migrate apply
+    hasura-cli --skip-update-check migrate apply
     # check if metadata.[yaml|json] exist and apply
     if [ -f migrations/metadata.yaml ]; then
         log "applying metadata from $HASURA_GRAPHQL_MIGRATIONS_DIR/metadata.yaml"
-        hasura-cli metadata apply
+        hasura-cli --skip-update-check metadata apply
     elif [ -f migrations/metadata.json ]; then
         log "applying metadata from $HASURA_GRAPHQL_MIGRATIONS_DIR/metadata.json"
-        hasura-cli metadata apply
+        hasura-cli --skip-update-check metadata apply
     fi
 else
     log "directory $HASURA_GRAPHQL_MIGRATIONS_DIR does not exist, skipping migrations"

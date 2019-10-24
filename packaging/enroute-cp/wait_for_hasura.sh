@@ -10,7 +10,7 @@ log() {
 
 
 SERVER_TIMEOUT=30
-HASURA_SERVER_PORT=8080
+HASURA_SERVER_PORT=8888
 
 # wait for a port to be ready
 wait_for_port() {
