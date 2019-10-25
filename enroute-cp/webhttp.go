@@ -22,6 +22,20 @@ import (
 func main() {
 	e := echo.New()
 
+    // enviornment
+	webhttp.HOST = os.Getenv("DB_HOST")
+	webhttp.PORT = os.Getenv("DB_PORT")
+	webhttp.SECRET = os.Getenv("WEBAPP_SECRET")
+
+	if webhttp.HOST == "" {
+		webhttp.HOST = "127.0.0.1"
+	}
+	if webhttp.PORT == "" {
+		webhttp.PORT = "8080"
+	}
+
+	fmt.Printf(" DB_HOST set to [%s] DB_PORT set to [%s] SECRET set to [%s]\n", webhttp.HOST, webhttp.PORT, webhttp.SECRET)
+
 	// middleware
 
 	config := middleware.KeyAuthConfig{
@@ -39,7 +53,9 @@ func main() {
 		},
 	}
 
-	e.Use(middleware.KeyAuthWithConfig(config))
+    if webhttp.SECRET != "" {
+	    e.Use(middleware.KeyAuthWithConfig(config))
+    }
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Use(middleware.Logger())
 
@@ -48,18 +64,5 @@ func main() {
 	webhttp.Add_service_routes(e)
 	webhttp.Add_upstream_routes(e)
 	webhttp.Add_secret_routes(e)
-	webhttp.HOST = os.Getenv("DB_HOST")
-	webhttp.PORT = os.Getenv("DB_PORT")
-	webhttp.SECRET = os.Getenv("WEBAPP_SECRET")
-
-
-	if webhttp.HOST == "" {
-		webhttp.HOST = "127.0.0.1"
-	}
-	if webhttp.PORT == "" {
-		webhttp.PORT = "8080"
-	}
-
-	fmt.Printf(" DB_HOST set to [%s] DB_PORT set to [%s] SECRET set to [%s]\n", webhttp.HOST, webhttp.PORT, webhttp.SECRET)
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }

@@ -23,6 +23,8 @@
 
 FROM ubuntu:16.04
 
+WORKDIR /bin
+
 # 1.1
 RUN apt-get update
 RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
@@ -51,14 +53,19 @@ COPY wait_for_postgres.sh /bin/
 RUN chmod +x /bin/wait_for_postgres.sh
 
 # 1.5
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf.gw /etc/supervisor/conf.d/supervisord.conf
 
 # 1.6
-COPY wait_for_hasura.sh  bin/
+COPY wait_for_hasura.sh  /bin/
 RUN chmod +x /bin/wait_for_hasura.sh
 
 # 1.7 copy enroute-cp
 COPY enroute-cp /bin/
+
+# 1.8 GW-ONLY: copy enroute, generate envoy config file for xDS server
+COPY enroute /bin/
+RUN chmod +x /bin/enroute
+RUN /bin/enroute bootstrap --xds-address 127.0.0.1 --xds-port 8001 config.json
 
 # 2
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=server-on-docker
@@ -81,6 +88,6 @@ EXPOSE 8888
 # Setup volume for postgresql
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/11/main"]
 
-ENV WEBAPP_SECRET="treeseverywhere"
+ENV WEBAPP_SECRET=""
 
 CMD ["/usr/bin/supervisord"]
