@@ -34,7 +34,10 @@ add_custom_command(TARGET ${target_name_gw}
 		  COMMAND cp ${CMAKE_BINARY_DIR}/packaging/bin/enroute ${CMAKE_SOURCE_DIR}/packaging/enroute-cp
           COMMAND cp ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/Dockerfile.gw ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/Dockerfile
 		  COMMAND docker build ${CMAKE_SOURCE_DIR}/packaging/enroute-cp -t ${target_image_gw}:latest
+          # build done, cleanup
 		  COMMAND find ${CMAKE_SOURCE_DIR}/packaging/${target_name} -name enroute-cp -type f -exec rm {} '\;'
+		  COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name enroute -type f -exec rm {} '\;'
+          COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name Dockerfile -type f -exec rm {} '\;'
 )
 
 #Push container
