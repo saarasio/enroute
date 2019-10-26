@@ -31,6 +31,7 @@ add_custom_target(${target_name_gw}	ALL DEPENDS ${enroute_project_source})
 add_custom_command(TARGET ${target_name_gw}
 		  COMMAND GO111MODULE=on GOPATH=${CMAKE_BINARY_DIR}/packaging/ make -C ${CMAKE_SOURCE_DIR}/${target_name} install
 		  COMMAND cp ${CMAKE_BINARY_DIR}/packaging/bin/enroute-cp ${CMAKE_SOURCE_DIR}/packaging/enroute-cp
+		  COMMAND cp ${CMAKE_BINARY_DIR}/packaging/bin/enroute ${CMAKE_SOURCE_DIR}/packaging/enroute-cp
           COMMAND cp ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/Dockerfile.gw ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/Dockerfile
 		  COMMAND docker build ${CMAKE_SOURCE_DIR}/packaging/enroute-cp -t ${target_image_gw}:latest
 		  COMMAND find ${CMAKE_SOURCE_DIR}/packaging/${target_name} -name enroute-cp -type f -exec rm {} '\;'

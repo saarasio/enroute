@@ -49,15 +49,8 @@ RUN chmod +x /bin/hasura-cli
 COPY run_migrations.sh /bin/
 RUN chmod +x /bin/run_migrations.sh
 
-COPY wait_for_postgres.sh /bin/
-RUN chmod +x /bin/wait_for_postgres.sh
-
 # 1.5
 COPY supervisord.conf.cp /etc/supervisor/conf.d/supervisord.conf
-
-# 1.6
-COPY wait_for_hasura.sh  /bin/
-RUN chmod +x /bin/wait_for_hasura.sh
 
 # 1.7 copy enroute-cp
 COPY enroute-cp /bin/

@@ -49,25 +49,17 @@ RUN chmod +x /bin/hasura-cli
 COPY run_migrations.sh /bin/
 RUN chmod +x /bin/run_migrations.sh
 
-COPY wait_for_postgres.sh /bin/
-RUN chmod +x /bin/wait_for_postgres.sh
+COPY run_enroute_envoy.sh /bin/
+RUN chmod +x /bin/run_enroute_envoy.sh
 
 # 1.5
 COPY supervisord.conf.gw /etc/supervisor/conf.d/supervisord.conf
 
-# 1.6
-COPY wait_for_hasura.sh  /bin/
-RUN chmod +x /bin/wait_for_hasura.sh
-
-# 1.7 copy enroute-cp
+# 1.7 copy enroute-cp, envoy
 COPY enroute-cp /bin/
-
-# 1.8 GW-ONLY: copy enroute, generate envoy config file for xDS server
+COPY envoy /bin/
 COPY enroute /bin/
-RUN chmod +x /bin/enroute
-RUN /bin/enroute bootstrap --xds-address 127.0.0.1 --xds-port 8001 config.json
 
-# 2
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=server-on-docker
 ENV HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:@localhost:5432/postgres
 ENV HASURA_GRAPHQL_ENABLE_CONSOLE="true"
@@ -88,6 +80,8 @@ EXPOSE 8888
 # Setup volume for postgresql
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/11/main"]
 
+ENV DB_PORT=8888
+ENV DB_HOST=127.0.0.1
 ENV WEBAPP_SECRET=""
 
 CMD ["/usr/bin/supervisord"]
