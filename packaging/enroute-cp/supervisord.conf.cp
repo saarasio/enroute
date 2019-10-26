@@ -2,9 +2,9 @@
 logfile=/var/log/supervisord/supervisord.log    ; supervisord log file
 logfile_maxbytes=5MB                            ; maximum size of logfile before rotation
 logfile_backups=10                              ; number of backed up logfiles
-loglevel=error                                  ; info, debug, warn, trace
+loglevel=trace                                  ; info, debug, warn, trace
 pidfile=/var/run/supervisord.pid                ; pidfile location
-nodaemon=true												; do not run supervisord as a daemon
+nodaemon=true									; do not run supervisord as a daemon
 minfds=1024                                     ; number of startup file descriptors
 minprocs=200                                    ; number of process descriptors
 user=root                                       ; default user
@@ -16,49 +16,16 @@ user=postgres
 autorestart=false
 priority=800
 
-[program:postgresql]
+[program:run-postgresql]
 command=/usr/lib/postgresql/11/bin/postgres -D /var/lib/postgresql/11/main -c config_file=/etc/postgresql/11/main/postgresql.conf
 user=postgres
 autorestart=true
 nodaemon=false
 priority=900
 
-; 3.2 wait for port
-[program:wait-for-port]
-command=/bin/wait_for_postgres.sh
-user=postgres
-autorestart=false
-priority=905
-
-; 3.2 run migrations
-[program:migrations]
+; 3.2 run migrations, start hasura, start enroute
+[program:run-migrations-start-hasura-enroute]
 command=/bin/run_migrations.sh
 user=root
 autorestart=false
 priority=930
-
-; 3.3 start hasura
-[program:hasura]
-environment=
-	HASURA_GRAPHQL_SERVER_HOST=0.0.0.0
-command=/bin/graphql-engine serve
-user=postgres
-autorestart=true
-priority=940
-
-; 3.2 wait for hasura port
-[program:wait-for-hasura-port]
-command=/bin/wait_for_hasura.sh
-user=postgres
-autorestart=false
-priority=945
-
-[program:enroute-cp]
-environment=
-	DB_PORT=8888,
-	DB_HOST=127.0.0.1,
-    WEBAPP_SECRET="%(ENV_WEBAPP_SECRET)s"
-command=/bin/enroute-cp
-user=postgres
-autorestart=true
-priority=950

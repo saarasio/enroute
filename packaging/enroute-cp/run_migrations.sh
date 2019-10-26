@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -20,6 +20,11 @@ if [ -z ${HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT+x} ]; then
     log "server timeout is not set defaulting to 30 seconds"
     HASURA_GRAPHQL_MIGRATIONS_SERVER_TIMEOUT=30
 fi
+if [ -z ${POSTGRES_PORT+x} ]; then
+    log "port env var for postgres not set, defaulting to 5432"
+    POSTGRES_PORT=5432
+fi
+
 
 # wait for a port to be ready
 wait_for_port() {
@@ -32,6 +37,8 @@ wait_for_port() {
     done
     log "failed waiting for $PORT" && exit 1
 }
+
+wait_for_port $POSTGRES_PORT
 
 log "starting graphql engine temporarily on port $HASURA_GRAPHQL_SERVER_PORT"
 
@@ -75,7 +82,24 @@ fi
 log "killing temporary server"
 kill $PID
 
-# pass control to CMD
 log "graphql-engine will now start in normal mode"
-exec "$@"
 
+graphql-engine serve &
+
+wait_for_port $HASURA_GRAPHQL_SERVER_PORT
+
+if [ -z ${DB_PORT+x} ]; then
+    log "port env var is not set, defaulting to 8888"
+    DB_PORT=$HASURA_GRAPHQL_SERVER_PORT
+fi
+if [ -z ${DB_HOST+x} ]; then
+    log "host env var is not set, defaulting to 127.0.0.1"
+    DB_HOST=127.0.0.1
+fi
+if [ -z ${WEBAPP_SECRET+x} ]; then
+    log "webapp secret env var is not set, defaulting to empty string"
+    WEBAPP_SECRET=""
+fi
+
+# Start enroute-cp
+/bin/enroute-cp 

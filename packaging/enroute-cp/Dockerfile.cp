@@ -62,7 +62,7 @@ RUN chmod +x /bin/wait_for_hasura.sh
 # 1.7 copy enroute-cp
 COPY enroute-cp /bin/
 
-# 2
+# 2 ENV variables can be provided here or in supervisord
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=server-on-docker
 ENV HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:@localhost:5432/postgres
 ENV HASURA_GRAPHQL_ENABLE_CONSOLE="true"
@@ -83,6 +83,8 @@ EXPOSE 8888
 # Setup volume for postgresql
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/11/main"]
 
+ENV DB_PORT=8888
+ENV DB_HOST=127.0.0.1
 ENV WEBAPP_SECRET=""
 
 CMD ["/usr/bin/supervisord"]
