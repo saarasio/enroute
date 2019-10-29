@@ -14,7 +14,7 @@ weight = 30
 
 Enroute provides for a way to program multiple Envoy proxies. It defines well known abstractions like proxy, service, route, upstream and secret. It provides an API to work with these abstractions.
 
-The configuration once defined, can be used to setup an application and associate it with one or more proxies.
+The configuration once defined, can be associated with one or more proxies.
 
 <!-- <a href=""><img alt="Enroute" src="/img/EnrouteGettingStartedAPI.png"></a> -->
 <a href=""><img alt="Enroute" src="/img/EnrouteGettingStartedAPI2.png"></a>
@@ -27,14 +27,37 @@ Enroute lets a user track configuration changes over a period of time. Its confi
 
 Next few steps show different aspects of enroute by programming the controller using APIs and running a proxy to consume that config.
 
+#### Start the enroute control plane - ```enroute-cp```
+The controller is packaged as a docker image that can be run using the following command -
+
+```
+sudo docker run \
+    -p 8887:1323 \
+    -p 8888:8888 \
+    -e WEBAPP_SECRET="treeseverywhere" \
+        -v db_data:/var/lib/postgresql/11/main \
+    gcr.io/enroute-10102020/enroute-cp:latest
+```
+There are two port mappings in the above command -
+```
+    (host:cont)
+        -----------
+    (8887:1323) Forwards the admin API port on host
+    (8888:8888) Forwards port for data-plane to connect to control-plane
+```
+
 #### Create objects on controller using API
 
-For this example, a controller is already running on ```https://ingresspipe.io:8443``` We use the Enroute API to perform the following tasks -
+We associate the IP address of the host on which the control-plane is running to ***enroute-controller.local***. An entry for ***enroute-controller.local*** can either be made in the DNS or the IP address of the controller can be used instead. 
+
+We use the Enroute API to perform the following tasks -
 
 ###### Create **Proxy**
 
 ```
-$ curl -s -X POST "https://ingresspipe.io:8443/proxy" -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" -d '{"Name":"proxy-p"}' | python -m json.tool
+$ curl -s -X POST "http://enroute-controller.local:8887/proxy"         \
+    -H "Authorization: Bearer treeseverywhere"             \
+    -d 'Name=proxy-p' | jq
 {
     "name": "proxy-p"
 }
@@ -43,7 +66,10 @@ $ curl -s -X POST "https://ingresspipe.io:8443/proxy" -H "Content-Type: applicat
 ###### Create **Service**
 
 ```
-$ curl -s -X POST "https://ingresspipe.io:8443/service" -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" -d '{"Service_Name":"l", "fqdn":"127.0.0.1"}' | python -m json.tool
+$ curl -s -X POST "http://enroute-controller.local:8887/service"    \
+    -H "Authorization: Bearer treeseverywhere"             \
+    -d 'Service_Name=l'                         \
+    -d 'fqdn=127.0.0.1' | jq
 {
     "data": {
         "insert_saaras_db_service": {
@@ -56,7 +82,10 @@ $ curl -s -X POST "https://ingresspipe.io:8443/service" -H "Content-Type: applic
 ###### Create **Route**
 
 ```
-$ curl -s -X POST "https://ingresspipe.io:8443/service/l/route" -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" -d '{"Route_Name":"r", "Route_prefix":"/"}' | python -m json.tool
+$ curl -s -X POST "http://enroute-controller.local:8887/service/l/route"\
+    -H "Authorization: Bearer treeseverywhere"             \
+    -d 'Route_Name=r'                         \
+    -d 'Route_prefix=/' | jq
 {
     "data": {
         "insert_saaras_db_route": {
@@ -69,7 +98,13 @@ $ curl -s -X POST "https://ingresspipe.io:8443/service/l/route" -H "Content-Type
 ###### Create **Upstream**
 
 ```
-$ curl -s -X POST "https://ingresspipe.io:8443/upstream" -H "Content-Type: application/json" -H "Authorization: Bearer treeseverywhere" -d '{"Upstream_name":"u", "Upstream_ip":"127.0.0.1", "Upstream_port": "8888", "Upstream_hc_path":"/", "Upstream_weight": "100"}' | python -m json.tool
+$ curl -s -X POST "http://enroute-controller.local:8887/upstream"     \
+    -H "Authorization: Bearer treeseverywhere"             \
+    -d 'Upstream_name=u'                         \
+    -d 'Upstream_ip=127.0.0.1'                     \
+    -d 'Upstream_port=9001'                     \
+    -d 'Upstream_hc_path=/'                     \
+    -d 'Upstream_weight=100' | jq
 {
     "data": {
         "insert_saaras_db_upstream": {
@@ -81,10 +116,11 @@ $ curl -s -X POST "https://ingresspipe.io:8443/upstream" -H "Content-Type: appli
 
 #### Wire up objects
 
-###### Create Route -> Upstream association
+###### Associate a Route to an upstream : Create Route -> Upstream association
 
 ```
-$ curl -s -X POST "https://ingresspipe.io:8443/service/l/route/r/upstream/u" -H "Authorization: Bearer treeseverywhere" | python -m json.tool
+$ curl -s -X POST "http://enroute-controller.local:8887/service/l/route/r/upstream/u" \
+    -H "Authorization: Bearer treeseverywhere" | jq
 {
     "data": {
         "insert_saaras_db_route_upstream": {
@@ -94,10 +130,11 @@ $ curl -s -X POST "https://ingresspipe.io:8443/service/l/route/r/upstream/u" -H 
 }
 ```
 
-###### Create Proxy -> Service association
+###### Associate a Service to a Proxy : Create Proxy -> Service association
 
 ```
-$ curl -s -X POST "https://ingresspipe.io:8443/proxy/proxy-p/service/l" -H "Authorization: Bearer treeseverywhere" | python -m json.tool
+$ curl -s -X POST "http://enroute-controller.local:8887/proxy/proxy-p/service/l" \
+    -H "Authorization: Bearer treeseverywhere" | jq
 {
     "data": {
         "insert_saaras_db_proxy_service": {
@@ -107,10 +144,42 @@ $ curl -s -X POST "https://ingresspipe.io:8443/proxy/proxy-p/service/l" -H "Auth
 }
 ```
 
-#### Run docker container with enroute image and point it to the controller
+### Run the data plane ```enroute-dp```
 
 ```
-sudo docker run -e ENROUTE_NAME=proxy-p -e ENROUTE_CP_IP=ingresspipe.io -e ENROUTE_CP_PORT=8443 -e ENROUTE_CP_PROTO=HTTPS --net=host saarasio/enroute:latest
+sudo docker run                     \
+    -e ENROUTE_NAME=proxy-p             \
+    -e ENROUTE_CP_IP=enroute-controller.local     \
+    -e ENROUTE_CP_PORT=8888             \
+    -e ENROUTE_CP_PROTO=HTTP             \
+    -p 8081:8080                     \
+    -p 9001:9001                     \
+    gcr.io/enroute-10102020/enroute-dp
 ```
 
-The above command starts envoy, connects to the controller and consumes configuration setup for **proxy-p**. It'll create a listener ```l```, route ```r```, upstream ```u``` on envoy proxy.
+The above command starts envoy, connects to the controller on port ```8888``` and host ```enroute-controller.local```.
+
+It consumes configuration setup for **proxy-p** - which creates a listener ```l```, route ```r```, upstream ```u``` on envoy proxy.
+
+There are two ports forwarded from the ```enroute-dp``` container to the host -
+```
+ (host:cont)
+ -----------
+ (8081:8080) - Forwards the listener port to host. The listener l is created on port 8080 in the container
+ (9001:9001) - Forwards the envoy admin port
+```
+
+#### Test the listener, check envoy stats
+Send a request to the listener which gets routed to the envoy admin interface (note the ```Upstream.Upstream_port``` configured to ```9001```)
+
+```
+curl 127.0.0.1:8081/admin
+```
+
+The envoy admin interface can be also accessed using the following command -
+
+```
+curl -vvv 127.0.0.1:9001/admin
+```
+
+Note that the curl commands are run on the machine running enroute-dp. Also note that the fqdn is configured to ```127.0.0.1```
