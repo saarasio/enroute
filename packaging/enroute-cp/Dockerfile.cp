@@ -80,4 +80,4 @@ ENV DB_PORT=8888
 ENV DB_HOST=127.0.0.1
 ENV WEBAPP_SECRET=""
 
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
