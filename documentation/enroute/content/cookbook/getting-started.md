@@ -44,7 +44,7 @@ sudo docker run 					\
 There are two port mappings in the above command -
 ```
     (host:cont)
-        -----------
+    -----------
     (8887:1323) Forwards the admin API port on host
     (8888:8888) Forwards port for data-plane to connect to control-plane
 ```

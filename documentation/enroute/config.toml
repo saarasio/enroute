@@ -22,7 +22,7 @@ googleAnalytics = "UA-129736951-2"
 [[menu.main]]
     name = "Enroute Architecture"
     weight = -85
-    url = "enroute-architecture"
+    url = "/architecture/"
 [[menu.main]]
     name = "Faq"
     weight = -80
