@@ -9,7 +9,7 @@
     RESTful control plane to configure Envoy</p> <p>  As a load-balancer / As an API Gateway / As a sidecar </p>
   </div>
   <div id="action-buttons">
-     <a class="button outline big" href="/cookbook/getting-started/" onclick="_gaq.push(['_trackEvent', 'kube', 'github']);">Getting started in 60 seconds</a>
+     <a class="button outline big" href="/cookbook/getting-started/" onclick="_gaq.push(['_trackEvent', 'kube', 'github']);">Getting started</a>
      <a class="button outline big" href="https://discord.gg/p9Nu9Uk" onclick="_gaq.push(['_trackEvent', 'kube', 'discord']);">Join Discord Chat</a>
      
   </div>
@@ -50,9 +50,32 @@
         <h4>Intutive</h4>
         <p>Enroute uses intutive well known abstractions to help configure proxies.</p>
       </div>
+  </div>
+    <div id="hero">
+    <h3>What is Enroute?</h3>
+Enroute is a L7 routing controller for Envoy proxies. Complete configuration of multiple Envoy proxies can be managed using Enroute Controller.
+  </div>
+
+    <div id="hero2">
+      <h3>What's the dual plane architecture ? </h3>
+	Enroute is implemented as a control plane that is the central repository for all Envoy config. The data plane component implements the xDS server that provides configuration to the Envoy proxy.
+      </div>
+    <div id="hero3">
+	<a href=""><img alt="Brand" src="/img/EnrouteArch2.png"></a>
+    </div>
+    <div id="hero4">
+    <h3> Enroute vs Service Mesh</h3>
+
+Enroute was built to configure Envoy used in multiple roles across an application delivery path. The architecture doesn't force a role on proxy (as a side-car or an edge proxy). Enroute was built to provide generic APIs to realize the target architecture.
+
+    </div>
+
 
   </div>
+
 </div>
 </div>
+
+
 {{ end }}
 {{ define "footer"}} {{ partial "footer" .}} {{end}}

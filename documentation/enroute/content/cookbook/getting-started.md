@@ -3,39 +3,42 @@ date = "2017-04-02T22:01:15+01:00"
 title = "Getting started with Enroute"
 tags = ["markdown","prototype", "hugo"]
 categories = ["design"]
-description = "API basics"
+description = "API Basics"
 draft = false
-weight = 30
+weight = 20
 +++
 
-<img data-src="https://cldup.com/3tov0aCFh8.png" class="lazyload">
+## What is Enroute?
 
-## Why Enroute?
+Enroute is a way to configure and manage multiple Envoy proxies. To achieve this, Enroute is broken up in two sofware components - 
 
-Enroute provides for a way to program multiple Envoy proxies. It defines well known abstractions like proxy, service, route, upstream and secret. It provides an API to work with these abstractions.
+* enroute-cp: Enroute Control Plane 
 
-The configuration once defined, can be associated with one or more proxies.
+* enroute-dp: Enroute Data Plane 
 
-<!-- <a href=""><img alt="Enroute" src="/img/EnrouteGettingStartedAPI.png"></a> -->
-<a href=""><img alt="Enroute" src="/img/EnrouteGettingStartedAPI2.png"></a>
+Enroute-dp runs along with an Envoy proxy while providing configuration updates to it. It communicates with Enroute-cp to read the config.
 
-This approach allows Enroute to integrate with cloud infrastructure, discovery services and secret stores. 
-
-Enroute lets a user track configuration changes over a period of time. Its config backup and restore let developer operations keep track of configuration changes and treat infrastructure as code.
+Enroute-cp provides a REST API to end-user to configure the data plane Envoys.
 
 ## Understanding Enroute through a simple example
 
-Next few steps show different aspects of enroute by programming the controller using APIs and running a proxy to consume that config.
+In the next few steps, we show how easy it is to configure Envoy. At a high level, we'll perform the following steps -
+
+* Run the Enroute control plane (enroute-cp)
+* Create config on enroute-cp: Create Proxy ```proxy-p```, Service ```s```, Route ```r```, Upstream ```u``` 
+* Wire up the objects: ``` proxy-p -> s -> r -> u ```
+* Run the Enroute data plane (enroute-dp) with name ```proxy-p```. Enroute-dp also runs an Envoy instance along with it.
+* The above steps will configure the Envoy proxy with configuration provided on the Enroute control plane
 
 #### Start the enroute control plane - ```enroute-cp```
 The controller is packaged as a docker image that can be run using the following command -
 
 ```
-sudo docker run \
-    -p 8887:1323 \
-    -p 8888:8888 \
-    -e WEBAPP_SECRET="treeseverywhere" \
-        -v db_data:/var/lib/postgresql/11/main \
+sudo docker run 					\
+    -p 8887:1323 					\
+    -p 8888:8888 					\
+    -e WEBAPP_SECRET="treeseverywhere" 			\
+    -v db_data:/var/lib/postgresql/11/main 		\
     gcr.io/enroute-10102020/enroute-cp:latest
 ```
 There are two port mappings in the above command -
@@ -56,7 +59,7 @@ We use the Enroute API to perform the following tasks -
 
 ```
 $ curl -s -X POST "http://enroute-controller.local:8887/proxy"         \
-    -H "Authorization: Bearer treeseverywhere"             \
+    -H "Authorization: Bearer treeseverywhere"             	       \
     -d 'Name=proxy-p' | jq
 {
     "name": "proxy-p"
@@ -66,9 +69,9 @@ $ curl -s -X POST "http://enroute-controller.local:8887/proxy"         \
 ###### Create **Service**
 
 ```
-$ curl -s -X POST "http://enroute-controller.local:8887/service"    \
-    -H "Authorization: Bearer treeseverywhere"             \
-    -d 'Service_Name=l'                         \
+$ curl -s -X POST "http://enroute-controller.local:8887/service"    	\
+    -H "Authorization: Bearer treeseverywhere"             		\
+    -d 'Service_Name=l'                         			\
     -d 'fqdn=127.0.0.1' | jq
 {
     "data": {
@@ -82,9 +85,9 @@ $ curl -s -X POST "http://enroute-controller.local:8887/service"    \
 ###### Create **Route**
 
 ```
-$ curl -s -X POST "http://enroute-controller.local:8887/service/l/route"\
-    -H "Authorization: Bearer treeseverywhere"             \
-    -d 'Route_Name=r'                         \
+$ curl -s -X POST "http://enroute-controller.local:8887/service/l/route"	\
+    -H "Authorization: Bearer treeseverywhere"             			\
+    -d 'Route_Name=r'                         					\
     -d 'Route_prefix=/' | jq
 {
     "data": {
@@ -98,12 +101,12 @@ $ curl -s -X POST "http://enroute-controller.local:8887/service/l/route"\
 ###### Create **Upstream**
 
 ```
-$ curl -s -X POST "http://enroute-controller.local:8887/upstream"     \
-    -H "Authorization: Bearer treeseverywhere"             \
-    -d 'Upstream_name=u'                         \
-    -d 'Upstream_ip=127.0.0.1'                     \
-    -d 'Upstream_port=9001'                     \
-    -d 'Upstream_hc_path=/'                     \
+$ curl -s -X POST "http://enroute-controller.local:8887/upstream"     	\
+    -H "Authorization: Bearer treeseverywhere"             		\
+    -d 'Upstream_name=u'                         			\
+    -d 'Upstream_ip=127.0.0.1'                     			\
+    -d 'Upstream_port=9001'                     			\
+    -d 'Upstream_hc_path=/'                     			\
     -d 'Upstream_weight=100' | jq
 {
     "data": {
@@ -147,13 +150,13 @@ $ curl -s -X POST "http://enroute-controller.local:8887/proxy/proxy-p/service/l"
 ### Run the data plane ```enroute-dp```
 
 ```
-sudo docker run                     \
-    -e ENROUTE_NAME=proxy-p             \
-    -e ENROUTE_CP_IP=enroute-controller.local     \
-    -e ENROUTE_CP_PORT=8888             \
-    -e ENROUTE_CP_PROTO=HTTP             \
-    -p 8081:8080                     \
-    -p 9001:9001                     \
+sudo docker run                     			\
+    -e ENROUTE_NAME=proxy-p             		\
+    -e ENROUTE_CP_IP=enroute-controller.local     	\
+    -e ENROUTE_CP_PORT=8888             		\
+    -e ENROUTE_CP_PROTO=HTTP             		\
+    -p 8081:8080                     			\
+    -p 9001:9001                     			\
     gcr.io/enroute-10102020/enroute-dp
 ```
 

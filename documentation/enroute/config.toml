@@ -20,6 +20,10 @@ googleAnalytics = "UA-129736951-2"
     weight = -100
     url = "/cookbook/"
 [[menu.main]]
+    name = "Enroute Architecture"
+    weight = -85
+    url = "enroute-architecture"
+[[menu.main]]
     name = "Faq"
-    weight = -90
+    weight = -80
     url = "/faq/"
