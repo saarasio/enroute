@@ -1,19 +1,26 @@
 [supervisord]
-logfile=/var/log/supervisord/supervisord.log    ; supervisord log file
+logfile=/supervisord/supervisord.log            ; supervisord log file
 logfile_maxbytes=5MB                            ; maximum size of logfile before rotation
 logfile_backups=10                              ; number of backed up logfiles
 loglevel=trace                                  ; info, debug, warn, trace
-pidfile=/var/run/supervisord.pid                ; pidfile location
+pidfile=/supervisord/supervisord.pid            ; pidfile location
 nodaemon=true									; do not run supervisord as a daemon
 minfds=1024                                     ; number of startup file descriptors
 minprocs=200                                    ; number of process descriptors
-user=root                                       ; default user
-childlogdir=/var/log/supervisord/               ; where child log files will live
+user=postgres                                   ; default user
+childlogdir=/supervisord                        ; where child log files will live
 
-[program:fix-access-for-postgres]
-command=sed -i 's/\(^host.*all.*all.*\)md5/\1trust/' /etc/postgresql/11/main/pg_hba.conf
+[unix_http_server]
+file = /supervisord/supervisord.sock
+username = postgres
+password = postgres
+
+[program:postgres-prep]
+command=/bin/run_pg_prep.sh
 user=postgres
 autorestart=false
+startretries=0
+redirect_stderr=false
 priority=800
 
 [program:run-postgresql]
@@ -26,13 +33,13 @@ priority=900
 ; 3.2 run migrations, start hasura, start enroute
 [program:run-migrations-start-hasura-enroute]
 command=/bin/run_migrations.sh
-user=root
+user=postgres
 autorestart=false
 nodaemon=false
 priority=930
 
-[program:run-dp]
+[program:run-enroute-envoy]
 command=/bin/run_enroute_envoy.sh
-user=root
+user=postgres
 autorestart=false
 priority=940

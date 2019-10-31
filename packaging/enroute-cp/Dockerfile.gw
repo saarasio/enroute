@@ -49,6 +49,10 @@ RUN chmod +x /bin/hasura-cli
 COPY run_migrations.sh /bin/
 RUN chmod +x /bin/run_migrations.sh
 
+# 1.4.3
+COPY run_pg_prep.sh /bin/
+RUN chmod +x /bin/run_pg_prep.sh
+
 COPY run_enroute_envoy.sh /bin/
 RUN chmod +x /bin/run_enroute_envoy.sh
 
@@ -83,5 +87,12 @@ VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/
 ENV DB_PORT=8888
 ENV DB_HOST=127.0.0.1
 ENV WEBAPP_SECRET=""
+
+RUN mkdir -p /supervisord
+RUN chown -R postgres:postgres /supervisord
+
+# Hasura creates a /root/.config for global config, since we run as postgres, provide access to /root directory to postgres
+# /root is empty and this only reduces permissions on /root, so should be OK
+RUN chown -R postgres:postgres /root
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

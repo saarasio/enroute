@@ -29,8 +29,8 @@ wait_for_port() {
 wait_for_port 1323
 wait_for_port 8888
 
-/bin/enroute bootstrap --xds-address 127.0.0.1 --xds-port 8001 config.json
+/bin/enroute bootstrap --xds-address 127.0.0.1 --xds-port 8001 /supervisord/config.json
 
 /bin/enroute serve --xds-port=8001 --xds-address=127.0.0.1 --enroute-cp-ip localhost --enroute-cp-port 8888 --enroute-cp-proto http --enroute-name gw &
 
-/bin/envoy -c /bin/config.json --service-node "service-node-enroute-gw" --service-cluster "gw" --log-level trace
+/bin/envoy -c /supervisord/config.json --service-node "service-node-enroute-gw" --service-cluster "gw" --log-level trace
