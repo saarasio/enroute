@@ -22,16 +22,30 @@ Enroute gateway has control plane and one instance of data plane all packaged as
 <div class="example">
   <nav data-component="tabs" data-live=".tab-live" id="livetabs"></nav>
   <div class="tab-live" data-title="Enroute-cp" id="tab-cp">
-    <h5>Enroute-cp</h5>
-    <p>Control plane</p>
+    <h5>Start controller ```enroute-cp```</h5>
+
+  ``` 
+	docker run -v db:/var/lib/postgresql/11/main --net=host saarasio/enroute-cp:latest
+  ```
+
   </div>
   <div class="tab-live" data-title="Enroute-dp" id="tab-dp">
-    <h5>Enroute-dp</h5>
-    <p>Data plane</p>
+    <h5>Start data plane ```enroute-dp``` for ```proxy-p```</h5>
+  ``` 
+	docker run                                    \
+	    -e ENROUTE_NAME=proxy-p                   \
+	    -e ENROUTE_CP_IP=enroute-controller.local \
+	    -e ENROUTE_CP_PORT=8888                   \
+	    -e ENROUTE_CP_PROTO=HTTP                  \
+	    --net=host                                \
+saarasio/enroute-dp:latest
+  ```
   </div>
   <div class="tab-live" data-title="Enroute-gw" id="tab-gw">
-    <h5>Enroute-gw</h5>
-    <p>Gateway</p>
+    <h5>Start gateway ```enroute-gw``` (enroute-cp & enroute-dp named ```gw```)</h5>
+  ``` 
+	docker run -v db:/var/lib/postgresql/11/main --net=host saarasio/enroute-gw:latest
+  ```
   </div>
 
 
