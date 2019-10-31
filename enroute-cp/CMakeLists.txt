@@ -22,7 +22,7 @@ add_custom_target(${target_name_push}
 
 set(target_name_gw		enroute-gw)
 set(target_image_gw  	"${image_registry}/${target_name_gw}")
-set(target_name_gw_push "${target_name_gw}_push")
+set(target_name_push_gw "${target_name_gw}_push")
 
 file(GLOB_RECURSE enroute_project_source ${CMAKE_SOURCE_DIR}/${target_name}/*.go)
 
@@ -43,5 +43,5 @@ add_custom_command(TARGET ${target_name_gw}
 #Push container
 add_custom_target(${target_name_push_gw}
 		DEPENDS ${target_name_gw}
-		COMMAND docker push ${image_registry}/enroute-cp:latest
+		COMMAND docker push ${image_registry}/enroute-gw:latest
 	)
