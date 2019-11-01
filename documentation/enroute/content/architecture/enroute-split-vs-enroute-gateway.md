@@ -30,7 +30,7 @@ Enroute gateway has control plane and one instance of data plane all packaged as
 
   </div>
   <div class="tab-live" data-title="Enroute-dp" id="tab-dp">
-    <h5>Start data plane ```enroute-dp``` for ```proxy-p```</h5>
+    <h5>Start data plane ```enroute-dp``` for ```proxy-p``` config on controller</h5>
   ``` 
 	docker run                                    \
 	    -e ENROUTE_NAME=proxy-p                   \
