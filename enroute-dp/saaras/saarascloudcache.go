@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+    "strconv"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
@@ -138,6 +139,14 @@ func saaras_ir_slice__to__v1b1_service_map(
 						Ports: sp,
 					},
 				}
+
+                // tell contour that this upstream is gRPC
+                if oneService.Upstream.Upstream_protocol == "grpc" {
+                    annotate := make(map[string]string)
+                    annotate["contour.heptio.com/upstream-protocol.h2c"] =
+                        strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
+                    one_service.Annotations = annotate
+                }
 				svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
 			}
 		}
@@ -452,7 +461,7 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	args["proxy_name"] = ENROUTE_NAME
 
 	// Fetch Application
-	if err := FetchConfig(QIngressRoute3, &buf, args, log); err != nil {
+	if err := FetchConfig(QIngressRoute, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 		// If we failed reaching the route, an empty IngressRoute is received.
 		// Bail here or it'll clear the cache
@@ -469,45 +478,4 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	spew.Fdump(sdb_spew_dump, gr)
 	//log.Debugf("-> %s", sdb_spew_dump.String())
 	scc.OnFetch(gr.Data.Saaras_db_proxy_service, reh, et, log)
-
-	//// Fetch ProxyGroup
-	//buf.Reset()
-	//args = make(map[string]string)
-	//args["pgname"] = "pg3"
-	//if err := FetchConfig(QProxyGroupCfg, &buf, args, log); err != nil {
-	//	log.Errorf("FetchIngressRoute(): Error when running http request [%v]\n", err)
-	//}
-
-	//var pg DataPayloadProxyGroup
-	//if err := json.NewDecoder(&buf).Decode(&pg); err != nil {
-	//	errors.Wrap(err, "decoding response")
-	//	log.Errorf("Error when decoding json [%v]\n", err)
-	//}
-
-	//spew_dump := bytes.NewBufferString(`pg`)
-	//spew.Fdump(spew_dump, pg.Data.Saaras_db_proxygroup_config)
-	//log.Debugf("%s", spew_dump.String())
-
-	//scc.OnFetch(pg.Data.Saaras_db_proxygroup_config, reh, et, log)
-
-	//// Fetch Secrets
-	//buf.Reset()
-	//args = make(map[string]string)
-	//args["org_name"] = "trial_org_1"
-	//if err := FetchConfig(qGetSecretsByOrgName2, &buf, args, log); err != nil {
-	//	log.Errorf("FetchIngressRoute(): Error when running http request [%v]\n", err)
-	//}
-
-	//var sec DataPayloadSecrets
-	//if err := json.NewDecoder(&buf).Decode(&sec); err != nil {
-	//	errors.Wrap(err, "decoding response")
-	//	log.Errorf("Error when decoding json [%v]\n", err)
-	//}
-
-	//spew_dump_secrets := bytes.NewBufferString(`secrets`)
-	//spew.Fdump(spew_dump_secrets, sec.Data.Saaras_db_application_secret)
-	//log.Debugf("%s", spew_dump_secrets.String())
-
-	//scc.OnFetch(sec.Data.Saaras_db_application_secret, reh, et, log)
-
 }

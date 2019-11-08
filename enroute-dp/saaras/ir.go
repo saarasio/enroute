@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-const QIngressRoute3 string = `
+const QIngressRoute string = `
 query get_services_by_proxy($proxy_name: String!) {
   saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
     service {
@@ -42,6 +42,7 @@ query get_services_by_proxy($proxy_name: String!) {
             upstream_strategy
             upstream_validation_cacertificate
             upstream_validation_subjectname
+            upstream_protocol
             create_ts
             update_ts
           }
@@ -68,120 +69,6 @@ query get_services_by_proxy($proxy_name: String!) {
   }
 }
 `
-
-const QIngressRouteOutput3 string = `
-{
-  "data": {
-    "saaras_db_proxy_service": [
-      {
-        "service": {
-          "service_id": 1,
-          "service_name": "test",
-          "fqdn": "testfqdn.com",
-          "create_ts": "2019-08-20T00:40:02.873368+00:00",
-          "update_ts": "2019-08-19T14:57:51.841163+00:00",
-          "routes": [
-            {
-              "route_name": "testroute",
-              "route_prefix": "/",
-              "create_ts": "2019-08-19T15:06:50.680275+00:00",
-              "update_ts": "2019-08-20T00:52:10.882748+00:00",
-              "route_upstreams": [
-                {
-                  "upstream": {
-                    "upstream_name": "testupstream",
-                    "upstream_ip": "1.1.1.1",
-                    "upstream_port": 10000,
-                    "create_ts": "2019-08-20T01:21:02.351317+00:00",
-                    "update_ts": "2019-08-20T13:20:18.519485+00:00"
-                  }
-                }
-              ]
-            }
-          ],
-          "service_secrets": [
-            {
-              "secret": {
-                "secret_id": 1,
-                "secret_name": "testsecret",
-                "artifacts": [
-                  {
-                    "artifact_id": 1,
-                    "artifact_name": "name1",
-                    "artifact_type": "tls.key",
-                    "artifact_value": "testvalue"
-                  },
-                  {
-                    "artifact_id": 3,
-                    "artifact_name": "name2",
-                    "artifact_type": "tls.crt",
-                    "artifact_value": "certificate"
-                  }
-                ],
-                "create_ts": "2019-08-22T23:42:30.113554+00:00",
-                "update_ts": "2019-08-22T23:41:01.26228+00:00"
-              }
-            }
-          ]
-        }
-      }
-    ]
-  }
-}
-`
-
-const QIngressRouteOutput2 string = `
-{
-  "data": {
-    "saaras_db_proxy_service": [
-      {
-        "service": {
-          "service_id": 1,
-          "service_name": "test",
-          "fqdn": "testfqdn.com",
-          "create_ts": "2019-08-20T00:40:02.873368+00:00",
-          "update_ts": "2019-08-19T14:57:51.841163+00:00",
-          "routes": [
-            {
-              "route_name": "testroute",
-              "route_prefix": "/",
-              "create_ts": "2019-08-19T15:06:50.680275+00:00",
-              "update_ts": "2019-08-20T00:52:10.882748+00:00",
-              "route_upstreams": [
-                {
-                  "upstream": {
-                    "upstream_name": "testupstream",
-                    "upstream_ip": "1.1.1.1",
-                    "upstream_port": 10000,
-                    "create_ts": "2019-08-20T01:21:02.351317+00:00",
-                    "update_ts": "2019-08-20T13:20:18.519485+00:00"
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        "service": {
-          "service_id": 104,
-          "service_name": "test2",
-          "fqdn": "testfqdn.com",
-          "create_ts": "2019-08-20T00:45:17.724345+00:00",
-          "update_ts": "2019-08-20T00:45:17.724345+00:00",
-          "routes": []
-        }
-      }
-    ]
-  }
-}
-`
-
-// Note: Either the cluster members should start with uppercase or
-// json tags should be defined
-// Else decoding of the message would fail.
-// Also the best way to setup the structs is by starting with the
-// output and then defining/replacing members with structs
 
 type SaarasCluster struct {
 	Cluster_name string
@@ -246,20 +133,11 @@ type SaarasIngressRoute struct {
 	Application_secretsByApp_id []SaarasAppSecretName
 }
 
-type SaarasApp struct {
-	Saaras_db_application []SaarasIngressRoute
-}
-
 type SaarasEndpoint struct {
 	Name      string
 	Namespace string
 	Ip        string
 	Port      int32
-}
-
-type DataPayloadSaarasApp struct {
-	Data   SaarasApp
-	Errors []GraphErr
 }
 
 type SaarasUpstream struct {
@@ -276,6 +154,7 @@ type SaarasUpstream struct {
 	Upstream_strategy                   string
 	Upstream_validation_cacertificate   string
 	Upstream_validation_subjectname     string
+    Upstream_protocol                   string
 	Create_ts                           string
 	Update_ts                           string
 }
