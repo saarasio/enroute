@@ -13,6 +13,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+
+// Upstream CRUD queries
+
+var QCreateUpstream = `
+	mutation insert_upstream(
+		$upstream_name: String!, 
+		$upstream_ip: String!, 
+		$upstream_hc_path: String!, 
+		$upstream_port: Int!,
+		$upstream_weight: Int
+	) {
+	  insert_saaras_db_upstream(
+	    objects: {
+	      upstream_name: $upstream_name, 
+	      upstream_ip: $upstream_ip, 
+	      upstream_hc_path: $upstream_hc_path, 
+	      upstream_port: $upstream_port,
+	      upstream_weight: $upstream_weight
+	    }
+	  ) {
+	    affected_rows
+	  }
+	}
+`
+
 var QGetUpstream = `
 query get_upstream {
   saaras_db_upstream {
@@ -29,11 +54,37 @@ query get_upstream {
     upstream_strategy
     upstream_validation_cacertificate
     upstream_validation_subjectname
-	 upstream_weight
+    upstream_weight
+    upstream_protocol
     create_ts
     update_ts
   }
 }
+`
+
+// TODO: Capture all fields in upstream
+var QOneUpstream = `
+	query get_upstream($upstream_name : String!) {
+		saaras_db_upstream(where: {upstream_name: {_eq: $upstream_name}}) {
+    	upstream_id
+    	upstream_name
+    	upstream_ip
+    	upstream_port
+    	upstream_hc_path
+    	upstream_hc_host
+    	upstream_hc_intervalseconds
+    	upstream_hc_timeoutseconds
+    	upstream_hc_unhealthythresholdcount
+    	upstream_hc_healthythresholdcount
+    	upstream_strategy
+    	upstream_validation_cacertificate
+    	upstream_validation_subjectname
+        upstream_protocol
+		upstream_weight
+    	create_ts
+    	update_ts
+		}
+	}
 `
 
 var QDeleteUpstream = `
@@ -42,6 +93,48 @@ mutation delete_upstream($upstream_name: String!) {
     affected_rows
   }
 }
+`
+
+var QPatchUpstream = `
+
+mutation update_upstream(
+     $upstream_name: String!,
+     $upstream_ip: String!,
+     $upstream_port: Int!,
+     $upstream_weight: Int!,
+     $upstream_hc_path: String!,
+     $upstream_hc_host: String!,
+     $upstream_hc_intervalseconds: Int!,
+     $upstream_hc_unhealthythresholdcount: Int!,
+     $upstream_hc_healthythresholdcount: Int!,
+     $upstream_strategy: String!,
+     $upstream_validation_cacertificate: String!,
+     $upstream_validation_subjectname: String!,
+     $upstream_protocol: String!,
+     $upstream_hc_timeoutseconds: Int!
+ ) {
+     update_saaras_db_upstream(
+         where: {upstream_name: {_eq: $upstream_name}},
+         _set: {
+             upstream_ip: $upstream_ip,
+             upstream_port: $upstream_port,
+             upstream_weight: $upstream_weight,
+             upstream_hc_path: $upstream_hc_path,
+             upstream_hc_host: $upstream_hc_host,
+             upstream_hc_intervalseconds: $upstream_hc_intervalseconds,
+             upstream_hc_unhealthythresholdcount: $upstream_hc_unhealthythresholdcount,
+             upstream_hc_healthythresholdcount: $upstream_hc_healthythresholdcount,
+             upstream_strategy: $upstream_strategy,
+             upstream_validation_cacertificate: $upstream_validation_cacertificate,
+             upstream_validation_subjectname: $upstream_validation_subjectname,
+             upstream_protocol: $upstream_protocol,
+             upstream_hc_timeoutseconds: $upstream_hc_timeoutseconds
+         }
+     ) {
+         affected_rows
+     }
+ }
+
 `
 
 var QUpstreamRoutes = `
@@ -70,45 +163,6 @@ query get_upstream_routes($upstream_name: String!) {
 // @Router /upstream/{upstream_name} [patch]
 // @Security ApiKeyAuth
 func PATCH_Upstream(c echo.Context) error {
-
-	var QPatchUpstream = `
-
-mutation update_upstream(
-     $upstream_name: String!,
-     $upstream_ip: String!,
-     $upstream_port: Int!,
-     $upstream_weight: Int!,
-     $upstream_hc_path: String!,
-     $upstream_hc_host: String!,
-     $upstream_hc_intervalseconds: Int!,
-     $upstream_hc_unhealthythresholdcount: Int!,
-     $upstream_hc_healthythresholdcount: Int!,
-     $upstream_strategy: String!,
-     $upstream_validation_cacertificate: String!,
-     $upstream_validation_subjectname: String!,
-     $upstream_hc_timeoutseconds: Int!
- ) {
-     update_saaras_db_upstream(
-         where: {upstream_name: {_eq: $upstream_name}},
-         _set: {
-             upstream_ip: $upstream_ip,
-             upstream_port: $upstream_port,
-             upstream_weight: $upstream_weight,
-             upstream_hc_path: $upstream_hc_path,
-             upstream_hc_host: $upstream_hc_host,
-             upstream_hc_intervalseconds: $upstream_hc_intervalseconds,
-             upstream_hc_unhealthythresholdcount: $upstream_hc_unhealthythresholdcount,
-             upstream_hc_healthythresholdcount: $upstream_hc_healthythresholdcount,
-             upstream_strategy: $upstream_strategy,
-             upstream_validation_cacertificate: $upstream_validation_cacertificate,
-             upstream_validation_subjectname: $upstream_validation_subjectname,
-             upstream_hc_timeoutseconds: $upstream_hc_timeoutseconds
-         }
-     ) {
-         affected_rows
-     }
- }
-	  `
 
 	var buf bytes.Buffer
 	var args map[string]string
@@ -165,26 +219,12 @@ mutation update_upstream(
 	if len(u.Upstream_validation_subjectname) > 0 {
 		u_in_db.Upstream_validation_subjectname = u.Upstream_validation_subjectname
 	}
+	if len(u.Upstream_protocol) > 0 {
+		u_in_db.Upstream_protocol = u.Upstream_protocol
+	}
 	if len(u.Upstream_hc_timeoutseconds) > 0 {
 		u_in_db.Upstream_hc_timeoutseconds = u.Upstream_hc_timeoutseconds
 	}
-
-	//{
-	//  "upstream_name": "test3",
-	//  "upstream_ip": "1.1.1.1",
-	//  "upstream_port": 11,
-	//  "upstream_weight": 11,
-	//  "upstream_hc_path": "/",
-	//  "upstream_hc_host": "blah",
-	//  "upstream_hc_intervalseconds": 11,
-	//  "upstream_hc_unhealthythresholdcount": 11,
-	//  "upstream_hc_healthythresholdcount": 11,
-	//  "upstream_strategy": "blah",
-	//  "upstream_validation_cacertificate": "blah",
-	//  "upstream_validation_subjectname": "blah",
-	//  "upstream_hc_timeoutseconds": 11
-	//
-	//}
 
 	if u_in_db.Upstream_port == "" {
 		u_in_db.Upstream_port = "-1"
@@ -230,6 +270,7 @@ mutation update_upstream(
 	args["upstream_strategy"] = u_in_db.Upstream_strategy
 	args["upstream_validation_cacertificate"] = u_in_db.Upstream_validation_cacertificate
 	args["upstream_validation_subjectname"] = u_in_db.Upstream_validation_subjectname
+	args["upstream_protocol"] = u_in_db.Upstream_protocol
 	args["upstream_hc_timeoutseconds"] = u_in_db.Upstream_hc_timeoutseconds
 
 	log.Infof(" Sending upstream values ARGS [%+v]\n", args)
@@ -243,27 +284,6 @@ mutation update_upstream(
 }
 
 func db_insert_upstream(u *Upstream, log *logrus.Entry) (int, string) {
-	var QCreateUpstream = `
-	mutation insert_upstream(
-		$upstream_name: String!, 
-		$upstream_ip: String!, 
-		$upstream_hc_path: String!, 
-		$upstream_port: Int!,
-		$upstream_weight: Int
-	) {
-	  insert_saaras_db_upstream(
-	    objects: {
-	      upstream_name: $upstream_name, 
-	      upstream_ip: $upstream_ip, 
-	      upstream_hc_path: $upstream_hc_path, 
-	      upstream_port: $upstream_port,
-	      upstream_weight: $upstream_weight
-	    }
-	  ) {
-	    affected_rows
-	  }
-	}
-	`
 
 	var buf bytes.Buffer
 	var args map[string]string
@@ -369,29 +389,6 @@ func POST_Upstream(c echo.Context) error {
 }
 
 func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (int, string, *Upstream) {
-	// TODO: Capture all fields in upstream
-	var QOneUpstream = `
-	query get_upstream($upstream_name : String!) {
-		saaras_db_upstream(where: {upstream_name: {_eq: $upstream_name}}) {
-    	upstream_id
-    	upstream_name
-    	upstream_ip
-    	upstream_port
-    	upstream_hc_path
-    	upstream_hc_host
-    	upstream_hc_intervalseconds
-    	upstream_hc_timeoutseconds
-    	upstream_hc_unhealthythresholdcount
-    	upstream_hc_healthythresholdcount
-    	upstream_strategy
-    	upstream_validation_cacertificate
-    	upstream_validation_subjectname
-		upstream_weight
-    	create_ts
-    	update_ts
-		}
-	}
-	`
 
 	var buf bytes.Buffer
 	var args map[string]string
@@ -403,29 +400,6 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
 
-	//{
-	//    "data": {
-	//        "saaras_db_upstream": [
-	//            {
-	//                "create_ts": "2019-09-06T16:19:51.774798+00:00",
-	//                "update_ts": "2019-09-06T18:50:25.667251+00:00",
-	//                "upstream_hc_healthythresholdcount": null,
-	//                "upstream_hc_host": "127.0.0.1",
-	//                "upstream_hc_intervalseconds": null,
-	//                "upstream_hc_path": "/",
-	//                "upstream_hc_timeoutseconds": null,
-	//                "upstream_hc_unhealthythresholdcount": null,
-	//                "upstream_id": 7,
-	//                "upstream_ip": "127.0.0.1",
-	//                "upstream_name": "test3",
-	//                "upstream_port": 9001,
-	//                "upstream_strategy": null,
-	//                "upstream_validation_cacertificate": null,
-	//                "upstream_validation_subjectname": null
-	//            }
-	//        ]
-	//    }
-	//}
 	type SaarasDbUpstream struct {
 		CreateTs                          time.Time `json:"create_ts"`
 		UpdateTs                          time.Time `json:"update_ts"`
@@ -443,6 +417,7 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 		UpstreamWeight                    int       `json:"upstream_weight"`
 		UpstreamValidationCacertificate   string    `json:"upstream_validation_cacertificate"`
 		UpstreamValidationSubjectname     string    `json:"upstream_validation_subjectname"`
+		UpstreamProtocol                  string    `json:"upstream_protocol"`
 	}
 
 	type Data struct {
@@ -477,6 +452,7 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 			u.Upstream_strategy = gr.Data.SaarasDbUpstream[0].UpstreamStrategy
 			u.Upstream_validation_cacertificate = gr.Data.SaarasDbUpstream[0].UpstreamValidationCacertificate
 			u.Upstream_validation_subjectname = gr.Data.SaarasDbUpstream[0].UpstreamValidationSubjectname
+			u.Upstream_protocol = gr.Data.SaarasDbUpstream[0].UpstreamProtocol
 			u.Upstream_weight = strconv.FormatInt(int64(gr.Data.SaarasDbUpstream[0].UpstreamWeight), 10)
 		}
 

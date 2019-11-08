@@ -36,6 +36,7 @@ type Upstream struct {
 	Upstream_strategy                   string `json:"upstream_strategy" xml:"upstream_strategy" form:"upstream_strategy" query:"upstream_strategy"`
 	Upstream_validation_cacertificate   string `json:"upstream_validation_cacertificate" xml:"upstream_validation_cacertificate" form:"upstream_validation_cacertificate" query:"upstream_validation_cacertificate"`
 	Upstream_validation_subjectname     string `json:"upstream_validation_subjectname" xml:"upstream_validation_subjectname" form:"upstream_validation_subjectname" query:"upstream_validation_subjectname"`
+	Upstream_protocol                   string `json:"upstream_protocol" xml:"upstream_protocol" form:"upstream_protocol" query:"upstream_protocol"`
 	Upstream_hc_timeoutseconds          string `json:"upstream_hc_timeoutseconds" xml:"upstream_hc_timeoutseconds" form:"upstream_hc_timeoutseconds" query:"upstream_hc_timeoutseconds"`
 }
 
