@@ -234,7 +234,8 @@ CREATE TABLE saaras_db.upstream (
     upstream_validation_cacertificate character varying,
     upstream_validation_subjectname character varying,
     upstream_hc_timeoutseconds integer,
-    update_ts timestamp with time zone DEFAULT now()
+    update_ts timestamp with time zone DEFAULT now(),
+    upstream_protocol text
 );
 CREATE SEQUENCE saaras_db.upstream_upstream_id_seq
     START WITH 1
