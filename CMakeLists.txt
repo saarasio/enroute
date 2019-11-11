@@ -37,3 +37,4 @@ set(image_registry "saarasio")
 
 add_subdirectory(enroute-dp)
 add_subdirectory(enroute-cp)
+add_subdirectory(examples)

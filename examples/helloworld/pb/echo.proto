@@ -1,0 +1,12 @@
+
+syntax = "proto3";
+
+option go_package = "pb";
+
+service echo{
+    rpc HelloWorld(ping)returns(ping);
+}
+
+message ping {
+    string ping = 1;
+}
