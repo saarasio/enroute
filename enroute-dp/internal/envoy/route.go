@@ -23,6 +23,31 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 )
 
+func rateLimitActionSpecifierGenericKey() *route.RateLimit_Action_GenericKey_ {
+    return &route.RateLimit_Action_GenericKey_ {
+        GenericKey: &route.RateLimit_Action_GenericKey {
+            DescriptorValue: "default",
+        },
+    }
+}
+
+func rateLimitAction() *route.RateLimit_Action {
+    return &route.RateLimit_Action {
+        ActionSpecifier: rateLimitActionSpecifierGenericKey(),
+    }
+}
+
+func rateLimits(rl *dag.RateLimitPolicy) ([]*route.RateLimit) {
+	return []*route.RateLimit {
+        {
+            Stage:u32(0),
+            Actions: []*route.RateLimit_Action{
+              rateLimitAction(),
+            },
+	    },
+    }
+}
+
 // RouteRoute creates a route.Route_Route for the services supplied.
 // If len(services) is greater than one, the route's action will be a
 // weighted cluster.
@@ -33,6 +58,10 @@ func RouteRoute(r *dag.Route) *route.Route_Route {
 		PrefixRewrite: r.PrefixRewrite,
 		HashPolicy:    hashPolicy(r),
 	}
+
+    if r.RateLimit != nil {
+        ra.RateLimits = rateLimits(r.RateLimit)
+    }
 
 	if r.Websocket {
 		ra.UpgradeConfigs = append(ra.UpgradeConfigs,

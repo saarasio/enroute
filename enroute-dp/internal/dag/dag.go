@@ -47,6 +47,9 @@ func (d *DAG) Statuses() map[Meta]Status {
 	return d.statuses
 }
 
+type RateLimitPolicy struct {
+}
+
 type Route struct {
 	Prefix   string
 	Clusters []*Cluster
@@ -67,6 +70,8 @@ type Route struct {
 
 	// Indicates that during forwarding, the matched prefix (or path) should be swapped with this value
 	PrefixRewrite string
+
+    RateLimit *RateLimitPolicy
 }
 
 // TimeoutPolicy defines the timeout request/idle
