@@ -25,7 +25,21 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 	bootstrap "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v2"
+	//ratelimit "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
 )
+
+//func RateLimitConfig(c *BootstrapConfig) *ratelimit.RateLimitServiceConfig {
+//    rls := ratelimit.RateLimitServiceConfig{
+//        GrpcService: &core.GrpcService{
+//            TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
+//                EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
+//                    ClusterName: "enroute",
+//                },
+//            },
+//        },
+//    }
+//    return &rls
+//}
 
 // Bootstrap creates a new v2 Bootstrap configuration.
 func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {

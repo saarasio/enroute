@@ -54,6 +54,9 @@ type TLS struct {
 	Passthrough bool `json:"passthrough,omitempty"`
 }
 
+type RateLimitPolicy struct {
+}
+
 // Route contains the set of routes for a virtual host
 type Route struct {
 	// Match defines the prefix match
@@ -73,6 +76,8 @@ type Route struct {
 	TimeoutPolicy *TimeoutPolicy `json:"timeoutPolicy,omitempty"`
 	// // The retry policy for this route
 	RetryPolicy *RetryPolicy `json:"retryPolicy,omitempty"`
+    // The rate limit policy for this route
+	RLPolicy *RateLimitPolicy `json:"rateLimitPolicy,omitempty"`
 }
 
 // TCPProxy contains the set of services to proxy TCP connections.

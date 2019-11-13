@@ -22,6 +22,8 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	tcp "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
+	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
+	rl "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
 	"github.com/envoyproxy/go-control-plane/pkg/util"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/types"
@@ -79,6 +81,38 @@ func idleTimeout(d time.Duration) *time.Duration {
 	return &d
 }
 
+func httpRateLimitTypedConfig() *http.HttpFilter_TypedConfig {
+    return &http.HttpFilter_TypedConfig{
+        TypedConfig: any(&httprl.RateLimit{
+            RateLimitService: &rl.RateLimitServiceConfig {
+                GrpcService: &core.GrpcService{
+                    TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
+                        EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
+                            ClusterName: "enroute",
+                        },
+                    },
+                },
+            },
+        }),
+    }
+}
+
+func httpFilters() []*http.HttpFilter {
+    return []*http.HttpFilter{{
+        Name: util.Gzip,
+        ConfigType: nil,
+    }, {
+        Name: util.GRPCWeb,
+        ConfigType: nil,
+    }, {
+        Name: util.RateLimit,
+        ConfigType: httpRateLimitTypedConfig(),
+    }, {
+        Name: util.Router,
+        ConfigType: nil,
+    }}
+}
+
 // HTTPConnectionManager creates a new HTTP Connection Manager filter
 // for the supplied route and access log.
 func HTTPConnectionManager(routename, accessLogPath string) listener.Filter {
@@ -106,13 +140,7 @@ func HTTPConnectionManager(routename, accessLogPath string) listener.Filter {
 						},
 					},
 				},
-				HttpFilters: []*http.HttpFilter{{
-					Name: util.Gzip,
-				}, {
-					Name: util.GRPCWeb,
-				}, {
-					Name: util.Router,
-				}},
+				HttpFilters: httpFilters(),
 				HttpProtocolOptions: &core.Http1ProtocolOptions{
 					// Enable support for HTTP/1.0 requests that carry
 					// a Host: header. See #537.

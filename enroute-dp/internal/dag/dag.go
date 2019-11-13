@@ -71,7 +71,7 @@ type Route struct {
 	// Indicates that during forwarding, the matched prefix (or path) should be swapped with this value
 	PrefixRewrite string
 
-    RateLimit *RateLimitPolicy
+    RateLimitPol *RateLimitPolicy
 }
 
 // TimeoutPolicy defines the timeout request/idle
