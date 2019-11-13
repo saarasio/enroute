@@ -21,32 +21,32 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
 	"github.com/gogo/protobuf/types"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
-    //ratelimithttp "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
+	//ratelimithttp "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 )
 
 func rateLimitActionSpecifierGenericKey() *route.RateLimit_Action_GenericKey_ {
-    return &route.RateLimit_Action_GenericKey_ {
-        GenericKey: &route.RateLimit_Action_GenericKey {
-            DescriptorValue: "default",
-        },
-    }
+	return &route.RateLimit_Action_GenericKey_{
+		GenericKey: &route.RateLimit_Action_GenericKey{
+			DescriptorValue: "default",
+		},
+	}
 }
 
 func rateLimitAction() *route.RateLimit_Action {
-    return &route.RateLimit_Action {
-        ActionSpecifier: rateLimitActionSpecifierGenericKey(),
-    }
+	return &route.RateLimit_Action{
+		ActionSpecifier: rateLimitActionSpecifierGenericKey(),
+	}
 }
 
-func rateLimits(rl *dag.RateLimitPolicy) ([]*route.RateLimit) {
-	return []*route.RateLimit {
-        {
-            Stage:u32(0),
-            Actions: []*route.RateLimit_Action{
-              rateLimitAction(),
-            },
-	    },
-    }
+func rateLimits(rl *dag.RateLimitPolicy) []*route.RateLimit {
+	return []*route.RateLimit{
+		{
+			Stage: u32(0),
+			Actions: []*route.RateLimit_Action{
+				rateLimitAction(),
+			},
+		},
+	}
 }
 
 // RouteRoute creates a route.Route_Route for the services supplied.
@@ -60,9 +60,9 @@ func RouteRoute(r *dag.Route) *route.Route_Route {
 		HashPolicy:    hashPolicy(r),
 	}
 
-    if r.RateLimitPol != nil {
-        ra.RateLimits = rateLimits(r.RateLimitPol)
-    }
+	if r.RateLimitPol != nil {
+		ra.RateLimits = rateLimits(r.RateLimitPol)
+	}
 
 	if r.Websocket {
 		ra.UpgradeConfigs = append(ra.UpgradeConfigs,

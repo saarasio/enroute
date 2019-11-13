@@ -641,12 +641,11 @@ func validCA(s *v1.Secret) bool {
 	return len(s.Data["ca.crt"]) > 0
 }
 
-
 func v1b1RouteRLToDagRouteRL(ir_rl *ingressroutev1.RateLimitPolicy) *RateLimitPolicy {
-    if ir_rl == nil {
-        return nil
-    }
-    return &RateLimitPolicy{}
+	if ir_rl == nil {
+		return nil
+	}
+	return &RateLimitPolicy{}
 }
 
 func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch string, visited []*ingressroutev1.IngressRoute, host string, enforceTLS bool) {
@@ -675,7 +674,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 				PrefixRewrite: route.PrefixRewrite,
 				TimeoutPolicy: timeoutPolicy(route.TimeoutPolicy),
 				RetryPolicy:   retryPolicy(route.RetryPolicy),
-                RateLimitPol:  v1b1RouteRLToDagRouteRL(route.RLPolicy),
+				RateLimitPol:  v1b1RouteRLToDagRouteRL(route.RLPolicy),
 			}
 			for _, service := range route.Services {
 				if service.Port < 1 || service.Port > 65535 {

@@ -267,7 +267,7 @@ func TestHTTPConnectionManager(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := HTTPConnectionManager(tc.routename, tc.accesslog)
 			if diff := cmp.Diff(tc.want, got); diff != "" {
-                // TODO: Failing test because of rate limit filter added
+				// TODO: Failing test because of rate limit filter added
 				// t.Fatal(diff)
 			}
 		})

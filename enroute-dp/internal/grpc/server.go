@@ -14,7 +14,7 @@ package grpc
 
 import (
 	"context"
-    "fmt"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -145,7 +145,7 @@ func (s *ratelimitServer) rateLimitDescriptor() *rl.RateLimitResponse_Descriptor
 }
 
 func (s *ratelimitServer) ShouldRateLimit(c context.Context, req *rl.RateLimitRequest) (*rl.RateLimitResponse, error) {
-    fmt.Printf("Received rate limit request +[%v]\n", req)
+	fmt.Printf("Received rate limit request +[%v]\n", req)
 	response := &rl.RateLimitResponse{}
 	response.Statuses = make([]*rl.RateLimitResponse_DescriptorStatus, len(req.Descriptors))
 	finalCode := rl.RateLimitResponse_OK

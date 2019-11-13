@@ -76,7 +76,7 @@ type Route struct {
 	TimeoutPolicy *TimeoutPolicy `json:"timeoutPolicy,omitempty"`
 	// // The retry policy for this route
 	RetryPolicy *RetryPolicy `json:"retryPolicy,omitempty"`
-    // The rate limit policy for this route
+	// The rate limit policy for this route
 	RLPolicy *RateLimitPolicy `json:"rateLimitPolicy,omitempty"`
 }
 

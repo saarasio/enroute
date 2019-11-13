@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-    "strconv"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
@@ -15,6 +14,7 @@ import (
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/diff"
+	"strconv"
 	"sync"
 )
 
@@ -140,13 +140,13 @@ func saaras_ir_slice__to__v1b1_service_map(
 					},
 				}
 
-                // tell contour that this upstream is gRPC
-                if oneService.Upstream.Upstream_protocol == "grpc" {
-                    annotate := make(map[string]string)
-                    annotate["contour.heptio.com/upstream-protocol.h2c"] =
-                        strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
-                    one_service.Annotations = annotate
-                }
+				// tell contour that this upstream is gRPC
+				if oneService.Upstream.Upstream_protocol == "grpc" {
+					annotate := make(map[string]string)
+					annotate["contour.heptio.com/upstream-protocol.h2c"] =
+						strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
+					one_service.Annotations = annotate
+				}
 				svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
 			}
 		}

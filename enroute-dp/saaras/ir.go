@@ -154,7 +154,7 @@ type SaarasUpstream struct {
 	Upstream_strategy                   string
 	Upstream_validation_cacertificate   string
 	Upstream_validation_subjectname     string
-    Upstream_protocol                   string
+	Upstream_protocol                   string
 	Create_ts                           string
 	Update_ts                           string
 }
@@ -312,7 +312,7 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 		route := v1beta1.Route{
 			Match:    oneRoute.Route_prefix,
 			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
-            RLPolicy: &v1beta1.RateLimitPolicy{},
+			RLPolicy: &v1beta1.RateLimitPolicy{},
 		}
 		routes = append(routes, route)
 
