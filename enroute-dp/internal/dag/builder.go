@@ -643,8 +643,10 @@ func validCA(s *v1.Secret) bool {
 
 
 func v1b1RouteRLToDagRouteRL(ir_rl *ingressroutev1.RateLimitPolicy) *RateLimitPolicy {
-    return nil
-    //return &RateLimitPolicy{}
+    if ir_rl == nil {
+        return nil
+    }
+    return &RateLimitPolicy{}
 }
 
 func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch string, visited []*ingressroutev1.IngressRoute, host string, enforceTLS bool) {

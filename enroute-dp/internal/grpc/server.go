@@ -14,6 +14,7 @@ package grpc
 
 import (
 	"context"
+    "fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -22,6 +23,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	loadstats "github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v2"
+	rl "github.com/envoyproxy/go-control-plane/envoy/service/ratelimit/v2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,17 +51,24 @@ func NewAPI(log logrus.FieldLogger, resources map[string]Resource) *grpc.Server 
 		},
 	}
 
+	rls := &ratelimitServer{}
+
 	v2.RegisterClusterDiscoveryServiceServer(g, s)
 	v2.RegisterEndpointDiscoveryServiceServer(g, s)
 	v2.RegisterListenerDiscoveryServiceServer(g, s)
 	v2.RegisterRouteDiscoveryServiceServer(g, s)
 	discovery.RegisterSecretDiscoveryServiceServer(g, s)
+	rl.RegisterRateLimitServiceServer(g, rls)
 	return g
 }
 
 // grpcServer implements the LDS, RDS, CDS, and EDS, gRPC endpoints.
 type grpcServer struct {
 	xdsHandler
+}
+
+type ratelimitServer struct {
+	rl.RateLimitServiceServer
 }
 
 func (s *grpcServer) FetchClusters(_ context.Context, req *v2.DiscoveryRequest) (*v2.DiscoveryResponse, error) {
@@ -124,4 +133,30 @@ func (s *grpcServer) StreamRoutes(srv v2.RouteDiscoveryService_StreamRoutesServe
 
 func (s *grpcServer) StreamSecrets(srv discovery.SecretDiscoveryService_StreamSecretsServer) error {
 	return s.stream(srv)
+}
+
+func (s *ratelimitServer) getRateLimit(requestsPerUnit uint32, unit rl.RateLimitResponse_RateLimit_Unit) *rl.RateLimitResponse_RateLimit {
+	return &rl.RateLimitResponse_RateLimit{RequestsPerUnit: requestsPerUnit, Unit: unit}
+}
+
+func (s *ratelimitServer) rateLimitDescriptor() *rl.RateLimitResponse_DescriptorStatus {
+	l := s.getRateLimit(10, rl.RateLimitResponse_RateLimit_SECOND)
+	return &rl.RateLimitResponse_DescriptorStatus{Code: rl.RateLimitResponse_OK, CurrentLimit: l, LimitRemaining: 5}
+}
+
+func (s *ratelimitServer) ShouldRateLimit(c context.Context, req *rl.RateLimitRequest) (*rl.RateLimitResponse, error) {
+    fmt.Printf("Received rate limit request +[%v]\n", req)
+	response := &rl.RateLimitResponse{}
+	response.Statuses = make([]*rl.RateLimitResponse_DescriptorStatus, len(req.Descriptors))
+	finalCode := rl.RateLimitResponse_OK
+	for i, _ := range req.Descriptors {
+		descriptorStatus := s.rateLimitDescriptor()
+		response.Statuses[i] = descriptorStatus
+		if descriptorStatus.Code == rl.RateLimitResponse_OVER_LIMIT {
+			finalCode = descriptorStatus.Code
+		}
+	}
+
+	response.OverallCode = finalCode
+	return response, nil
 }

@@ -84,6 +84,7 @@ func idleTimeout(d time.Duration) *time.Duration {
 func httpRateLimitTypedConfig() *http.HttpFilter_TypedConfig {
     return &http.HttpFilter_TypedConfig{
         TypedConfig: any(&httprl.RateLimit{
+            Domain: "enroute",
             RateLimitService: &rl.RateLimitServiceConfig {
                 GrpcService: &core.GrpcService{
                     TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
@@ -105,7 +106,8 @@ func httpFilters() []*http.HttpFilter {
         Name: util.GRPCWeb,
         ConfigType: nil,
     }, {
-        Name: util.RateLimit,
+        //Name: util.RateLimit,
+        Name: "envoy.rate_limit",
         ConfigType: httpRateLimitTypedConfig(),
     }, {
         Name: util.Router,
