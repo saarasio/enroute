@@ -114,7 +114,11 @@ func httpFilters(vh *dag.VirtualHost) []*http.HttpFilter {
 		Name:       util.GRPCWeb,
 		ConfigType: nil,
 	}, {
-		//Name: util.RateLimit,
+        //  TODO
+        //  go-control-plane defines this constant as "envoy.ratelimit"
+        //  While we run this with envoy 1.12, "envoy.ratelimit" is not recognized
+        //  However "envoy.rate_limit" is recognized
+		//  Name: util.RateLimit,
 		Name:       "envoy.rate_limit",
 		ConfigType: httpRateLimitTypedConfig(vh),
 	}, {
