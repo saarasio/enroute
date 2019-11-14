@@ -117,7 +117,7 @@ func httpFilters() []*http.HttpFilter {
 
 // HTTPConnectionManager creates a new HTTP Connection Manager filter
 // for the supplied route and access log.
-func HTTPConnectionManager(routename, accessLogPath string) listener.Filter {
+func HTTPConnectionManager(routename, accessLogPath string, vh *dag.VirtualHost) listener.Filter {
 	return listener.Filter{
 		Name: util.HTTPConnectionManager,
 		ConfigType: &listener.Filter_TypedConfig{

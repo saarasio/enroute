@@ -236,6 +236,14 @@ type listenerVisitor struct {
 }
 
 func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.Listener {
+    var virtualHost *dag.VirtualHost
+    switch vh := root.(type) {
+    case *dag.VirtualHost:
+        virtualHost = vh
+    case *dag.SecureVirtualHost:
+        virtualHost = &vh.VirtualHost
+    }
+
 	lv := listenerVisitor{
 		ListenerVisitorConfig: lvc,
 		listeners: map[string]*v2.Listener{
@@ -254,7 +262,7 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.
 			ENVOY_HTTP_LISTENER,
 			lvc.httpAddress(), lvc.httpPort(),
 			proxyProtocol(lvc.UseProxyProto),
-			envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, lvc.httpAccessLog()),
+			envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, lvc.httpAccessLog(), virtualHost),
 		)
 
 	}
@@ -291,15 +299,18 @@ func secureProxyProtocol(useProxy bool) []listener.ListenerFilter {
 }
 
 func (v *listenerVisitor) visit(vertex dag.Vertex) {
+    var virtualHost *dag.VirtualHost
 	switch vh := vertex.(type) {
 	case *dag.VirtualHost:
 		// we only create on http listener so record the fact
 		// that we need to then double back at the end and add
 		// the listener properly.
 		v.http = true
+        virtualHost = vh
 	case *dag.SecureVirtualHost:
+        virtualHost = &vh.VirtualHost
 		filters := []listener.Filter{
-			envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, v.httpsAccessLog()),
+			envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, v.httpsAccessLog(), virtualHost),
 		}
 		alpnProtos := []string{"h2", "http/1.1"}
 		if vh.VirtualHost.TCPProxy != nil {
