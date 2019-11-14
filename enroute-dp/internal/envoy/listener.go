@@ -81,7 +81,7 @@ func idleTimeout(d time.Duration) *time.Duration {
 	return &d
 }
 
-func httpRateLimitTypedConfig() *http.HttpFilter_TypedConfig {
+func httpRateLimitTypedConfig(vh *dag.VirtualHost) *http.HttpFilter_TypedConfig {
 	return &http.HttpFilter_TypedConfig{
 		TypedConfig: any(&httprl.RateLimit{
 			Domain: "enroute",
@@ -98,7 +98,15 @@ func httpRateLimitTypedConfig() *http.HttpFilter_TypedConfig {
 	}
 }
 
-func httpFilters() []*http.HttpFilter {
+func httpFilters(vh *dag.VirtualHost) []*http.HttpFilter {
+
+    // TODO: Add filters on basis of what is configured on the VirtualHost
+    // If a RateLimit policy is configured on one of the routes,
+    // The value of vh.routes.RateLimitPol will be non-nil
+
+    // If any of the routes have a rate-limit policy, add the envoy.rate_limit
+    // filter here.
+
 	return []*http.HttpFilter{{
 		Name:       util.Gzip,
 		ConfigType: nil,
@@ -108,7 +116,7 @@ func httpFilters() []*http.HttpFilter {
 	}, {
 		//Name: util.RateLimit,
 		Name:       "envoy.rate_limit",
-		ConfigType: httpRateLimitTypedConfig(),
+		ConfigType: httpRateLimitTypedConfig(vh),
 	}, {
 		Name:       util.Router,
 		ConfigType: nil,
@@ -142,7 +150,7 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.VirtualHost)
 						},
 					},
 				},
-				HttpFilters: httpFilters(),
+				HttpFilters: httpFilters(vh),
 				HttpProtocolOptions: &core.Http1ProtocolOptions{
 					// Enable support for HTTP/1.0 requests that carry
 					// a Host: header. See #537.
