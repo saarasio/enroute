@@ -1,0 +1,9 @@
+queue:
+  name: Default
+  demands: cmake
+  timeoutInMinutes: 600
+
+steps:
+- task: CmdLine@2
+  inputs:
+    script: 'mkdir -p build && cd build && cmake .. && make -s'
