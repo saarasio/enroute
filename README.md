@@ -1,3 +1,5 @@
+![](enroute.png)
+
 # Enroute
 Enroute is lightweight control plane to stream xDS config to Envoy proxies.
 
