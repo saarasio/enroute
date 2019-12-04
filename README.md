@@ -7,5 +7,7 @@ Enroute is built as a light weight controller that can be deployed anywhere - on
 
 The architecture doesn't force a role on proxy (as a side-car, an intermediate or an edge proxy). Enroute was built to provide generic APIs to realize the target architecture.
 
-Blogs and additional documentation at - [getenroute.io](https://getenroute.io)
+This flexibility allows Enroute to assume the role of a generic control plane or an API gateway built.
+
+Blogs, Cookbooks, getting started, examples and additional documentation can be found at - [getenroute.io](https://getenroute.io)
 
