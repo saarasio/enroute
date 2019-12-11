@@ -18,6 +18,8 @@ import (
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/diff"
+	"net"
+	"os"
 	"strconv"
 	"sync"
 )
@@ -162,16 +164,35 @@ func saaras_upstream__to__v1_ep(mss *SaarasMicroService2) *v1.Endpoints {
 	ep_subsets := make([]v1.EndpointSubset, 0)
 	ep_subsets_addresses := make([]v1.EndpointAddress, 0)
 	ep_subsets_ports := make([]v1.EndpointPort, 0)
+	var ep_subset_address v1.EndpointAddress
 
 	ep_subsets_port := v1.EndpointPort{
 		Port: mss.Upstream.Upstream_port,
 	}
 	ep_subsets_ports = append(ep_subsets_ports, ep_subsets_port)
 
-	ep_subsets_address := v1.EndpointAddress{
-		IP: mss.Upstream.Upstream_ip,
+	if net.ParseIP(mss.Upstream.Upstream_ip) == nil {
+		ips, err := net.LookupIP(mss.Upstream.Upstream_ip)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Could not get IPs: %v\n", err)
+		}
+		for _, ip := range ips {
+			if ip.To4() != nil {
+				fmt.Printf("Resolved [%s] -> [%s]\n", mss.Upstream.Upstream_ip, ip.String())
+				ep_subset_address = v1.EndpointAddress{
+					IP:       ip.String(),
+					Hostname: mss.Upstream.Upstream_ip,
+				}
+				ep_subsets_addresses = append(ep_subsets_addresses, ep_subset_address)
+			}
+		}
+	} else {
+
+		ep_subset_address = v1.EndpointAddress{
+			IP: mss.Upstream.Upstream_ip,
+		}
+		ep_subsets_addresses = append(ep_subsets_addresses, ep_subset_address)
 	}
-	ep_subsets_addresses = append(ep_subsets_addresses, ep_subsets_address)
 
 	ep_subset := v1.EndpointSubset{
 		Addresses: ep_subsets_addresses,
