@@ -157,7 +157,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 							return
 						}
 						rr := route.Route{
-							Match:               envoy.PrefixMatch(r.Prefix),
+							Match:               envoy.RouteMatch(r.Prefix),
 							Action:              envoy.RouteRoute(r),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}
@@ -183,7 +183,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 							return
 						}
 						vhost.Routes = append(vhost.Routes, route.Route{
-							Match:               envoy.PrefixMatch(r.Prefix),
+							Match:               envoy.RouteMatch(r.Prefix),
 							Action:              envoy.RouteRoute(r),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						})

@@ -190,7 +190,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -244,7 +244,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/backend/80/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -302,7 +302,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*", // default backend
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -370,7 +370,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -382,7 +382,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -444,7 +444,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match: envoy.PrefixMatch("/"),
+							Match: envoy.RouteMatch("/"),
 							Action: &route.Route_Redirect{
 								Redirect: &route.RedirectAction{
 									SchemeRewriteSpecifier: &route.RedirectAction_HttpsRedirect{
@@ -461,7 +461,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/backend/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -532,7 +532,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -600,7 +600,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match: envoy.PrefixMatch("/"),
+							Match: envoy.RouteMatch("/"),
 							Action: &route.Route_Redirect{
 								Redirect: &route.RedirectAction{
 									SchemeRewriteSpecifier: &route.RedirectAction_HttpsRedirect{
@@ -617,7 +617,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -680,11 +680,11 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/ws1"),
+							Match:               envoy.RouteMatch("/ws1"),
 							Action:              websocketroute("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}, {
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -733,7 +733,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routetimeout("default/kuard/8080/da39a3ee5e", duration(0)),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -782,7 +782,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routetimeout("default/kuard/8080/da39a3ee5e", duration(0)),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -831,7 +831,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routetimeout("default/kuard/8080/da39a3ee5e", duration(90*time.Second)),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -888,7 +888,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "d31bb322ca62bb395acad00b3cbf45a3aa1010ca28dca7cddb4f7db786fa",
 						Domains: domains("my-very-very-long-service-host-name.subdomain.boring-dept.my.company"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/80/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -934,7 +934,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1063,7 +1063,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1112,7 +1112,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1166,7 +1166,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1319,7 +1319,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1376,7 +1376,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1425,7 +1425,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routeretry("default/kuard/8080/da39a3ee5e", "5xx,gateway-error", 0, 0),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1475,7 +1475,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routeretry("default/kuard/8080/da39a3ee5e", "5xx,gateway-error", 7, 0),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1525,7 +1525,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "*",
 						Domains: []string{"*"},
 						Routes: []route.Route{{
-							Match:               envoy.PrefixMatch("/"),
+							Match:               envoy.RouteMatch("/"),
 							Action:              routeretry("default/kuard/8080/da39a3ee5e", "5xx,gateway-error", 0, 150*time.Millisecond),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
 						}},
@@ -1596,7 +1596,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match: envoy.PrefixMatch("/"),
+							Match: envoy.RouteMatch("/"),
 							Action: &route.Route_Route{
 								Route: &route.RouteAction{
 									ClusterSpecifier: &route.RouteAction_WeightedClusters{
@@ -1680,7 +1680,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match: envoy.PrefixMatch("/"),
+							Match: envoy.RouteMatch("/"),
 							Action: &route.Route_Route{
 								Route: &route.RouteAction{
 									ClusterSpecifier: &route.RouteAction_WeightedClusters{
@@ -1765,7 +1765,7 @@ func TestRouteVisit(t *testing.T) {
 						Name:    "www.example.com",
 						Domains: domains("www.example.com"),
 						Routes: []route.Route{{
-							Match: envoy.PrefixMatch("/"),
+							Match: envoy.RouteMatch("/"),
 							Action: &route.Route_Route{
 								Route: &route.RouteAction{
 									ClusterSpecifier: &route.RouteAction_WeightedClusters{
