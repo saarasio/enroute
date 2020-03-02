@@ -1,7 +1,9 @@
 ![](enroute.png)
 
-# Enroute
-Enroute is lightweight control plane to stream xDS (LDS, RDS, CDS, EDS, SDS) config to Envoy proxies.
+# Enroute Universal Gateway
+Enroute Gateway is a Universal Cloud-Native API Gateway built using Envoy Proxy.
+
+Enroute also functions as a lightweight control plane to stream xDS (LDS, RDS, CDS, EDS, SDS) config to Envoy proxies.
 
 Enroute is built as a light weight controller that can be deployed anywhere - on premise, on the cloud, inside kubernetes, outside kubernetes, greenfield and brownfield deployments. Enroute is minimal functionality to run in all these environments.
 
