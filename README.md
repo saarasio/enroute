@@ -1,5 +1,14 @@
 ![](enroute.png)
 
+Universal Cloud Native Gateway with OpenAPI Spec support and advanced rate-limiting
+Run Any[where] - Any[Platform | Cloud | Service]
+
+One Control Plane to run Envoy Proxy as
+[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Stateless SideCar Gateway
+
+Extend using Global HTTP Filters and Route Filters
+![Config Model](https://getenroute.io/img/EnrouteConfigModel3.png)
+
 # Why Enroute?
 
 Digital transformation is a key initiative in organizations to [meet business requirements](https://getenroute.io/blog/devops-secops-k8s-cloud-adoption-micro-services/) . This need is driving cloud adoption with a more self-serve DevOps driven approach. Application and micro-services are run in Kubernetes and in public/private cloud with an automated continous delivery pipeline.
@@ -12,4 +21,3 @@ Enroute's powerful API brings automation and enables developer operations to tre
 
 
 Blogs, Cookbooks, getting started, examples and additional documentation can be found at - [getenroute.io](https://getenroute.io)
-
