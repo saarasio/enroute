@@ -1,14 +1,29 @@
 ![](enroute.png)
 
-Universal Cloud Native Gateway with OpenAPI Spec support and advanced rate-limiting
+# Universal Cloud Native Gateway with OpenAPI Spec support and advanced rate-limiting
 
-Run Any[where] - Any[Platform | Cloud | Service]
+Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
 One Control Plane to run Envoy Proxy as
 [Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Stateless SideCar Gateway
 
-Extend using Global HTTP Filters and Route Filters
-![Config Model](https://getenroute.io/img/EnrouteConfigModel3.png)
+<div class="row">
+  <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="400"/></div>
+  <div class="column"><img src="https://getenroute.io/img/topology-saaras-standalone-gw.png" alt="Standalone" width="400"/></div>
+</div>
+
+
+# ```enroutectl```: Program OpenAPI Spec on Enroute Universal API Gateway in a minute
+
+```enroutectl openapi --openapi-spec petstore.json --to-standalone-url http://localhost:1323/```
+
+# Extend using Global HTTP Filters and Route Filters
+<img src="https://getenroute.io/img/EnrouteConfigModel3.png" alt="Config Model" width="600"/>
+
+
+# Grafana Telemetry for Standalone Gateway
+
+![Grafana Telemetry on Standalone Gateway](https://getenroute.io/img/grafana-swagger.png)
 
 # Why Enroute?
 
