@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright(c) 2018-2019 Saaras Inc.
+
 /*
-Copyright 2019 Heptio
+Copyright 2019  Heptio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +27,7 @@ import (
 	time "time"
 
 	versioned "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
-	contour "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions/contour"
+	enroute "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions/enroute"
 	internalinterfaces "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -172,9 +175,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Contour() contour.Interface
+	Enroute() enroute.Interface
 }
 
-func (f *sharedInformerFactory) Contour() contour.Interface {
-	return contour.New(f, f.namespace, f.tweakListOptions)
+func (f *sharedInformerFactory) Enroute() enroute.Interface {
+	return enroute.New(f, f.namespace, f.tweakListOptions)
 }

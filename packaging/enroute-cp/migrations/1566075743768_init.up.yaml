@@ -48,6 +48,14 @@
             table:
               name: service_secret
               schema: saaras_db
+      - comment: null
+        name: service_filters
+        using:
+          foreign_key_constraint_on:
+            column: service_id
+            table:
+              name: service_filter
+              schema: saaras_db
       delete_permissions: []
       event_triggers: []
       insert_permissions: []
@@ -88,6 +96,25 @@
         name: org
         schema: saaras_db
       update_permissions: []
+    - array_relationships: []
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships:
+      - comment: null
+        name: proxy
+        using:
+          foreign_key_constraint_on: proxy_id
+      - comment: null
+        name: globalconfig
+        using:
+          foreign_key_constraint_on: globalconfig_id
+      select_permissions: []
+      table:
+        name: proxy_globalconfig
+        schema: saaras_db
+      update_permissions: []
     - array_relationships:
       - comment: null
         name: route_upstreams
@@ -96,6 +123,14 @@
             column: route_id
             table:
               name: route_upstream
+              schema: saaras_db
+      - comment: null
+        name: route_filters
+        using:
+          foreign_key_constraint_on:
+            column: route_id
+            table:
+              name: route_filter
               schema: saaras_db
       delete_permissions: []
       event_triggers: []
@@ -183,6 +218,25 @@
       is_enum: false
       object_relationships:
       - comment: null
+        name: filter
+        using:
+          foreign_key_constraint_on: filter_id
+      - comment: null
+        name: route
+        using:
+          foreign_key_constraint_on: route_id
+      select_permissions: []
+      table:
+        name: route_filter
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships: []
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships:
+      - comment: null
         name: secret
         using:
           foreign_key_constraint_on: secret_id
@@ -193,12 +247,85 @@
       update_permissions: []
     - array_relationships:
       - comment: null
+        name: route_filters
+        using:
+          foreign_key_constraint_on:
+            column: filter_id
+            table:
+              name: route_filter
+              schema: saaras_db
+      - comment: null
+        name: service_filters
+        using:
+          foreign_key_constraint_on:
+            column: filter_id
+            table:
+              name: service_filter
+              schema: saaras_db
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships: []
+      select_permissions: []
+      table:
+        name: filter
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships: []
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships:
+      - comment: null
+        name: service
+        using:
+          foreign_key_constraint_on: service_id
+      - comment: null
+        name: filter
+        using:
+          foreign_key_constraint_on: filter_id
+      select_permissions: []
+      table:
+        name: service_filter
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships:
+      - comment: null
+        name: proxy_globalconfigs
+        using:
+          foreign_key_constraint_on:
+            column: globalconfig_id
+            table:
+              name: proxy_globalconfig
+              schema: saaras_db
+      delete_permissions: []
+      event_triggers: []
+      insert_permissions: []
+      is_enum: false
+      object_relationships: []
+      select_permissions: []
+      table:
+        name: globalconfig
+        schema: saaras_db
+      update_permissions: []
+    - array_relationships:
+      - comment: null
         name: proxy_services
         using:
           foreign_key_constraint_on:
             column: proxy_id
             table:
               name: proxy_service
+              schema: saaras_db
+      - comment: null
+        name: proxy_globalconfigs
+        using:
+          foreign_key_constraint_on:
+            column: proxy_id
+            table:
+              name: proxy_globalconfig
               schema: saaras_db
       delete_permissions: []
       event_triggers: []

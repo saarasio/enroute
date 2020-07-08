@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +21,6 @@ import (
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	"github.com/gogo/protobuf/types"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	v1 "k8s.io/api/core/v1"
@@ -59,7 +57,7 @@ func TestSDSVisibility(t *testing.T) {
 	// not referenced by any ingress/ingressroute
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "1",
-		Resources:   []types.Any{},
+		Resources:   resources(t),
 		TypeUrl:     secretType,
 		Nonce:       "1",
 	})
@@ -85,9 +83,9 @@ func TestSDSVisibility(t *testing.T) {
 	// i1 has a default route to backend:80, but there is no matching service.
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "2",
-		Resources: []types.Any{
-			any(t, secret(s1)),
-		},
+		Resources: resources(t,
+			secret(s1),
+        ),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -135,9 +133,9 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "2",
-		Resources: []types.Any{
-			any(t, secret(s1)),
-		},
+		Resources: resources(t,
+			secret(s1),
+        ),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -147,9 +145,9 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "2",
-		Resources: []types.Any{
-			any(t, secret(s1)),
-		},
+		Resources: resources(t,
+			secret(s1),
+        ),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -174,9 +172,9 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 	// when an unrelated secret changes.
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "2",
-		Resources: []types.Any{
-			any(t, secret(s1)),
-		},
+		Resources: resources(t,
+			secret(s1),
+        ),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -226,7 +224,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	// SDS should be empty
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "2",
-		Resources:   []types.Any{},
+		Resources:   resources(t),
 		TypeUrl:     secretType,
 		Nonce:       "2",
 	})

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package saaras
 
 import (
@@ -10,7 +9,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/config"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 	"github.com/sirupsen/logrus"
@@ -20,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/diff"
 	"net"
 	"os"
+	"reflect"
 	"strconv"
 	"sync"
 )
@@ -29,13 +29,17 @@ var ENROUTE_NAME string
 type SaarasCloudCache struct {
 	mu sync.RWMutex
 
-	sdbpg      map[string]*config.SaarasProxyGroupConfig
+	sdbpg      map[string]*cfg.SaarasProxyGroupConfig
 	sdbsecrets map[string]*v1.Secret
 
 	ir  map[string]*v1beta1.IngressRoute
 	svc map[string]*v1.Service
 	ep  map[string]*v1.Endpoints
 	sec map[string]*v1.Secret
+
+	rf map[string]*v1beta1.RouteFilter
+	vf map[string]*v1beta1.HttpFilter
+	pc map[string]*v1beta1.GlobalConfig
 }
 
 // CloudEventHandler fetches state from the cloud and generates
@@ -50,9 +54,10 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 
 	for cloud_ir_id, cloud_ir := range *saaras_ir_cloud_map {
 		if len(cloud_ir_id) > 0 {
+            cache_key := cloud_ir.Spec.VirtualHost.Fqdn
 			if cached_ir, ok := sac.ir[cloud_ir_id]; ok {
 				// ir in cache, compare cache and one fetched from cp
-				if apiequality.Semantic.DeepEqual(cached_ir, cloud_ir) {
+				if apiequality.Semantic.DeepEqual(cached_ir, cloud_ir) && reflect.DeepEqual(cached_ir, cloud_ir) {
 					// Same, ignore
 					log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - cloud version same as cache\n",
 						cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
@@ -60,7 +65,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 					log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - cloud version NOT same as cache - OnUpdate()\n",
 						cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
 					log.Infof("Diff [%s]\n", diff.ObjectGoPrintDiff(cached_ir, cloud_ir))
-					sac.ir[cloud_ir_id] = cloud_ir
+					sac.ir[cache_key] = cloud_ir
 					reh.OnUpdate(cached_ir, cloud_ir)
 				}
 			} else {
@@ -70,7 +75,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 				if sac.ir == nil {
 					sac.ir = make(map[string]*v1beta1.IngressRoute)
 				}
-				sac.ir[cloud_ir_id] = cloud_ir
+				sac.ir[cache_key] = cloud_ir
 				reh.OnAdd(cloud_ir)
 			}
 		}
@@ -78,11 +83,12 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 
 	for cache_ir_id, cached_ir := range sac.ir {
 		if len(cache_ir_id) > 0 {
+            cache_key := cached_ir.Spec.VirtualHost.Fqdn
 			if _, ok := (*saaras_ir_cloud_map)[cache_ir_id]; !ok {
 				log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - removed from cloud - OnDelete()\n",
 					cache_ir_id, sac.ir[cache_ir_id].Spec.VirtualHost.Fqdn)
 				// Not found on cloud, remove
-				reh.OnDelete(cached_ir)
+				reh.OnDelete(cache_key)
 				delete(sac.ir, cache_ir_id)
 			}
 		}
@@ -114,7 +120,7 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 	}
 
 	// TODO: Generate OnDelete
-	for cache_svc_id, _ := range sac.svc {
+	for cache_svc_id := range sac.svc {
 		if len(cache_svc_id) > 0 {
 			if _, ok := (*v1b1_service_map)[cache_svc_id]; !ok {
 				log.Infof("update__v1b1_service__cache() - SVC [%s] removed from cloud- OnDelete()\n", cache_svc_id)
@@ -123,6 +129,88 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 			}
 		}
 	}
+}
+
+func saaras_ir_slice__to__v1b1_routefilter_map(
+	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.RouteFilter {
+	rf := make(map[string]*v1beta1.RouteFilter, 0)
+	for _, oneSaarasIRService := range *s {
+		for _, oneRoute := range oneSaarasIRService.Service.Routes {
+			for _, oneRF := range oneRoute.Route_filters {
+
+				one_routefilter := &v1beta1.RouteFilter{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      oneRF.Filter.Filter_name,
+						Namespace: ENROUTE_NAME,
+					},
+					Spec: v1beta1.RouteFilterSpec{
+						Name: oneRF.Filter.Filter_name,
+						Type: oneRF.Filter.Filter_type,
+						RouteFilterConfig: v1beta1.GenericRouteFilterConfig{
+							Config: oneRF.Filter.Filter_config,
+						},
+					},
+				}
+
+				rf[one_routefilter.ObjectMeta.Namespace+one_routefilter.ObjectMeta.Name+one_routefilter.Spec.Type] = one_routefilter
+
+			}
+		}
+	}
+	return &rf
+}
+
+func saaras_ir_slice__to__v1b1__pc_map(s *[]SaarasIngressRouteService,
+	log logrus.FieldLogger) *map[string]*v1beta1.GlobalConfig {
+
+	pc := make(map[string]*v1beta1.GlobalConfig, 0)
+	for _, oneSaarasIRService := range *s {
+		for _, onePC := range oneSaarasIRService.Proxy.ProxyGlobalconfigs {
+
+			one_pcf := &v1beta1.GlobalConfig{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      onePC.Globalconfig.GlobalconfigName,
+					Namespace: ENROUTE_NAME,
+				},
+				Spec: v1beta1.GlobalConfigSpec{
+					Name:   "proxy_config_name",
+					Type:   onePC.Globalconfig.GlobalconfigType,
+					Config: onePC.Globalconfig.Config,
+				},
+			}
+
+			pc[one_pcf.ObjectMeta.Namespace+one_pcf.ObjectMeta.Name+one_pcf.Spec.Type] = one_pcf
+
+		}
+	}
+	return &pc
+}
+
+func saaras_ir_slice__to__v1b1_httpfilter_map(
+	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.HttpFilter {
+	vf := make(map[string]*v1beta1.HttpFilter, 0)
+	for _, oneSaarasIRService := range *s {
+		for _, oneServiceFilter := range oneSaarasIRService.Service.Service_filters {
+
+			one_vhfilter := &v1beta1.HttpFilter{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      oneServiceFilter.Filter.Filter_name,
+					Namespace: ENROUTE_NAME,
+				},
+				Spec: v1beta1.HttpFilterSpec{
+					Name: oneServiceFilter.Filter.Filter_name,
+					Type: oneServiceFilter.Filter.Filter_type,
+					HttpFilterConfig: v1beta1.GenericHttpFilterConfig{
+						Config: oneServiceFilter.Filter.Filter_config,
+					},
+				},
+			}
+
+			vf[one_vhfilter.ObjectMeta.Namespace+one_vhfilter.ObjectMeta.Name+one_vhfilter.Spec.Type] = one_vhfilter
+
+		}
+	}
+	return &vf
 }
 
 func saaras_ir_slice__to__v1b1_service_map(
@@ -262,7 +350,7 @@ func (sac *SaarasCloudCache) update__v1b1__endpoint_cache(v1b1_endpoint_map *map
 // Generate OnAdd/OnUpdate/OnDelete on reh
 func (sac *SaarasCloudCache) update_saaras_pg_cache(
 	saaras_pg_ids *[]string,
-	saaras_pg_map *map[string]*config.SaarasProxyGroupConfig,
+	saaras_pg_map *map[string]*cfg.SaarasProxyGroupConfig,
 	reh *contour.ResourceEventHandler,
 	et *contour.EndpointsTranslator,
 	log logrus.FieldLogger) {
@@ -281,8 +369,8 @@ func (sac *SaarasCloudCache) update_saaras_pg_cache(
 			}
 		} else {
 			if sac.sdbpg == nil {
-				sac.sdbpg = make(map[string]*config.SaarasProxyGroupConfig)
-				config.GCC.Sdbpg = &(sac.sdbpg)
+				sac.sdbpg = make(map[string]*cfg.SaarasProxyGroupConfig)
+				cfg.GCC.Sdbpg = &(sac.sdbpg)
 			}
 			sac.sdbpg[k] = saaras_pg_cloud
 
@@ -319,13 +407,6 @@ func (sac *SaarasCloudCache) update_saaras_secret_cache(
 	reh *contour.ResourceEventHandler,
 	secrets *[]v1.Secret,
 	log logrus.FieldLogger) {
-	// Can use equality from here to compare v1.Secret
-	// kubernetes/pkg/api/testing/serialization_test.go
-	// apiequality "k8s.io/apimachinery/pkg/api/equality"
-	// apiequality.Semantic.DeepEqual(v1secret, res)
-
-	// TODO: SaarasCache can hold kubernetes api objects and the api equality methods can be used for comparison.
-	// that way we can do away with our own comparison operations
 	for _, secret := range *secrets {
 		// TODO - encode this in a function
 		secret_cache_map_key := secret.Namespace + "_" + secret.Name
@@ -357,6 +438,101 @@ func (sac *SaarasCloudCache) update_saaras_secret_cache(
 		} else {
 			reh.OnDelete(cached_v1_secret)
 			delete(sac.sdbsecrets, cached_v1_secret_key)
+		}
+	}
+}
+
+func (sac *SaarasCloudCache) update__v1__rf_cache(v1b1_rf_map *map[string]*v1beta1.RouteFilter,
+	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
+
+	for _, cloud_rf := range *v1b1_rf_map {
+		if cached_rf, ok := sac.rf[cloud_rf.ObjectMeta.Namespace+cloud_rf.ObjectMeta.Name+cloud_rf.Spec.Type]; ok {
+			if apiequality.Semantic.DeepEqual(cached_rf, cloud_rf) {
+				log.Infof("update__v1__rf_cache() - RF [%s] on saaras cloud same as cache\n", cloud_rf.ObjectMeta.Name)
+			} else {
+				log.Infof("update__v1__rf_cache() - RF [%s] on saaras cloud different from cache - OnUpdate()\n", cloud_rf.ObjectMeta.Name)
+				sac.rf[cloud_rf.ObjectMeta.Namespace+cloud_rf.ObjectMeta.Name+cloud_rf.Spec.Type] = cloud_rf
+				reh.OnUpdate(cached_rf, cloud_rf)
+			}
+		} else {
+			if sac.rf == nil {
+				sac.rf = make(map[string]*v1beta1.RouteFilter, 0)
+			}
+			sac.rf[cloud_rf.ObjectMeta.Namespace+cloud_rf.ObjectMeta.Name+cloud_rf.Spec.Type] = cloud_rf
+			log.Infof("update__v1__rf_cache() - RF [%s] on saaras cloud not in cache - OnAdd()\n", cloud_rf.ObjectMeta.Name)
+			reh.OnAdd(cloud_rf)
+		}
+	}
+
+	for cached_rf_id, cached_rf := range sac.rf {
+		if len(cached_rf_id) > 0 {
+			if _, ok := (*v1b1_rf_map)[cached_rf_id]; !ok {
+				log.Infof("update__v1__rf_cache() - RF [%s] removed from cloud - OnDelete()\n", cached_rf.ObjectMeta.Name)
+				delete(sac.rf, cached_rf_id)
+				reh.OnDelete(cached_rf)
+			}
+		}
+	}
+}
+
+func (sac *SaarasCloudCache) update__v1b1__pc(v1b1_pc_map *map[string]*v1beta1.GlobalConfig,
+	pct *contour.GlobalConfigTranslator, log logrus.FieldLogger) {
+
+	for _, cloud_pc := range *v1b1_pc_map {
+		if cached_pc, ok := sac.pc[cloud_pc.ObjectMeta.Namespace+cloud_pc.ObjectMeta.Name+cloud_pc.Spec.Type]; ok {
+			if apiequality.Semantic.DeepEqual(cached_pc, cloud_pc) {
+			} else {
+				sac.pc[cloud_pc.ObjectMeta.Namespace+cloud_pc.ObjectMeta.Name+cloud_pc.Spec.Type] = cloud_pc
+				pct.OnUpdate(cached_pc, cloud_pc)
+			}
+		} else {
+			if sac.pc == nil {
+				sac.pc = make(map[string]*v1beta1.GlobalConfig, 0)
+			}
+			sac.pc[cloud_pc.ObjectMeta.Namespace+cloud_pc.ObjectMeta.Name+cloud_pc.Spec.Type] = cloud_pc
+			pct.OnAdd(cloud_pc)
+		}
+	}
+
+	for cached_pc_id, cached_pc := range sac.pc {
+		if len(cached_pc_id) > 0 {
+			if _, ok := (*v1b1_pc_map)[cached_pc_id]; !ok {
+				delete(sac.pc, cached_pc_id)
+				pct.OnDelete(cached_pc)
+			}
+		}
+	}
+}
+
+func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*v1beta1.HttpFilter,
+	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
+
+	for _, cloud_vf := range *v1b1_vf_map {
+		if cached_vf, ok := sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type]; ok {
+			if apiequality.Semantic.DeepEqual(cached_vf, cloud_vf) {
+				log.Infof("update__v1__vf_cache() - RF [%s] on saaras cloud same as cache\n", cloud_vf.ObjectMeta.Name)
+			} else {
+				log.Infof("update__v1__vf_cache() - RF [%s] on saaras cloud different from cache - OnUpdate()\n", cloud_vf.ObjectMeta.Name)
+				sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type] = cloud_vf
+				reh.OnUpdate(cached_vf, cloud_vf)
+			}
+		} else {
+			if sac.vf == nil {
+				sac.vf = make(map[string]*v1beta1.HttpFilter, 0)
+			}
+			sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type] = cloud_vf
+			log.Infof("update__v1__vf_cache() - RF [%s] on saaras cloud not in cache - OnAdd()\n", cloud_vf.ObjectMeta.Name)
+			reh.OnAdd(cloud_vf)
+		}
+	}
+
+	for cached_vf_id, cached_vf := range sac.vf {
+		if len(cached_vf_id) > 0 {
+			if _, ok := (*v1b1_vf_map)[cached_vf_id]; !ok {
+				log.Infof("update__v1__vf_cache() - RF [%s] removed from cloud - OnDelete()\n", cached_vf.ObjectMeta.Name)
+				delete(sac.vf, cached_vf_id)
+				reh.OnDelete(cached_vf)
+			}
 		}
 	}
 }
@@ -439,30 +615,36 @@ func saaras_ir_slice__to__v1_secret(s *[]SaarasIngressRouteService, log logrus.F
 	return &secrets
 }
 
-// Convert saaras cloud state to k8s state
-// Generate events on SaarasCloudCache
-// - Generate OnFetch() for all state similar to k8s (ingress_route, service, endpoint)
-
-func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEventHandler, et *contour.EndpointsTranslator, log logrus.FieldLogger) {
+func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEventHandler, et *contour.EndpointsTranslator, pct *contour.GlobalConfigTranslator, log logrus.FieldLogger) {
 	sac.mu.Lock()
 	defer sac.mu.Unlock()
 	switch obj := obj.(type) {
 	case []SaarasIngressRouteService:
 		log.Infof("-- SaarasCloudCache.OnFetch() --\n")
+
 		v1b1_ir_map := saaras_ir_slice__to__v1b1_ir_map(&obj, log)
 		sac.update__v1b1_ir__cache(v1b1_ir_map, reh, log)
-		//spew.Dump(v1b1_ir_map)
+
 		v1b1_service_map := saaras_ir_slice__to__v1b1_service_map(&obj, log)
-		//spew.Dump(v1b1_service_slice)
 		sac.update__v1b1_service__cache(v1b1_service_map, reh, log)
-		//spew.Dump(v1b1_service_map)
+
 		v1b1_endpoint_map := saaras_ir_slice__to__v1b1_endpoint_map(&obj, log)
 		sac.update__v1b1__endpoint_cache(v1b1_endpoint_map, et, log)
+
 		v1_secret_map := saaras_ir_slice__to__v1_secret(&obj, log)
 		sac.update__v1__secret_cache(v1_secret_map, reh, log)
+
+		v1b1_rf_map := saaras_ir_slice__to__v1b1_routefilter_map(&obj, log)
+		sac.update__v1__rf_cache(v1b1_rf_map, reh, log)
+
+		v1b1_vf_map := saaras_ir_slice__to__v1b1_httpfilter_map(&obj, log)
+		sac.update__v1__vf_cache(v1b1_vf_map, reh, log)
+
+		v1b1_pc_map := saaras_ir_slice__to__v1b1__pc_map(&obj, log)
+		sac.update__v1b1__pc(v1b1_pc_map, pct, log)
 		break
 
-	case []config.SaarasProxyGroupConfig:
+	case []cfg.SaarasProxyGroupConfig:
 		saaras_cluster_ids, saaras_cluster_map := saaras_cluster_slice_to_map(&obj, log)
 		sac.update_saaras_pg_cache(saaras_cluster_ids, saaras_cluster_map, reh, et, log)
 		break
@@ -477,8 +659,7 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 	}
 }
 
-// ENTRY POINT, this function is called periodically in a loop
-func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsTranslator, scc *SaarasCloudCache, log logrus.FieldLogger) {
+func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsTranslator, pct *contour.GlobalConfigTranslator, scc *SaarasCloudCache, log logrus.FieldLogger) {
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
@@ -498,9 +679,6 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 		errors.Wrap(err, "decoding response")
 		log.Errorf("Error when decoding json [%v]\n", err)
 	}
-	sdb_spew_dump := bytes.NewBufferString(`Saaras_db_proxy_service`)
-	//spew.Fdump(sdb_spew_dump, gr.Data.Saaras_db_application)
-	spew.Fdump(sdb_spew_dump, gr)
-	//log.Debugf("-> %s", sdb_spew_dump.String())
-	scc.OnFetch(gr.Data.Saaras_db_proxy_service, reh, et, log)
+	spew.Dump(gr)
+	scc.OnFetch(gr.Data.Saaras_db_proxy_service, reh, et, pct, log)
 }

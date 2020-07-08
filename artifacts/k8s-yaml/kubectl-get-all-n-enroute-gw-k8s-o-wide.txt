@@ -1,0 +1,17 @@
+ubuntu@ip-10-0-10-0:~/yaml$ kubectl get all -n enroute-gw-k8s -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP                NODE                                        NOMINATED NODE   READINESS GATES
+pod/enroute-fd8bb79d6-2ngcz   2/2     Running   0          66m   192.168.120.205   ip-10-0-27-174.us-west-2.compute.internal   <none>           <none>
+pod/kuard-6b6995ff77-whsrw    1/1     Running   0          69m   192.168.120.204   ip-10-0-27-174.us-west-2.compute.internal   <none>           <none>
+
+NAME              TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)                      AGE     SELECTOR
+service/enroute   LoadBalancer   10.108.88.235   a8d37f4fd3cb011eab52402ae8f0c0f8-2044369347.us-west-2.elb.amazonaws.com   80:30244/TCP,443:30609/TCP   4h18m   app=enroute
+service/kuard     ClusterIP      10.99.47.100    <none>                                                                    80/TCP                       69m     app=kuard
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS      IMAGES                                                          SELECTOR
+deployment.apps/enroute   1/1     1            1           83m   enroute,envoy   saarasio/enroute-gw:latest,docker.io/envoyproxy/envoy:v1.11.0   app=enroute
+deployment.apps/kuard     1/1     1            1           69m   kuard           gcr.io/kuar-demo/kuard-amd64:1                                  app=kuard
+
+NAME                                 DESIRED   CURRENT   READY   AGE   CONTAINERS      IMAGES                                                          SELECTOR
+replicaset.apps/enroute-7fb7b76cd5   0         0         0       83m   enroute,envoy   saarasio/enroute-gw:latest,docker.io/envoyproxy/envoy:v1.11.0   app=enroute,pod-template-hash=7fb7b76cd5
+replicaset.apps/enroute-fd8bb79d6    1         1         1       66m   enroute,envoy   saarasio/enroute-gw:latest,docker.io/envoyproxy/envoy:v1.11.0   app=enroute,pod-template-hash=fd8bb79d6
+replicaset.apps/kuard-6b6995ff77     1         1         1       69m   kuard           gcr.io/kuar-demo/kuard-amd64:1                                  app=kuard,pod-template-hash=6b6995ff77

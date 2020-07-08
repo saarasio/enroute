@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -156,7 +155,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 							// no services for this route, skip it.
 							return
 						}
-						rr := route.Route{
+						rr := &route.Route{
 							Match:               envoy.RouteMatch(r.Prefix),
 							Action:              envoy.RouteRoute(r),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -182,7 +181,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 							// no services for this route, skip it.
 							return
 						}
-						vhost.Routes = append(vhost.Routes, route.Route{
+						vhost.Routes = append(vhost.Routes, &route.Route{
 							Match:               envoy.RouteMatch(r.Prefix),
 							Action:              envoy.RouteRoute(r),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -205,13 +204,13 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 	}
 }
 
-type virtualHostsByName []route.VirtualHost
+type virtualHostsByName []*route.VirtualHost
 
 func (v virtualHostsByName) Len() int           { return len(v) }
 func (v virtualHostsByName) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
 func (v virtualHostsByName) Less(i, j int) bool { return v[i].Name < v[j].Name }
 
-type longestRouteFirst []route.Route
+type longestRouteFirst []*route.Route
 
 func (l longestRouteFirst) Len() int      { return len(l) }
 func (l longestRouteFirst) Swap(i, j int) { l[i], l[j] = l[j], l[i] }

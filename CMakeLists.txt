@@ -35,6 +35,12 @@ endif()
 #set(image_registry "gcr.io/enroute-10102020")
 set(image_registry "saarasio")
 
+
+add_custom_target(gofmtmodified
+  COMMAND echo "git status | grep modified | grep \".go$\" | cut -d ' ' -f 4 | xargs -exec  gofmt -l -s -w"
+  VERBATIM
+)
+
 add_subdirectory(enroute-dp)
 add_subdirectory(enroute-cp)
 add_subdirectory(examples)

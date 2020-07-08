@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +21,7 @@ import (
 	"encoding/json"
 
 	jsonpatch "github.com/evanphx/json-patch"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -64,8 +63,8 @@ func (irs *IngressRouteStatus) setStatus(existing, updated *ingressroutev1.Ingre
 		return err
 	}
 
-	if irs != nil && irs.Client != nil && irs.Client.ContourV1beta1() != nil && existing != nil {
-		_, err = irs.Client.ContourV1beta1().IngressRoutes(existing.GetNamespace()).Patch(existing.GetName(), types.MergePatchType, patchBytes)
+	if irs != nil && irs.Client != nil && irs.Client.EnrouteV1beta1() != nil && existing != nil {
+		_, err = irs.Client.EnrouteV1beta1().IngressRoutes(existing.GetNamespace()).Patch(existing.GetName(), types.MergePatchType, patchBytes)
 	}
 	return err
 }

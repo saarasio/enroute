@@ -1,0 +1,61 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: enroute
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: enroute
+subjects:
+- kind: ServiceAccount
+  name: enroute
+  namespace: enroute-gw-k8s
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: enroute
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - nodes
+  - pods
+  - secrets
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: ["enroute.saaras.io"]
+  resources: ["ingressroutes", "globalconfigs", "httpfilters", "routefilters", "tlscertificatedelegations"]
+  verbs:
+  - get
+  - list
+  - watch
+  - put
+  - post
+  - patch
+---

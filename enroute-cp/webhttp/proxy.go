@@ -1,13 +1,11 @@
-// SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
-
-
 package webhttp
 
 import (
 	"bytes"
 	"github.com/labstack/echo/v4"
+	"github.com/saarasio/enroute/enroute-dp/ratelim"
 	"github.com/saarasio/enroute/enroute-dp/saaras"
+	"github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -49,6 +47,12 @@ type Secret struct {
 	Secret_key  string `json:"secret_key" xml:"secret_key" form:"secret_key" query:"secret_key"`
 	Secret_cert string `json:"secret_cert" xml:"secret_cert" form:"secret_cert" query:"secret_cert"`
 	Secret_sni  string `json:"secret_sni" xml:"secret_sni" form:"secret_sni" query:"secret_sni"`
+}
+
+type GlobalConfig struct {
+	Globalconfig_name string `json:"globalconfig_name" xml:"globalconfig_name" form:"globalconfig_name" query:"globalconfig_name"`
+	Globalconfig_type string `json:"globalconfig_type" xml:"globalconfig_type" form:"globalconfig_type" query:"globalconfig_type"`
+	Config            string `json:"config" xml:"config" form:"config" query:"config"`
 }
 
 var QCreateProxy string = `
@@ -226,104 +230,39 @@ query get_proxy_detail {
   saaras_db_proxy {
     proxy_id
     proxy_name
-    create_ts
-    update_ts
-    proxy_services {
-      service {
-        service_id
-        service_name
-        fqdn
-        create_ts
-        update_ts
-        service_secrets {
-          secret {
-            secret_id
-            secret_name
-            secret_key
-            secret_cert
-            create_ts
-            update_ts
-          }
-        }
-        routes {
-          route_id
-          route_name
-          route_prefix
-          create_ts
-          update_ts
-          route_upstreams {
-            upstream {
-              upstream_id
-              upstream_name
-              upstream_ip
-              upstream_port
-              upstream_hc_healthythresholdcount
-              upstream_hc_host
-              upstream_hc_intervalseconds
-              upstream_hc_path
-              upstream_hc_timeoutseconds
-              upstream_hc_unhealthythresholdcount
-              upstream_strategy
-              upstream_validation_cacertificate
-              upstream_validation_subjectname
-              upstream_weight
-            }
-          }
-        }
+    proxy_globalconfigs {
+      globalconfig {
+        globalconfig_name
+        globalconfig_type
       }
     }
-  }
-}
-`
-
-var QGetOneProxyDetail = `
-query get_one_proxy_detail($proxy_name:String!) {
-  saaras_db_proxy(where: {proxy_name: {_eq: $proxy_name}}) {
-    proxy_id
-    proxy_name
-    create_ts
-    update_ts
     proxy_services {
       service {
         service_id
         service_name
         fqdn
-        create_ts
-        update_ts
         service_secrets {
           secret {
-            secret_id
             secret_name
             secret_key
             secret_cert
-            create_ts
-            update_ts
           }
         }
         routes {
           route_id
           route_name
           route_prefix
-          create_ts
-          update_ts
+          route_filters {
+            filter {
+              filter_name
+             filter_type
+            }
+          }
           route_upstreams {
             upstream {
-              upstream_id
               upstream_name
               upstream_ip
               upstream_port
-              upstream_hc_path
-              upstream_hc_host
-              upstream_hc_intervalseconds
-              upstream_hc_timeoutseconds
-              upstream_hc_unhealthythresholdcount
-              upstream_hc_healthythresholdcount
-              upstream_strategy
-              upstream_validation_cacertificate
-              upstream_validation_subjectname
-              upstream_weight
-    			  create_ts
-    			  update_ts
             }
           }
         }
@@ -339,13 +278,23 @@ var PORT string
 
 var SECRET string
 
+func isGlobalConfigTypeValid(filter_type string) bool {
+	switch filter_type {
+	case saarasconfig.PROXY_CONFIG_RATELIMIT:
+		return true
+	default:
+		return false
+	}
+	return false
+}
+
 // @Summary Create a proxy
 // @Description Create a proxy
 // @Tags proxy
 // @Accept  json
 // @Produce  json
 // @Param Name body webhttp.Proxy true "Name of proxy to create"
-// @Success 201 {} integer OK
+// @Success 201 {} int OK
 // @Router /proxy [post]
 // @Security ApiKeyAuth
 func POST_Proxy(c echo.Context) error {
@@ -379,7 +328,7 @@ func POST_Proxy(c echo.Context) error {
 // @Tags proxy
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy [get]
 // @Security ApiKeyAuth
 func GET_Proxy(c echo.Context) error {
@@ -403,7 +352,7 @@ func GET_Proxy(c echo.Context) error {
 // @Tags proxy, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/dump [get]
 // @Security ApiKeyAuth
 func GET_Proxy_Detail(c echo.Context) error {
@@ -428,7 +377,7 @@ func GET_Proxy_Detail(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param proxy_name path string true "Name of proxy for which to list services"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/dump/{proxy_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Proxy_Detail(c echo.Context) error {
@@ -438,6 +387,51 @@ func GET_One_Proxy_Detail(c echo.Context) error {
 
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
+
+	var QGetOneProxyDetail = `
+query get_one_proxy_detail($proxy_name:String!) {
+  saaras_db_proxy(where: {proxy_name: {_eq: $proxy_name}}) {
+    proxy_name
+    proxy_globalconfigs {
+      globalconfig {
+        globalconfig_name
+        globalconfig_type
+      }
+    }
+    proxy_services {
+      service {
+        service_name
+        fqdn
+        service_secrets {
+          secret {
+            secret_name
+            secret_key
+            secret_cert
+          }
+        }
+        routes {
+          route_name
+          route_prefix
+          route_filters {
+            filter {
+              filter_name
+              filter_type
+            }
+          }
+          route_upstreams {
+            upstream {
+              upstream_name
+              upstream_ip
+              upstream_port
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+`
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	proxy_name := c.Param("proxy_name")
@@ -456,7 +450,7 @@ func GET_One_Proxy_Detail(c echo.Context) error {
 // @Param proxy_name path string true "Name of proxy for which to list services"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/{proxy_name}/service [get]
 // @Security ApiKeyAuth
 func GET_Proxy_Service(c echo.Context) error {
@@ -477,13 +471,532 @@ func GET_Proxy_Service(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, buf.Bytes())
 }
 
+// @Summary Get all globalconfigs in db
+// @Description Get all globalconfigs in db
+// @Tags globalconfig
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /globalconfig [get]
+// @Security ApiKeyAuth
+func GET_GlobalConfig(c echo.Context) error {
+	var buf bytes.Buffer
+
+	var args map[string]string
+	args = make(map[string]string)
+
+	Q := `
+
+query get_all_globalconfig {
+    saaras_db_globalconfig {
+    globalconfig_id
+    globalconfig_name
+    globalconfig_type
+    config_json
+  }
+}
+    `
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQuery(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	buf2 := bytes.Replace(buf.Bytes(), []byte("config_json"), []byte("config"), -1)
+
+	return c.JSONBlob(http.StatusOK, buf2)
+}
+
+// @Summary Get globalconfigs for provided name
+// @Description Get globalconfigs for provided name
+// @Tags globalconfig
+// @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /globalconfig/{globalconfig_name} [get]
+// @Security ApiKeyAuth
+func GET_One_GlobalConfig(c echo.Context) error {
+	var buf bytes.Buffer
+
+	var args map[string]string
+	args = make(map[string]string)
+
+	Q := `
+
+query get_all_globalconfig($globalconfig_name: String!) {
+  saaras_db_globalconfig(where: {globalconfig_name: {_eq: $globalconfig_name}}) {
+    globalconfig_id
+    globalconfig_name
+    globalconfig_type
+    config_json
+  }
+}
+
+`
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	globalconfig_name := c.Param("globalconfig_name")
+	args["globalconfig_name"] = globalconfig_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQuery(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// @Summary Create globalconfig
+// @Description Create globalconfig
+// @Tags globalconfig
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /globalconfig [post]
+// @Security ApiKeyAuth
+func POST_GlobalConfig(c echo.Context) error {
+	var buf bytes.Buffer
+
+	var args map[string]interface{}
+	args = make(map[string]interface{})
+
+	Q := `
+
+    mutation insert_into_globalconfig($globalconfig_name: String!, $globalconfig_type: String, $config: String!, $config_json: jsonb) {
+        insert_saaras_db_globalconfig
+        (
+            objects:
+            {
+                globalconfig_name: $globalconfig_name,
+                globalconfig_type: $globalconfig_type,
+                config: $config,
+                config_json: $config_json
+            },
+            on_conflict: { constraint: proxy_config_pkey, update_columns: update_ts }
+        ) 
+        {
+            affected_rows
+        }
+    }
+
+`
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	gc := new(GlobalConfig)
+	if err := c.Bind(gc); err != nil {
+		return err
+	}
+
+	if len(gc.Globalconfig_name) == 0 {
+		return c.JSON(http.StatusBadRequest, "Please provide name of Global config using Globalconfig_name field")
+	}
+
+	if !isGlobalConfigTypeValid(gc.Globalconfig_type) {
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Invalid globalconfig type\"}")
+	}
+
+	args["globalconfig_name"] = gc.Globalconfig_name
+	args["globalconfig_type"] = gc.Globalconfig_type
+	args["config"] = gc.Config
+	var err2 error
+
+	if len(gc.Config) > 0 && gc.Config != "" {
+		cfg, err := ratelim.UnmarshalRateLimitGlobalConfig(gc.Config)
+		err2 = err
+		if err == nil {
+			args["config_json"] = cfg
+		} else {
+			// TODO: bad config, return with error !!
+			log.Errorf("Failed to decode [%+v] \n", gc.Config)
+		}
+	}
+
+	if _, ok := args["config_json"]; !ok {
+		if err2 != nil {
+			var rlc ratelim.RateLimitGlobalConfig
+			rlc.Domain = "enroute"
+			args["config_json"] = rlc
+		}
+	}
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQueryGenericVals(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// @Summary Set globalconfig from file
+// @Description Set globalconfig from file
+// @Tags globalconfig
+// @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /globalconfig/{globalconfig_name}/config [post]
+// @Security ApiKeyAuth
+func POST_GlobalConfig_Config(c echo.Context) error {
+	var buf bytes.Buffer
+
+	var args map[string]interface{}
+	args = make(map[string]interface{})
+
+	Q := `
+
+    mutation update_globalconfig($globalconfig_name: String!, $config: String!, $config_json: jsonb) {
+  update_saaras_db_globalconfig (
+    where:
+    {
+      globalconfig_name: {_eq: $globalconfig_name}
+    }
+    _set:
+    {
+      config: $config
+      config_json: $config_json
+    }
+  )
+  {
+    affected_rows
+  }
+}
+
+`
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	globalconfig_name := c.Param("globalconfig_name")
+
+	// Read config from file
+	file, err := c.FormFile("Config")
+	if file == nil {
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Config empty\"}")
+	}
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+	buf2 := new(bytes.Buffer)
+	buf2.ReadFrom(src)
+	config_from_file := buf2.String()
+
+	// We already have the globalconfig_name from params
+	// gc_name := c.Param("globalconfig_name")
+
+	if len(globalconfig_name) == 0 {
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide globalconfig name\"}")
+	}
+
+	args["globalconfig_name"] = globalconfig_name
+	args["config"] = config_from_file
+
+	if len(config_from_file) > 0 {
+		cfg, err := ratelim.UnmarshalRateLimitGlobalConfig(config_from_file)
+		if err == nil {
+			args["config_json"] = cfg
+		} else {
+			// TODO: bad config, return with error !!
+			log.Errorf("Failed to decode [%+v] \n", config_from_file)
+		}
+	}
+
+	if _, ok := args["config_json"]; !ok {
+		args["config_json"] = struct {
+			Domain string `json:"domain"`
+		}{
+			Domain: "enroute",
+		}
+	}
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQueryGenericVals(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// @Summary Update globalconfig type
+// @Description Update globalconfig type
+// @Tags globalconfig
+// @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /globalconfig/{globalconfig_name} [patch]
+// @Security ApiKeyAuth
+func PATCH_GlobalConfig(c echo.Context) error {
+	var buf bytes.Buffer
+
+	var args map[string]interface{}
+	args = make(map[string]interface{})
+
+	Q := `
+    mutation update_globalconfig($globalconfig_name: String! $globalconfig_type: String!) {
+        update_saaras_db_globalconfig (
+            where:
+            {
+                globalconfig_name: {_eq: $globalconfig_name}
+            }
+            _set:
+            {
+                globalconfig_type: $globalconfig_type
+            }
+        )
+        {
+            affected_rows
+        }
+    }
+`
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	gc := new(GlobalConfig)
+	if err := c.Bind(gc); err != nil {
+		return err
+	}
+
+	globalconfig_name := c.Param("globalconfig_name")
+
+	if !isGlobalConfigTypeValid(gc.Globalconfig_type) {
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Invalid globalconfig type\"}")
+	}
+
+	args["globalconfig_name"] = globalconfig_name
+	args["globalconfig_type"] = gc.Globalconfig_type
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQueryGenericVals(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// @Summary Delete globalconfig
+// @Description Delete globalconfig
+// @Tags globalconfig
+// @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /globalconfig/{globalconfig_name} [delete]
+// @Security ApiKeyAuth
+func DELETE_GlobalConfig(c echo.Context) error {
+	var buf bytes.Buffer
+
+	var args map[string]string
+	args = make(map[string]string)
+
+	Q := `
+
+mutation delete_globalconfig($globalconfig_name: String!) {
+  delete_saaras_db_globalconfig (
+    where:
+    {
+      globalconfig_name: {_eq: $globalconfig_name}
+    }
+  )
+  {
+    affected_rows
+  }
+}
+
+`
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	globalconfig_name := c.Param("globalconfig_name")
+	args["globalconfig_name"] = globalconfig_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+	if err := saaras.RunDBQuery(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// @Summary Associate a globalconfig with proxy
+// @Description Associate a globalconfig with proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy"
+// @Param globalconfig_name path string true "Name of globalconfig"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /proxy/{proxy_name}/globalconfig/{globalconfig_name} [post]
+// @Security ApiKeyAuth
+func POST_Proxy_GlobalConfig_Association(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	proxy_name := c.Param("proxy_name")
+	globalconfig_name := c.Param("globalconfig_name")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	args["proxy_name"] = proxy_name
+	args["globalconfig_name"] = globalconfig_name
+
+	var Q = `
+
+mutation create_proxy_globalconfig($proxy_name: String!, $globalconfig_name: String!) {
+  insert_saaras_db_proxy_globalconfig(objects: 
+    {
+      proxy: 
+      {
+        data: 
+        {
+          proxy_name: $proxy_name
+        }, 
+        on_conflict: 
+        {
+          constraint: proxy_proxy_name_key, 
+          update_columns: update_ts
+        }
+      }, 
+      globalconfig: 
+      {
+        data: 
+        {
+          globalconfig_name: $globalconfig_name
+        }, 
+        on_conflict: 
+        {
+          constraint: globalconfig_globalconfig_name_key, 
+          update_columns: update_ts
+        }
+      }
+    }) {
+    affected_rows
+  }
+}
+
+    `
+
+	if err := saaras.RunDBQuery(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusCreated, buf.Bytes())
+}
+
+// @Summary Disassociate a globalconfig from proxy
+// @Description Disassociate a globalconfig from proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy"
+// @Param globalconfig_name path string true "Name of globalconfig"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /proxy/{proxy_name}/globalconfig/{globalconfig_name} [delete]
+// @Security ApiKeyAuth
+func DELETE_Proxy_GlobalConfig_Association(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+
+	proxy_name := c.Param("proxy_name")
+	globalconfig_name := c.Param("globalconfig_name")
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	args["proxy_name"] = proxy_name
+	args["globalconfig_name"] = globalconfig_name
+
+	var Q = `
+
+mutation delete_proxy_globalconfig($globalconfig_name: String!, $proxy_name: String!) {
+  delete_saaras_db_proxy_globalconfig(where: {
+        _and:
+            {
+                proxy: {proxy_name: {_eq: $proxy_name}},
+                globalconfig: {globalconfig_name: {_eq: $globalconfig_name}}
+            }
+        }) {
+    affected_rows
+  }
+}
+
+`
+
+	if err := saaras.RunDBQuery(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
+// @Summary Return specified globalconfig associated with this proxy
+// @Description Return specified globalconfig associated with this proxy
+// @Tags proxy
+// @Param proxy_name path string true "Name of proxy for which to list service"
+// @Param globalconfig_name path string true "Name of globalconfig to list"
+// @Accept  json
+// @Produce  json
+// @Success 200 {} int OK
+// @Router /proxy/{proxy_name}/globalconfig/{globalconfig_name} [get]
+// @Security ApiKeyAuth
+func GET_Proxy_GlobalConfig_Association(c echo.Context) error {
+	var buf bytes.Buffer
+	var args map[string]string
+	args = make(map[string]string)
+
+	log2 := logrus.StandardLogger()
+	log := log2.WithField("context", "web-http")
+	proxy_name := c.Param("proxy_name")
+
+	args["proxy_name"] = proxy_name
+
+	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
+	var Q = `
+
+query get_proxy_globalconfig2($proxy_name: String!) {
+  saaras_db_globalconfig(
+    where:
+    {
+      proxy_globalconfigs: {proxy: {proxy_name:{_eq: $proxy_name}}}
+    }
+  ) {
+    globalconfig_id
+    globalconfig_name
+    globalconfig_type
+    create_ts
+    update_ts
+  }
+}
+
+	`
+
+	if err := saaras.RunDBQuery(url, Q, &buf, args, log); err != nil {
+		log.Errorf("Error when running http request [%v]\n", err)
+	}
+
+	return c.JSONBlob(http.StatusOK, buf.Bytes())
+}
+
 // @Summary Delete a proxy
 // @Description Delete a proxy
 // @Tags proxy
 // @Param proxy_name path string true "Name of proxy to delete"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/{proxy_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Proxy(c echo.Context) error {
@@ -512,7 +1025,7 @@ func DELETE_Proxy(c echo.Context) error {
 // @Param proxy_name path string true "Name of proxy to delete"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/{proxy_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Proxy(c echo.Context) error {
@@ -542,7 +1055,7 @@ func GET_One_Proxy(c echo.Context) error {
 // @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/{proxy_name}/service/{service_name} [post]
 // @Security ApiKeyAuth
 func POST_Proxy_Service_Association(c echo.Context) error {
@@ -574,7 +1087,7 @@ func POST_Proxy_Service_Association(c echo.Context) error {
 // @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/{proxy_name}/service/{service_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Proxy_Service_Association(c echo.Context) error {
@@ -606,7 +1119,7 @@ func DELETE_Proxy_Service_Association(c echo.Context) error {
 // @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /proxy/{proxy_name}/service/{service_name} [get]
 // @Security ApiKeyAuth
 func GET_Proxy_Service_Association(c echo.Context) error {
@@ -644,6 +1157,14 @@ func Add_proxy_routes(e *echo.Echo) {
 	e.DELETE("/proxy/:proxy_name", DELETE_Proxy)
 	e.GET("/proxy/:proxy_name", GET_One_Proxy)
 
+	// GlobalConfig CRUD
+	e.GET("/globalconfig", GET_GlobalConfig)
+	e.GET("/globalconfig/:globalconfig_name", GET_One_GlobalConfig)
+	e.POST("/globalconfig", POST_GlobalConfig)
+	e.POST("/globalconfig/:globalconfig_name/config", POST_GlobalConfig_Config)
+	e.DELETE("/globalconfig/:globalconfig_name", DELETE_GlobalConfig)
+	e.PATCH("/globalconfig/:globalconfig_name", PATCH_GlobalConfig)
+
 	// Proxy to Service association with implied service CRUD
 	// Only the GET makes sense here?
 	e.GET("/proxy/:proxy_name/service", GET_Proxy_Service)
@@ -652,6 +1173,11 @@ func Add_proxy_routes(e *echo.Echo) {
 	e.POST("/proxy/:proxy_name/service/:service_name", POST_Proxy_Service_Association)
 	e.GET("/proxy/:proxy_name/service/:service_name", GET_Proxy_Service_Association)
 	e.DELETE("/proxy/:proxy_name/service/:service_name", DELETE_Proxy_Service_Association)
+
+	// Proxy to Globalconfig association
+	e.POST("/proxy/:proxy_name/globalconfig/:globalconfig_name", POST_Proxy_GlobalConfig_Association)
+	e.GET("/proxy/:proxy_name/globalconfig", GET_Proxy_GlobalConfig_Association)
+	e.DELETE("/proxy/:proxy_name/globalconfig/:globalconfig_name", DELETE_Proxy_GlobalConfig_Association)
 
 	// Support for operational-verbs
 	e.GET("/proxy/dump", GET_Proxy_Detail)

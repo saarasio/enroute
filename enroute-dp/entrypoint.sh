@@ -30,8 +30,31 @@ else
 	echo "\$ENROUTE_CP_PROTO set to $ENROUTE_CP_PROTO"
 fi
 
-
-
-/enroute/enroute serve --xds-port=8001 --xds-address=127.0.0.1 --enroute-cp-ip $ENROUTE_CP_IP --enroute-cp-port $ENROUTE_CP_PORT --enroute-cp-proto $ENROUTE_CP_PROTO --enroute-name $ENROUTE_NAME &
+#log() {
+#    TIMESTAMP=$(date -u "+%Y-%m-%dT%H:%M:%S.000+0000")
+#    MESSAGE=$1
+#    echo "{\"timestamp\":\"$TIMESTAMP\",\"level\":\"info\",\"type\":\"startup\",\"detail\":{\"kind\":\"enroute-dp\",\"info\":\"$MESSAGE\"}}"
+#}
+#
+#
+## wait for a port to be ready
+#wait_for_port() {
+#    local PORT=$1
+#    local TIMEOUT=15
+#    log "waiting for $PORT to be ready"
+#    for i in `seq 1 TIMEOUT`;
+#    do
+#        nc -z localhost $PORT > /dev/null 2>&1 && log "port $PORT is ready" && return
+#        sleep 1
+#    done
+#    log "failed waiting for $PORT" && exit 1
+#}
+#
+# Start redis server and make it available for envoy and enroute
+/bin/redis-server --port 6379 --loglevel verbose &
+# TODO: Test this
+# wait_for_port 6379
+sleep 5
+/enroute/enroute serve --xds-port=8001 --xds-address=127.0.0.1 --enroute-cp-ip $ENROUTE_CP_IP --enroute-cp-port $ENROUTE_CP_PORT --enroute-cp-proto $ENROUTE_CP_PROTO --enroute-name $ENROUTE_NAME --enable-ratelimit &
 sleep 5
 /usr/local/bin/envoy -c /enroute/config.json --service-node "service-node" --service-cluster "$ENROUTE_NAME" --log-level trace 

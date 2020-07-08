@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kuard
+  name: kuard
+  namespace: enroute-gw-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuard
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      containers:
+      - image: gcr.io/kuar-demo/kuard-amd64:1
+        name: kuard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kuard
+  name: kuard
+  namespace: enroute-gw-k8s
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: kuard
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: IngressRoute
+metadata:
+  labels:
+    app: kuard
+  name: kuard
+  namespace: enroute-gw-k8s
+spec:
+  virtualhost:
+    fqdn: kuard.local
+    tls:
+      secretName: tls-secret-v0.3.0-kuard-local
+    filters:
+      - name: luatestfilter
+        type: http_filter_lua
+  routes:
+    - match: /
+      services:
+        - name: kuard
+          port: 80
+      filters:
+        - name: rl2
+          type: route_filter_ratelimit
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: GlobalConfig
+metadata:
+  labels:
+    app: kuard
+  name: rl-global-config
+  namespace: enroute-gw-k8s
+spec:
+  name: rl-global-config
+  type: globalconfig_ratelimit
+  config: |
+        {
+          "domain": "enroute",
+          "descriptors" :
+          [
+            {
+              "key": "generic_key",
+              "value" : "default",
+              "descriptors" :
+              [
+                {
+                  "key" : "remote_address",
+                  "rate_limit" :
+                  {
+                    "unit" : "second",
+                    "requests_per_unit" : 0
+                  }
+                }
+              ]
+            },
+            {
+              "key" : "remote_address",
+              "rate_limit" :
+              {
+                "unit" : "second",
+                "requests_per_unit" : 0
+              }
+            }
+          ]
+        }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: RouteFilter
+metadata:
+  labels:
+    app: kuard
+  name: rl2
+  namespace: enroute-gw-k8s
+spec:
+  name: rl2
+  type: route_filter_ratelimit
+  routeFilterConfig:
+    config: |
+          { 
+            "descriptors" : 
+            [ 
+              {
+                "remote_address": "{}"
+              }
+            ] 
+          }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: HttpFilter
+metadata:
+  labels:
+    app: kuard
+  name: luatestfilter
+  namespace: enroute-gw-k8s
+spec:
+  name: luatestfilter
+  type: http_filter_lua
+  httpFilterConfig:
+    config: |
+        function envoy_on_request(request_handle)
+           request_handle:logInfo("Hello World request 3");
+        end
+
+        function envoy_on_response(response_handle)
+           response_handle:logInfo("Hello World response 3");
+        end
+---

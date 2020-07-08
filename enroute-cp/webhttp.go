@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package main
 
 import (
@@ -18,6 +17,7 @@ import (
 // @title Enroute API
 // @version 1.0
 // @description APIs to configure multiple envoy proxies
+// @name Enroute Universal Standalone API Gateway
 // @contact.name API Support
 // @contact.url https://saaras.io/
 // @securityDefinitions.apikey ApiKeyAuth
@@ -26,7 +26,7 @@ import (
 func main() {
 	e := echo.New()
 
-    // enviornment
+	// enviornment
 	webhttp.HOST = os.Getenv("DB_HOST")
 	webhttp.PORT = os.Getenv("DB_PORT")
 	webhttp.SECRET = os.Getenv("WEBAPP_SECRET")
@@ -57,9 +57,9 @@ func main() {
 		},
 	}
 
-    if webhttp.SECRET != "" {
-	    e.Use(middleware.KeyAuthWithConfig(config))
-    }
+	if webhttp.SECRET != "" {
+		e.Use(middleware.KeyAuthWithConfig(config))
+	}
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.Use(middleware.Logger())
 
@@ -68,5 +68,6 @@ func main() {
 	webhttp.Add_service_routes(e)
 	webhttp.Add_upstream_routes(e)
 	webhttp.Add_secret_routes(e)
+	webhttp.Add_filter_routes(e)
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: httpbin
+  name: httpbin
+  namespace: enroute-gw-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin
+  template:
+    metadata:
+      labels:
+        app: httpbin
+    spec:
+      containers:
+      - image: kennethreitz/httpbin
+        name: httpbin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: httpbin
+  name: httpbin
+  namespace: enroute-gw-k8s
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: httpbin
+  sessionAffinity: None
+  type: ClusterIP
+---
+

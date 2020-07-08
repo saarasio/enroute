@@ -30,6 +30,10 @@ container:
 	docker build . -t $(IMAGE):$(VERSION)
 	docker build . -t $(IMAGE):latest
 
+updategenerated: ## Update generated CRD code
+	@echo Updating generated CRD code...
+	@(bash hack/update-generated-crd-code.sh)
+
 push: container
 	docker push $(IMAGE):$(VERSION)
 ifeq ($(TAG_LATEST), true)

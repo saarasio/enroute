@@ -1,4 +1,13 @@
 definitions:
+  webhttp.FilterConfig:
+    properties:
+      filter_config:
+        type: string
+      filter_name:
+        type: string
+      filter_type:
+        type: string
+    type: object
   webhttp.Proxy:
     properties:
       name:
@@ -49,6 +58,8 @@ definitions:
         type: string
       upstream_port:
         type: string
+      upstream_protocol:
+        type: string
       upstream_strategy:
         type: string
       upstream_validation_cacertificate:
@@ -67,6 +78,266 @@ info:
   title: Enroute API
   version: "1.0"
 paths:
+  /filter:
+    get:
+      consumes:
+      - application/json
+      description: Get all filters in db
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Get all filters in db
+      tags:
+      - filter
+    post:
+      consumes:
+      - application/json
+      description: Create filter
+      parameters:
+      - description: Name of filter to create
+        in: body
+        name: Name
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.FilterConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Create filter
+      tags:
+      - filter
+  /filter/:filter_name:
+    patch:
+      consumes:
+      - application/json
+      description: Update filter config - update filter type
+      parameters:
+      - description: Name of filter_name for which to list config
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      - description: Name of filter to create
+        in: body
+        name: Name
+        required: true
+        schema:
+          $ref: '#/definitions/webhttp.FilterConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Update filter config - update filter type
+      tags:
+      - filter
+  /filter/:filter_name/config:
+    post:
+      consumes:
+      - application/json
+      description: Set filter config from file
+      parameters:
+      - description: Name of filter_name for which to list config
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Set filter config from file
+      tags:
+      - filter
+  /filter/{filter_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete filter config
+      parameters:
+      - description: Name of filter_name for which to list config
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Delete filter config
+      tags:
+      - filter
+    get:
+      consumes:
+      - application/json
+      description: Get filters detail for provided name
+      parameters:
+      - description: Name of filter_name for which to list config
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Get filters detail for provided name
+      tags:
+      - filter
+  /globalconfig:
+    get:
+      consumes:
+      - application/json
+      description: Get all globalconfigs in db
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Get all globalconfigs in db
+      tags:
+      - globalconfig
+    post:
+      consumes:
+      - application/json
+      description: Create globalconfig
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Create globalconfig
+      tags:
+      - globalconfig
+  /globalconfig/{globalconfig_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete globalconfig
+      parameters:
+      - description: Name of globalconfig_name for which to list config
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Delete globalconfig
+      tags:
+      - globalconfig
+    get:
+      consumes:
+      - application/json
+      description: Get globalconfigs for provided name
+      parameters:
+      - description: Name of globalconfig_name for which to list config
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Get globalconfigs for provided name
+      tags:
+      - globalconfig
+    patch:
+      consumes:
+      - application/json
+      description: Update globalconfig type
+      parameters:
+      - description: Name of globalconfig_name for which to list config
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Update globalconfig type
+      tags:
+      - globalconfig
+  /globalconfig/{globalconfig_name}/config:
+    post:
+      consumes:
+      - application/json
+      description: Set globalconfig from file
+      parameters:
+      - description: Name of globalconfig_name for which to list config
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Set globalconfig from file
+      tags:
+      - globalconfig
   /proxy:
     get:
       consumes:
@@ -95,7 +366,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Proxy'
-          type: object
       produces:
       - application/json
       responses:
@@ -129,6 +399,110 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete a proxy
+      tags:
+      - proxy
+    get:
+      consumes:
+      - application/json
+      description: Get information about a proxy
+      parameters:
+      - description: Name of proxy to delete
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Get information about a proxy
+      tags:
+      - proxy
+  /proxy/{proxy_name}/globalconfig/{globalconfig_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Disassociate a globalconfig from proxy
+      parameters:
+      - description: Name of proxy
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      - description: Name of globalconfig
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Disassociate a globalconfig from proxy
+      tags:
+      - proxy
+    get:
+      consumes:
+      - application/json
+      description: Return specified globalconfig associated with this proxy
+      parameters:
+      - description: Name of proxy for which to list service
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      - description: Name of globalconfig to list
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Return specified globalconfig associated with this proxy
+      tags:
+      - proxy
+    post:
+      consumes:
+      - application/json
+      description: Associate a globalconfig with proxy
+      parameters:
+      - description: Name of proxy
+        in: path
+        name: proxy_name
+        required: true
+        type: string
+      - description: Name of globalconfig
+        in: path
+        name: globalconfig_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Associate a globalconfig with proxy
       tags:
       - proxy
   /proxy/{proxy_name}/service:
@@ -305,7 +679,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Secret'
-          type: object
       produces:
       - application/json
       responses:
@@ -428,7 +801,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Service'
-          type: object
       produces:
       - application/json
       responses:
@@ -497,7 +869,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Service'
-          type: object
       - description: name of service to update
         in: path
         name: service_name
@@ -515,6 +886,111 @@ paths:
       summary: Update a service
       tags:
       - service
+  /service/{service_name}/filter:
+    get:
+      consumes:
+      - application/json
+      description: Return filters associated with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Return filters associated with a service
+      tags:
+      - filter
+  /service/{service_name}/filter/{filter_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete filter associated with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of filter for route
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Delete filter associated with a service
+      tags:
+      - filter
+    get:
+      consumes:
+      - application/json
+      description: Return filter associated with a service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of filter
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Return filter associated with a service
+      tags:
+      - filter
+    post:
+      consumes:
+      - application/json
+      description: Associate a filter with service
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of filter
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Associate a filter with service
+      tags:
+      - filter service
   /service/{service_name}/proxy:
     get:
       consumes:
@@ -579,7 +1055,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Route'
-          type: object
       produces:
       - application/json
       responses:
@@ -643,7 +1118,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Route'
-          type: object
       produces:
       - application/json
       responses:
@@ -657,6 +1131,131 @@ paths:
       tags:
       - service
       - route
+  /service/{service_name}/route/{route_name}/filter:
+    get:
+      consumes:
+      - application/json
+      description: Return filters associated with a service route
+      parameters:
+      - description: Name of service for route
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route for service
+        in: path
+        name: route_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Return filters associated with a service route
+      tags:
+      - filter
+  /service/{service_name}/route/{route_name}/filter/{filter_name}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete filter associated with a service route
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route for service
+        in: path
+        name: route_name
+        required: true
+        type: string
+      - description: Name of filter for route
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Delete filter associated with a service route
+      tags:
+      - filter
+    get:
+      consumes:
+      - application/json
+      description: Return filter associated with a service route
+      parameters:
+      - description: Name of service for route
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route for service
+        in: path
+        name: route_name
+        required: true
+        type: string
+      - description: Name of filter for route
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Return filter associated with a service route
+      tags:
+      - filter
+    post:
+      consumes:
+      - application/json
+      description: Associate a filter with route
+      parameters:
+      - description: Name of service
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: Name of route
+        in: path
+        name: route_name
+        required: true
+        type: string
+      - description: Name of filter
+        in: path
+        name: filter_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Associate a filter with route
+      tags:
+      - filter route
   /service/{service_name}/route/{route_name}/upstream:
     get:
       consumes:
@@ -949,7 +1548,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Upstream'
-          type: object
       produces:
       - application/json
       responses:
@@ -1015,7 +1613,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Upstream'
-          type: object
       - description: Name of upstream to update
         in: path
         name: upstream_name

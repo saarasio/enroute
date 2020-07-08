@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package saaras
 
 import (
@@ -22,6 +21,7 @@ func WatchCloudIngressRoute(g *workgroup.Group,
 	log logrus.FieldLogger,
 	reh *contour.ResourceEventHandler,
 	et *contour.EndpointsTranslator,
+	pct *contour.GlobalConfigTranslator,
 	scc *SaarasCloudCache) {
 
 	g.Add(func(stop <-chan struct{}) error {
@@ -37,7 +37,7 @@ func WatchCloudIngressRoute(g *workgroup.Group,
 			// Poll for IngressRoute every cloudPollIntervalSeconds seconds
 			if (count % cloudPollIntervalSeconds) == 0 {
 				log.Infoln("Fetch-and-Apply configuration from cloud")
-				FetchIngressRoute(reh, et, scc, log)
+				FetchIngressRoute(reh, et, pct, scc, log)
 			}
 		}
 

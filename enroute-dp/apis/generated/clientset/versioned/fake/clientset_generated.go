@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright(c) 2018-2019 Saaras Inc.
+
 /*
-Copyright 2019 Heptio
+Copyright 2019  Heptio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,8 +23,8 @@ package fake
 
 import (
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
-	contourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/contour/v1beta1"
-	fakecontourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/contour/v1beta1/fake"
+	enroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/enroute/v1beta1"
+	fakeenroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/typed/enroute/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -71,7 +74,7 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// ContourV1beta1 retrieves the ContourV1beta1Client
-func (c *Clientset) ContourV1beta1() contourv1beta1.ContourV1beta1Interface {
-	return &fakecontourv1beta1.FakeContourV1beta1{Fake: &c.Fake}
+// EnrouteV1beta1 retrieves the EnrouteV1beta1Client
+func (c *Clientset) EnrouteV1beta1() enroutev1beta1.EnrouteV1beta1Interface {
+	return &fakeenroutev1beta1.FakeEnrouteV1beta1{Fake: &c.Fake}
 }

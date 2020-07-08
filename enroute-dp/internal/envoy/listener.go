@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,12 +21,11 @@ import (
 	"time"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	tcp "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
-	rl "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
 	"github.com/envoyproxy/go-control-plane/pkg/util"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/types"
@@ -50,30 +48,30 @@ const HTTPDefaultIdleTimeout = 60 * time.Second
 const TCPDefaultIdleTimeout = 9001 * time.Second
 
 // TLSInspector returns a new TLS inspector listener filter.
-func TLSInspector() listener.ListenerFilter {
-	return listener.ListenerFilter{
+func TLSInspector() *listener.ListenerFilter {
+	return &listener.ListenerFilter{
 		Name: util.TlsInspector,
 	}
 }
 
 // ProxyProtocol returns a new Proxy Protocol listener filter.
-func ProxyProtocol() listener.ListenerFilter {
-	return listener.ListenerFilter{
+func ProxyProtocol() *listener.ListenerFilter {
+	return &listener.ListenerFilter{
 		Name: util.ProxyProtocol,
 	}
 }
 
 // Listener returns a new v2.Listener for the supplied address, port, and filters.
-func Listener(name, address string, port int, lf []listener.ListenerFilter, filters ...listener.Filter) *v2.Listener {
+func Listener(name, address string, port int, lf []*listener.ListenerFilter, filters ...*listener.Filter) *v2.Listener {
 	l := &v2.Listener{
 		Name:            name,
-		Address:         *SocketAddress(address, port),
+		Address:         SocketAddress(address, port),
 		ListenerFilters: lf,
 	}
 	if len(filters) > 0 {
 		l.FilterChains = append(
 			l.FilterChains,
-			listener.FilterChain{
+			&listener.FilterChain{
 				Filters: filters,
 			},
 		)
@@ -85,56 +83,10 @@ func idleTimeout(d time.Duration) *time.Duration {
 	return &d
 }
 
-func httpRateLimitTypedConfig(vh *dag.VirtualHost) *http.HttpFilter_TypedConfig {
-	return &http.HttpFilter_TypedConfig{
-		TypedConfig: any(&httprl.RateLimit{
-			Domain: "enroute",
-			RateLimitService: &rl.RateLimitServiceConfig{
-				GrpcService: &core.GrpcService{
-					TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
-						EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
-							ClusterName: "enroute",
-						},
-					},
-				},
-			},
-		}),
-	}
-}
-
-func httpFilters(vh *dag.VirtualHost) []*http.HttpFilter {
-
-    // TODO: Add filters on basis of what is configured on the VirtualHost
-    // If a RateLimit policy is configured on one of the routes,
-    // The value of vh.routes.RateLimitPol will be non-nil
-
-    // If any of the routes have a rate-limit policy, add the envoy.rate_limit
-    // filter here.
-
-	return []*http.HttpFilter{{
-		Name:       util.Gzip,
-		ConfigType: nil,
-	}, {
-		Name:       util.GRPCWeb,
-		ConfigType: nil,
-	}, {
-        //  TODO
-        //  go-control-plane defines this constant as "envoy.ratelimit"
-        //  While we run this with envoy 1.12, "envoy.ratelimit" is not recognized
-        //  However "envoy.rate_limit" is recognized
-		//  Name: util.RateLimit,
-		Name:       "envoy.rate_limit",
-		ConfigType: httpRateLimitTypedConfig(vh),
-	}, {
-		Name:       util.Router,
-		ConfigType: nil,
-	}}
-}
-
 // HTTPConnectionManager creates a new HTTP Connection Manager filter
 // for the supplied route and access log.
-func HTTPConnectionManager(routename, accessLogPath string, vh *dag.VirtualHost) listener.Filter {
-	return listener.Filter{
+func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *listener.Filter {
+	return &listener.Filter{
 		Name: util.HTTPConnectionManager,
 		ConfigType: &listener.Filter_TypedConfig{
 			TypedConfig: any(&http.HttpConnectionManager{
@@ -142,7 +94,7 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.VirtualHost)
 				RouteSpecifier: &http.HttpConnectionManager_Rds{
 					Rds: &http.Rds{
 						RouteConfigName: routename,
-						ConfigSource: core.ConfigSource{
+						ConfigSource: &core.ConfigSource{
 							ConfigSourceSpecifier: &core.ConfigSource_ApiConfigSource{
 								ApiConfigSource: &core.ApiConfigSource{
 									ApiType: core.ApiConfigSource_GRPC,
@@ -174,11 +126,11 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.VirtualHost)
 }
 
 // TCPProxy creates a new TCPProxy filter.
-func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) listener.Filter {
+func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *listener.Filter {
 	tcpIdleTimeout := idleTimeout(TCPDefaultIdleTimeout)
 	switch len(proxy.Clusters) {
 	case 1:
-		return listener.Filter{
+		return &listener.Filter{
 			Name: util.TCPProxy,
 			ConfigType: &listener.Filter_TypedConfig{
 				TypedConfig: any(&tcp.TcpProxy{
@@ -204,7 +156,7 @@ func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) list
 			})
 		}
 		sort.Stable(clustersByNameAndWeight(clusters))
-		return listener.Filter{
+		return &listener.Filter{
 			Name: util.TCPProxy,
 			ConfigType: &listener.Filter_TypedConfig{
 				TypedConfig: any(&tcp.TcpProxy{
@@ -260,6 +212,51 @@ func SocketAddress(address string, port int) *core.Address {
 			},
 		},
 	}
+}
+
+// Filters returns a []*listener.Filter for the supplied filters.
+func Filters(filters ...*listener.Filter) []*listener.Filter {
+	if len(filters) == 0 {
+		return nil
+	}
+	return filters
+}
+
+// FilterChain retruns a *listener.FilterChain for the supplied filters.
+func FilterChain(filters ...*listener.Filter) *listener.FilterChain {
+	return &listener.FilterChain{
+		Filters: filters,
+	}
+}
+
+// FilterChains returns a []*listener.FilterChain for the supplied filters.
+func FilterChains(filters ...*listener.Filter) []*listener.FilterChain {
+	if len(filters) == 0 {
+		return nil
+	}
+	return []*listener.FilterChain{
+		FilterChain(filters...),
+	}
+}
+
+// FilterChainTLS returns a TLS enabled listener.FilterChain,
+func FilterChainTLS(domain string, secret *dag.Secret, filters []*listener.Filter, tlsMinProtoVersion auth.TlsParameters_TlsProtocol, alpnProtos ...string) *listener.FilterChain {
+	fc := &listener.FilterChain{
+		Filters: filters,
+		FilterChainMatch: &listener.FilterChainMatch{
+			ServerNames: []string{domain},
+		},
+	}
+	// attach certificate data to this listener if provided.
+	if secret != nil {
+		fc.TlsContext = DownstreamTLSContext(Secretname(secret), tlsMinProtoVersion, alpnProtos...)
+	}
+	return fc
+}
+
+// ListenerFilters returns a []*listener.ListenerFilter for the supplied listener filters.
+func ListenerFilters(filters ...*listener.ListenerFilter) []*listener.ListenerFilter {
+	return filters
 }
 
 func any(pb proto.Message) *types.Any {

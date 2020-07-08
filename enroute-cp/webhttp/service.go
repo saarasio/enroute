@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package webhttp
 
 import (
@@ -44,6 +43,12 @@ query get_service_routes($service_name: String!){
     route_prefix
     create_ts
     update_ts
+    route_filters {
+      filter {
+        filter_name
+        filter_type
+      }
+    }
   }
 }
 `
@@ -199,6 +204,12 @@ query get_upstream($service_name: String!) {
           upstream_port
         }
       }
+      route_filters {
+        filter {
+          filter_name
+          filter_type
+        }
+      }
       route_prefix
     }
     service_secrets {
@@ -208,6 +219,12 @@ query get_upstream($service_name: String!) {
         secret_sni
         secret_key
         secret_cert
+      }
+    }
+    service_filters {
+      filter {
+        filter_name
+        filter_type
       }
     }
   }
@@ -262,7 +279,7 @@ func db_update_service(s *Service, log *logrus.Entry) (int, string) {
 // @Produce  json
 // @Param Service body webhttp.Service true "Fields of service to update"
 // @Param service_name path string true "name of service to update"
-// @Success 201 {} integer OK
+// @Success 201 {} int OK
 // @Router /service/{service_name} [patch]
 // @Security ApiKeyAuth
 func PATCH_Service(c echo.Context) error {
@@ -286,7 +303,7 @@ func PATCH_Service(c echo.Context) error {
 	// For service, right now, only Fqdn can be patched.
 	// Ensure that we are passed a valid Fqdn
 	if len(s.Fqdn) == 0 {
-	  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide fqdn using Fqdn field\"}")
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide fqdn using Fqdn field\"}")
 	}
 
 	// Overwrite Fqdn value
@@ -448,11 +465,11 @@ func db_copy_service(service_name_src string, service_name_dst string, log *logr
 
 func validate_service(s *Service) (int, string) {
 	if len(s.Service_name) == 0 {
-			  return http.StatusBadRequest, "{\"Error\" : \"Please provide service name using Service_name field\"}"
+		return http.StatusBadRequest, "{\"Error\" : \"Please provide service name using Service_name field\"}"
 	}
 
 	if len(s.Fqdn) == 0 {
-			  return http.StatusBadRequest, "{\"Error\" : \"Please provide fqdn using Fqdn field\"}"
+		return http.StatusBadRequest, "{\"Error\" : \"Please provide fqdn using Fqdn field\"}"
 	}
 
 	return http.StatusOK, ""
@@ -464,7 +481,7 @@ func validate_service(s *Service) (int, string) {
 // @Produce  json
 // @Param service_name_src path string true "Name of service"
 // @Param service_name_dst path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/copy/{service_name_src}/{service_name_dst} [post]
 // @Security ApiKeyAuth
 func POST_Service_Copy(c echo.Context) error {
@@ -486,7 +503,7 @@ func POST_Service_Copy(c echo.Context) error {
 // @Produce  json
 // @Param service_name_src path string true "Name of service"
 // @Param service_name_dst path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/deepcopy/{service_name_src}/{service_name_dst} [post]
 // @Security ApiKeyAuth
 func POST_Service_DeepCopy(c echo.Context) error {
@@ -554,7 +571,7 @@ func POST_Service_DeepCopy(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param Service body webhttp.Service true "Service to create"
-// @Success 201 {} integer OK
+// @Success 201 {} int OK
 // @Router /service [post]
 // @Security ApiKeyAuth
 func POST_Service(c echo.Context) error {
@@ -582,7 +599,7 @@ func POST_Service(c echo.Context) error {
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service [get]
 // @Security ApiKeyAuth
 func GET_Service(c echo.Context) error {
@@ -600,7 +617,7 @@ func GET_Service(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Service(c echo.Context) error {
@@ -619,7 +636,7 @@ func GET_One_Service(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/dump/{service_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Service_Detail(c echo.Context) error {
@@ -648,7 +665,7 @@ func GET_One_Service_Detail(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Service(c echo.Context) error {
@@ -675,7 +692,7 @@ func DELETE_Service(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/proxy [get]
 // @Security ApiKeyAuth
 func GET_Service_Proxy(c echo.Context) error {
@@ -776,7 +793,7 @@ mutation insert_service_route($route_name: String!, $route_prefix: String!, $ser
 
 func validate_service_route(r *Route) (int, string) {
 	if len(r.Route_name) == 0 {
-	  return http.StatusBadRequest, "{\"Error\" : \"Please provide route name using Name field\"}"
+		return http.StatusBadRequest, "{\"Error\" : \"Please provide route name using Name field\"}"
 	}
 
 	if len(r.Route_prefix) == 0 {
@@ -793,7 +810,7 @@ func validate_service_route(r *Route) (int, string) {
 // @Produce  json
 // @Param service_name path string true "Name of service"
 // @Param Route body webhttp.Route true "Route to create"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route [post]
 // @Security ApiKeyAuth
 func POST_Service_Route(c echo.Context) error {
@@ -825,7 +842,7 @@ func POST_Service_Route(c echo.Context) error {
 // @Param service_name path string true "Name of service"
 // @Param route_name path string true "Name of service"
 // @Param Route body webhttp.Route true "Route to update"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route/{route_name} [patch]
 // @Security ApiKeyAuth
 func PATCH_Service_Route(c echo.Context) error {
@@ -937,7 +954,7 @@ query get_saaras_db_proxy_names($service_name: String!) {
 // @Param service_name_src path string true "Name of service"
 // @Param service_name_dst path string true "Name of service"
 // @Param route_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/copyroute/{service_name_src}/{service_name_dst}/route/{route_name} [post]
 // @Security ApiKeyAuth
 func POST_Service_Route_Copy(c echo.Context) error {
@@ -969,7 +986,7 @@ func POST_Service_Route_Copy(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route [get]
 // @Security ApiKeyAuth
 func GET_Service_Route(c echo.Context) error {
@@ -994,22 +1011,28 @@ func GET_Service_Route(c echo.Context) error {
 func db_get_one_service_route(service_name string, route_name string, decode bool, log *logrus.Entry) (int, string, *Route) {
 
 	var QServiceRouteOneRoute = `
-	query get_service_routes($service_name: String!, $route_name: String!) {
-		saaras_db_route(
-			where: {
-				_and: {
-					route_name: {_eq: $route_name}, 
-					service: {service_name: {_eq: $service_name}}
-				}
-			}) {
-				route_id
-				route_name
-				route_prefix
-				create_ts
-				update_ts
-			}
-		}
-		`
+ 	query get_service_routes($service_name: String!, $route_name: String!) {
+        saaras_db_route(
+            where: {
+                _and: {
+                    route_name: {_eq: $route_name},
+                    service: {service_name: {_eq: $service_name}}
+                }
+            }) {
+                route_id
+                route_name
+                route_prefix
+                create_ts
+                update_ts
+                        route_filters {
+                  filter {
+                    filter_name
+                    filter_type
+                  }
+                }
+            }
+        }
+	`
 
 	var buf bytes.Buffer
 	var args map[string]string
@@ -1068,7 +1091,7 @@ func db_get_one_service_route(service_name string, route_name string, decode boo
 // @Produce  json
 // @Param service_name path string true "Name of service"
 // @Param route_name path string true "Name of route"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route/{route_name} [get]
 // @Security ApiKeyAuth
 func GET_Service_Route_OneRoute(c echo.Context) error {
@@ -1096,7 +1119,7 @@ func GET_Service_Route_OneRoute(c echo.Context) error {
 // @Produce  json
 // @Param service_name path string true "Name of service"
 // @Param route_name path string true "Name of route to delete"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route/{route_name} [get]
 // @Security ApiKeyAuth
 func DELETE_Service_Route_OneRoute(c echo.Context) error {
@@ -1148,7 +1171,7 @@ func db_associate_service_route_upstream(service_name, route_name, upstream_name
 // @Param service_name path string true "Name of service"
 // @Param route_name path string true "Name of route"
 // @Param upstream_name path string true "Name of upstream to associate with service route"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route/{route_name}/upstream/{upstream_name} [get]
 // @Security ApiKeyAuth
 func POST_Service_Route_Upstream_Associate(c echo.Context) error {
@@ -1171,7 +1194,7 @@ func POST_Service_Route_Upstream_Associate(c echo.Context) error {
 // @Produce  json
 // @Param service_name path string true "Name of service"
 // @Param route_name path string true "Name of route"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route/{route_name}/upstream [get]
 // @Security ApiKeyAuth
 func GET_Service_Route_Upstream(c echo.Context) error {
@@ -1204,7 +1227,7 @@ func GET_Service_Route_Upstream(c echo.Context) error {
 // @Param service_name path string true "Name of service"
 // @Param route_name path string true "Name of route"
 // @Param upstream_name path string true "Name of upstream to disassociate with service route"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/route/{route_name}/upstream/{upstream_name} [get]
 // @Security ApiKeyAuth
 func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
@@ -1237,7 +1260,7 @@ func DELETE_Service_Route_Upstream_Associate(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param service_name path string true "Name of service"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/secret [get]
 // @Security ApiKeyAuth
 func GET_Service_Secret(c echo.Context) error {
@@ -1267,7 +1290,7 @@ func GET_Service_Secret(c echo.Context) error {
 // @Produce  json
 // @Param service_name path string true "Name of service"
 // @Param secret_name path string true "Name of secret"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/secret/{secret_name} [post]
 // @Security ApiKeyAuth
 func POST_Service_Secret(c echo.Context) error {
@@ -1299,7 +1322,7 @@ func POST_Service_Secret(c echo.Context) error {
 // @Produce  json
 // @Param service_name path string true "Name of service"
 // @Param secret_name path string true "Name of secret"
-// @Success 200 {} integer OK
+// @Success 200 {} int OK
 // @Router /service/{service_name}/secret/{secret_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Service_Secret(c echo.Context) error {

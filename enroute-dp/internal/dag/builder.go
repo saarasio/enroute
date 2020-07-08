@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,8 +29,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	//"github.com/davecgh/go-spew/spew"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
 const (
@@ -54,6 +54,9 @@ type builder struct {
 	services  map[servicemeta]Service
 	secrets   map[Meta]*Secret
 	listeners map[int]*Listener
+
+	routefilters map[RouteFilterMeta]*cfg.SaarasRouteFilter
+	httpfilters  map[HttpFilterMeta]*cfg.SaarasRouteFilter
 
 	orphaned map[Meta]bool
 
@@ -475,6 +478,15 @@ func stringOrDefault(s, def string) string {
 	return s
 }
 
+func (b *builder) SetupVHHttpFilter(ir *ingressroutev1.IngressRoute) {
+	host := ir.Spec.VirtualHost.Fqdn
+	vh := b.lookupVirtualHost(host)
+	svh := b.lookupSecureVirtualHost(host)
+
+	b.SetupHttpFilters(vh, ir.Spec.VirtualHost, ir.Namespace)
+	b.SetupHttpFilters(&svh.VirtualHost, ir.Spec.VirtualHost, ir.Namespace)
+}
+
 func (b *builder) computeIngressRoutes() {
 	for _, ir := range b.validIngressRoutes() {
 		//fmt.Printf("computeIngressRoutes(): Inspecting [%s] \n", ir.Spec.VirtualHost.Fqdn)
@@ -531,6 +543,7 @@ func (b *builder) computeIngressRoutes() {
 		case ir.Spec.TCPProxy != nil && (passthrough || enforceTLS):
 			b.processTCPProxy(ir, nil, host)
 		case ir.Spec.Routes != nil:
+			b.SetupVHHttpFilter(ir)
 			b.processRoutes(ir, "", nil, host, enforceTLS)
 		}
 	}
@@ -645,13 +658,6 @@ func validCA(s *v1.Secret) bool {
 	return len(s.Data["ca.crt"]) > 0
 }
 
-func v1b1RouteRLToDagRouteRL(ir_rl *ingressroutev1.RateLimitPolicy) *RateLimitPolicy {
-	if ir_rl == nil {
-		return nil
-	}
-	return &RateLimitPolicy{}
-}
-
 func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch string, visited []*ingressroutev1.IngressRoute, host string, enforceTLS bool) {
 	visited = append(visited, ir)
 
@@ -678,8 +684,10 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 				PrefixRewrite: route.PrefixRewrite,
 				TimeoutPolicy: timeoutPolicy(route.TimeoutPolicy),
 				RetryPolicy:   retryPolicy(route.RetryPolicy),
-				RateLimitPol:  v1b1RouteRLToDagRouteRL(route.RLPolicy),
 			}
+
+			b.SetupRouteFilters(r, &route, ir.Namespace)
+
 			for _, service := range route.Services {
 				if service.Port < 1 || service.Port > 65535 {
 					//fmt.Printf("processRoutes(): [%s] service port not in range, service Port [%q] [%d] [%+v]\n", ir.Spec.VirtualHost.Fqdn, service.Port, service.Port, service.Port)
@@ -693,8 +701,6 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 				}
 				m := Meta{name: service.Name, namespace: ir.Namespace}
 				s := b.lookupHTTPService(m, intstr.FromInt(service.Port))
-				//fmt.Printf("processRoutes() -> dump builder state \n")
-				//spew.Dump(b)
 				if s == nil {
 					//fmt.Printf("processRoutes(): [%s] service invalid or missing \n", ir.Spec.VirtualHost.Fqdn)
 					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})

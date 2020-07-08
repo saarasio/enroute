@@ -80,6 +80,49 @@
                 "type": "STRICT_DNS"
             },
             {
+                "alt_stat_name": "saaras-enroute_enroute_8003",
+                "circuit_breakers": {
+                    "thresholds": [
+                        {
+                            "max_connections": 100000,
+                            "max_pending_requests": 100000,
+                            "max_requests": 60000000,
+                            "max_retries": 50,
+                            "priority": "HIGH"
+                        },
+                        {
+                            "max_connections": 100000,
+                            "max_pending_requests": 100000,
+                            "max_requests": 60000000,
+                            "max_retries": 50
+                        }
+                    ]
+                },
+                "connect_timeout": "5s",
+                "http2_protocol_options": {},
+                "load_assignment": {
+                    "cluster_name": "enroute_ratelimit",
+                    "endpoints": [
+                        {
+                            "lb_endpoints": [
+                                {
+                                    "endpoint": {
+                                        "address": {
+                                            "socket_address": {
+                                                "address": "127.0.0.1",
+                                                "port_value": 8003
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "name": "enroute_ratelimit",
+                "type": "STRICT_DNS"
+            },
+            {
                 "alt_stat_name": "saaras-enroute_service-stats_9001",
                 "connect_timeout": "0.250s",
                 "load_assignment": {
@@ -112,7 +155,7 @@
     "rate_limit_service": {
         "grpc_service": {
             "envoy_grpc": {
-                "cluster_name": "enroute"
+                "cluster_name": "enroute_ratelimit"
             },
             timeout: 0.25
         }

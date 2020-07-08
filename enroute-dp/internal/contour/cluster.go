@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -129,13 +128,7 @@ func visitClusters(root dag.Vertex) map[string]*v2.Cluster {
 func (v *clusterVisitor) visit(vertex dag.Vertex) {
 	if cluster, ok := vertex.(*dag.Cluster); ok {
 		switch cluster.Upstream.(type) {
-		case *dag.HTTPService:
-			name := envoy.Clustername(cluster)
-			if _, ok := v.clusters[name]; !ok {
-				c := envoy.Cluster(cluster)
-				v.clusters[c.Name] = c
-			}
-		case *dag.TCPService:
+		case *dag.HTTPService, *dag.TCPService:
 			name := envoy.Clustername(cluster)
 			if _, ok := v.clusters[name]; !ok {
 				c := envoy.Cluster(cluster)

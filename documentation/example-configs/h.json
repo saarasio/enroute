@@ -1,0 +1,8 @@
+{
+    "Descriptors": 
+    [
+        {"generic_key": {"descriptor_value": "config_dump"}},
+        {"remote_address": "{}"},
+        {"request_headers": {"header_name": "x-request-id", "descriptor_key": "x-request-id"}}
+    ]
+}

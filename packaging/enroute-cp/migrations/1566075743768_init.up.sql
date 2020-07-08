@@ -67,6 +67,32 @@ CREATE SEQUENCE saaras_db.artifact_secret_id_seq
     NO MAXVALUE
     CACHE 1;
 ALTER SEQUENCE saaras_db.artifact_secret_id_seq OWNED BY saaras_db.artifact.secret_id;
+CREATE TABLE saaras_db.filter (
+    filter_id bigint NOT NULL,
+    filter_name text NOT NULL,
+    filter_type text,
+    create_ts timestamp with time zone DEFAULT now() NOT NULL,
+    update_ts timestamp with time zone DEFAULT now() NOT NULL,
+    filter_config text,
+    config_json jsonb
+);
+CREATE SEQUENCE saaras_db.filter_filter_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER SEQUENCE saaras_db.filter_filter_id_seq OWNED BY saaras_db.filter.filter_id;
+CREATE TABLE saaras_db.globalconfig (
+    globalconfig_id bigint NOT NULL,
+    create_ts timestamp with time zone DEFAULT now() NOT NULL,
+    update_ts timestamp with time zone DEFAULT now() NOT NULL,
+    delete_flag boolean,
+    globalconfig_type text,
+    config text,
+    globalconfig_name text NOT NULL,
+    config_json jsonb
+);
 CREATE TABLE saaras_db.org (
     org_id bigint NOT NULL,
     org_name character varying NOT NULL,
@@ -88,6 +114,17 @@ CREATE TABLE saaras_db.proxy (
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
     delete_flag boolean DEFAULT false,
     update_ts timestamp with time zone DEFAULT now()
+);
+CREATE SEQUENCE saaras_db.proxy_config_proxy_config_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER SEQUENCE saaras_db.proxy_config_proxy_config_id_seq OWNED BY saaras_db.globalconfig.globalconfig_id;
+CREATE TABLE saaras_db.proxy_globalconfig (
+    proxy_id integer NOT NULL,
+    globalconfig_id integer NOT NULL
 );
 CREATE SEQUENCE saaras_db.proxy_proxy_id_seq
     START WITH 1
@@ -119,6 +156,12 @@ CREATE TABLE saaras_db.route (
     delete_flag boolean DEFAULT false,
     service_id bigint NOT NULL,
     update_ts timestamp with time zone DEFAULT now()
+);
+CREATE TABLE saaras_db.route_filter (
+    route_id bigint NOT NULL,
+    filter_id bigint NOT NULL,
+    create_ts timestamp with time zone DEFAULT now(),
+    update_ts timestamp with time zone
 );
 CREATE SEQUENCE saaras_db.route_route_id_seq
     START WITH 1
@@ -180,6 +223,13 @@ CREATE TABLE saaras_db.service (
     create_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
     update_ts timestamp with time zone DEFAULT now()
+);
+CREATE TABLE saaras_db.service_filter (
+    service_id integer NOT NULL,
+    filter_id integer NOT NULL,
+    create_ts timestamp with time zone DEFAULT now(),
+    update_ts timestamp with time zone DEFAULT now(),
+    delete_flag boolean
 );
 CREATE TABLE saaras_db.service_secret (
     service_secret_id bigint NOT NULL,
@@ -246,6 +296,8 @@ CREATE SEQUENCE saaras_db.upstream_upstream_id_seq
 ALTER SEQUENCE saaras_db.upstream_upstream_id_seq OWNED BY saaras_db.upstream.upstream_id;
 ALTER TABLE ONLY saaras_db.artifact ALTER COLUMN artifact_id SET DEFAULT nextval('saaras_db.artifact_artifact_id_seq'::regclass);
 ALTER TABLE ONLY saaras_db.artifact ALTER COLUMN secret_id SET DEFAULT nextval('saaras_db.artifact_secret_id_seq'::regclass);
+ALTER TABLE ONLY saaras_db.filter ALTER COLUMN filter_id SET DEFAULT nextval('saaras_db.filter_filter_id_seq'::regclass);
+ALTER TABLE ONLY saaras_db.globalconfig ALTER COLUMN globalconfig_id SET DEFAULT nextval('saaras_db.proxy_config_proxy_config_id_seq'::regclass);
 ALTER TABLE ONLY saaras_db.org ALTER COLUMN org_id SET DEFAULT nextval('saaras_db.org_org_id_seq'::regclass);
 ALTER TABLE ONLY saaras_db.proxy ALTER COLUMN proxy_id SET DEFAULT nextval('saaras_db.proxy_proxy_id_seq'::regclass);
 ALTER TABLE ONLY saaras_db.proxy_service ALTER COLUMN proxy_service_id SET DEFAULT nextval('saaras_db.proxy_service_proxy_service_id_seq'::regclass);
@@ -263,10 +315,22 @@ ALTER TABLE ONLY saaras_db.artifact
     ADD CONSTRAINT artifact_artifact_name_key UNIQUE (artifact_name);
 ALTER TABLE ONLY saaras_db.artifact
     ADD CONSTRAINT artifact_pkey PRIMARY KEY (artifact_id);
+ALTER TABLE ONLY saaras_db.filter
+    ADD CONSTRAINT filter_filter_name_key UNIQUE (filter_name);
+ALTER TABLE ONLY saaras_db.filter
+    ADD CONSTRAINT filter_pkey PRIMARY KEY (filter_id);
+ALTER TABLE ONLY saaras_db.globalconfig
+    ADD CONSTRAINT globalconfig_globalconfig_name_key UNIQUE (globalconfig_name);
+ALTER TABLE ONLY saaras_db.globalconfig
+    ADD CONSTRAINT globalconfig_proxy_config_id_key UNIQUE (globalconfig_id);
 ALTER TABLE ONLY saaras_db.org
     ADD CONSTRAINT org_org_name_key UNIQUE (org_name);
 ALTER TABLE ONLY saaras_db.org
     ADD CONSTRAINT org_pkey PRIMARY KEY (org_id);
+ALTER TABLE ONLY saaras_db.globalconfig
+    ADD CONSTRAINT proxy_config_pkey PRIMARY KEY (globalconfig_id);
+ALTER TABLE ONLY saaras_db.proxy_globalconfig
+    ADD CONSTRAINT proxy_globalconfig_pkey PRIMARY KEY (proxy_id, globalconfig_id);
 ALTER TABLE ONLY saaras_db.proxy
     ADD CONSTRAINT proxy_pkey PRIMARY KEY (proxy_id);
 ALTER TABLE ONLY saaras_db.proxy
@@ -275,6 +339,8 @@ ALTER TABLE ONLY saaras_db.proxy_service
     ADD CONSTRAINT proxy_service_pkey PRIMARY KEY (proxy_service_id);
 ALTER TABLE ONLY saaras_db.proxy_service
     ADD CONSTRAINT proxy_service_proxy_id_service_id_key UNIQUE (proxy_id, service_id);
+ALTER TABLE ONLY saaras_db.route_filter
+    ADD CONSTRAINT route_filter_pkey PRIMARY KEY (route_id, filter_id);
 ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_pkey PRIMARY KEY (route_id);
 ALTER TABLE ONLY saaras_db.route
@@ -289,6 +355,8 @@ ALTER TABLE ONLY saaras_db.secret
     ADD CONSTRAINT secret_pkey PRIMARY KEY (secret_id);
 ALTER TABLE ONLY saaras_db.secret
     ADD CONSTRAINT secret_secret_name_key UNIQUE (secret_name);
+ALTER TABLE ONLY saaras_db.service_filter
+    ADD CONSTRAINT service_filter_pkey PRIMARY KEY (service_id, filter_id);
 ALTER TABLE ONLY saaras_db.service
     ADD CONSTRAINT service_pkey PRIMARY KEY (service_id);
 ALTER TABLE ONLY saaras_db.service_secret
@@ -319,16 +387,28 @@ CREATE TRIGGER set_saaras_db_upstream_update_ts BEFORE UPDATE ON saaras_db.upstr
 COMMENT ON TRIGGER set_saaras_db_upstream_update_ts ON saaras_db.upstream IS 'trigger to set value of column "update_ts" to current timestamp on row update';
 ALTER TABLE ONLY saaras_db.artifact
     ADD CONSTRAINT artifact_secret_id_fkey FOREIGN KEY (secret_id) REFERENCES saaras_db.secret(secret_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.proxy_globalconfig
+    ADD CONSTRAINT proxy_globalconfig_globalconfig_id_fkey FOREIGN KEY (globalconfig_id) REFERENCES saaras_db.globalconfig(globalconfig_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.proxy_globalconfig
+    ADD CONSTRAINT proxy_globalconfig_proxy_id_fkey FOREIGN KEY (proxy_id) REFERENCES saaras_db.proxy(proxy_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.proxy_service
     ADD CONSTRAINT proxy_service_proxy_id_fkey FOREIGN KEY (proxy_id) REFERENCES saaras_db.proxy(proxy_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.proxy_service
     ADD CONSTRAINT proxy_service_service_id_fkey FOREIGN KEY (service_id) REFERENCES saaras_db.service(service_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.route_filter
+    ADD CONSTRAINT route_filter_filter_id_fkey FOREIGN KEY (filter_id) REFERENCES saaras_db.filter(filter_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.route_filter
+    ADD CONSTRAINT route_filter_route_id_fkey FOREIGN KEY (route_id) REFERENCES saaras_db.route(route_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_service_id_fkey FOREIGN KEY (service_id) REFERENCES saaras_db.service(service_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.route_upstream
     ADD CONSTRAINT route_upstream_route_id_fkey FOREIGN KEY (route_id) REFERENCES saaras_db.route(route_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.route_upstream
     ADD CONSTRAINT route_upstream_upstream_id_fkey FOREIGN KEY (upstream_id) REFERENCES saaras_db.upstream(upstream_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.service_filter
+    ADD CONSTRAINT service_filter_filter_id_fkey FOREIGN KEY (filter_id) REFERENCES saaras_db.filter(filter_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.service_filter
+    ADD CONSTRAINT service_filter_service_id_fkey FOREIGN KEY (service_id) REFERENCES saaras_db.service(service_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.service_secret
     ADD CONSTRAINT service_secret_secret_id_fkey FOREIGN KEY (secret_id) REFERENCES saaras_db.secret(secret_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.service_secret

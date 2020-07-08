@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +19,7 @@ package dag
 import (
 	"time"
 
-	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 )
 
 func retryPolicy(rp *v1beta1.RetryPolicy) *RetryPolicy {

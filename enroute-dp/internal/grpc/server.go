@@ -164,3 +164,7 @@ func (s *ratelimitServer) ShouldRateLimit(c context.Context, req *rl.RateLimitRe
 	response.OverallCode = finalCode
 	return response, nil
 }
+
+func NewAPIRateLimit(log logrus.FieldLogger, c chan string) *grpc.Server {
+    return nil
+}

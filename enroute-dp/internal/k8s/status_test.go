@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	ingressroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

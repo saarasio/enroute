@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +27,6 @@ import (
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type"
 	"github.com/gogo/protobuf/types"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
@@ -85,7 +83,7 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *v2.Cluster {
 	c := &v2.Cluster{
 		Name:           Clustername(cluster),
 		AltStatName:    altStatName(service),
-		ConnectTimeout: 250 * time.Millisecond,
+		ConnectTimeout: duration(250 * time.Millisecond),
 		LbPolicy:       lbPolicy(cluster.LoadBalancerStrategy),
 		CommonLbConfig: ClusterCommonLBConfig(),
 		HealthChecks:   edshealthcheck(cluster),
@@ -128,26 +126,10 @@ func StaticClusterLoadAssignment(service *dag.TCPService) *v2.ClusterLoadAssignm
 		service.ServicePort.Name,
 	}
 
+	addr := SocketAddress(service.ExternalName, int(service.ServicePort.Port))
 	return &v2.ClusterLoadAssignment{
 		ClusterName: strings.Join(name, "/"),
-		Endpoints: []endpoint.LocalityLbEndpoints{{
-			LbEndpoints: []endpoint.LbEndpoint{{
-				HostIdentifier: &endpoint.LbEndpoint_Endpoint{
-					Endpoint: &endpoint.Endpoint{
-						Address: &core.Address{
-							Address: &core.Address_SocketAddress{
-								SocketAddress: &core.SocketAddress{
-									Address: service.ExternalName,
-									PortSpecifier: &core.SocketAddress_PortValue{
-										PortValue: uint32(service.ServicePort.Port),
-									},
-								},
-							},
-						},
-					},
-				},
-			}},
-		}},
+		Endpoints:   Endpoints(addr),
 	}
 }
 

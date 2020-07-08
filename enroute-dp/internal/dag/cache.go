@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +25,7 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/client-go/tools/cache"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 )
 
 // A KubernetesCache holds Kubernetes objects and associated configuration and produces
@@ -44,11 +43,22 @@ type KubernetesCache struct {
 	secrets       map[Meta]*v1.Secret
 	delegations   map[Meta]*ingressroutev1.TLSCertificateDelegation
 	services      map[Meta]*v1.Service
+
+	routefilters map[RouteFilterMeta]*ingressroutev1.RouteFilter
+	httpfilters  map[HttpFilterMeta]*ingressroutev1.HttpFilter
 }
 
 // Meta holds the name and namespace of a Kubernetes object.
 type Meta struct {
 	name, namespace string
+}
+
+type RouteFilterMeta struct {
+	filter_type, name, namespace string
+}
+
+type HttpFilterMeta struct {
+	filter_type, name, namespace string
 }
 
 // Insert inserts obj into the KubernetesCache.
@@ -88,6 +98,20 @@ func (kc *KubernetesCache) Insert(obj interface{}) {
 		}
 		kc.delegations[m] = obj
 
+	case *ingressroutev1.HttpFilter:
+		m := HttpFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
+		if kc.httpfilters == nil {
+			kc.httpfilters = make(map[HttpFilterMeta]*ingressroutev1.HttpFilter)
+		}
+		kc.httpfilters[m] = obj
+
+	case *ingressroutev1.RouteFilter:
+		m := RouteFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
+		if kc.routefilters == nil {
+			kc.routefilters = make(map[RouteFilterMeta]*ingressroutev1.RouteFilter)
+		}
+		kc.routefilters[m] = obj
+
 	default:
 		// not an interesting object
 	}
@@ -123,6 +147,14 @@ func (kc *KubernetesCache) remove(obj interface{}) {
 	case *ingressroutev1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.delegations, m)
+
+	case *ingressroutev1.HttpFilter:
+		m := HttpFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
+		delete(kc.httpfilters, m)
+
+	case *ingressroutev1.RouteFilter:
+		m := RouteFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
+		delete(kc.routefilters, m)
 	default:
 		// not interesting
 	}

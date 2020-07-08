@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -171,11 +170,20 @@ func check(t *testing.T, err error) {
 	}
 }
 
-func any(t *testing.T, pb proto.Message) types.Any {
+func resources(t *testing.T, protos ...proto.Message) []*types.Any {
+	t.Helper()
+	anys := make([]*types.Any, 0, len(protos))
+	for _, a := range protos {
+		anys = append(anys, any(t, a))
+	}
+	return anys
+}
+
+func any(t *testing.T, pb proto.Message) *types.Any {
 	t.Helper()
 	any, err := types.MarshalAny(pb)
 	check(t, err)
-	return *any
+	return any
 }
 
 type grpcStream interface {

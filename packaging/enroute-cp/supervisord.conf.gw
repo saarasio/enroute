@@ -38,6 +38,14 @@ autorestart=false
 nodaemon=false
 priority=930
 
+; 3.3 run redis server
+[program:run-redis-server]
+command=/bin/redis-server --port 6379 --loglevel verbose
+user=postgres
+autorestart=false
+nodaemon=false
+priority=935
+
 [program:run-enroute-envoy]
 command=/bin/run_enroute_envoy.sh
 user=postgres

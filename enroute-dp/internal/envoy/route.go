@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
+// Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -29,31 +29,6 @@ import (
 	//ratelimithttp "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 )
 
-func rateLimitActionSpecifierGenericKey() *route.RateLimit_Action_GenericKey_ {
-	return &route.RateLimit_Action_GenericKey_{
-		GenericKey: &route.RateLimit_Action_GenericKey{
-			DescriptorValue: "default",
-		},
-	}
-}
-
-func rateLimitAction() *route.RateLimit_Action {
-	return &route.RateLimit_Action{
-		ActionSpecifier: rateLimitActionSpecifierGenericKey(),
-	}
-}
-
-func rateLimits(rl *dag.RateLimitPolicy) []*route.RateLimit {
-	return []*route.RateLimit{
-		{
-			Stage: u32(0),
-			Actions: []*route.RateLimit_Action{
-				rateLimitAction(),
-			},
-		},
-	}
-}
-
 // RouteRoute creates a route.Route_Route for the services supplied.
 // If len(services) is greater than one, the route's action will be a
 // weighted cluster.
@@ -65,9 +40,7 @@ func RouteRoute(r *dag.Route) *route.Route_Route {
 		HashPolicy:    hashPolicy(r),
 	}
 
-	if r.RateLimitPol != nil {
-		ra.RateLimits = rateLimits(r.RateLimitPol)
-	}
+	SetupRouteRateLimits(r, &ra)
 
 	if r.Websocket {
 		ra.UpgradeConfigs = append(ra.UpgradeConfigs,
@@ -193,16 +166,16 @@ func weightedClusters(clusters []*dag.Cluster) *route.WeightedCluster {
 }
 
 // RouteMatch creates a RouteMatch for the supplied prefix/regex.
-func RouteMatch(path string) route.RouteMatch {
+func RouteMatch(path string) *route.RouteMatch {
 	// Check if path contains a regex
 	if strings.ContainsAny(path, "^+*[]%") {
-		return route.RouteMatch{
+		return &route.RouteMatch{
 			PathSpecifier: &route.RouteMatch_Regex{
 				Regex: path,
 			},
 		}
 	}
-	return route.RouteMatch{
+	return &route.RouteMatch{
 		PathSpecifier: &route.RouteMatch_Prefix{
 			Prefix: path,
 		},
@@ -210,12 +183,12 @@ func RouteMatch(path string) route.RouteMatch {
 }
 
 // VirtualHost creates a new route.VirtualHost.
-func VirtualHost(hostname string) route.VirtualHost {
+func VirtualHost(hostname string) *route.VirtualHost {
 	domains := []string{hostname}
 	if hostname != "*" {
 		domains = append(domains, hostname+":*")
 	}
-	return route.VirtualHost{
+	return &route.VirtualHost{
 		Name:    hashname(60, hostname),
 		Domains: domains,
 	}

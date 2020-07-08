@@ -1,0 +1,458 @@
+#!/bin/bash
+
+# dependencies:
+# - curl
+# - jq
+# - python
+
+set -e
+
+ENROUTE_VERSION="v0.3.0"
+
+# Variables to access webapp
+ADMIN_HOST_URL="http://localhost:1323"
+
+# Variables to configure proxy
+PROXY_NAME="gw"
+
+# Variables to configure service
+SERVICE_NAME="demo"
+SERVICE_FQDN="enroute.local"
+SERVICE_FQDN_GRPC="127.0.0.1"
+
+# Variables to configure route
+ROUTE_NAME="gs_route"
+ROUTE_PREFIX="/"
+GRPC_ROUTE_NAME="echo_HelloWorld"
+GRPC_ROUTE_PREFIX="/echo/HelloWorld"
+
+# Variables to configure upstream
+UPSTREAM_NAME="server1"
+UPSTREAM_IP="127.0.0.1"
+UPSTREAM_PORT="50051"
+UPSTREAM_WEIGHT="100"
+UPSTREAM_HC_PATH="/"
+
+UPSTREAM_NAME_2="server2"
+UPSTREAM_IP_2="127.0.0.1"
+UPSTREAM_PORT_2="50052"
+UPSTREAM_WEIGHT_2="100"
+UPSTREAM_HC_PATH_2="/"
+
+UPSTREAM_NAME_3="grpc-server"
+UPSTREAM_IP_3="127.0.0.1"
+UPSTREAM_PORT_3="50053"
+UPSTREAM_WEIGHT_3="100"
+UPSTREAM_HC_PATH_3="/"
+
+# Variables for secret
+SECRET_NAME="enroute.local"
+SECRET_KEY_FILE="enroute.local.key"
+SECRET_CERT_FILE="enroute.local.cert"
+
+log() {
+    TIMESTAMP=$(date -u "+%Y-%m-%dT%H:%M:%S.000+0000")
+    MESSAGE=$1
+    echo "{\"timestamp\":\"$TIMESTAMP\",\"detail\":{\"kind\":\"script\",\"info\":\"$MESSAGE\"}}"
+}
+
+create_key_cert() {
+
+	local LOCAL_CN=$1
+	local LOCAL_KEY_FILE=$2
+	local LOCAL_CERT_FILE=$3
+
+	cn=$LOCAL_CN
+
+	openssl req -new -newkey rsa:2048 -days 36500 -nodes -x509 \
+	    -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=$cn" \
+	    -keyout $LOCAL_KEY_FILE -out $LOCAL_CERT_FILE
+	
+	openssl x509 -in $cn.cert -text -noout
+}
+
+send_traffic() {
+	local LOCAL_SERVICE_FQDN=$1
+    echo "curl -k -vvv https://${LOCAL_SERVICE_FQDN}:8443 --resolve ${LOCAL_SERVICE_FQDN}:8443:127.0.0.1"
+    curl -k -vvv https://${LOCAL_SERVICE_FQDN}:8443 --resolve ${LOCAL_SERVICE_FQDN}:8443:127.0.0.1
+}
+
+send_traffic_http() {
+	local LOCAL_SERVICE_FQDN=$1
+    curl -vvv http://${LOCAL_SERVICE_FQDN}:8080 --resolve ${LOCAL_SERVICE_FQDN}:8080:127.0.0.1
+}
+
+create_upstream() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_UPSTREAM_NAME=$2
+	local LOCAL_UPSTREAM_IP=$3
+	local LOCAL_UPSTREAM_PORT=${4}
+	local LOCAL_UPSTREAM_WEIGHT=${5}
+	local LOCAL_UPSTREAM_HC_PATH=${6}
+    local LOCAL_UPSTREAM_IS_GRPC=${7}
+
+    if [ ${LOCAL_UPSTREAM_IS_GRPC} = "grpc" ]
+    then
+    	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/upstream \
+    	    -d "Upstream_name"="${LOCAL_UPSTREAM_NAME}" \
+            -d "Upstream_ip"="${LOCAL_UPSTREAM_IP}" \
+            -d "upstream_port"="${LOCAL_UPSTREAM_PORT}" \
+            -d "Upstream_hc_path"="${LOCAL_UPSTREAM_HC_PATH}" \
+            -d "Upstream_protocol=grpc" \
+            -d "Upstream_weight"="${LOCAL_UPSTREAM_WEIGHT}" | ${PIPE_TO}
+    else
+    	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/upstream \
+    	    -d "Upstream_name"="${LOCAL_UPSTREAM_NAME}" \
+            -d "Upstream_ip"="${LOCAL_UPSTREAM_IP}" \
+            -d "upstream_port"="${LOCAL_UPSTREAM_PORT}" \
+            -d "Upstream_hc_path"="${LOCAL_UPSTREAM_HC_PATH}" \
+            -d "Upstream_weight"="${LOCAL_UPSTREAM_WEIGHT}" | ${PIPE_TO}
+    fi
+}
+
+create_proxy() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_PROXY_NAME=$2
+
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/proxy \
+        -d "Name"-"${LOCAL_PROXY_NAME}" | ${PIPE_TO}
+}
+
+create_service() {
+
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_SERVICE_NAME=$2
+	local LOCAL_SERVICE_FQDN=$3
+
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/service \
+		-d "Service_Name"="${LOCAL_SERVICE_NAME}"   \
+        -d "fqdn"="${LOCAL_SERVICE_FQDN}" | ${PIPE_TO}
+}
+
+create_route() {
+
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_SERVICE_NAME=$2
+	local LOCAL_ROUTE_NAME=$3
+	local LOCAL_ROUTE_PREFIX=$4
+
+    echo "Received ${LOCAL_ADMIN_HOST_URL} ${LOCAL_SERVICE_NAME} ${LOCAL_ROUTE_NAME} ${LOCAL_ROUTE_PREFIX}"
+
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route \
+		-d "Route_Name"="${LOCAL_ROUTE_NAME}"                                   \
+        -d "Route_prefix"="${LOCAL_ROUTE_PREFIX}" | ${PIPE_TO}
+}
+
+create_and_associate_upstream() {
+
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_UPSTREAM_NAME=$2
+	local LOCAL_UPSTREAM_IP=$3
+	local LOCAL_UPSTREAM_PORT=${4}
+	local LOCAL_UPSTREAM_WEIGHT=${5}
+	local LOCAL_UPSTREAM_HC_PATH=${6}
+    local LOCAL_SERVICE_NAME=${7}
+    local LOCAL_ROUTE_NAME=${8}
+    local LOCAL_UPSTREAM_IS_GRPC=${9}
+
+	log "create_and_associate_upstream()"
+
+    create_upstream ${LOCAL_ADMIN_HOST_URL} ${LOCAL_UPSTREAM_NAME} ${LOCAL_UPSTREAM_IP} ${LOCAL_UPSTREAM_PORT} ${LOCAL_UPSTREAM_WEIGHT} ${LOCAL_UPSTREAM_HC_PATH} ${LOCAL_UPSTREAM_IS_GRPC}
+
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME} | ${PIPE_TO}
+}
+
+create_service_route_upstream() {
+
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_PROXY_NAME=$2
+	local LOCAL_SERVICE_NAME=$3
+	local LOCAL_SERVICE_FQDN=$4
+	local LOCAL_ROUTE_NAME=$5
+	local LOCAL_ROUTE_PREFIX=$6
+	local LOCAL_UPSTREAM_NAME=$7
+	local LOCAL_UPSTREAM_IP=$8
+	local LOCAL_UPSTREAM_PORT=${9}
+	local LOCAL_UPSTREAM_WEIGHT=${10}
+	local LOCAL_UPSTREAM_HC_PATH=${11}
+	local LOCAL_UPSTREAM_IS_GRPC=${12}
+
+    log "create_service_route_upstream() ${LOCAL_UPSTREAM_IS_GRPC}"
+
+	log "CREATE PROXY ${LOCAL_PROXY_NAME}"
+	
+    create_proxy ${LOCAL_ADMIN_HOST_URL} ${LOCAL_PROXY_NAME}
+	
+	log "CREATE SERVICE ${LOCAL_SERVICE_NAME}"
+	
+    create_service ${ADMIN_HOST_URL} ${LOCAL_SERVICE_NAME} ${LOCAL_SERVICE_FQDN}
+
+	log "CREATE ROUTE "
+	
+    create_route ${LOCAL_ADMIN_HOST_URL} ${LOCAL_SERVICE_NAME} ${LOCAL_ROUTE_NAME} ${LOCAL_ROUTE_PREFIX}
+	
+	log "CREATE UPSTREAM - IP:${LOCAL_UPSTREAM_IP} PORT:${LOCAL_UPSTREAM_PORT}"
+	
+    create_upstream ${LOCAL_ADMIN_HOST_URL} ${LOCAL_UPSTREAM_NAME} ${LOCAL_UPSTREAM_IP} ${LOCAL_UPSTREAM_PORT} ${LOCAL_UPSTREAM_WEIGHT} ${LOCAL_UPSTREAM_HC_PATH} ${LOCAL_UPSTREAM_IS_GRPC}
+
+	log "ATTACH upstream to route"
+	
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME} | ${PIPE_TO}
+	
+	log "Dump service ${LOCAL_SERVICE_NAME}"
+	
+	curl -s ${LOCAL_ADMIN_HOST_URL}/service/dump/${LOCAL_SERVICE_NAME} | ${PIPE_TO}
+}
+
+associate_proxy_service() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_PROXY_NAME=$2
+	local LOCAL_SERVICE_NAME=$3
+
+	log "Associate SERVICE ${LOCAL_SERVICE_NAME} <--> PROXY ${LOCAL_PROXY_NAME}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/proxy/${LOCAL_PROXY_NAME}/service/${LOCAL_SERVICE_NAME} | ${PIPE_TO}
+}
+
+associate_secret_to_service() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_SERVICE_NAME=$2
+	local LOCAL_SECRET_NAME=$3
+
+	log "Associate SECRET ${LOCAL_SECRET_NAME} <--> SERVICE ${LOCAL_SERVICE_NAME}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/secret/${LOCAL_SECRET_NAME} | ${PIPE_TO}
+}
+
+
+create_secret() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_SECRET_NAME=$2
+	local LOCAL_SECRET_KEY_FILE=$3
+	local LOCAL_SECRET_CERT_FILE=$4
+
+	log "CREATE SECRET ${LOCAL_SECRET_NAME}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret -d "Secret_Name"="${LOCAL_SECRET_NAME}" | ${PIPE_TO}
+
+	log "curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/key -F 'Secret_key=@'${LOCAL_SECRET_KEY_FILE}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/key -F 'Secret_key=@'${LOCAL_SECRET_KEY_FILE} | ${PIPE_TO}
+
+	log "curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/cert -F 'Secret_cert=@'${LOCAL_SECRET_CERT_FILE}"
+	curl -s -X POST ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}/cert -F 'Secret_cert=@'${LOCAL_SECRET_CERT_FILE} | ${PIPE_TO}
+}
+
+list_secret() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	curl -s ${LOCAL_ADMIN_HOST_URL}/secret | ${PIPE_TO}
+}
+
+delete_service_route_upstream() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_PROXY_NAME=$2
+	local LOCAL_SERVICE_NAME=$3
+	local LOCAL_ROUTE_NAME=$4
+	local LOCAL_UPSTREAM_NAME=$5
+	local LOCAL_SECRET_NAME=$6
+	local LOCAL_UPSTREAM_NAME2=$7
+	local LOCAL_UPSTREAM_NAME3=$8
+	local LOCAL_ROUTE_NAME_GRPC=$9
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME2}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME2} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${GRPC_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME3}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${GRPC_ROUTE_NAME}/upstream/${LOCAL_UPSTREAM_NAME3} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME2}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME2} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME3}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME3} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${LOCAL_ROUTE_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${GRPC_ROUTE_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/route/${GRPC_ROUTE_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/secret/${LOCAL_SECRET_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}/secret/${LOCAL_SECRET_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/secret/${LOCAL_SECRET_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/proxy/${LOCAL_PROXY_NAME}/service/${SERVICE_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/proxy/${LOCAL_PROXY_NAME}/service/${SERVICE_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME}"
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/service/${LOCAL_SERVICE_NAME} | ${PIPE_TO}
+
+	log "curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/proxy/${LOCAL_PROXY_NAME}"
+
+	curl -s -X DELETE ${LOCAL_ADMIN_HOST_URL}/proxy/${LOCAL_PROXY_NAME} | ${PIPE_TO}
+}
+
+PIPE_TO=""
+
+check_jq() {
+    if hash jq 2>/dev/null; then
+        PIPE_TO="jq"
+	elif hash python 2>/dev/null; then
+		PIPE_TO="python -m json.tool"
+	else
+		PIPE_TO="cat"
+    fi
+}
+
+check_py() {
+    if hash python 2>/dev/null; then
+		echo "Checking for python..."
+	else
+		echo "Python not found. Please install python first"
+		exit 1
+    fi
+}
+
+check_curl() {
+    if hash curl 2>/dev/null; then
+		echo "Checking for curl..."
+	else
+		echo "curl not found. Please install curl first"
+		exit 1
+    fi
+}
+
+dump_proxy() {
+	local LOCAL_ADMIN_HOST_URL=$1
+    
+	log "Dump proxies"
+	curl -s ${LOCAL_ADMIN_HOST_URL}/proxy/dump | ${PIPE_TO}
+}
+
+dump_service() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_SERVICE_NAME=$2
+
+	log "Dump service"
+	curl -s ${LOCAL_ADMIN_HOST_URL}/service/dump/${LOCAL_SERVICE_NAME} | ${PIPE_TO}
+}
+
+dump_upstream() {
+	local LOCAL_ADMIN_HOST_URL=$1
+	local LOCAL_UPSTREAM_NAME=$2
+
+	log "Dump upstream"
+	curl -s ${LOCAL_ADMIN_HOST_URL}/upstream/${LOCAL_UPSTREAM_NAME} | ${PIPE_TO}
+}
+
+start_server() {
+    local LOCAL_SERVER_PORT=$1
+    python -m SimpleHTTPServer ${LOCAL_SERVER_PORT}
+}
+
+start_grpc_server() {
+    local LOCAL_SERVER_PORT=$1
+    grpc_client_server -role server -host 127.0.0.1 -port  ${LOCAL_SERVER_PORT}
+}
+
+start_grpc_client() {
+    local LOCAL_SERVER_PORT=$1
+    grpc_client_server -role client -host 127.0.0.1 -port  ${LOCAL_SERVER_PORT} -id 3
+}
+
+usage() {
+    echo $"
+    Bash script for getting started with Enroute Standalone API Gateway.
+
+    Uses curl to make REST calls to program locally running Enroute Standalone API Gateway 
+
+    Run Enroute first -
+        
+        sudo docker run --net=host saarasio/enroute-gw:${ENROUTE_VERSION}
+
+    Then use this script to program it.
+
+    Usage: $0 [option]
+
+     options:
+
+         create-http        - create service, route, upstream
+         send-http-traffic  - use this option to send http traffic
+
+         create-https       - create service, secret, route, upstream
+         send-https-traffic - use this option to send https traffic
+
+         create-grpc        - create service, route, upstream for grpc
+         send-grpc-traffic  - sends grpc traffic (grpc_client_server -role client -host 127.0.0.1 -port 8080 -id 3)
+
+         start-server       - Runs server using python (python -m SimpleHTTPServer 50051)
+         start-server-grpc  - Runs server using grpc_client_server (grpc_client_server -role server -host 127.0.0.1 -port 50053)
+
+         show
+         delete
+
+      Example:
+
+        $0 create-https
+        $0 delete
+        $0 show
+                     "
+}
+
+check_jq
+check_py
+check_curl
+
+case "$1" in
+    create-http)
+        U_PROTO="http"
+		create_service_route_upstream ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${SERVICE_FQDN} ${ROUTE_NAME} ${ROUTE_PREFIX} ${UPSTREAM_NAME} ${UPSTREAM_IP} ${UPSTREAM_PORT} ${UPSTREAM_WEIGHT} ${UPSTREAM_HC_PATH} ${U_PROTO}
+        associate_proxy_service ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME}
+            ;;
+    send-http-traffic)
+		send_traffic_http ${SERVICE_FQDN}
+            ;;
+
+	create-https)
+        U_PROTO="http"
+		create_service_route_upstream ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${SERVICE_FQDN} ${ROUTE_NAME} ${ROUTE_PREFIX} ${UPSTREAM_NAME} ${UPSTREAM_IP} ${UPSTREAM_PORT} ${UPSTREAM_WEIGHT} ${UPSTREAM_HC_PATH} ${U_PROTO}
+        associate_proxy_service ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME}
+		create_key_cert ${SERVICE_FQDN} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
+		create_secret ${ADMIN_HOST_URL} ${SECRET_NAME} ${SECRET_KEY_FILE} ${SECRET_CERT_FILE}
+        associate_secret_to_service ${ADMIN_HOST_URL} ${SERVICE_NAME} ${SECRET_NAME}
+            ;;
+    send-https-traffic)
+		send_traffic ${SERVICE_FQDN}
+            ;;
+
+	create-grpc)
+        U_PROTO="grpc"
+        create_proxy ${LOCAL_ADMIN_HOST_URL} ${LOCAL_PROXY_NAME}
+        create_service ${ADMIN_HOST_URL} ${SERVICE_NAME} ${SERVICE_FQDN_GRPC}
+        create_route ${ADMIN_HOST_URL} ${SERVICE_NAME} ${GRPC_ROUTE_NAME} ${GRPC_ROUTE_PREFIX}
+		create_and_associate_upstream ${ADMIN_HOST_URL} ${UPSTREAM_NAME_3} ${UPSTREAM_IP_3} ${UPSTREAM_PORT_3} ${UPSTREAM_WEIGHT_3} ${UPSTREAM_HC_PATH_3} ${SERVICE_NAME} ${GRPC_ROUTE_NAME} ${U_PROTO}
+        associate_proxy_service ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME}
+            ;;
+     send-grpc-traffic)
+         echo "grpc_client_server -role client -host 127.0.0.1 -port 8080 -id 3"
+            ;;
+    start-server)
+		start_server 50051
+            ;;
+    start-server-grpc)
+         echo "grpc_client_server -role server -host 127.0.0.1 -port 50053"
+            ;;
+    show)
+		dump_proxy ${ADMIN_HOST_URL}
+            ;;
+    delete)
+		delete_service_route_upstream ${ADMIN_HOST_URL} ${PROXY_NAME} ${SERVICE_NAME} ${ROUTE_NAME} ${UPSTREAM_NAME} ${SECRET_NAME} ${UPSTREAM_NAME_2} ${UPSTREAM_NAME_3} ${GRPC_ROUTE_NAME}
+            ;;
+    *)
+            usage
+            exit 1
+esac

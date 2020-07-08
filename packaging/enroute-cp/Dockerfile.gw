@@ -56,6 +56,9 @@ RUN chmod +x /bin/run_pg_prep.sh
 COPY run_enroute_envoy.sh /bin/
 RUN chmod +x /bin/run_enroute_envoy.sh
 
+# 1.4.5
+COPY redis-server /bin/
+
 # 1.5
 COPY supervisord.conf.gw /etc/supervisor/conf.d/supervisord.conf
 
@@ -78,7 +81,7 @@ RUN echo "host all  all    127.0.0.1/32  trust" >> /etc/postgresql/11/main/pg_hb
 # Allow other processes to reach posgresql on port 5432
 EXPOSE 5432
 
-# Allow other processes to reach hasura on port 8080
+# Allow other processes to reach hasura on port 8888
 EXPOSE 8888
 
 # Setup volume for postgresql

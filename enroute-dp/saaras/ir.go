@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package saaras
 
 import (
 	"fmt"
 	_ "github.com/davecgh/go-spew/spew"
-	"github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,8 +18,18 @@ import (
 )
 
 const QIngressRoute string = `
+
 query get_services_by_proxy($proxy_name: String!) {
   saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
+    proxy {
+      proxy_globalconfigs {
+        globalconfig {
+          globalconfig_type
+          globalconfig_name
+          config
+        }
+      }
+    }
     service {
       service_id
       service_name
@@ -51,6 +61,26 @@ query get_services_by_proxy($proxy_name: String!) {
             update_ts
           }
         }
+        route_filters {
+          filter {
+            filter_id
+            filter_name
+            filter_type
+            filter_config
+            create_ts
+            update_ts
+          }
+        }
+      }
+      service_filters {
+        filter {
+          filter_id
+          filter_name
+          filter_type
+          filter_config
+          create_ts
+          update_ts
+        }
       }
       service_secrets {
         secret {
@@ -72,6 +102,7 @@ query get_services_by_proxy($proxy_name: String!) {
     }
   }
 }
+
 `
 
 type SaarasCluster struct {
@@ -117,15 +148,6 @@ type SaarasOrg struct {
 	Org_id   string
 }
 
-// SaarasIngressRoute is similar to IngressRoute
-// - A GraphQL query fetches state from the saaras cloud.
-//		The query roughly represents an object similar to IngressRoute
-//    The query constructs this object by querying multiple tables and performing joins
-//    Once the query response is received, we check the query results with current state
-//    This will help us determine if we already know about this object and if it is an
-//			Add/Update/Delete operation. Once we know what it is, we can generate the
-//      the corresponding event (Add/Update/Delete) and call the functions similar to
-//      ResourceEventHandler interface
 type SaarasIngressRoute struct {
 	App_id                      string
 	App_name                    string
@@ -167,12 +189,17 @@ type SaarasMicroService2 struct {
 	Upstream SaarasUpstream
 }
 
+type SaarasRFilter struct {
+	Filter cfg.SaarasRouteFilter
+}
+
 type SaarasRoute2 struct {
 	Route_name      string
 	Route_prefix    string
 	Create_ts       string
 	Update_ts       string
 	Route_upstreams []SaarasMicroService2
+	Route_filters   []SaarasRFilter
 }
 
 type SaarasArtifact struct {
@@ -197,6 +224,15 @@ type SaarasSecrets struct {
 	Secret SaarasSecret
 }
 
+type SaarasServiceFilters struct {
+	Filter struct {
+		Filter_id     int    `json:"filter_id"`
+		Filter_name   string `json:"filter_name"`
+		Filter_type   string `json:"filter_type"`
+		Filter_config string `json:"filter_config"`
+	} `json:"filter"`
+}
+
 type SaarasIngressRoute2 struct {
 	Service_id      int64
 	Service_name    string
@@ -205,10 +241,24 @@ type SaarasIngressRoute2 struct {
 	Update_ts       string
 	Routes          []SaarasRoute2
 	Service_secrets []SaarasSecrets
+	Service_filters []SaarasServiceFilters
+}
+
+type SaarasProxyConfig struct {
+	Global_config string
 }
 
 type SaarasIngressRouteService struct {
 	Service SaarasIngressRoute2
+	Proxy   struct {
+		ProxyGlobalconfigs []struct {
+			Globalconfig struct {
+				GlobalconfigType string `json:"globalconfig_type"`
+				GlobalconfigName string `json:"globalconfig_name"`
+				Config           string `json:"config"`
+			} `json:"globalconfig"`
+		} `json:"proxy_globalconfigs"`
+	} `json:"proxy"`
 }
 
 type SaarasApp2 struct {
@@ -310,16 +360,53 @@ func getIrSecretName2(sir *SaarasIngressRouteService) string {
 	return secret_name
 }
 
+func getIrTLS(sir *SaarasIngressRouteService) *v1beta1.TLS {
+	secret_name := getIrSecretName2(sir)
+	if len(secret_name) > 0 {
+		return &v1beta1.TLS{
+			SecretName: secret_name,
+		}
+	} else {
+		return nil
+	}
+}
+
+func saaras_ir_host_filter__to__v1b1_host_filter(sir *SaarasIngressRouteService) []v1beta1.HostAttachedFilter {
+	haf_slice := []v1beta1.HostAttachedFilter{}
+
+	for _, oneServiceFilter := range sir.Service.Service_filters {
+		v1b1_haf := v1beta1.HostAttachedFilter{
+			Name: oneServiceFilter.Filter.Filter_name,
+			Type: oneServiceFilter.Filter.Filter_type,
+		}
+		haf_slice = append(haf_slice, v1b1_haf)
+	}
+
+	return haf_slice
+}
+
+func saaras_ir_route_filter__to__v1b1_route_filter(r SaarasRoute2) []v1beta1.RouteAttachedFilter {
+	raf_slice := []v1beta1.RouteAttachedFilter{}
+
+	for _, oneRouteFilter := range r.Route_filters {
+		v1b1_raf := v1beta1.RouteAttachedFilter{
+			Name: oneRouteFilter.Filter.Filter_name,
+			Type: oneRouteFilter.Filter.Filter_type,
+		}
+		raf_slice = append(raf_slice, v1b1_raf)
+	}
+	return raf_slice
+}
+
 func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRoute {
 	routes := make([]v1beta1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
 		route := v1beta1.Route{
 			Match:    oneRoute.Route_prefix,
 			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
-			RLPolicy: &v1beta1.RateLimitPolicy{},
+			Filters:  saaras_ir_route_filter__to__v1b1_route_filter(oneRoute),
 		}
 		routes = append(routes, route)
-
 	}
 	return &v1beta1.IngressRoute{
 		ObjectMeta: metav1.ObjectMeta{
@@ -330,9 +417,8 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 			VirtualHost: &v1beta1.VirtualHost{
 				Fqdn: sir.Service.Fqdn,
 				// TODO
-				TLS: &v1beta1.TLS{
-					SecretName: getIrSecretName2(sir),
-				},
+				TLS:     getIrTLS(sir),
+				Filters: saaras_ir_host_filter__to__v1b1_host_filter(sir),
 			},
 			Routes: routes,
 		},

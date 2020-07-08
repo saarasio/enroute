@@ -32,6 +32,8 @@ func registerBootstrap(app *kingpin.Application) (*kingpin.CmdClause, *bootstrap
 	bootstrap.Flag("admin-port", "Envoy admin interface port").IntVar(&ctx.config.AdminPort)
 	bootstrap.Flag("xds-address", "xDS gRPC API address").StringVar(&ctx.config.XDSAddress)
 	bootstrap.Flag("xds-port", "xDS gRPC API port").IntVar(&ctx.config.XDSGRPCPort)
+	bootstrap.Flag("rl-address", "xDS gRPC API address").StringVar(&ctx.config.RLAddress)
+	bootstrap.Flag("rl-port", "xDS gRPC API port").IntVar(&ctx.config.RLPort)
 	bootstrap.Flag("envoy-cafile", "gRPC CA Filename for Envoy to load").Envar("ENVOY_CAFILE").StringVar(&ctx.config.GrpcCABundle)
 	bootstrap.Flag("envoy-cert-file", "gRPC Client cert filename for Envoy to load").Envar("ENVOY_CERT_FILE").StringVar(&ctx.config.GrpcClientCert)
 	bootstrap.Flag("envoy-key-file", "gRPC Client key filename for Envoy to load").Envar("ENVOY_KEY_FILE").StringVar(&ctx.config.GrpcClientKey)

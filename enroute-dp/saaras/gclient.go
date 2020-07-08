@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Package gql provides a low level GraphQL client.
 //
 //  // create a client (safe to share across requests)

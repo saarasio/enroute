@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,6 +51,49 @@ func TestBootstrap(t *testing.T) {
                       "socket_address": {
                         "address": "127.0.0.1",
                         "port_value": 8001
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "circuit_breakers": {
+          "thresholds": [
+            {
+              "priority": "HIGH",
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            },
+            {
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            }
+          ]
+        },
+        "http2_protocol_options": {}
+      },
+      {
+        "name": "enroute_ratelimit",
+        "alt_stat_name": "testing-ns_enroute_8003",
+        "type": "STRICT_DNS",
+        "connect_timeout": "5s",
+        "load_assignment": {
+          "cluster_name": "enroute_ratelimit",
+          "endpoints": [
+            {
+              "lb_endpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 8003
                       }
                     }
                   }
@@ -196,6 +238,49 @@ func TestBootstrap(t *testing.T) {
         "http2_protocol_options": {}
       },
       {
+        "name": "enroute_ratelimit",
+        "alt_stat_name": "testing-ns_enroute_8003",
+        "type": "STRICT_DNS",
+        "connect_timeout": "5s",
+        "load_assignment": {
+          "cluster_name": "enroute_ratelimit",
+          "endpoints": [
+            {
+              "lb_endpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 8003
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "circuit_breakers": {
+          "thresholds": [
+            {
+              "priority": "HIGH",
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            },
+            {
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            }
+          ]
+        },
+        "http2_protocol_options": {}
+      },
+      {
         "name": "service-stats",
         "alt_stat_name": "testing-ns_service-stats_9200",
         "type": "LOGICAL_DNS",
@@ -310,6 +395,51 @@ func TestBootstrap(t *testing.T) {
         },
         "http2_protocol_options": {}
       },
+
+      {
+        "name": "enroute_ratelimit",
+        "alt_stat_name": "testing-ns_enroute_8003",
+        "type": "STRICT_DNS",
+        "connect_timeout": "5s",
+        "load_assignment": {
+          "cluster_name": "enroute_ratelimit",
+          "endpoints": [
+            {
+              "lb_endpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 8003
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "circuit_breakers": {
+          "thresholds": [
+            {
+              "priority": "HIGH",
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            },
+            {
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            }
+          ]
+        },
+        "http2_protocol_options": {}
+      },
+
       {
         "name": "service-stats",
         "alt_stat_name": "testing-ns_service-stats_9001",
@@ -426,6 +556,52 @@ func TestBootstrap(t *testing.T) {
         },
         "http2_protocol_options": {}
       },
+
+      {
+        "name": "enroute_ratelimit",
+        "alt_stat_name": "testing-ns_enroute_8003",
+        "type": "STRICT_DNS",
+        "connect_timeout": "5s",
+        "load_assignment": {
+          "cluster_name": "enroute_ratelimit",
+          "endpoints": [
+            {
+              "lb_endpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 8003
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "circuit_breakers": {
+          "thresholds": [
+            {
+              "priority": "HIGH",
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            },
+            {
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            }
+          ]
+        },
+        "http2_protocol_options": {}
+      },
+
+
       {
         "name": "service-stats",
         "alt_stat_name": "testing-ns_service-stats_9001",
@@ -540,6 +716,52 @@ func TestBootstrap(t *testing.T) {
         },
         "http2_protocol_options": {}
       },
+
+      {
+        "name": "enroute_ratelimit",
+        "alt_stat_name": "testing-ns_enroute_8003",
+        "type": "STRICT_DNS",
+        "connect_timeout": "5s",
+        "load_assignment": {
+          "cluster_name": "enroute_ratelimit",
+          "endpoints": [
+            {
+              "lb_endpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 8003
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "circuit_breakers": {
+          "thresholds": [
+            {
+              "priority": "HIGH",
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            },
+            {
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            }
+          ]
+        },
+        "http2_protocol_options": {}
+      },
+
+
       {
         "name": "service-stats",
         "alt_stat_name": "testing-ns_service-stats_9001",
@@ -679,6 +901,50 @@ func TestBootstrap(t *testing.T) {
             }
         }
       },
+      {
+        "name": "enroute_ratelimit",
+        "alt_stat_name": "testing-ns_enroute_8003",
+        "type": "STRICT_DNS",
+        "connect_timeout": "5s",
+        "load_assignment": {
+          "cluster_name": "enroute_ratelimit",
+          "endpoints": [
+            {
+              "lb_endpoints": [
+                {
+                  "endpoint": {
+                    "address": {
+                      "socket_address": {
+                        "address": "127.0.0.1",
+                        "port_value": 8003
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "circuit_breakers": {
+          "thresholds": [
+            {
+              "priority": "HIGH",
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            },
+            {
+              "max_connections": 100000,
+              "max_pending_requests": 100000,
+              "max_requests": 60000000,
+              "max_retries": 50
+            }
+          ]
+        },
+        "http2_protocol_options": {}
+      },
+
       {
         "name": "service-stats",
         "alt_stat_name": "testing-ns_service-stats_9001",

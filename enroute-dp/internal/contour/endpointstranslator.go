@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -165,12 +164,15 @@ func (e *EndpointsTranslator) recomputeClusterLoadAssignment(oldep, newep *v1.En
 			if !ok {
 				cla = &v2.ClusterLoadAssignment{
 					ClusterName: servicename(newep.ObjectMeta, portname),
-					Endpoints:   make([]endpoint.LocalityLbEndpoints, 1),
+					Endpoints: []*endpoint.LocalityLbEndpoints{{
+						LbEndpoints: make([]*endpoint.LbEndpoint, 0, 1),
+					}},
 				}
 				clas[portname] = cla
 			}
 			for _, a := range s.Addresses {
-				cla.Endpoints[0].LbEndpoints = append(cla.Endpoints[0].LbEndpoints, envoy.LBEndpoint(a.IP, int(p.Port)))
+				addr := envoy.SocketAddress(a.IP, int(p.Port))
+				cla.Endpoints[0].LbEndpoints = append(cla.Endpoints[0].LbEndpoints, envoy.LBEndpoint(addr))
 			}
 		}
 	}

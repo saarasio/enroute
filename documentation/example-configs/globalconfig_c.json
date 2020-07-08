@@ -1,0 +1,33 @@
+{    
+    "domain": "enroute",
+    "descriptors": [
+        {
+            "key": "generic_key",
+            "value": "default",
+            "descriptors": [
+                {
+                    "key": "remote_address",
+                    "rate_limit": {
+                        "unit": "second",
+                        "requests_per_unit": 5
+                    }
+                }
+            ]
+        },
+        {
+            "key": "remote_address",
+            "rate_limit": {
+                "unit": "second",
+                "requests_per_unit": 10
+            }
+        },
+        {
+            "key": "remote_address",
+            "value": "127.0.0.1",
+            "rate_limit": {
+                "unit": "second",
+                "requests_per_unit": 0
+            }
+        }
+    ]
+}

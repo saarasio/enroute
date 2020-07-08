@@ -1,6 +1,7 @@
 FROM 			envoyproxy/envoy:v1.11.1
 WORKDIR 		/enroute
 COPY 			enroute /enroute
+COPY 			redis-server /bin
 COPY 			entrypoint.sh /enroute
 
 # write bootstrap config

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -460,12 +459,12 @@ func TestVirtualHost(t *testing.T) {
 	tests := map[string]struct {
 		hostname string
 		port     int
-		want     route.VirtualHost
+		want     *route.VirtualHost
 	}{
 		"default hostname": {
 			hostname: "*",
 			port:     9999,
-			want: route.VirtualHost{
+			want: &route.VirtualHost{
 				Name:    "*",
 				Domains: []string{"*"},
 			},
@@ -473,7 +472,7 @@ func TestVirtualHost(t *testing.T) {
 		"www.example.com": {
 			hostname: "www.example.com",
 			port:     9999,
-			want: route.VirtualHost{
+			want: &route.VirtualHost{
 				Name:    "www.example.com",
 				Domains: []string{"www.example.com", "www.example.com:*"},
 			},
@@ -492,7 +491,7 @@ func TestVirtualHost(t *testing.T) {
 func TestPrefixMatch(t *testing.T) {
 	const prefix = "/kang"
 	got := RouteMatch(prefix)
-	want := route.RouteMatch{
+	want := &route.RouteMatch{
 		PathSpecifier: &route.RouteMatch_Prefix{
 			Prefix: prefix,
 		},
@@ -506,7 +505,7 @@ func TestPrefixMatch(t *testing.T) {
 func TestRegexMatch(t *testing.T) {
 	const prefix = "/[^/]+/media(/.*|/?)"
 	got := RouteMatch(prefix)
-	want := route.RouteMatch{
+	want := &route.RouteMatch{
 		PathSpecifier: &route.RouteMatch_Regex{
 			Regex: prefix,
 		},

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2017 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +23,7 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	"github.com/google/go-cmp/cmp"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -3156,6 +3155,7 @@ func TestDAGRootNamespaces(t *testing.T) {
 			for _, o := range tc.objs {
 				kc.Insert(o)
 			}
+
 			dag := BuildDAG(kc)
 
 			var count int
@@ -3721,6 +3721,7 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 			for _, o := range tc.objs {
 				kc.Insert(o)
 			}
+
 			dag := BuildDAG(kc)
 			got := dag.Statuses()
 			if len(tc.want) != len(got) {
@@ -3857,6 +3858,7 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 			for _, o := range tc.objs {
 				kc.Insert(o)
 			}
+
 			dag := BuildDAG(&kc)
 			got := make(map[int]*Listener)
 			dag.Visit(listenerMap(got).Visit)

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package saaras
 
 import (
-	"github.com/saarasio/enroute/enroute-dp/internal/config"
+	cfg "github.com/saarasio/enroute/enroute-dp/internal/config"
 	"github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,7 +25,7 @@ query get_proxygroup_config_by_name($pgname: String!) {
 `
 
 type ProxyGroupConfig struct {
-	Saaras_db_proxygroup_config []config.SaarasProxyGroupConfig
+	Saaras_db_proxygroup_config []cfg.SaarasProxyGroupConfig
 }
 
 type DataPayloadProxyGroup struct {
@@ -34,7 +33,7 @@ type DataPayloadProxyGroup struct {
 	Errors []GraphErr
 }
 
-func pg_equal(pg1, pg2 *config.SaarasProxyGroupConfig) bool {
+func pg_equal(pg1, pg2 *cfg.SaarasProxyGroupConfig) bool {
 
 	if pg1.Proxygroup_id == pg2.Proxygroup_id &&
 		pg1.Proxygroup_name == pg2.Proxygroup_name &&
@@ -46,7 +45,7 @@ func pg_equal(pg1, pg2 *config.SaarasProxyGroupConfig) bool {
 	return false
 }
 
-func saaras_pg_to_saaras_ms(pg *config.SaarasProxyGroupConfig) *SaarasMicroService {
+func saaras_pg_to_saaras_ms(pg *cfg.SaarasProxyGroupConfig) *SaarasMicroService {
 	p, _ := strconv.Atoi(pg.Trace_service_port)
 	p_i32 := int32(p)
 	return &SaarasMicroService{
@@ -59,7 +58,7 @@ func saaras_pg_to_saaras_ms(pg *config.SaarasProxyGroupConfig) *SaarasMicroServi
 	}
 }
 
-func saaras_pg_to_v1_ep(pg *config.SaarasProxyGroupConfig) *v1.Endpoints {
+func saaras_pg_to_v1_ep(pg *cfg.SaarasProxyGroupConfig) *v1.Endpoints {
 
 	p, _ := strconv.Atoi(pg.Trace_service_port)
 	p_i32 := int32(p)
@@ -94,9 +93,9 @@ func saaras_pg_to_v1_ep(pg *config.SaarasProxyGroupConfig) *v1.Endpoints {
 	}
 }
 
-func saaras_cluster_slice_to_map(sc *[]config.SaarasProxyGroupConfig, log logrus.FieldLogger) (*[]string, *map[string]*config.SaarasProxyGroupConfig) {
-	var m map[string]*config.SaarasProxyGroupConfig
-	m = make(map[string]*config.SaarasProxyGroupConfig)
+func saaras_cluster_slice_to_map(sc *[]cfg.SaarasProxyGroupConfig, log logrus.FieldLogger) (*[]string, *map[string]*cfg.SaarasProxyGroupConfig) {
+	var m map[string]*cfg.SaarasProxyGroupConfig
+	m = make(map[string]*cfg.SaarasProxyGroupConfig)
 
 	keys := make([]string, 0)
 

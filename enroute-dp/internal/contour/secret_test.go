@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 package contour
 
 import (
@@ -13,7 +12,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/prometheus/client_golang/prometheus"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	v1 "k8s.io/api/core/v1"

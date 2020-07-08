@@ -1,0 +1,39 @@
+{
+    "domain": "enroute",
+    "descriptors": [
+        {
+            "key" : "generic_key",
+            "value": "config_dump",
+            "descriptors" : [
+                {
+                    "key": "remote_address",
+                    "descriptors" : [
+                        {
+                            "key" : "x-request-id",
+                            "rate_limit": {
+                                "unit": "second",
+                                "requests_per_unit": 10
+                            }
+                        }
+                    ]
+
+                }
+            ]
+        },
+        {
+            "key": "remote_address",
+            "rate_limit": {
+                "unit": "second",
+                "requests_per_unit": 0
+            }
+        },
+        {
+            "key": "x-request-id",
+            "rate_limit": {
+                "unit": "second",
+                "requests_per_unit": 11
+            }
+        }
+
+    ]
+}

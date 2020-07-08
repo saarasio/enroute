@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +22,8 @@ import (
 	"time"
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"k8s.io/api/core/v1"
 )
 
@@ -51,7 +51,14 @@ func (d *DAG) Statuses() map[Meta]Status {
 	return d.statuses
 }
 
-type RateLimitPolicy struct {
+type RouteFilter struct {
+	Filters     []*cfg.SaarasRouteFilter
+	has_changed bool
+}
+
+type HttpFilter struct {
+	Filters     []*cfg.SaarasRouteFilter
+	has_changed bool
 }
 
 type Route struct {
@@ -75,7 +82,7 @@ type Route struct {
 	// Indicates that during forwarding, the matched prefix (or path) should be swapped with this value
 	PrefixRewrite string
 
-	RateLimitPol *RateLimitPolicy
+	RouteFilters *RouteFilter
 }
 
 // TimeoutPolicy defines the timeout request/idle
@@ -123,6 +130,8 @@ type VirtualHost struct {
 	// Name is the fully qualified domain name of a network host,
 	// as defined by RFC 3986.
 	Name string
+
+	HttpFilters *HttpFilter
 
 	routes map[string]*Route
 

@@ -1,0 +1,22 @@
+ubuntu@ip-10-0-10-0:~/yaml$ openssl req -newkey rsa:2048 -nodes -keyout httpbin.key.pem -x509 -days 365 -out httpbin.certificate.pem
+Can't load /home/ubuntu/.rnd into RNG
+139705085694400:error:2406F079:random number generator:RAND_load_file:Cannot open file:../crypto/rand/randfile.c:88:Filename=/home/ubuntu/.rnd
+Generating a RSA private key
+............................................+++++
+...............................................+++++
+writing new private key to 'httpbin.key.pem'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:
+State or Province Name (full name) [Some-State]:
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:httpbin.local
+Email Address []:

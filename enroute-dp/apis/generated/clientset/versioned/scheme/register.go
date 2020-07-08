@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright(c) 2018-2019 Saaras Inc.
+
 /*
-Copyright 2019 Heptio
+Copyright 2019  Heptio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +22,7 @@ limitations under the License.
 package scheme
 
 import (
-	contourv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	enroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -31,7 +34,7 @@ var Scheme = runtime.NewScheme()
 var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
-	contourv1beta1.AddToScheme,
+	enroutev1beta1.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition

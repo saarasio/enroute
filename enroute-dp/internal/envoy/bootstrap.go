@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +26,6 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	clusterv2 "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 	bootstrap "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v2"
 	//ratelimit "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
 )
@@ -53,19 +51,17 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 			CdsConfig: ConfigSource("enroute"),
 		},
 		StaticResources: &bootstrap.Bootstrap_StaticResources{
-			Clusters: []api.Cluster{{
+			Clusters: []*api.Cluster{{
 				Name:                 "enroute",
 				AltStatName:          strings.Join([]string{c.Namespace, "enroute", strconv.Itoa(intOrDefault(c.XDSGRPCPort, 8001))}, "_"),
-				ConnectTimeout:       5 * time.Second,
+				ConnectTimeout:       duration(5 * time.Second),
 				ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_STRICT_DNS),
 				LbPolicy:             api.Cluster_ROUND_ROBIN,
 				LoadAssignment: &api.ClusterLoadAssignment{
 					ClusterName: "enroute",
-					Endpoints: []endpoint.LocalityLbEndpoints{{
-						LbEndpoints: []endpoint.LbEndpoint{
-							LBEndpoint(stringOrDefault(c.XDSAddress, "127.0.0.1"), intOrDefault(c.XDSGRPCPort, 8001)),
-						},
-					}},
+                    Endpoints: Endpoints(
+                        SocketAddress(stringOrDefault(c.XDSAddress, "127.0.0.1"), intOrDefault(c.XDSGRPCPort, 8001)),
+                    ),
 				},
 				Http2ProtocolOptions: new(core.Http2ProtocolOptions), // enables http2
 				CircuitBreakers: &clusterv2.CircuitBreakers{
@@ -83,21 +79,49 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 						MaxRetries:         u32(50),
 					}},
 				},
-			}, {
-				Name:                 "service-stats",
-				AltStatName:          strings.Join([]string{c.Namespace, "service-stats", strconv.Itoa(intOrDefault(c.AdminPort, 9001))}, "_"),
-				ConnectTimeout:       250 * time.Millisecond,
-				ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_LOGICAL_DNS),
-				LbPolicy:             api.Cluster_ROUND_ROBIN,
-				LoadAssignment: &api.ClusterLoadAssignment{
-					ClusterName: "service-stats",
-					Endpoints: []endpoint.LocalityLbEndpoints{{
-						LbEndpoints: []endpoint.LbEndpoint{
-							LBEndpoint(stringOrDefault(c.AdminAddress, "127.0.0.1"), intOrDefault(c.AdminPort, 9001)),
-						},
-					}},
+			},
+				{
+					Name:                 "enroute_ratelimit",
+					AltStatName:          strings.Join([]string{c.Namespace, "enroute", strconv.Itoa(intOrDefault(c.RLPort, 8003))}, "_"),
+					ConnectTimeout:       duration(5 * time.Second),
+					ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_STRICT_DNS),
+					LbPolicy:             api.Cluster_ROUND_ROBIN,
+					LoadAssignment: &api.ClusterLoadAssignment{
+						ClusterName: "enroute_ratelimit",
+                        Endpoints: Endpoints(
+                            SocketAddress(stringOrDefault(c.RLAddress, "127.0.0.1"), intOrDefault(c.RLPort, 8003)),
+                        ),
+					},
+					Http2ProtocolOptions: new(core.Http2ProtocolOptions), // enables http2
+					CircuitBreakers: &clusterv2.CircuitBreakers{
+						Thresholds: []*clusterv2.CircuitBreakers_Thresholds{{
+							Priority:           core.RoutingPriority_HIGH,
+							MaxConnections:     u32(100000),
+							MaxPendingRequests: u32(100000),
+							MaxRequests:        u32(60000000),
+							MaxRetries:         u32(50),
+						}, {
+							Priority:           core.RoutingPriority_DEFAULT,
+							MaxConnections:     u32(100000),
+							MaxPendingRequests: u32(100000),
+							MaxRequests:        u32(60000000),
+							MaxRetries:         u32(50),
+						}},
+					},
 				},
-			}},
+				{
+					Name:                 "service-stats",
+					AltStatName:          strings.Join([]string{c.Namespace, "service-stats", strconv.Itoa(intOrDefault(c.AdminPort, 9001))}, "_"),
+					ConnectTimeout:       duration(250 * time.Millisecond),
+					ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_LOGICAL_DNS),
+					LbPolicy:             api.Cluster_ROUND_ROBIN,
+                    LoadAssignment: &api.ClusterLoadAssignment{
+                        ClusterName: "service-stats",
+                        Endpoints: Endpoints(
+                            SocketAddress(stringOrDefault(c.AdminAddress, "127.0.0.1"), intOrDefault(c.AdminPort, 9001)),
+                        ),
+                    },
+				}},
 		},
 		Admin: &bootstrap.Admin{
 			AccessLogPath: stringOrDefault(c.AdminAccessLogPath, "/dev/null"),
@@ -199,6 +223,10 @@ type BootstrapConfig struct {
 	// XDSGRPCPort is the management server port that provides the v2 gRPC API.
 	// Defaults to 8001.
 	XDSGRPCPort int
+
+	RLAddress string
+
+	RLPort int
 
 	// Namespace is the namespace where Contour is running
 	Namespace string

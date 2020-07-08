@@ -1,0 +1,10 @@
+{
+"Descriptors": 
+	[
+		{"request_headers": {"header_name": "x-ext-auth-ratelimit", "descriptor_key": "ratelimitkey"}},
+		{"request_headers": {"header_name": ":path", "descriptor_key": "path"}},
+		{"source_cluster": "{}"},     
+		{"remote_address": "{}"},
+		{"generic_key": {"descriptor_value": "some_value"}}
+	]
+}

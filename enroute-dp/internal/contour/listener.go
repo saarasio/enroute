@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -240,14 +239,6 @@ type listenerVisitor struct {
 }
 
 func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.Listener {
-    var virtualHost *dag.VirtualHost
-    switch vh := root.(type) {
-    case *dag.VirtualHost:
-        virtualHost = vh
-    case *dag.SecureVirtualHost:
-        virtualHost = &vh.VirtualHost
-    }
-
 	lv := listenerVisitor{
 		ListenerVisitorConfig: lvc,
 		listeners: map[string]*v2.Listener{
@@ -266,7 +257,7 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.
 			ENVOY_HTTP_LISTENER,
 			lvc.httpAddress(), lvc.httpPort(),
 			proxyProtocol(lvc.UseProxyProto),
-			envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, lvc.httpAccessLog(), virtualHost),
+			envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, lvc.httpAccessLog(), &root),
 		)
 
 	}
@@ -286,55 +277,47 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.
 			})
 	}
 
+	// All the listeners have been setup.
+	// Walk through the DAG and update listeners with HttpFilters
+	lv.setupHttpFilters(root)
+
 	return lv.listeners
 }
 
-func proxyProtocol(useProxy bool) []listener.ListenerFilter {
+func proxyProtocol(useProxy bool) []*listener.ListenerFilter {
 	if useProxy {
-		return []listener.ListenerFilter{
+		return envoy.ListenerFilters(
 			envoy.ProxyProtocol(),
-		}
+		)
 	}
 	return nil
 }
 
-func secureProxyProtocol(useProxy bool) []listener.ListenerFilter {
+func secureProxyProtocol(useProxy bool) []*listener.ListenerFilter {
 	return append(proxyProtocol(useProxy), envoy.TLSInspector())
 }
 
 func (v *listenerVisitor) visit(vertex dag.Vertex) {
-    var virtualHost *dag.VirtualHost
 	switch vh := vertex.(type) {
 	case *dag.VirtualHost:
 		// we only create on http listener so record the fact
 		// that we need to then double back at the end and add
 		// the listener properly.
 		v.http = true
-        virtualHost = vh
 	case *dag.SecureVirtualHost:
-        virtualHost = &vh.VirtualHost
-		filters := []listener.Filter{
-			envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, v.httpsAccessLog(), virtualHost),
-		}
+
+		filters := envoy.Filters(
+			envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, v.httpsAccessLog(), &vertex),
+        )
 		alpnProtos := []string{"h2", "http/1.1"}
 		if vh.VirtualHost.TCPProxy != nil {
-			filters = []listener.Filter{
+			filters = envoy.Filters(
 				envoy.TCPProxy(ENVOY_HTTPS_LISTENER, vh.VirtualHost.TCPProxy, v.httpsAccessLog()),
-			}
+            )
 			alpnProtos = nil // do not offer ALPN
 		}
 
-		fc := listener.FilterChain{
-			FilterChainMatch: &listener.FilterChainMatch{
-				ServerNames: []string{vh.VirtualHost.Name},
-			},
-			Filters: filters,
-		}
-
-		// attach certificate data to this listener if provided.
-		if vh.Secret != nil {
-			fc.TlsContext = envoy.DownstreamTLSContext(envoy.Secretname(vh.Secret), vh.MinProtoVersion, alpnProtos...)
-		}
+		fc := envoy.FilterChainTLS(vh.VirtualHost.Name, vh.Secret, filters, vh.MinProtoVersion, alpnProtos...)
 
 		v.listeners[ENVOY_HTTPS_LISTENER].FilterChains = append(v.listeners[ENVOY_HTTPS_LISTENER].FilterChains, fc)
 	default:

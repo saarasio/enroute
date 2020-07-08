@@ -1,5 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright(c) 2018-2019 Saaras Inc.
+
 /*
-Copyright 2019 Heptio
+Copyright 2019  Heptio
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +24,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -52,11 +55,17 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=contour.heptio.com, Version=v1beta1
+	// Group=enroute.saaras.io, Version=v1beta1
+	case v1beta1.SchemeGroupVersion.WithResource("globalconfigs"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1beta1().GlobalConfigs().Informer()}, nil
+	case v1beta1.SchemeGroupVersion.WithResource("httpfilters"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1beta1().HttpFilters().Informer()}, nil
 	case v1beta1.SchemeGroupVersion.WithResource("ingressroutes"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Contour().V1beta1().IngressRoutes().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1beta1().IngressRoutes().Informer()}, nil
+	case v1beta1.SchemeGroupVersion.WithResource("routefilters"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1beta1().RouteFilters().Informer()}, nil
 	case v1beta1.SchemeGroupVersion.WithResource("tlscertificatedelegations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Contour().V1beta1().TLSCertificateDelegations().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1beta1().TLSCertificateDelegations().Informer()}, nil
 
 	}
 

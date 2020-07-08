@@ -1,0 +1,6 @@
+{ "domain": "enroute", "descriptors": [ { "key": "remote_address", "rate_limit": { "unit": "second", "requests_per_unit": 0 } } ] }
+
+{ \"domain\": \"enroute\", \"descriptors\": [ { \"key\": \"remote_address\", \"rate_limit\": { \"unit\": \"second\", \"requests_per_unit\": 0 } } ] }
+
+curl -X POST localhost:1323/globalconfig -H "Content-Type: application/json" -d '{"Globalconfig_name":"test13", "Config":"{ \"domain\" : \"enroute\" }" }'
+curl -X POST localhost:1323/globalconfig -H "Content-Type: application/json" -d '{"Globalconfig_name":"test15", "Config": "{ \"domain\": \"enroute\", \"descriptors\": [ { \"key\": \"remote_address\", \"rate_limit\": { \"unit\": \"second\", \"requests_per_unit\": 0 } } ] }" }'

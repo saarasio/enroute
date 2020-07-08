@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -148,14 +147,14 @@ func (xh *xdsHandler) stream(st grpcStream) (err error) {
 
 // toAny converts the contents of a resourcer's Values to the
 // respective slice of types.Any.
-func toAny(typeURL string, values []proto.Message) ([]types.Any, error) {
-	var resources []types.Any
+func toAny(typeURL string, values []proto.Message) ([]*types.Any, error) {
+	var resources []*types.Any
 	for _, value := range values {
 		v, err := proto.Marshal(value)
 		if err != nil {
 			return nil, err
 		}
-		resources = append(resources, types.Any{TypeUrl: typeURL, Value: v})
+		resources = append(resources, &types.Any{TypeUrl: typeURL, Value: v})
 	}
 	return resources, nil
 }

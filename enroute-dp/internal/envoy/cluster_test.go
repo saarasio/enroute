@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +26,7 @@ import (
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type"
 	"github.com/gogo/protobuf/types"
 	"github.com/google/go-cmp/cmp"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/contour/v1beta1"
+	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -84,7 +83,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -104,7 +103,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:       250 * time.Millisecond,
+				ConnectTimeout:       duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
 				Http2ProtocolOptions: &core.Http2ProtocolOptions{},
 				CommonLbConfig:       ClusterCommonLBConfig(),
@@ -125,7 +124,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:       250 * time.Millisecond,
+				ConnectTimeout:       duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
 				TlsContext:           UpstreamTLSContext(nil, "", "h2"),
 				Http2ProtocolOptions: &core.Http2ProtocolOptions{},
@@ -143,7 +142,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_STRICT_DNS),
 				LoadAssignment:       StaticClusterLoadAssignment(externalnameservice(s2)),
-				ConnectTimeout:       250 * time.Millisecond,
+				ConnectTimeout:       duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig:       ClusterCommonLBConfig(),
 			},
@@ -163,7 +162,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				TlsContext:     UpstreamTLSContext(nil, ""),
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -198,7 +197,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				TlsContext:     UpstreamTLSContext([]byte("cacert"), "foo.bar.io"),
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -222,7 +221,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
@@ -250,7 +249,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
@@ -278,7 +277,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
@@ -306,7 +305,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
@@ -331,7 +330,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_RANDOM,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -351,7 +350,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_RING_HASH,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -372,7 +371,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: 250 * time.Millisecond,
+				ConnectTimeout: duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -395,24 +394,22 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:                250 * time.Millisecond,
+				ConnectTimeout:                duration(250 * time.Millisecond),
 				LbPolicy:                      v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig:                ClusterCommonLBConfig(),
 				DrainConnectionsOnHostRemoval: true,
-				HealthChecks: []*core.HealthCheck{
-					{
-						Timeout:            secondsOrDefault(0, hcTimeout),
-						Interval:           secondsOrDefault(0, hcInterval),
-						UnhealthyThreshold: countOrDefault(0, hcUnhealthyThreshold),
-						HealthyThreshold:   countOrDefault(0, hcHealthyThreshold),
-						HealthChecker: &core.HealthCheck_HttpHealthCheck_{
-							HttpHealthCheck: &core.HealthCheck_HttpHealthCheck{
-								Host: hcHost,
-								Path: "/healthz",
-							},
+				HealthChecks: []*core.HealthCheck{{
+					Timeout:            secondsOrDefault(0, hcTimeout),
+					Interval:           secondsOrDefault(0, hcInterval),
+					UnhealthyThreshold: countOrDefault(0, hcUnhealthyThreshold),
+					HealthyThreshold:   countOrDefault(0, hcHealthyThreshold),
+					HealthChecker: &core.HealthCheck_HttpHealthCheck_{
+						HttpHealthCheck: &core.HealthCheck_HttpHealthCheck{
+							Host: hcHost,
+							Path: "/healthz",
 						},
 					},
-				},
+				}},
 			},
 		},
 	}

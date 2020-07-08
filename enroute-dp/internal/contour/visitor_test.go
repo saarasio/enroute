@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
-
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +71,7 @@ func TestVisitClusters(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/example",
 					},
-					ConnectTimeout: 250 * time.Millisecond,
+					ConnectTimeout: duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -134,17 +133,17 @@ func TestVisitListeners(t *testing.T) {
 			want: listenermap(
 				&v2.Listener{
 					Name:    ENVOY_HTTPS_LISTENER,
-					Address: *envoy.SocketAddress("0.0.0.0", 8443),
-					FilterChains: []listener.FilterChain{{
+					Address: envoy.SocketAddress("0.0.0.0", 8443),
+					FilterChains: []*listener.FilterChain{{
 						FilterChainMatch: &listener.FilterChainMatch{
 							ServerNames: []string{"tcpproxy.example.com"},
 						},
 						TlsContext: tlscontext(auth.TlsParameters_TLSv1_1),
-						Filters:    filters(envoy.TCPProxy(ENVOY_HTTPS_LISTENER, p1, DEFAULT_HTTPS_ACCESS_LOG)),
+						Filters:    envoy.Filters(envoy.TCPProxy(ENVOY_HTTPS_LISTENER, p1, DEFAULT_HTTPS_ACCESS_LOG)),
 					}},
-					ListenerFilters: []listener.ListenerFilter{
+					ListenerFilters: envoy.ListenerFilters(
 						envoy.TLSInspector(),
-					},
+					),
 				},
 			),
 		},

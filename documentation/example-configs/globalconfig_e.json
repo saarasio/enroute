@@ -1,0 +1,12 @@
+{
+    "domain": "enroute",
+    "descriptors": [
+        {
+            "key": "remote_address",
+            "rate_limit": {
+                "unit": "second",
+                "requests_per_unit": 0
+            }
+        }
+    ]
+}
