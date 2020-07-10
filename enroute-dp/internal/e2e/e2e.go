@@ -25,14 +25,17 @@ import (
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	envoy "github.com/envoyproxy/go-control-plane/pkg/cache"
-	"github.com/gogo/protobuf/proto"
-	"github.com/gogo/protobuf/types"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
+
 	cgrpc "github.com/saarasio/enroute/enroute-dp/internal/grpc"
 	"github.com/saarasio/enroute/enroute-dp/internal/k8s"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -170,20 +173,20 @@ func check(t *testing.T, err error) {
 	}
 }
 
-func resources(t *testing.T, protos ...proto.Message) []*types.Any {
+func resources(t *testing.T, protos ...proto.Message) []*any.Any {
 	t.Helper()
-	anys := make([]*types.Any, 0, len(protos))
+	var anys []*any.Any
 	for _, a := range protos {
-		anys = append(anys, any(t, a))
+		anys = append(anys, toAny(t, a))
 	}
 	return anys
 }
 
-func any(t *testing.T, pb proto.Message) *types.Any {
+func toAny(t *testing.T, pb proto.Message) *any.Any {
 	t.Helper()
-	any, err := types.MarshalAny(pb)
+	a, err := ptypes.MarshalAny(pb)
 	check(t, err)
-	return any
+	return a
 }
 
 type grpcStream interface {
@@ -265,5 +268,3 @@ func assertEqual(t *testing.T, want, got *v2.DiscoveryResponse) {
 		t.Fatalf("\nexpected:\n%v\ngot:\n%v", m.Text(want), m.Text(got))
 	}
 }
-
-func u32(val int) *types.UInt32Value { return &types.UInt32Value{Value: uint32(val)} }

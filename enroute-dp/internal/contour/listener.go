@@ -20,10 +20,13 @@ import (
 	"sort"
 	"sync"
 
+	//envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
+	//envoy_api_v2_accesslog "github.com/envoyproxy/go-control-plane/envoy/config/filter/accesslog/v2"
+
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
 	"github.com/envoyproxy/go-control-plane/pkg/cache"
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 )
@@ -284,7 +287,7 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.
 	return lv.listeners
 }
 
-func proxyProtocol(useProxy bool) []*listener.ListenerFilter {
+func proxyProtocol(useProxy bool) []*envoy_api_v2_listener.ListenerFilter {
 	if useProxy {
 		return envoy.ListenerFilters(
 			envoy.ProxyProtocol(),
@@ -293,7 +296,7 @@ func proxyProtocol(useProxy bool) []*listener.ListenerFilter {
 	return nil
 }
 
-func secureProxyProtocol(useProxy bool) []*listener.ListenerFilter {
+func secureProxyProtocol(useProxy bool) []*envoy_api_v2_listener.ListenerFilter {
 	return append(proxyProtocol(useProxy), envoy.TLSInspector())
 }
 

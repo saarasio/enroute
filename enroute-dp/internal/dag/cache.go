@@ -22,7 +22,7 @@ import (
 	"sync"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 	"k8s.io/client-go/tools/cache"
 
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"

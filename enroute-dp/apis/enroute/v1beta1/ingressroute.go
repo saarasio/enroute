@@ -114,7 +114,7 @@ type Service struct {
 	// Port (defined as Integer) to proxy traffic to since a service can have multiple defined
 	Port int `json:"port"`
 	// Weight defines percentage of traffic to balance traffic
-	Weight int `json:"weight,omitempty"`
+	Weight uint32 `json:"weight,omitempty"`
 	// HealthCheck defines optional healthchecks on the upstream service
 	HealthCheck *HealthCheck `json:"healthCheck,omitempty"`
 	// LB Algorithm to apply (see https://github.com/saarasio/enroute/enroute-dp/blob/master/design/ingressroute-design.md#load-balancing)
@@ -160,7 +160,7 @@ type TimeoutPolicy struct {
 type RetryPolicy struct {
 	// NumRetries is maximum allowed number of retries.
 	// If not supplied, the number of retries is zero.
-	NumRetries int `json:"count"`
+	NumRetries uint32 `json:"count"`
 	// PerTryTimeout specifies the timeout per retry attempt.
 	// Ignored if NumRetries is not supplied.
 	PerTryTimeout string `json:"perTryTimeout,omitempty"`

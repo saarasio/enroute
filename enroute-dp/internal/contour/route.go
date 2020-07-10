@@ -21,10 +21,9 @@ import (
 	"sync"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
+	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
 	"github.com/envoyproxy/go-control-plane/pkg/cache"
-	"github.com/gogo/protobuf/proto"
-	"github.com/gogo/protobuf/types"
+	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 )
@@ -88,6 +87,7 @@ func (c *RouteCache) Contents() []proto.Message {
 	return values
 }
 
+// Query searches the RouteCache for the named RouteConfiguration entries.
 func (c *RouteCache) Query(names []string) []proto.Message {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -118,6 +118,7 @@ func (r routeConfigurationsByName) Less(i, j int) bool {
 	return r[i].(*v2.RouteConfiguration).Name < r[j].(*v2.RouteConfiguration).Name
 }
 
+// TypeURL returns the string type of RouteCache Resource.
 func (*RouteCache) TypeURL() string { return cache.RouteType }
 
 type routeVisitor struct {
@@ -155,7 +156,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 							// no services for this route, skip it.
 							return
 						}
-						rr := &route.Route{
+						rr := &envoy_api_v2_route.Route{
 							Match:               envoy.RouteMatch(r.Prefix),
 							Action:              envoy.RouteRoute(r),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -181,7 +182,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 							// no services for this route, skip it.
 							return
 						}
-						vhost.Routes = append(vhost.Routes, &route.Route{
+						vhost.Routes = append(vhost.Routes, &envoy_api_v2_route.Route{
 							Match:               envoy.RouteMatch(r.Prefix),
 							Action:              envoy.RouteRoute(r),
 							RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -204,24 +205,24 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 	}
 }
 
-type virtualHostsByName []*route.VirtualHost
+type virtualHostsByName []*envoy_api_v2_route.VirtualHost
 
 func (v virtualHostsByName) Len() int           { return len(v) }
 func (v virtualHostsByName) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
 func (v virtualHostsByName) Less(i, j int) bool { return v[i].Name < v[j].Name }
 
-type longestRouteFirst []*route.Route
+type longestRouteFirst []*envoy_api_v2_route.Route
 
 func (l longestRouteFirst) Len() int      { return len(l) }
 func (l longestRouteFirst) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
 func (l longestRouteFirst) Less(i, j int) bool {
-	a, ok := l[i].Match.PathSpecifier.(*route.RouteMatch_Prefix)
+	a, ok := l[i].Match.PathSpecifier.(*envoy_api_v2_route.RouteMatch_Prefix)
 	if !ok {
 		// ignore non prefix matches
 		return false
 	}
 
-	b, ok := l[j].Match.PathSpecifier.(*route.RouteMatch_Prefix)
+	b, ok := l[j].Match.PathSpecifier.(*envoy_api_v2_route.RouteMatch_Prefix)
 	if !ok {
 		// ignore non prefix matches
 		return false
@@ -229,5 +230,3 @@ func (l longestRouteFirst) Less(i, j int) bool {
 
 	return a.Prefix < b.Prefix
 }
-
-func u32(val int) *types.UInt32Value { return &types.UInt32Value{Value: uint32(val)} }

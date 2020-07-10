@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/gogo/protobuf/types"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 )
 
 const (
@@ -43,9 +43,12 @@ const (
 
 // parseAnnotation parses the annotation map for the supplied key.
 // If the value is not present, or malformed, then zero is returned.
-func parseAnnotation(annotations map[string]string, annotation string) int {
-	v, _ := strconv.ParseInt(annotations[annotation], 10, 32)
-	return int(v)
+func parseAnnotation(annotations map[string]string, annotation string) uint32 {
+	v, err := strconv.ParseUint(annotations[annotation], 10, 32)
+	if err != nil {
+		return 0
+	}
+	return uint32(v)
 }
 
 // parseAnnotationUint32 parsers the annotation map for the supplied annotation key.

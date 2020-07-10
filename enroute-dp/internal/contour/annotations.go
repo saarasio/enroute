@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/gogo/protobuf/types"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 )
 
 const (

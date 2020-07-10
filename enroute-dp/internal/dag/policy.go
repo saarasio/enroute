@@ -69,7 +69,7 @@ func parseTimeout(timeout string) time.Duration {
 	return d
 }
 
-func max(a, b int) int {
+func max(a, b uint32) uint32 {
 	if a > b {
 		return a
 	}

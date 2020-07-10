@@ -324,7 +324,7 @@ func upstream_service(oneService *SaarasMicroService2) v1beta1.Service {
 	}
 
 	if oneService.Upstream.Upstream_weight > 0 {
-		s.Weight = int(oneService.Upstream.Upstream_weight)
+		s.Weight = uint32(oneService.Upstream.Upstream_weight)
 	}
 
 	if need_hc(oneService) {
@@ -340,7 +340,7 @@ func saaras_route_to_v1b1_service_slice2(sir *SaarasIngressRouteService, r Saara
 		s := v1beta1.Service{
 			Name:        serviceName2(oneService.Upstream.Upstream_name),
 			Port:        int(oneService.Upstream.Upstream_port),
-			Weight:      int(oneService.Upstream.Upstream_weight),
+			Weight:      uint32(oneService.Upstream.Upstream_weight),
 			HealthCheck: upstream_hc(&oneService),
 		}
 		services = append(services, s)
@@ -694,7 +694,7 @@ func saaras_route_to_v1b1_service_slice(sdb *SaarasIngressRoute, r SaarasRoute) 
 				oneService.MicroservicesBymicroserviceId.ClusterByclusterId.Cluster_name,
 				oneService.MicroservicesBymicroserviceId.Microservice_name),
 			Port:   int(oneService.MicroservicesBymicroserviceId.Port),
-			Weight: int(oneService.Load_percentage),
+			Weight: uint32(oneService.Load_percentage),
 		}
 		services = append(services, s)
 	}

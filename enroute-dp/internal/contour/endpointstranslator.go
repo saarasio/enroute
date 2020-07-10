@@ -22,9 +22,9 @@ import (
 	"sync"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
+	envoy_api_v2_endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 	"github.com/envoyproxy/go-control-plane/pkg/cache"
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
@@ -164,8 +164,8 @@ func (e *EndpointsTranslator) recomputeClusterLoadAssignment(oldep, newep *v1.En
 			if !ok {
 				cla = &v2.ClusterLoadAssignment{
 					ClusterName: servicename(newep.ObjectMeta, portname),
-					Endpoints: []*endpoint.LocalityLbEndpoints{{
-						LbEndpoints: make([]*endpoint.LbEndpoint, 0, 1),
+					Endpoints: []*envoy_api_v2_endpoint.LocalityLbEndpoints{{
+						LbEndpoints: make([]*envoy_api_v2_endpoint.LbEndpoint, 0, 1),
 					}},
 				}
 				clas[portname] = cla

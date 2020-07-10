@@ -25,7 +25,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -1999,7 +1999,7 @@ func TestDAGInsert(t *testing.T) {
 								},
 							},
 							Secret:          secret(sec1),
-							MinProtoVersion: auth.TlsParameters_TLSv1_1,
+							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
 						},
 					),
 				},
@@ -2135,7 +2135,7 @@ func TestDAGInsert(t *testing.T) {
 									routeUpgrade("/", httpService(s1)),
 								),
 							},
-							MinProtoVersion: auth.TlsParameters_TLSv1_2,
+							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_2,
 							Secret:          secret(sec1),
 						},
 					),
@@ -2162,7 +2162,7 @@ func TestDAGInsert(t *testing.T) {
 									routeUpgrade("/", httpService(s1)),
 								),
 							},
-							MinProtoVersion: auth.TlsParameters_TLSv1_3,
+							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_3,
 							Secret:          secret(sec1),
 						},
 					),
@@ -2228,7 +2228,7 @@ func TestDAGInsert(t *testing.T) {
 									route("/", httpService(s1)),
 								),
 							},
-							MinProtoVersion: auth.TlsParameters_TLSv1_3,
+							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_3,
 							Secret:          secret(sec1),
 						},
 					),
@@ -3345,27 +3345,6 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		},
 	}
 
-	// ir5 is invalid because its service weight is less than zero
-	ir5 := &ingressroutev1.IngressRoute{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "roots",
-			Name:      "delegated",
-		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
-				Fqdn: "example.com",
-			},
-			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
-				Services: []ingressroutev1.Service{{
-					Name:   "home",
-					Port:   8080,
-					Weight: -10,
-				}},
-			}},
-		},
-	}
-
 	// ir6 is invalid because it delegates to itself, producing a cycle
 	ir6 := &ingressroutev1.IngressRoute{
 		ObjectMeta: metav1.ObjectMeta{
@@ -3652,10 +3631,6 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				{Object: ir1, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
 				{Object: ir4, Status: "invalid", Description: `the path prefix "/doesnotmatch" does not match the parent's path prefix "/prefix"`, Vhost: "example.com"},
 			},
-		},
-		"invalid weight in service": {
-			objs: []interface{}{ir5},
-			want: []Status{{Object: ir5, Status: "invalid", Description: `route "/foo": service "home": weight must be greater than or equal to zero`, Vhost: "example.com"}},
 		},
 		"root ingressroute does not specify FQDN": {
 			objs: []interface{}{ir13},
@@ -4151,7 +4126,7 @@ func securevirtualhost(name string, sec *v1.Secret, routes ...*Route) *SecureVir
 			Name:   name,
 			routes: routemap(routes...),
 		},
-		MinProtoVersion: auth.TlsParameters_TLSv1_1,
+		MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
 		Secret:          secret(sec),
 	}
 }

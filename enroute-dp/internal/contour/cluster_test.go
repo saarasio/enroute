@@ -21,17 +21,19 @@ import (
 	"time"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	"github.com/gogo/protobuf/proto"
-	"github.com/google/go-cmp/cmp"
+	envoy_api_v2_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/prometheus/client_golang/prometheus"
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
-	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
+	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -55,7 +57,7 @@ func TestClusterCacheContents(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -68,7 +70,7 @@ func TestClusterCacheContents(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -81,9 +83,7 @@ func TestClusterCacheContents(t *testing.T) {
 			var cc ClusterCache
 			cc.Update(tc.contents)
 			got := cc.Contents()
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -104,7 +104,7 @@ func TestClusterCacheQuery(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -118,7 +118,7 @@ func TestClusterCacheQuery(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -134,7 +134,7 @@ func TestClusterCacheQuery(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -148,7 +148,7 @@ func TestClusterCacheQuery(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -164,7 +164,7 @@ func TestClusterCacheQuery(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -178,9 +178,7 @@ func TestClusterCacheQuery(t *testing.T) {
 			var cc ClusterCache
 			cc.Update(tc.contents)
 			got := cc.Query(tc.query)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -225,7 +223,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -262,7 +260,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/https",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -303,9 +301,9 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/http",
 					},
-					ConnectTimeout:       duration(250 * time.Millisecond),
+					ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:             v2.Cluster_ROUND_ROBIN,
-					Http2ProtocolOptions: &core.Http2ProtocolOptions{},
+					Http2ProtocolOptions: &envoy_api_v2_core.Http2ProtocolOptions{},
 					CommonLbConfig:       envoy.ClusterCommonLBConfig(),
 				},
 			),
@@ -342,7 +340,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "beurocratic-company-test-domain-1/tiny-cog-department-test-instance/svc-0",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -391,7 +389,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -403,7 +401,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/alt",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -448,15 +446,15 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
-					HealthChecks: []*core.HealthCheck{{
-						Timeout:            duration(2 * time.Second),
-						Interval:           duration(10 * time.Second),
-						UnhealthyThreshold: u32(3),
-						HealthyThreshold:   u32(2),
-						HealthChecker: &core.HealthCheck_HttpHealthCheck_{
-							HttpHealthCheck: &core.HealthCheck_HttpHealthCheck{
+					HealthChecks: []*envoy_api_v2_core.HealthCheck{{
+						Timeout:            &duration.Duration{Seconds: 2},
+						Interval:           &duration.Duration{Seconds: 10},
+						UnhealthyThreshold: protobuf.UInt32(3),
+						HealthyThreshold:   protobuf.UInt32(2),
+						HealthChecker: &envoy_api_v2_core.HealthCheck_HttpHealthCheck_{
+							HttpHealthCheck: &envoy_api_v2_core.HealthCheck_HttpHealthCheck{
 								Path: "/healthy",
 								Host: "contour-envoy-healthcheck",
 							},
@@ -511,15 +509,15 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
-					HealthChecks: []*core.HealthCheck{{
-						Timeout:            duration(99 * time.Second),
-						Interval:           duration(98 * time.Second),
-						UnhealthyThreshold: u32(97),
-						HealthyThreshold:   u32(96),
-						HealthChecker: &core.HealthCheck_HttpHealthCheck_{
-							HttpHealthCheck: &core.HealthCheck_HttpHealthCheck{
+					HealthChecks: []*envoy_api_v2_core.HealthCheck{{
+						Timeout:            &duration.Duration{Seconds: 99},
+						Interval:           &duration.Duration{Seconds: 98},
+						UnhealthyThreshold: protobuf.UInt32(97),
+						HealthyThreshold:   protobuf.UInt32(96),
+						HealthChecker: &envoy_api_v2_core.HealthCheck_HttpHealthCheck_{
+							HttpHealthCheck: &envoy_api_v2_core.HealthCheck_HttpHealthCheck{
 								Path: "/healthy",
 								Host: "foo-bar-host",
 							},
@@ -567,7 +565,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -610,7 +608,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_LEAST_REQUEST,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -653,7 +651,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_RANDOM,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -703,7 +701,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_RANDOM,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -715,7 +713,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_LEAST_REQUEST,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -758,7 +756,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/backend/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				},
@@ -803,14 +801,14 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/http",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
-					CircuitBreakers: &cluster.CircuitBreakers{
-						Thresholds: []*cluster.CircuitBreakers_Thresholds{{
-							MaxConnections:     u32(9000),
-							MaxPendingRequests: u32(4096),
-							MaxRequests:        u32(404),
-							MaxRetries:         u32(7),
+					CircuitBreakers: &envoy_api_v2_cluster.CircuitBreakers{
+						Thresholds: []*envoy_api_v2_cluster.CircuitBreakers_Thresholds{{
+							MaxConnections:     protobuf.UInt32(9000),
+							MaxPendingRequests: protobuf.UInt32(4096),
+							MaxRequests:        protobuf.UInt32(404),
+							MaxRetries:         protobuf.UInt32(7),
 						}},
 					},
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
@@ -853,7 +851,7 @@ func TestClusterVisit(t *testing.T) {
 						EdsConfig:   envoy.ConfigSource("enroute"),
 						ServiceName: "default/kuard/https",
 					},
-					ConnectTimeout: duration(250 * time.Millisecond),
+					ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 					LbPolicy:       v2.Cluster_ROUND_ROBIN,
 					CommonLbConfig: envoy.ClusterCommonLBConfig(),
 				}),
@@ -872,9 +870,7 @@ func TestClusterVisit(t *testing.T) {
 			}
 			root := dag.BuildDAG(&reh.KubernetesCache)
 			got := visitClusters(root)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -896,12 +892,22 @@ func serviceWithAnnotations(ns, name string, annotations map[string]string, port
 	}
 }
 
+func cluster(c *v2.Cluster) *v2.Cluster {
+	// NOTE: Keep this in sync with envoy.defaultCluster().
+	defaults := &v2.Cluster{
+		ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
+		CommonLbConfig: envoy.ClusterCommonLBConfig(),
+		LbPolicy:       v2.Cluster_ROUND_ROBIN,
+	}
+
+	proto.Merge(defaults, c)
+	return defaults
+}
+
 func clustermap(clusters ...*v2.Cluster) map[string]*v2.Cluster {
 	m := make(map[string]*v2.Cluster)
 	for _, c := range clusters {
-		m[c.Name] = c
+		m[c.Name] = cluster(c)
 	}
 	return m
 }
-
-func duration(d time.Duration) *time.Duration { return &d }

@@ -7,23 +7,23 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	"github.com/gogo/protobuf/proto"
+	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/prometheus/client_golang/prometheus"
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func TestSecretCacheContents(t *testing.T) {
 	tests := map[string]struct {
-		contents map[string]*auth.Secret
+		contents map[string]*envoy_api_v2_auth.Secret
 		want     []proto.Message
 	}{
 		"empty": {
@@ -54,7 +54,7 @@ func TestSecretCacheContents(t *testing.T) {
 
 func TestSecretCacheQuery(t *testing.T) {
 	tests := map[string]struct {
-		contents map[string]*auth.Secret
+		contents map[string]*envoy_api_v2_auth.Secret
 		query    []string
 		want     []proto.Message
 	}{
@@ -101,18 +101,18 @@ func TestSecretCacheQuery(t *testing.T) {
 func TestSecretVisit(t *testing.T) {
 	tests := map[string]struct {
 		objs []interface{}
-		want map[string]*auth.Secret
+		want map[string]*envoy_api_v2_auth.Secret
 	}{
 		"nothing": {
 			objs: nil,
-			want: map[string]*auth.Secret{},
+			want: map[string]*envoy_api_v2_auth.Secret{},
 		},
 		"unassociated secrets": {
 			objs: []interface{}{
 				tlssecret("default", "secret-a", secretdata("cert", "key")),
 				tlssecret("default", "secret-b", secretdata("cert", "key")),
 			},
-			want: map[string]*auth.Secret{},
+			want: map[string]*envoy_api_v2_auth.Secret{},
 		},
 		"simple ingress with secret": {
 			objs: []interface{}{
@@ -385,26 +385,26 @@ func TestSecretVisit(t *testing.T) {
 	}
 }
 
-func secretmap(secrets ...*auth.Secret) map[string]*auth.Secret {
-	m := make(map[string]*auth.Secret)
+func secretmap(secrets ...*envoy_api_v2_auth.Secret) map[string]*envoy_api_v2_auth.Secret {
+	m := make(map[string]*envoy_api_v2_auth.Secret)
 	for _, s := range secrets {
 		m[s.Name] = s
 	}
 	return m
 }
 
-func secret(name, cert, key string) *auth.Secret {
-	return &auth.Secret{
+func secret(name, cert, key string) *envoy_api_v2_auth.Secret {
+	return &envoy_api_v2_auth.Secret{
 		Name: name,
-		Type: &auth.Secret_TlsCertificate{
-			TlsCertificate: &auth.TlsCertificate{
-				PrivateKey: &core.DataSource{
-					Specifier: &core.DataSource_InlineBytes{
+		Type: &envoy_api_v2_auth.Secret_TlsCertificate{
+			TlsCertificate: &envoy_api_v2_auth.TlsCertificate{
+				PrivateKey: &envoy_api_v2_core.DataSource{
+					Specifier: &envoy_api_v2_core.DataSource_InlineBytes{
 						InlineBytes: []byte(key),
 					},
 				},
-				CertificateChain: &core.DataSource{
-					Specifier: &core.DataSource_InlineBytes{
+				CertificateChain: &envoy_api_v2_core.DataSource{
+					Specifier: &envoy_api_v2_core.DataSource_InlineBytes{
 						InlineBytes: []byte(cert),
 					},
 				},

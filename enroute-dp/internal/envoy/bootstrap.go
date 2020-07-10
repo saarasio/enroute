@@ -23,18 +23,18 @@ import (
 	"time"
 
 	api "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	clusterv2 "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	bootstrap "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v2"
-	//ratelimit "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
+	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )
 
 //func RateLimitConfig(c *BootstrapConfig) *ratelimit.RateLimitServiceConfig {
 //    rls := ratelimit.RateLimitServiceConfig{
-//        GrpcService: &core.GrpcService{
-//            TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
-//                EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
+//        GrpcService: &envoy_api_v2_core.GrpcService{
+//            TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
+//                EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
 //                    ClusterName: "enroute",
 //                },
 //            },
@@ -54,7 +54,7 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 			Clusters: []*api.Cluster{{
 				Name:                 "enroute",
 				AltStatName:          strings.Join([]string{c.Namespace, "enroute", strconv.Itoa(intOrDefault(c.XDSGRPCPort, 8001))}, "_"),
-				ConnectTimeout:       duration(5 * time.Second),
+				ConnectTimeout:       protobuf.Duration(5 * time.Second),
 				ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_STRICT_DNS),
 				LbPolicy:             api.Cluster_ROUND_ROBIN,
 				LoadAssignment: &api.ClusterLoadAssignment{
@@ -63,27 +63,27 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
                         SocketAddress(stringOrDefault(c.XDSAddress, "127.0.0.1"), intOrDefault(c.XDSGRPCPort, 8001)),
                     ),
 				},
-				Http2ProtocolOptions: new(core.Http2ProtocolOptions), // enables http2
+				Http2ProtocolOptions: new(envoy_api_v2_core.Http2ProtocolOptions), // enables http2
 				CircuitBreakers: &clusterv2.CircuitBreakers{
 					Thresholds: []*clusterv2.CircuitBreakers_Thresholds{{
-						Priority:           core.RoutingPriority_HIGH,
-						MaxConnections:     u32(100000),
-						MaxPendingRequests: u32(100000),
-						MaxRequests:        u32(60000000),
-						MaxRetries:         u32(50),
+						Priority:           envoy_api_v2_core.RoutingPriority_HIGH,
+						MaxConnections:     protobuf.UInt32(100000),
+						MaxPendingRequests: protobuf.UInt32(100000),
+						MaxRequests:        protobuf.UInt32(60000000),
+						MaxRetries:         protobuf.UInt32(50),
 					}, {
-						Priority:           core.RoutingPriority_DEFAULT,
-						MaxConnections:     u32(100000),
-						MaxPendingRequests: u32(100000),
-						MaxRequests:        u32(60000000),
-						MaxRetries:         u32(50),
+						Priority:           envoy_api_v2_core.RoutingPriority_DEFAULT,
+						MaxConnections:     protobuf.UInt32(100000),
+						MaxPendingRequests: protobuf.UInt32(100000),
+						MaxRequests:        protobuf.UInt32(60000000),
+						MaxRetries:         protobuf.UInt32(50),
 					}},
 				},
 			},
 				{
 					Name:                 "enroute_ratelimit",
 					AltStatName:          strings.Join([]string{c.Namespace, "enroute", strconv.Itoa(intOrDefault(c.RLPort, 8003))}, "_"),
-					ConnectTimeout:       duration(5 * time.Second),
+					ConnectTimeout:       protobuf.Duration(5 * time.Second),
 					ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_STRICT_DNS),
 					LbPolicy:             api.Cluster_ROUND_ROBIN,
 					LoadAssignment: &api.ClusterLoadAssignment{
@@ -92,27 +92,27 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
                             SocketAddress(stringOrDefault(c.RLAddress, "127.0.0.1"), intOrDefault(c.RLPort, 8003)),
                         ),
 					},
-					Http2ProtocolOptions: new(core.Http2ProtocolOptions), // enables http2
+					Http2ProtocolOptions: new(envoy_api_v2_core.Http2ProtocolOptions), // enables http2
 					CircuitBreakers: &clusterv2.CircuitBreakers{
 						Thresholds: []*clusterv2.CircuitBreakers_Thresholds{{
-							Priority:           core.RoutingPriority_HIGH,
-							MaxConnections:     u32(100000),
-							MaxPendingRequests: u32(100000),
-							MaxRequests:        u32(60000000),
-							MaxRetries:         u32(50),
+							Priority:           envoy_api_v2_core.RoutingPriority_HIGH,
+							MaxConnections:     protobuf.UInt32(100000),
+							MaxPendingRequests: protobuf.UInt32(100000),
+							MaxRequests:        protobuf.UInt32(60000000),
+							MaxRetries:         protobuf.UInt32(50),
 						}, {
-							Priority:           core.RoutingPriority_DEFAULT,
-							MaxConnections:     u32(100000),
-							MaxPendingRequests: u32(100000),
-							MaxRequests:        u32(60000000),
-							MaxRetries:         u32(50),
+							Priority:           envoy_api_v2_core.RoutingPriority_DEFAULT,
+							MaxConnections:     protobuf.UInt32(100000),
+							MaxPendingRequests: protobuf.UInt32(100000),
+							MaxRequests:        protobuf.UInt32(60000000),
+							MaxRetries:         protobuf.UInt32(50),
 						}},
 					},
 				},
 				{
 					Name:                 "service-stats",
 					AltStatName:          strings.Join([]string{c.Namespace, "service-stats", strconv.Itoa(intOrDefault(c.AdminPort, 9001))}, "_"),
-					ConnectTimeout:       duration(250 * time.Millisecond),
+					ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 					ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_LOGICAL_DNS),
 					LbPolicy:             api.Cluster_ROUND_ROBIN,
                     LoadAssignment: &api.ClusterLoadAssignment{
@@ -140,7 +140,7 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 	return b
 }
 
-func upstreamFileTLSContext(cafile, certfile, keyfile string) *auth.UpstreamTlsContext {
+func upstreamFileTLSContext(cafile, certfile, keyfile string) *envoy_api_v2_auth.UpstreamTlsContext {
 	if certfile == "" {
 		// Nothig to do
 		return nil
@@ -155,26 +155,26 @@ func upstreamFileTLSContext(cafile, certfile, keyfile string) *auth.UpstreamTlsC
 		// You currently must supply a CA file, not just use others.
 		return nil
 	}
-	context := &auth.UpstreamTlsContext{
-		CommonTlsContext: &auth.CommonTlsContext{
-			TlsCertificates: []*auth.TlsCertificate{
+	context := &envoy_api_v2_auth.UpstreamTlsContext{
+		CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{
+			TlsCertificates: []*envoy_api_v2_auth.TlsCertificate{
 				{
-					CertificateChain: &core.DataSource{
-						Specifier: &core.DataSource_Filename{
+					CertificateChain: &envoy_api_v2_core.DataSource{
+						Specifier: &envoy_api_v2_core.DataSource_Filename{
 							Filename: certfile,
 						},
 					},
-					PrivateKey: &core.DataSource{
-						Specifier: &core.DataSource_Filename{
+					PrivateKey: &envoy_api_v2_core.DataSource{
+						Specifier: &envoy_api_v2_core.DataSource_Filename{
 							Filename: keyfile,
 						},
 					},
 				},
 			},
-			ValidationContextType: &auth.CommonTlsContext_ValidationContext{
-				ValidationContext: &auth.CertificateValidationContext{
-					TrustedCa: &core.DataSource{
-						Specifier: &core.DataSource_Filename{
+			ValidationContextType: &envoy_api_v2_auth.CommonTlsContext_ValidationContext{
+				ValidationContext: &envoy_api_v2_auth.CertificateValidationContext{
+					TrustedCa: &envoy_api_v2_core.DataSource{
+						Specifier: &envoy_api_v2_core.DataSource_Filename{
 							Filename: cafile,
 						},
 					},

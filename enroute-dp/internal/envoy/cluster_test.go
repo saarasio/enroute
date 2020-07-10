@@ -22,12 +22,13 @@ import (
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type"
-	"github.com/gogo/protobuf/types"
 	"github.com/google/go-cmp/cmp"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -83,7 +84,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -103,9 +104,9 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:       duration(250 * time.Millisecond),
+				ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
-				Http2ProtocolOptions: &core.Http2ProtocolOptions{},
+				Http2ProtocolOptions: &envoy_api_v2_core.Http2ProtocolOptions{},
 				CommonLbConfig:       ClusterCommonLBConfig(),
 			},
 		},
@@ -124,10 +125,10 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:       duration(250 * time.Millisecond),
+				ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
 				TlsContext:           UpstreamTLSContext(nil, "", "h2"),
-				Http2ProtocolOptions: &core.Http2ProtocolOptions{},
+				Http2ProtocolOptions: &envoy_api_v2_core.Http2ProtocolOptions{},
 				CommonLbConfig:       ClusterCommonLBConfig(),
 			},
 		},
@@ -142,7 +143,7 @@ func TestCluster(t *testing.T) {
 				AltStatName:          "default_kuard_443",
 				ClusterDiscoveryType: ClusterDiscoveryType(v2.Cluster_STRICT_DNS),
 				LoadAssignment:       StaticClusterLoadAssignment(externalnameservice(s2)),
-				ConnectTimeout:       duration(250 * time.Millisecond),
+				ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig:       ClusterCommonLBConfig(),
 			},
@@ -162,7 +163,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				TlsContext:     UpstreamTLSContext(nil, ""),
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -197,7 +198,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				TlsContext:     UpstreamTLSContext([]byte("cacert"), "foo.bar.io"),
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -221,11 +222,11 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
-						MaxConnections: u32(9000),
+						MaxConnections: protobuf.UInt32(9000),
 					}},
 				},
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -249,11 +250,11 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
-						MaxPendingRequests: u32(4096),
+						MaxPendingRequests: protobuf.UInt32(4096),
 					}},
 				},
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -277,11 +278,11 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
-						MaxRequests: u32(404),
+						MaxRequests: protobuf.UInt32(404),
 					}},
 				},
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -305,11 +306,11 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_cluster.CircuitBreakers{
 					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
-						MaxRetries: u32(7),
+						MaxRetries: protobuf.UInt32(7),
 					}},
 				},
 				CommonLbConfig: ClusterCommonLBConfig(),
@@ -330,7 +331,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_RANDOM,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -350,7 +351,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_RING_HASH,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -371,7 +372,7 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: duration(250 * time.Millisecond),
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
@@ -394,17 +395,17 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:                duration(250 * time.Millisecond),
+				ConnectTimeout:                protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:                      v2.Cluster_ROUND_ROBIN,
 				CommonLbConfig:                ClusterCommonLBConfig(),
 				DrainConnectionsOnHostRemoval: true,
-				HealthChecks: []*core.HealthCheck{{
-					Timeout:            secondsOrDefault(0, hcTimeout),
-					Interval:           secondsOrDefault(0, hcInterval),
+				HealthChecks: []*envoy_api_v2_core.HealthCheck{{
+					Timeout:            durationOrDefault(0, hcTimeout),
+					Interval:           durationOrDefault(0, hcInterval),
 					UnhealthyThreshold: countOrDefault(0, hcUnhealthyThreshold),
 					HealthyThreshold:   countOrDefault(0, hcHealthyThreshold),
-					HealthChecker: &core.HealthCheck_HttpHealthCheck_{
-						HttpHealthCheck: &core.HealthCheck_HttpHealthCheck{
+					HealthChecker: &envoy_api_v2_core.HealthCheck_HttpHealthCheck_{
+						HttpHealthCheck: &envoy_api_v2_core.HealthCheck_HttpHealthCheck{
 							Host: hcHost,
 							Path: "/healthz",
 						},
@@ -612,16 +613,13 @@ func TestAnyPositive(t *testing.T) {
 
 	assert(false, anyPositive(0))
 	assert(true, anyPositive(1))
-	assert(false, anyPositive(-1))
 	assert(false, anyPositive(0, 0))
 	assert(true, anyPositive(1, 0))
 	assert(true, anyPositive(0, 1))
-	assert(true, anyPositive(-1, 1))
-	assert(true, anyPositive(1, -1))
 }
 
 func TestU32nil(t *testing.T) {
-	assert := func(want, got *types.UInt32Value) {
+	assert := func(want, got *wrappers.UInt32Value) {
 		t.Helper()
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Fatal(diff)
@@ -629,7 +627,7 @@ func TestU32nil(t *testing.T) {
 	}
 
 	assert(nil, u32nil(0))
-	assert(u32(1), u32nil(1))
+	assert(protobuf.UInt32(1), u32nil(1))
 }
 
 func TestClusterCommonLBConfig(t *testing.T) {

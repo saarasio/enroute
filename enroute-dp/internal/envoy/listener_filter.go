@@ -5,26 +5,26 @@ package envoy
 
 import (
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
 	httplua "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/lua/v2"
 	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	rl "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
-	"github.com/envoyproxy/go-control-plane/pkg/util"
-	"github.com/gogo/protobuf/types"
+    "github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
+	types "github.com/golang/protobuf/ptypes"
 )
 
 func httpRateLimitTypedConfig(vh *dag.Vertex) *http.HttpFilter_TypedConfig {
 	return &http.HttpFilter_TypedConfig{
-		TypedConfig: any(&httprl.RateLimit{
+		TypedConfig: toAny(&httprl.RateLimit{
 			Domain: "enroute",
 			RateLimitService: &rl.RateLimitServiceConfig{
-				GrpcService: &core.GrpcService{
-					TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
-						EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
+				GrpcService: &envoy_api_v2_core.GrpcService{
+					TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
+						EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
 							ClusterName: "enroute_ratelimit",
 						},
 					},
@@ -119,13 +119,13 @@ func httpFilters(vh *dag.Vertex) []*http.HttpFilter {
 
 	http_filters = append(http_filters,
 		&http.HttpFilter{
-			Name:       util.Gzip,
+			Name:       wellknown.Gzip,
 			ConfigType: nil,
 		})
 
 	http_filters = append(http_filters,
 		&http.HttpFilter{
-			Name:       util.GRPCWeb,
+			Name:       wellknown.GRPCWeb,
 			ConfigType: nil,
 		})
 
@@ -136,28 +136,28 @@ func httpFilters(vh *dag.Vertex) []*http.HttpFilter {
 
 	http_filters = append(http_filters,
 		&http.HttpFilter{
-			Name:       util.Router,
+			Name:       wellknown.Router,
 			ConfigType: nil,
 		})
 
 	return http_filters
 
 	//return []*http.HttpFilter{{
-	//    Name:       util.Gzip,
+	//    Name:       wellknown.Gzip,
 	//    ConfigType: nil,
 	//}, {
-	//    Name:       util.GRPCWeb,
+	//    Name:       wellknown.GRPCWeb,
 	//    ConfigType: nil,
 	//}, {
 	//    //  TODO
 	//    //  go-control-plane defines this constant as "envoy.ratelimit"
 	//    //  While we run this with envoy 1.12, "envoy.ratelimit" is not recognized
 	//    //  However "envoy.rate_limit" is recognized
-	//    //  Name: util.RateLimit,
+	//    //  Name: wellknown.RateLimit,
 	//    Name:       "envoy.rate_limit",
 	//    ConfigType: httpRateLimitTypedConfig(vh),
 	//}, {
-	//    Name:       util.Router,
+	//    Name:       wellknown.Router,
 	//    ConfigType: nil,
 	//}}
 }
@@ -169,7 +169,7 @@ type ListenerFilterInfo struct {
 
 func httpLuaTypedConfig(filter_config *cfg.SaarasRouteFilter) *http.HttpFilter_TypedConfig {
 	return &http.HttpFilter_TypedConfig{
-		TypedConfig: any(&httplua.Lua{
+		TypedConfig: toAny(&httplua.Lua{
 			InlineCode: filter_config.Filter_config,
 			// TODO: Remove
 			// InlineCode: luaInlineCode,
@@ -233,12 +233,12 @@ func updateHttpFilters(listener_filters *[]*http.HttpFilter,
 	}
 
 	// Gzip
-	if hf, ok := m[util.Gzip]; ok {
+	if hf, ok := m[wellknown.Gzip]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
 	// GRPCWeb
-	if hf, ok := m[util.GRPCWeb]; ok {
+	if hf, ok := m[wellknown.GRPCWeb]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
@@ -248,7 +248,7 @@ func updateHttpFilters(listener_filters *[]*http.HttpFilter,
 	}
 
 	// Router
-	if hf, ok := m[util.Router]; ok {
+	if hf, ok := m[wellknown.Router]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
@@ -266,7 +266,7 @@ func Find(slice []string, val string) (int, bool) {
 	return -1, false
 }
 
-func remove(slice []*listener.Filter, s int) []*listener.Filter {
+func remove(slice []*envoy_api_v2_listener.Filter, s int) []*envoy_api_v2_listener.Filter {
 	return append(slice[:s], slice[s+1:]...)
 }
 
@@ -282,14 +282,14 @@ func AddHttpFilterToListener(l *v2.Listener, dag_filters *dag.HttpFilter, name s
 				if found {
 					for idx, one_filter := range filterchain.Filters {
 						// Find HTTPConnectionManager filter and update HttpFilters on it
-						if one_filter.Name == util.HTTPConnectionManager {
+						if one_filter.Name == wellknown.HTTPConnectionManager {
 							httpConnManagerConfig := &http.HttpConnectionManager{}
 							if config := one_filter.GetTypedConfig(); config != nil {
 								types.UnmarshalAny(config, httpConnManagerConfig)
 								httpConnManagerConfig.HttpFilters =
 									updateHttpFilters(&httpConnManagerConfig.HttpFilters, dag_filters)
-								one_filter.ConfigType = &listener.Filter_TypedConfig{
-									TypedConfig: any(httpConnManagerConfig),
+								one_filter.ConfigType = &envoy_api_v2_listener.Filter_TypedConfig{
+									TypedConfig: toAny(httpConnManagerConfig),
 								}
 
 								// Delete one_filter from slice and add it back again
@@ -310,14 +310,14 @@ func AddHttpFilterToListener(l *v2.Listener, dag_filters *dag.HttpFilter, name s
 			for _, filterchain := range l.FilterChains {
 				for idx, one_filter := range filterchain.Filters {
 					// Find HTTPConnectionManager filter and update HttpFilters on it
-					if one_filter.Name == util.HTTPConnectionManager {
+					if one_filter.Name == wellknown.HTTPConnectionManager {
 						httpConnManagerConfig := &http.HttpConnectionManager{}
 						if config := one_filter.GetTypedConfig(); config != nil {
 							types.UnmarshalAny(config, httpConnManagerConfig)
 							httpConnManagerConfig.HttpFilters =
 								updateHttpFilters(&httpConnManagerConfig.HttpFilters, dag_filters)
-							one_filter.ConfigType = &listener.Filter_TypedConfig{
-								TypedConfig: any(httpConnManagerConfig),
+							one_filter.ConfigType = &envoy_api_v2_listener.Filter_TypedConfig{
+								TypedConfig: toAny(httpConnManagerConfig),
 							}
 
 							// Delete one_filter from slice and add it back again

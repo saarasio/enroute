@@ -37,3 +37,13 @@ add_custom_target(${target_name_push} DEPENDS ${target_name}
 add_custom_target(${target_name_test} ALL DEPENDS ${target_name}
 		  COMMAND make -C ${CMAKE_SOURCE_DIR}/${target_name} test
 		  )
+
+# List tests
+add_custom_target(testlist ALL DEPENDS ${target_name}
+    COMMAND cd ${CMAKE_SOURCE_DIR}/${target_name}/internal/contour && GO111MODULE=on go test -mod=readonly -v -cover
+ )
+
+# Run one test
+add_custom_target(onetest ALL DEPENDS ${target_name}
+    COMMAND cd ${CMAKE_SOURCE_DIR}/${target_name}/internal/contour && GO111MODULE=on go test -mod=readonly -v -cover -run TestSecretVisit/simple_ingress_with_secret
+ )

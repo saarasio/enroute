@@ -24,7 +24,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -230,7 +230,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	})
 }
 
-func secret(sec *v1.Secret) *auth.Secret {
+func secret(sec *v1.Secret) *envoy_api_v2_auth.Secret {
 	return envoy.Secret(&dag.Secret{
 		Object: sec,
 	})

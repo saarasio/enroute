@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,15 +21,17 @@ import (
 	"time"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
+	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	tcp "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
-	"github.com/envoyproxy/go-control-plane/pkg/util"
-	"github.com/gogo/protobuf/proto"
-	"github.com/gogo/protobuf/types"
+	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )
 
 // HTTPDefaultIdleTimeout sets the idle timeout for HTTP connections
@@ -48,21 +50,21 @@ const HTTPDefaultIdleTimeout = 60 * time.Second
 const TCPDefaultIdleTimeout = 9001 * time.Second
 
 // TLSInspector returns a new TLS inspector listener filter.
-func TLSInspector() *listener.ListenerFilter {
-	return &listener.ListenerFilter{
-		Name: util.TlsInspector,
+func TLSInspector() *envoy_api_v2_listener.ListenerFilter {
+	return &envoy_api_v2_listener.ListenerFilter{
+		Name: wellknown.TlsInspector,
 	}
 }
 
 // ProxyProtocol returns a new Proxy Protocol listener filter.
-func ProxyProtocol() *listener.ListenerFilter {
-	return &listener.ListenerFilter{
-		Name: util.ProxyProtocol,
+func ProxyProtocol() *envoy_api_v2_listener.ListenerFilter {
+	return &envoy_api_v2_listener.ListenerFilter{
+		Name: wellknown.ProxyProtocol,
 	}
 }
 
 // Listener returns a new v2.Listener for the supplied address, port, and filters.
-func Listener(name, address string, port int, lf []*listener.ListenerFilter, filters ...*listener.Filter) *v2.Listener {
+func Listener(name, address string, port int, lf []*envoy_api_v2_listener.ListenerFilter, filters ...*envoy_api_v2_listener.Filter) *v2.Listener {
 	l := &v2.Listener{
 		Name:            name,
 		Address:         SocketAddress(address, port),
@@ -71,7 +73,7 @@ func Listener(name, address string, port int, lf []*listener.ListenerFilter, fil
 	if len(filters) > 0 {
 		l.FilterChains = append(
 			l.FilterChains,
-			&listener.FilterChain{
+			&envoy_api_v2_listener.FilterChain{
 				Filters: filters,
 			},
 		)
@@ -79,28 +81,24 @@ func Listener(name, address string, port int, lf []*listener.ListenerFilter, fil
 	return l
 }
 
-func idleTimeout(d time.Duration) *time.Duration {
-	return &d
-}
-
 // HTTPConnectionManager creates a new HTTP Connection Manager filter
 // for the supplied route and access log.
-func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *listener.Filter {
-	return &listener.Filter{
-		Name: util.HTTPConnectionManager,
-		ConfigType: &listener.Filter_TypedConfig{
-			TypedConfig: any(&http.HttpConnectionManager{
+func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *envoy_api_v2_listener.Filter {
+	return &envoy_api_v2_listener.Filter{
+		Name: wellknown.HTTPConnectionManager,
+		ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
+			TypedConfig: toAny(&http.HttpConnectionManager{
 				StatPrefix: routename,
 				RouteSpecifier: &http.HttpConnectionManager_Rds{
 					Rds: &http.Rds{
 						RouteConfigName: routename,
-						ConfigSource: &core.ConfigSource{
-							ConfigSourceSpecifier: &core.ConfigSource_ApiConfigSource{
-								ApiConfigSource: &core.ApiConfigSource{
-									ApiType: core.ApiConfigSource_GRPC,
-									GrpcServices: []*core.GrpcService{{
-										TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
-											EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
+						ConfigSource: &envoy_api_v2_core.ConfigSource{
+							ConfigSourceSpecifier: &envoy_api_v2_core.ConfigSource_ApiConfigSource{
+								ApiConfigSource: &envoy_api_v2_core.ApiConfigSource{
+									ApiType: envoy_api_v2_core.ApiConfigSource_GRPC,
+									GrpcServices: []*envoy_api_v2_core.GrpcService{{
+										TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
+											EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
 												ClusterName: "enroute",
 											},
 										},
@@ -111,42 +109,44 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *lis
 					},
 				},
 				HttpFilters: httpFilters(vh),
-				HttpProtocolOptions: &core.Http1ProtocolOptions{
+				HttpProtocolOptions: &envoy_api_v2_core.Http1ProtocolOptions{
 					// Enable support for HTTP/1.0 requests that carry
 					// a Host: header. See #537.
 					AcceptHttp_10: true,
 				},
 				AccessLog:        FileAccessLog(accessLogPath),
-				UseRemoteAddress: &types.BoolValue{Value: true}, // TODO(jbeda) should this ever be false?
-				NormalizePath:    &types.BoolValue{Value: true},
-				IdleTimeout:      idleTimeout(HTTPDefaultIdleTimeout),
+				UseRemoteAddress: protobuf.Bool(true),
+				NormalizePath:    protobuf.Bool(true),
+
+				// issue #1487 pass through X-Request-Id if provided.
+				PreserveExternalRequestId: true,
 			}),
 		},
 	}
 }
 
 // TCPProxy creates a new TCPProxy filter.
-func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *listener.Filter {
-	tcpIdleTimeout := idleTimeout(TCPDefaultIdleTimeout)
+func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *envoy_api_v2_listener.Filter {
+	idleTimeout := protobuf.Duration(9001 * time.Second)
 	switch len(proxy.Clusters) {
 	case 1:
-		return &listener.Filter{
-			Name: util.TCPProxy,
-			ConfigType: &listener.Filter_TypedConfig{
-				TypedConfig: any(&tcp.TcpProxy{
+		return &envoy_api_v2_listener.Filter{
+			Name: wellknown.TCPProxy,
+			ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
+				TypedConfig: toAny(&tcp.TcpProxy{
 					StatPrefix: statPrefix,
 					ClusterSpecifier: &tcp.TcpProxy_Cluster{
 						Cluster: Clustername(proxy.Clusters[0]),
 					},
 					AccessLog:   FileAccessLog(accessLogPath),
-					IdleTimeout: tcpIdleTimeout,
+					IdleTimeout: idleTimeout,
 				}),
 			},
 		}
 	default:
 		var clusters []*tcp.TcpProxy_WeightedCluster_ClusterWeight
 		for _, c := range proxy.Clusters {
-			weight := uint32(c.Weight)
+			weight := c.Weight
 			if weight == 0 {
 				weight = 1
 			}
@@ -156,10 +156,10 @@ func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *lis
 			})
 		}
 		sort.Stable(clustersByNameAndWeight(clusters))
-		return &listener.Filter{
-			Name: util.TCPProxy,
-			ConfigType: &listener.Filter_TypedConfig{
-				TypedConfig: any(&tcp.TcpProxy{
+		return &envoy_api_v2_listener.Filter{
+			Name: wellknown.TCPProxy,
+			ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
+				TypedConfig: toAny(&tcp.TcpProxy{
 					StatPrefix: statPrefix,
 					ClusterSpecifier: &tcp.TcpProxy_WeightedClusters{
 						WeightedClusters: &tcp.TcpProxy_WeightedCluster{
@@ -167,7 +167,7 @@ func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *lis
 						},
 					},
 					AccessLog:   FileAccessLog(accessLogPath),
-					IdleTimeout: tcpIdleTimeout,
+					IdleTimeout: idleTimeout,
 				}),
 			},
 		}
@@ -185,28 +185,28 @@ func (c clustersByNameAndWeight) Less(i, j int) bool {
 	return c[i].Name < c[j].Name
 }
 
-// SocketAddress creates a new TCP core.Address.
-func SocketAddress(address string, port int) *core.Address {
+// SocketAddress creates a new TCP envoy_api_v2_core.Address.
+func SocketAddress(address string, port int) *envoy_api_v2_core.Address {
 	if address == "::" {
-		return &core.Address{
-			Address: &core.Address_SocketAddress{
-				SocketAddress: &core.SocketAddress{
-					Protocol:   core.TCP,
+		return &envoy_api_v2_core.Address{
+			Address: &envoy_api_v2_core.Address_SocketAddress{
+				SocketAddress: &envoy_api_v2_core.SocketAddress{
+					Protocol:   envoy_api_v2_core.SocketAddress_TCP,
 					Address:    address,
 					Ipv4Compat: true,
-					PortSpecifier: &core.SocketAddress_PortValue{
+					PortSpecifier: &envoy_api_v2_core.SocketAddress_PortValue{
 						PortValue: uint32(port),
 					},
 				},
 			},
 		}
 	}
-	return &core.Address{
-		Address: &core.Address_SocketAddress{
-			SocketAddress: &core.SocketAddress{
-				Protocol: core.TCP,
+	return &envoy_api_v2_core.Address{
+		Address: &envoy_api_v2_core.Address_SocketAddress{
+			SocketAddress: &envoy_api_v2_core.SocketAddress{
+				Protocol: envoy_api_v2_core.SocketAddress_TCP,
 				Address:  address,
-				PortSpecifier: &core.SocketAddress_PortValue{
+				PortSpecifier: &envoy_api_v2_core.SocketAddress_PortValue{
 					PortValue: uint32(port),
 				},
 			},
@@ -214,36 +214,36 @@ func SocketAddress(address string, port int) *core.Address {
 	}
 }
 
-// Filters returns a []*listener.Filter for the supplied filters.
-func Filters(filters ...*listener.Filter) []*listener.Filter {
+// Filters returns a []*envoy_api_v2_listener.Filter for the supplied filters.
+func Filters(filters ...*envoy_api_v2_listener.Filter) []*envoy_api_v2_listener.Filter {
 	if len(filters) == 0 {
 		return nil
 	}
 	return filters
 }
 
-// FilterChain retruns a *listener.FilterChain for the supplied filters.
-func FilterChain(filters ...*listener.Filter) *listener.FilterChain {
-	return &listener.FilterChain{
+// FilterChain retruns a *envoy_api_v2_listener.FilterChain for the supplied filters.
+func FilterChain(filters ...*envoy_api_v2_listener.Filter) *envoy_api_v2_listener.FilterChain {
+	return &envoy_api_v2_listener.FilterChain{
 		Filters: filters,
 	}
 }
 
-// FilterChains returns a []*listener.FilterChain for the supplied filters.
-func FilterChains(filters ...*listener.Filter) []*listener.FilterChain {
+// FilterChains returns a []*envoy_api_v2_listener.FilterChain for the supplied filters.
+func FilterChains(filters ...*envoy_api_v2_listener.Filter) []*envoy_api_v2_listener.FilterChain {
 	if len(filters) == 0 {
 		return nil
 	}
-	return []*listener.FilterChain{
+	return []*envoy_api_v2_listener.FilterChain{
 		FilterChain(filters...),
 	}
 }
 
-// FilterChainTLS returns a TLS enabled listener.FilterChain,
-func FilterChainTLS(domain string, secret *dag.Secret, filters []*listener.Filter, tlsMinProtoVersion auth.TlsParameters_TlsProtocol, alpnProtos ...string) *listener.FilterChain {
-	fc := &listener.FilterChain{
+// FilterChainTLS returns a TLS enabled envoy_api_v2_listener.FilterChain,
+func FilterChainTLS(domain string, secret *dag.Secret, filters []*envoy_api_v2_listener.Filter, tlsMinProtoVersion envoy_api_v2_auth.TlsParameters_TlsProtocol, alpnProtos ...string) *envoy_api_v2_listener.FilterChain {
+	fc := &envoy_api_v2_listener.FilterChain{
 		Filters: filters,
-		FilterChainMatch: &listener.FilterChainMatch{
+		FilterChainMatch: &envoy_api_v2_listener.FilterChainMatch{
 			ServerNames: []string{domain},
 		},
 	}
@@ -254,15 +254,15 @@ func FilterChainTLS(domain string, secret *dag.Secret, filters []*listener.Filte
 	return fc
 }
 
-// ListenerFilters returns a []*listener.ListenerFilter for the supplied listener filters.
-func ListenerFilters(filters ...*listener.ListenerFilter) []*listener.ListenerFilter {
+// ListenerFilters returns a []*envoy_api_v2_listener.ListenerFilter for the supplied listener filters.
+func ListenerFilters(filters ...*envoy_api_v2_listener.ListenerFilter) []*envoy_api_v2_listener.ListenerFilter {
 	return filters
 }
 
-func any(pb proto.Message) *types.Any {
-	any, err := types.MarshalAny(pb)
+func toAny(pb proto.Message) *any.Any {
+	a, err := ptypes.MarshalAny(pb)
 	if err != nil {
 		panic(err.Error())
 	}
-	return any
+	return a
 }
