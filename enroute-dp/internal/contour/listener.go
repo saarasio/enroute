@@ -25,7 +25,7 @@ import (
 	//envoy_api_v2_accesslog "github.com/envoyproxy/go-control-plane/envoy/config/filter/accesslog/v2"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/pkg/cache"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -232,7 +232,7 @@ func (l listenersByName) Less(i, j int) bool {
 	return l[i].(*v2.Listener).Name < l[j].(*v2.Listener).Name
 }
 
-func (*ListenerCache) TypeURL() string { return cache.ListenerType }
+func (*ListenerCache) TypeURL() string { return resource.ListenerType }
 
 type listenerVisitor struct {
 	*ListenerVisitorConfig

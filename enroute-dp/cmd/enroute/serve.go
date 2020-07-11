@@ -291,8 +291,8 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	// step 5. register out resource event handler with the k8s informers.
     if mode_ingress {
         coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
-        coreInformers.Extensions().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
         coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+        coreInformers.Networking().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
         contourInformers.Enroute().V1beta1().IngressRoutes().Informer().AddEventHandler(&reh)
 
         // Add informers for each root-ingressroute namespaces

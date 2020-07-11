@@ -40,7 +40,7 @@ import (
 
 // saarasio/enroute#172. Updating an object from
 //
-// apiVersion: extensions/v1beta1
+// apiVersion: networking/v1beta1
 // kind: Ingress
 // metadata:
 //   name: kuard
@@ -51,7 +51,7 @@ import (
 //
 // to
 //
-// apiVersion: extensions/v1beta1
+// apiVersion: networking/v1beta1
 // kind: Ingress
 // metadata:
 //   name: kuard
@@ -171,7 +171,7 @@ func TestEditIngress(t *testing.T) {
 // saarasio/enroute#101
 // The path /hello should point to default/hello/80 on "*"
 //
-// apiVersion: extensions/v1beta1
+// apiVersion: networking/v1beta1
 // kind: Ingress
 // metadata:
 //   name: hello
@@ -867,7 +867,7 @@ func TestIssue257(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	// apiVersion: extensions/v1beta1
+	// apiVersion: networking/v1beta1
 	// kind: Ingress
 	// metadata:
 	//   name: kuard-ing
@@ -922,7 +922,7 @@ func TestIssue257(t *testing.T) {
 		}},
 	}}, nil)
 
-	// apiVersion: extensions/v1beta1
+	// apiVersion: networking/v1beta1
 	// kind: Ingress
 	// metadata:
 	//   name: kuard-ing
@@ -1925,7 +1925,7 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 }
 
 // issue 606: spec.rules.host without a http key causes panic.
-// apiVersion: extensions/v1beta1
+// apiVersion: networking/v1beta1
 // kind: Ingress
 // metadata:
 //   name: test-ingress3

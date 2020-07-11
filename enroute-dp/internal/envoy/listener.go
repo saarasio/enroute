@@ -117,6 +117,13 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *env
 				AccessLog:        FileAccessLog(accessLogPath),
 				UseRemoteAddress: protobuf.Bool(true),
 				NormalizePath:    protobuf.Bool(true),
+				CommonHttpProtocolOptions: &envoy_api_v2_core.HttpProtocolOptions{
+					// Sets the idle timeout for HTTP connections to 60 seconds.
+					// This is chosen as a rough default to stop idle connections wasting resources,
+					// without stopping slow connections from being terminated too quickly.
+					IdleTimeout: protobuf.Duration(60 * time.Second),
+				},
+				//RequestTimeout:   protobuf.Duration(requestTimeout),
 
 				// issue #1487 pass through X-Request-Id if provided.
 				PreserveExternalRequestId: true,
@@ -249,7 +256,9 @@ func FilterChainTLS(domain string, secret *dag.Secret, filters []*envoy_api_v2_l
 	}
 	// attach certificate data to this listener if provided.
 	if secret != nil {
-		fc.TlsContext = DownstreamTLSContext(Secretname(secret), tlsMinProtoVersion, alpnProtos...)
+		fc.TransportSocket = DownstreamTLSTransportSocket(
+			DownstreamTLSContext(Secretname(secret), tlsMinProtoVersion, alpnProtos...),
+		)
 	}
 	return fc
 }

@@ -22,7 +22,7 @@ import (
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
-	"github.com/envoyproxy/go-control-plane/pkg/cache"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -119,7 +119,7 @@ func (r routeConfigurationsByName) Less(i, j int) bool {
 }
 
 // TypeURL returns the string type of RouteCache Resource.
-func (*RouteCache) TypeURL() string { return cache.RouteType }
+func (*RouteCache) TypeURL() string { return resource.RouteType }
 
 type routeVisitor struct {
 	routes map[string]*v2.RouteConfiguration

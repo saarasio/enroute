@@ -24,7 +24,7 @@ spec:
         imagePullPolicy: Always
         name: enroute
         command: ["enroute"]
-        args: ["serve", "--incluster", "--envoy-service-http-port", "8080", "--envoy-service-https-port", "8443", "--mode-ingress"]
+        args: ["serve", "--incluster", "--use-extensions-v1beta1-ingress", "--envoy-service-http-port", "8080", "--envoy-service-https-port", "8443", "--mode-ingress"]
         livenessProbe:
           httpGet:
             path: /healthz
@@ -33,7 +33,7 @@ spec:
           httpGet:
             path: /healthz
             port: 8000
-      - image: docker.io/envoyproxy/envoy:v1.11.0
+      - image: docker.io/envoyproxy/envoy:v1.14.1
         name: envoy
         ports:
         - containerPort: 8080

@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	"github.com/envoyproxy/go-control-plane/pkg/cache"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -110,7 +110,7 @@ func (s secretsByName) Less(i, j int) bool {
 	return s[i].(*envoy_api_v2_auth.Secret).Name < s[j].(*envoy_api_v2_auth.Secret).Name
 }
 
-func (*SecretCache) TypeURL() string { return cache.SecretType }
+func (*SecretCache) TypeURL() string { return resource.SecretType }
 
 type secretVisitor struct {
 	secrets map[string]*envoy_api_v2_auth.Secret

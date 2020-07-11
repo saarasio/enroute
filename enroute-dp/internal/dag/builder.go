@@ -708,9 +708,15 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 				}
 
 				var uv *UpstreamValidation
+				var err error
 				if s.Protocol == "tls" {
 					// we can only validate TLS connections to services that talk TLS
-					uv = b.lookupUpstreamValidation(ir, host, route, service, ir.Namespace)
+					uv, err = b.lookupUpstreamValidation(ir, host, route, service, ir.Namespace)
+
+                    if err != nil {
+                        // Do not add route/upstream if we cannot validate upstream validation context
+                        return
+                    }
 				}
 				r.Clusters = append(r.Clusters, &Cluster{
 					Upstream:             s,
@@ -766,30 +772,30 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 // TODO(dfc) needs unit tests; we should pass in some kind of context object that encasulates all the properties we need for reporting
 // status here, the ir, the host, the route, etc. I'm thinking something like logrus' WithField.
 
-func (b *builder) lookupUpstreamValidation(ir *ingressroutev1.IngressRoute, host string, route ingressroutev1.Route, service ingressroutev1.Service, namespace string) *UpstreamValidation {
+func (b *builder) lookupUpstreamValidation(ir *ingressroutev1.IngressRoute, host string, route ingressroutev1.Route, service ingressroutev1.Service, namespace string) (*UpstreamValidation, error) {
 	uv := service.UpstreamValidation
 	if uv == nil {
 		// no upstream validation requested, nothing to do
-		return nil
+		return nil, nil
 	}
 
 	cacert := b.lookupSecret(Meta{name: uv.CACertificate, namespace: namespace}, validCA)
 	if cacert == nil {
 		// UpstreamValidation is requested, but cert is missing or not configured
 		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: upstreamValidation requested but secret not found or misconfigured", route.Match, service.Name), Vhost: host})
-		return nil
+        return nil, fmt.Errorf("route %q: service %q: upstreamValidation requested but secret not found or misconfigured", route.Match, service.Name)
 	}
 
 	if uv.SubjectName == "" {
 		// UpstreamValidation is requested, but SAN is not provided
 		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: upstreamValidation requested but subject alt name not found or misconfigured", route.Match, service.Name), Vhost: host})
-		return nil
+        return nil, fmt.Errorf("route %q: service %q: upstreamValidation requested but subject alt name not found or misconfigured", route.Match, service.Name)
 	}
 
 	return &UpstreamValidation{
 		CACertificate: cacert,
 		SubjectName:   uv.SubjectName,
-	}
+	}, nil
 }
 
 func (b *builder) processTCPProxy(ir *ingressroutev1.IngressRoute, visited []*ingressroutev1.IngressRoute, host string) {

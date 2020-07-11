@@ -360,8 +360,6 @@ func TestIngressRouteTLSListener(t *testing.T) {
 		FilterChains: filterchaintls("kuard.example.com", secret1, envoy.HTTPConnectionManager("ingress_https", "/dev/stdout", nil), "h2", "http/1.1"),
 	}
 
-	l1.FilterChains[0].TlsContext.CommonTlsContext.TlsParams.TlsMinimumProtocolVersion = envoy_api_v2_auth.TlsParameters_TLSv1_1
-
 	// add service
 	rh.OnAdd(svc1)
 
@@ -408,10 +406,19 @@ func TestIngressRouteTLSListener(t *testing.T) {
 		ListenerFilters: envoy.ListenerFilters(
 			envoy.TLSInspector(),
         ),
-		FilterChains: filterchaintls("kuard.example.com", secret1, envoy.HTTPConnectionManager("ingress_https", "/dev/stdout", nil), "h2", "http/1.1"),
-	}
+		FilterChains: []*envoy_api_v2_listener.FilterChain{
+			envoy.FilterChainTLS(
+				"kuard.example.com",
+				&dag.Secret{Object: secret1},
+				envoy.Filters(
+					envoy.HTTPConnectionManager("ingress_https", "/dev/stdout", nil),
+				),
+				envoy_api_v2_auth.TlsParameters_TLSv1_3,
+				"h2", "http/1.1",
+			),
+		},
 
-	l2.FilterChains[0].TlsContext.CommonTlsContext.TlsParams.TlsMinimumProtocolVersion = envoy_api_v2_auth.TlsParameters_TLSv1_3
+	}
 
 	// add ingress and assert the existence of ingress_http and ingres_https
 	rh.OnAdd(i2)
@@ -597,10 +604,18 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 		ListenerFilters: envoy.ListenerFilters(
 			envoy.TLSInspector(),
         ),
-		FilterChains: filterchaintls("kuard.example.com", s1, envoy.HTTPConnectionManager("ingress_https", "/dev/stdout", nil), "h2", "http/1.1"),
+		FilterChains: []*envoy_api_v2_listener.FilterChain{
+			envoy.FilterChainTLS(
+				"kuard.example.com",
+				&dag.Secret{Object: s1},
+				envoy.Filters(
+					envoy.HTTPConnectionManager("ingress_https", "/dev/stdout", nil),
+				),
+				envoy_api_v2_auth.TlsParameters_TLSv1_3,
+				"h2", "http/1.1",
+			),
+		},
 	}
-	// easier to patch this up than add more params to filterchaintls
-	l1.FilterChains[0].TlsContext.CommonTlsContext.TlsParams.TlsMinimumProtocolVersion = envoy_api_v2_auth.TlsParameters_TLSv1_3
 
 	assertEqual(t, &v2.DiscoveryResponse{
 		VersionInfo: "4",

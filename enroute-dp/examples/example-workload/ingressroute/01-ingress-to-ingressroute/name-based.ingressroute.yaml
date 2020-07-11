@@ -28,7 +28,7 @@ spec:
         - name: s2
           port: 80
 
-# apiVersion: extensions/v1beta1
+# apiVersion: networking/v1beta1
 # kind: Ingress
 # metadata:
 #   name: name-example

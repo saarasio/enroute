@@ -10,7 +10,7 @@ import (
 	httplua "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/lua/v2"
 	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
-	rl "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
+	envoy_config_ratelimit_v2 "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
     "github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
@@ -21,7 +21,7 @@ func httpRateLimitTypedConfig(vh *dag.Vertex) *http.HttpFilter_TypedConfig {
 	return &http.HttpFilter_TypedConfig{
 		TypedConfig: toAny(&httprl.RateLimit{
 			Domain: "enroute",
-			RateLimitService: &rl.RateLimitServiceConfig{
+			RateLimitService: &envoy_config_ratelimit_v2.RateLimitServiceConfig{
 				GrpcService: &envoy_api_v2_core.GrpcService{
 					TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
 						EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
@@ -105,7 +105,8 @@ func addRateLimitFilterConfigIfPresent(http_filters *[]*http.HttpFilter, vh *dag
 	//if rl_filter != nil {
 	*http_filters = append(*http_filters,
 		&http.HttpFilter{
-			Name:       "envoy.rate_limit",
+			//Name:       "envoy.rate_limit",
+			Name:       wellknown.HTTPRateLimit,
 			ConfigType: httpRateLimitTypedConfig(vh),
 		})
 	//}

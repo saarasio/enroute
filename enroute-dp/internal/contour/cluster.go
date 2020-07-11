@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	envoy_api_v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/pkg/cache"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -112,7 +112,7 @@ func (c clusterByName) Less(i, j int) bool {
 	return c[i].(*envoy_api_v2.Cluster).Name < c[j].(*envoy_api_v2.Cluster).Name
 }
 
-func (*ClusterCache) TypeURL() string { return cache.ClusterType }
+func (*ClusterCache) TypeURL() string { return resource.ClusterType }
 
 type clusterVisitor struct {
 	clusters map[string]*envoy_api_v2.Cluster

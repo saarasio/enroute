@@ -41,21 +41,25 @@ func Cluster(c *dag.Cluster) *v2.Cluster {
 	switch upstream := c.Upstream.(type) {
 	case *dag.HTTPService:
 		cl := cluster(c, &upstream.TCPService)
-		switch upstream.Protocol {
-		case "tls":
-			cl.TlsContext = UpstreamTLSContext(
-				upstreamValidationCACert(c),
-				upstreamValidationSubjectAltName(c),
-			)
-		case "h2":
-			cl.TlsContext = UpstreamTLSContext(
-				upstreamValidationCACert(c),
-				upstreamValidationSubjectAltName(c),
-				"h2")
-			fallthrough
-		case "h2c":
-			cl.Http2ProtocolOptions = &envoy_api_v2_core.Http2ProtocolOptions{}
-		}
+        switch upstream.Protocol {
+        case "tls":
+            cl.TransportSocket = UpstreamTLSTransportSocket(
+                UpstreamTLSContext(
+                    upstreamValidationCACert(c),
+                    upstreamValidationSubjectAltName(c),
+                ),
+            )
+        case "h2":
+            cl.TransportSocket = UpstreamTLSTransportSocket(
+                UpstreamTLSContext(
+                    upstreamValidationCACert(c),
+                    upstreamValidationSubjectAltName(c),
+                    "h2"),
+                )
+                fallthrough
+            case "h2c":
+                cl.Http2ProtocolOptions = &envoy_api_v2_core.Http2ProtocolOptions{}
+            }
 		return cl
 	case *dag.TCPService:
 		return cluster(c, upstream)

@@ -127,7 +127,9 @@ func TestCluster(t *testing.T) {
 				},
 				ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:             v2.Cluster_ROUND_ROBIN,
-				TlsContext:           UpstreamTLSContext(nil, "", "h2"),
+				TransportSocket: UpstreamTLSTransportSocket(
+					UpstreamTLSContext(nil, "", "h2"),
+				),
 				Http2ProtocolOptions: &envoy_api_v2_core.Http2ProtocolOptions{},
 				CommonLbConfig:       ClusterCommonLBConfig(),
 			},
@@ -165,7 +167,9 @@ func TestCluster(t *testing.T) {
 				},
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
-				TlsContext:     UpstreamTLSContext(nil, ""),
+				TransportSocket: UpstreamTLSTransportSocket(
+					UpstreamTLSContext(nil, ""),
+				),
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
 		},
@@ -200,7 +204,9 @@ func TestCluster(t *testing.T) {
 				},
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       v2.Cluster_ROUND_ROBIN,
-				TlsContext:     UpstreamTLSContext([]byte("cacert"), "foo.bar.io"),
+				TransportSocket: UpstreamTLSTransportSocket(
+					UpstreamTLSContext([]byte("cacert"), "foo.bar.io"),
+				),
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
 		},
