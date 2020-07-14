@@ -30,6 +30,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
+	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -66,9 +67,7 @@ func TestListenerCacheContents(t *testing.T) {
 			var lc ListenerCache
 			lc.Update(tc.contents)
 			got := lc.Contents()
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -125,9 +124,7 @@ func TestListenerCacheQuery(t *testing.T) {
 			var lc ListenerCache
 			lc.Update(tc.contents)
 			got := lc.Query(tc.query)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -154,6 +151,19 @@ func TestListenerVisit(t *testing.T) {
 							ServiceName: "kuard",
 							ServicePort: intstr.FromInt(8080),
 						},
+					},
+				},
+				&v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
 					},
 				},
 			},
@@ -230,6 +240,19 @@ func TestListenerVisit(t *testing.T) {
 					Type: "kubernetes.io/tls",
 					Data: secretdata("certificate", "key"),
 				},
+				&v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
+					},
+				},
 			},
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
@@ -292,6 +315,19 @@ func TestListenerVisit(t *testing.T) {
 					Type: "kubernetes.io/tls",
 					Data: secretdata("certificate", "key"),
 				},
+		        &v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
+					},
+				},
 			},
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
@@ -347,6 +383,20 @@ func TestListenerVisit(t *testing.T) {
 					Type: "kubernetes.io/tls",
 					Data: secretdata("certificate", "key"),
 				},
+				&v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
+					},
+				},
+
 			},
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
@@ -518,6 +568,20 @@ func TestListenerVisit(t *testing.T) {
 					Type: "kubernetes.io/tls",
 					Data: secretdata("certificate", "key"),
 				},
+				&v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
+					},
+				},
+
 			},
 			want: listenermap(&v2.Listener{
 				Name:         ENVOY_HTTP_LISTENER,
@@ -567,6 +631,20 @@ func TestListenerVisit(t *testing.T) {
 					Type: "kubernetes.io/tls",
 					Data: secretdata("certificate", "key"),
 				},
+				&v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
+					},
+				},
+
 			},
 			want: listenermap(&v2.Listener{
 				Name:    ENVOY_HTTP_LISTENER,
@@ -620,6 +698,19 @@ func TestListenerVisit(t *testing.T) {
 					},
 					Type: "kubernetes.io/tls",
 					Data: secretdata("certificate", "key"),
+				},
+				&v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "kuard",
+						Namespace: "default",
+					},
+					Spec: v1.ServiceSpec{
+						Ports: []v1.ServicePort{{
+							Name:     "http",
+							Protocol: "TCP",
+							Port:     8080,
+						}},
+					},
 				},
 			},
 			want: listenermap(&v2.Listener{

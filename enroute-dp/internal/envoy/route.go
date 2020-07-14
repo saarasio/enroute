@@ -17,6 +17,8 @@
 package envoy
 
 import (
+    "fmt"
+    "regexp"
 	"sort"
 	"strings"
 	"time"
@@ -190,6 +192,30 @@ func RouteMatch(path string) *envoy_api_v2_route.RouteMatch {
 	}
 }
 
+// RouteMatch creates a *envoy_api_v2_route.RouteMatch for the supplied *dag.Route.
+func RouteMatchNew(route *dag.Route) *envoy_api_v2_route.RouteMatch {
+	switch c := route.PathCondition.(type) {
+	case *dag.RegexCondition:
+		return &envoy_api_v2_route.RouteMatch{
+			PathSpecifier: &envoy_api_v2_route.RouteMatch_SafeRegex{
+				SafeRegex: SafeRegexMatch(c.Regex),
+			},
+			Headers: headerMatcher(route.HeaderConditions),
+		}
+	case *dag.PrefixCondition:
+		return &envoy_api_v2_route.RouteMatch{
+			PathSpecifier: &envoy_api_v2_route.RouteMatch_Prefix{
+				Prefix: c.Prefix,
+			},
+			Headers: headerMatcher(route.HeaderConditions),
+		}
+	default:
+		return &envoy_api_v2_route.RouteMatch{
+			Headers: headerMatcher(route.HeaderConditions),
+		}
+	}
+}
+
 // VirtualHost creates a new route.VirtualHost.
 func VirtualHost(hostname string) *envoy_api_v2_route.VirtualHost {
 	domains := []string{hostname}
@@ -236,5 +262,40 @@ func AppendHeader(key, value string) *envoy_api_v2_core.HeaderValueOption {
 			Value: value,
 		},
 		Append: protobuf.Bool(true),
+	}
+}
+
+func headerMatcher(headers []dag.HeaderCondition) []*envoy_api_v2_route.HeaderMatcher {
+	var envoyHeaders []*envoy_api_v2_route.HeaderMatcher
+
+	for _, h := range headers {
+		header := &envoy_api_v2_route.HeaderMatcher{
+			Name:        h.Name,
+			InvertMatch: h.Invert,
+		}
+
+		switch h.MatchType {
+		case "exact":
+			header.HeaderMatchSpecifier = &envoy_api_v2_route.HeaderMatcher_ExactMatch{ExactMatch: h.Value}
+		case "contains":
+			header.HeaderMatchSpecifier = containsMatch(h.Value)
+		case "present":
+			header.HeaderMatchSpecifier = &envoy_api_v2_route.HeaderMatcher_PresentMatch{PresentMatch: true}
+		}
+		envoyHeaders = append(envoyHeaders, header)
+	}
+	return envoyHeaders
+}
+
+// containsMatch returns a HeaderMatchSpecifier which will match the
+// supplied substring
+func containsMatch(s string) *envoy_api_v2_route.HeaderMatcher_SafeRegexMatch {
+	// convert the substring s into a regular expression that matches s.
+	// note that Envoy expects the expression to match the entire string, not just the substring
+	// formed from s. see [projectcontour/contour/#1751 & envoyproxy/envoy#8283]
+	regex := fmt.Sprintf(".*%s.*", regexp.QuoteMeta(s))
+
+	return &envoy_api_v2_route.HeaderMatcher_SafeRegexMatch{
+		SafeRegexMatch: SafeRegexMatch(regex),
 	}
 }

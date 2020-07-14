@@ -18,7 +18,6 @@ package dag
 
 import (
 	"fmt"
-	"math"
 	"reflect"
 	"testing"
 
@@ -27,106 +26,36 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func TestParseAnnotationUInt32(t *testing.T) {
-	tests := map[string]struct {
-		a     map[string]string
-		want  uint32
-		isNil bool
-	}{
-		"nada": {
-			a:     nil,
-			isNil: true,
-		},
-		"empty": {
-			a:     map[string]string{annotationRequestTimeout: ""}, // not even sure this is possible via the API
-			isNil: true,
-		},
-		"smallest": {
-			a:    map[string]string{annotationRequestTimeout: "0"},
-			want: 0,
-		},
-		"middle value": {
-			a:    map[string]string{annotationRequestTimeout: "20"},
-			want: 20,
-		},
-		"biggest": {
-			a:    map[string]string{annotationRequestTimeout: "4294967295"},
-			want: math.MaxUint32,
-		},
-		"invalid": {
-			a:     map[string]string{annotationRequestTimeout: "10seconds"}, // not a duration
-			isNil: true,
-		},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			got := parseAnnotationUInt32(tc.a, annotationRequestTimeout)
-			if ((got == nil) != tc.isNil) || (got != nil && got.Value != tc.want) {
-				t.Fatalf("parseAnnotationUInt32(%q): want: %v, isNil: %v, got: %v", tc.a, tc.want, tc.isNil, got)
-			}
-		})
-	}
-}
-
 func TestParseAnnotation(t *testing.T) {
 	tests := map[string]struct {
-		a    map[string]string
-		key  string
+		s  string
 		want uint32
 	}{
-		"empty map": {
-			a:    nil,
-			key:  "timeout",
-			want: 0,
-		},
-		"missing": {
-			a: map[string]string{
-				"retries": "99",
-			},
-			key:  "timeout",
-			want: 0,
-		},
 		"blank": {
-			a: map[string]string{
-				"timeout": "",
-			},
-			key:  "timeout",
+			s:    "",
 			want: 0,
 		},
 		"negative": {
-			a: map[string]string{
-				"timeout": "-6", // for alice
-			},
-			key:  "timeout",
+			s:    "-6", // for alice
 			want: 0,
 		},
 		"explicit": {
-			a: map[string]string{
-				"timeout": "0",
-			},
-			key:  "timeout",
+			s:    "0",
 			want: 0,
 		},
 		"positive": {
-			a: map[string]string{
-				"timeout": "2",
-			},
-			key:  "timeout",
+			s:    "2",
 			want: 2,
 		},
 		"too large": {
-			a: map[string]string{
-				"timeout": "144115188075855872", // larger than uint32
-			},
-			key:  "timeout",
+			s:    "144115188075855872", // larger than uint32
 			want: 0,
 		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := parseAnnotation(tc.a, tc.key)
+			got := parseUInt32(tc.s)
 			if got != tc.want {
 				t.Fatalf("expected: %v, got %v", tc.want, got)
 			}

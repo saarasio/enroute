@@ -149,10 +149,10 @@ func (b *builder) addHTTPService(svc *v1.Service, port *v1.ServicePort) *HTTPSer
 			Namespace:   svc.Namespace,
 			ServicePort: port,
 
-			MaxConnections:     parseAnnotation(svc.Annotations, annotationMaxConnections),
-			MaxPendingRequests: parseAnnotation(svc.Annotations, annotationMaxPendingRequests),
-			MaxRequests:        parseAnnotation(svc.Annotations, annotationMaxRequests),
-			MaxRetries:         parseAnnotation(svc.Annotations, annotationMaxRetries),
+			MaxConnections:     maxConnections(svc),
+			MaxPendingRequests: maxPendingRequests(svc),
+			MaxRequests:        maxRequests(svc),
+			MaxRetries:         maxRetries(svc),
 			ExternalName:       externalName(svc),
 		},
 		Protocol: protocol,
@@ -172,16 +172,16 @@ func (b *builder) addTCPService(svc *v1.Service, port *v1.ServicePort) *TCPServi
 	if b.services == nil {
 		b.services = make(map[servicemeta]Service)
 	}
-	s := &TCPService{
-		Name:        svc.Name,
-		Namespace:   svc.Namespace,
-		ServicePort: port,
+    s := &TCPService{
+        Name:        svc.Name,
+        Namespace:   svc.Namespace,
+        ServicePort: port,
 
-		MaxConnections:     parseAnnotation(svc.Annotations, annotationMaxConnections),
-		MaxPendingRequests: parseAnnotation(svc.Annotations, annotationMaxPendingRequests),
-		MaxRequests:        parseAnnotation(svc.Annotations, annotationMaxRequests),
-		MaxRetries:         parseAnnotation(svc.Annotations, annotationMaxRetries),
-	}
+        MaxConnections:     maxConnections(svc),
+        MaxPendingRequests: maxPendingRequests(svc),
+        MaxRequests:        maxRequests(svc),
+        MaxRetries:         maxRetries(svc),
+    }
 	b.services[s.toMeta()] = s
 	return s
 }
@@ -280,41 +280,64 @@ func (b *builder) compute() *DAG {
 }
 
 // prefixRoute returns a new dag.Route for the (ingress,prefix) tuple.
-func prefixRoute(ingress *v1beta1.Ingress, prefix string) *Route {
-	// compute websocket enabled routes
+//func prefixRoute(ingress *v1beta1.Ingress, prefix string) *Route {
+//	// compute websocket enabled routes
+//	wr := websocketRoutes(ingress)
+//
+//	var retry *RetryPolicy
+//	if retryOn, ok := ingress.Annotations[annotationRetryOn]; ok && len(retryOn) > 0 {
+//		// if there is a non empty retry-on annotation, build a RetryPolicy manually.
+//		retry = &RetryPolicy{
+//			RetryOn: retryOn,
+//			// TODO(dfc) NumRetries may parse as 0, which is inconsistent with
+//			// retryPolicy()'s default value of 1.
+//			NumRetries: parseAnnotation(ingress.Annotations, annotationNumRetries),
+//			// TODO(dfc) PerTryTimeout will parse to -1, infinite, in the case of
+//			// invalid data, this is inconsistent with retryPolicy()'s default value
+//			// of 0 duration.
+//			PerTryTimeout: parseTimeout(ingress.Annotations[annotationPerTryTimeout]),
+//		}
+//	}
+//
+//	var timeout *TimeoutPolicy
+//	if request, ok := ingress.Annotations[annotationRequestTimeout]; ok {
+//		// if the request timeout annotation is present on this ingress
+//		// construct and use the ingressroute timeout policy logic.
+//		timeout = timeoutPolicy(&ingressroutev1.TimeoutPolicy{
+//			Request: request,
+//		})
+//	}
+//
+//	return &Route{
+//		Prefix:        prefix,
+//		HTTPSUpgrade:  tlsRequired(ingress),
+//		Websocket:     wr[prefix],
+//		TimeoutPolicy: timeout,
+//		RetryPolicy:   retry,
+//	}
+//}
+
+// route builds a dag.Route for the supplied Ingress.
+func route(ingress *v1beta1.Ingress, path string, service *HTTPService) *Route {
 	wr := websocketRoutes(ingress)
-
-	var retry *RetryPolicy
-	if retryOn, ok := ingress.Annotations[annotationRetryOn]; ok && len(retryOn) > 0 {
-		// if there is a non empty retry-on annotation, build a RetryPolicy manually.
-		retry = &RetryPolicy{
-			RetryOn: retryOn,
-			// TODO(dfc) NumRetries may parse as 0, which is inconsistent with
-			// retryPolicy()'s default value of 1.
-			NumRetries: parseAnnotation(ingress.Annotations, annotationNumRetries),
-			// TODO(dfc) PerTryTimeout will parse to -1, infinite, in the case of
-			// invalid data, this is inconsistent with retryPolicy()'s default value
-			// of 0 duration.
-			PerTryTimeout: parseTimeout(ingress.Annotations[annotationPerTryTimeout]),
-		}
-	}
-
-	var timeout *TimeoutPolicy
-	if request, ok := ingress.Annotations[annotationRequestTimeout]; ok {
-		// if the request timeout annotation is present on this ingress
-		// construct and use the ingressroute timeout policy logic.
-		timeout = timeoutPolicy(&ingressroutev1.TimeoutPolicy{
-			Request: request,
-		})
-	}
-
-	return &Route{
-		Prefix:        prefix,
+	r := &Route{
 		HTTPSUpgrade:  tlsRequired(ingress),
-		Websocket:     wr[prefix],
-		TimeoutPolicy: timeout,
-		RetryPolicy:   retry,
+		Websocket:     wr[path],
+		TimeoutPolicy: ingressTimeoutPolicy(ingress),
+		RetryPolicy:   ingressRetryPolicy(ingress),
+		Clusters: []*Cluster{{
+			Upstream: service,
+		}},
 	}
+
+	if strings.ContainsAny(path, "^+*[]%") {
+		// path smells like a regex
+		r.PathCondition = &RegexCondition{Regex: path}
+		return r
+	}
+
+	r.PathCondition = &PrefixCondition{Prefix: path}
+	return r
 }
 
 // isBlank indicates if a string contains nothing but blank characters.
@@ -381,7 +404,7 @@ func (b *builder) computeSecureVirtualhosts() {
 				for _, host := range tls.Hosts {
 					svhost := b.lookupSecureVirtualHost(host)
 					svhost.Secret = sec
-					version := ing.Annotations["contour.heptio.com/tls-minimum-protocol-version"]
+					version := compatAnnotation(ing, "tls-minimum-protocol-version")
 					svhost.MinProtoVersion = minProtoVersion(version)
 				}
 			}
@@ -447,27 +470,38 @@ func (b *builder) computeIngresses() {
 		// rewrite the default ingress to a stock ingress rule.
 		rules := rulesFromSpec(ing.Spec)
 
-		for _, rule := range rules {
-			host := stringOrDefault(rule.Host, "*")
-			for _, httppath := range httppaths(rule) {
-				prefix := stringOrDefault(httppath.Path, "/")
-				r := prefixRoute(ing, prefix)
-				be := httppath.Backend
-				m := Meta{name: be.ServiceName, namespace: ing.Namespace}
-				if s := b.lookupHTTPService(m, be.ServicePort); s != nil {
-					r.Clusters = append(r.Clusters, &Cluster{Upstream: s})
-				}
+        for _, rule := range rules {
+            host := rule.Host
+            if strings.Contains(host, "*") {
+                // reject hosts with wildcard characters.
+               continue 
+            }
+            if host == "" {
+                // if host name is blank, rewrite to Envoy's * default host.
+                host = "*"
+            }
 
-				// should we create port 80 routes for this ingress
-				if tlsRequired(ing) || httpAllowed(ing) {
-					b.lookupVirtualHost(host).addRoute(r)
-				}
+            for _, httppath := range httppaths(rule) {
+                path := stringOrDefault(httppath.Path, "/")
+                be := httppath.Backend
+                m := Meta{name: be.ServiceName, namespace: ing.Namespace}
+                s := b.lookupHTTPService(m, be.ServicePort)
+                if s == nil {
+                    continue
+                }
 
-				if b.secureVirtualhostExists(host) && host != "*" {
-					b.lookupSecureVirtualHost(host).addRoute(r)
-				}
-			}
-		}
+                r := route(ing, path, s)
+
+                // should we create port 80 routes for this ingress
+                if tlsRequired(ing) || httpAllowed(ing) {
+                    b.lookupVirtualHost(host).addRoute(r)
+                }
+
+                if b.secureVirtualhostExists(host) && host != "*" {
+                    b.lookupSecureVirtualHost(host).addRoute(r)
+                }
+            }
+        }
 	}
 }
 
@@ -678,7 +712,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 			}
 
 			r := &Route{
-				Prefix:        route.Match,
+				PathCondition: &PrefixCondition{Prefix: route.Match},
 				Websocket:     route.EnableWebsockets,
 				HTTPSUpgrade:  routeEnforceTLS(enforceTLS, route.PermitInsecure),
 				PrefixRewrite: route.PrefixRewrite,

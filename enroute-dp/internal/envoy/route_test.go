@@ -20,8 +20,10 @@ import (
 	"testing"
 	"time"
 
+	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
-	"github.com/google/go-cmp/cmp"
+	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	v1 "k8s.io/api/core/v1"
@@ -66,7 +68,6 @@ func TestRouteRoute(t *testing.T) {
 	}{
 		"single service": {
 			route: &dag.Route{
-				Prefix:   "/",
 				Clusters: []*dag.Cluster{c1},
 			},
 			want: &envoy_api_v2_route.Route_Route{
@@ -79,7 +80,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"websocket": {
 			route: &dag.Route{
-				Prefix:    "/",
 				Websocket: true,
 				Clusters:  []*dag.Cluster{c1},
 			},
@@ -96,7 +96,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"multiple": {
 			route: &dag.Route{
-				Prefix: "/",
 				Clusters: []*dag.Cluster{{
 					Upstream: &dag.TCPService{
 						Name:        s1.Name,
@@ -131,7 +130,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"multiple websocket": {
 			route: &dag.Route{
-				Prefix:    "/",
 				Websocket: true,
 				Clusters: []*dag.Cluster{{
 					Upstream: &dag.TCPService{
@@ -186,7 +184,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"retry-on: 503": {
 			route: &dag.Route{
-				Prefix: "/",
 				RetryPolicy: &dag.RetryPolicy{
 					RetryOn:       "503",
 					NumRetries:    6,
@@ -209,7 +206,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"timeout 90s": {
 			route: &dag.Route{
-				Prefix: "/",
 				TimeoutPolicy: &dag.TimeoutPolicy{
 					Timeout: 90 * time.Second,
 				},
@@ -226,7 +222,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"timeout infinity": {
 			route: &dag.Route{
-				Prefix: "/",
 				TimeoutPolicy: &dag.TimeoutPolicy{
 					Timeout: -1,
 				},
@@ -241,9 +236,42 @@ func TestRouteRoute(t *testing.T) {
 				},
 			},
 		},
+        // TODO 6-4-2020 Bring in IdleTimeout/ResponseTimeout changes
+//		"idle timeout 10m": {
+//			route: &dag.Route{
+//				TimeoutPolicy: &dag.TimeoutPolicy{
+//					IdleTimeout: 10 * time.Minute,
+//				},
+//				Clusters: []*dag.Cluster{c1},
+//			},
+//			want: &envoy_api_v2_route.Route_Route{
+//				Route: &envoy_api_v2_route.RouteAction{
+//					ClusterSpecifier: &envoy_api_v2_route.RouteAction_Cluster{
+//						Cluster: "default/kuard/8080/da39a3ee5e",
+//					},
+//					IdleTimeout: protobuf.Duration(600 * time.Second),
+//				},
+//			},
+//		},
+//		"idle timeout infinity": {
+//			route: &dag.Route{
+//				TimeoutPolicy: &dag.TimeoutPolicy{
+//					IdleTimeout: -1,
+//				},
+//				Clusters: []*dag.Cluster{c1},
+//			},
+//			want: &envoy_api_v2_route.Route_Route{
+//				Route: &envoy_api_v2_route.RouteAction{
+//					ClusterSpecifier: &envoy_api_v2_route.RouteAction_Cluster{
+//						Cluster: "default/kuard/8080/da39a3ee5e",
+//					},
+//					IdleTimeout: protobuf.Duration(0),
+//				},
+//			},
+//		},
+
 		"single service w/ session affinity": {
 			route: &dag.Route{
-				Prefix:   "/cart",
 				Clusters: []*dag.Cluster{c2},
 			},
 			want: &envoy_api_v2_route.Route_Route{
@@ -265,7 +293,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"multiple service w/ session affinity": {
 			route: &dag.Route{
-				Prefix:   "/cart",
 				Clusters: []*dag.Cluster{c2, c2},
 			},
 			want: &envoy_api_v2_route.Route_Route{
@@ -296,7 +323,6 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"mixed service w/ session affinity": {
 			route: &dag.Route{
-				Prefix:   "/cart",
 				Clusters: []*dag.Cluster{c2, c1},
 			},
 			want: &envoy_api_v2_route.Route_Route{
@@ -330,9 +356,7 @@ func TestRouteRoute(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := RouteRoute(tc.route)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -449,9 +473,56 @@ func TestWeightedClusters(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := weightedClusters(tc.clusters)
-			if diff := cmp.Diff(got, tc.want); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestRouteConfiguration(t *testing.T) {
+	tests := map[string]struct {
+		name         string
+		virtualhosts []*envoy_api_v2_route.VirtualHost
+		want         *v2.RouteConfiguration
+	}{
+
+		"empty": {
+			name: "ingress_http",
+			want: &v2.RouteConfiguration{
+				Name: "ingress_http",
+				RequestHeadersToAdd: []*envoy_api_v2_core.HeaderValueOption{{
+					Header: &envoy_api_v2_core.HeaderValue{
+						Key:   "x-request-start",
+						Value: "t=%START_TIME(%s.%3f)%",
+					},
+					Append: protobuf.Bool(true),
+				}},
+			},
+		},
+		"one virtualhost": {
+			name: "ingress_https",
+			virtualhosts: virtualhosts(
+				VirtualHost("www.example.com"),
+			),
+			want: &v2.RouteConfiguration{
+				Name: "ingress_https",
+				VirtualHosts: virtualhosts(
+					VirtualHost("www.example.com"),
+				),
+				RequestHeadersToAdd: []*envoy_api_v2_core.HeaderValueOption{{
+					Header: &envoy_api_v2_core.HeaderValue{
+						Key:   "x-request-start",
+						Value: "t=%START_TIME(%s.%3f)%",
+					},
+					Append: protobuf.Bool(true),
+				}},
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := RouteConfiguration(tc.name, tc.virtualhosts...)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -482,38 +553,8 @@ func TestVirtualHost(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := VirtualHost(tc.hostname)
-			if diff := cmp.Diff(got, tc.want); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.Equal(t, tc.want, got)
 		})
-	}
-}
-
-func TestPrefixMatch(t *testing.T) {
-	const prefix = "/kang"
-	got := RouteMatch(prefix)
-	want := &envoy_api_v2_route.RouteMatch{
-		PathSpecifier: &envoy_api_v2_route.RouteMatch_Prefix{
-			Prefix: prefix,
-		},
-	}
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Fatal(diff)
-	}
-}
-
-func TestRegexMatch(t *testing.T) {
-	const prefix = "/[^/]+/media(/.*|/?)"
-	got := RouteMatch(prefix)
-	want := &envoy_api_v2_route.RouteMatch{
-		PathSpecifier: &envoy_api_v2_route.RouteMatch_Regex{
-			Regex: prefix,
-		},
-	}
-
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Fatal(diff)
 	}
 }
 
@@ -527,7 +568,106 @@ func TestUpgradeHTTPS(t *testing.T) {
 		},
 	}
 
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Fatal(diff)
+	assert.Equal(t, want, got)
+}
+
+func TestRouteMatchNew(t *testing.T) {
+	tests := map[string]struct {
+		route *dag.Route
+		want  *envoy_api_v2_route.RouteMatch
+	}{
+		"contains match with dashes": {
+			route: &dag.Route{
+				HeaderConditions: []dag.HeaderCondition{{
+					Name:      "x-header",
+					Value:     "11-22-33-44",
+					MatchType: "contains",
+					Invert:    false,
+				}},
+			},
+			want: &envoy_api_v2_route.RouteMatch{
+				Headers: []*envoy_api_v2_route.HeaderMatcher{{
+					Name:        "x-header",
+					InvertMatch: false,
+					HeaderMatchSpecifier: &envoy_api_v2_route.HeaderMatcher_SafeRegexMatch{
+						SafeRegexMatch: SafeRegexMatch(".*11-22-33-44.*"),
+					},
+				}},
+			},
+		},
+		"contains match with dots": {
+			route: &dag.Route{
+				HeaderConditions: []dag.HeaderCondition{{
+					Name:      "x-header",
+					Value:     "11.22.33.44",
+					MatchType: "contains",
+					Invert:    false,
+				}},
+			},
+			want: &envoy_api_v2_route.RouteMatch{
+				Headers: []*envoy_api_v2_route.HeaderMatcher{{
+					Name:        "x-header",
+					InvertMatch: false,
+					HeaderMatchSpecifier: &envoy_api_v2_route.HeaderMatcher_SafeRegexMatch{
+						SafeRegexMatch: SafeRegexMatch(".*11\\.22\\.33\\.44.*"),
+					},
+				}},
+			},
+		},
+		"contains match with regex group": {
+			route: &dag.Route{
+				HeaderConditions: []dag.HeaderCondition{{
+					Name:      "x-header",
+					Value:     "11.[22].*33.44",
+					MatchType: "contains",
+					Invert:    false,
+				}},
+			},
+			want: &envoy_api_v2_route.RouteMatch{
+				Headers: []*envoy_api_v2_route.HeaderMatcher{{
+					Name:        "x-header",
+					InvertMatch: false,
+					HeaderMatchSpecifier: &envoy_api_v2_route.HeaderMatcher_SafeRegexMatch{
+						SafeRegexMatch: SafeRegexMatch(".*11\\.\\[22\\]\\.\\*33\\.44.*"),
+					},
+				}},
+			},
+		},
+		"path prefix": {
+			route: &dag.Route{
+				PathCondition: &dag.PrefixCondition{
+					Prefix: "/foo",
+				},
+			},
+			want: &envoy_api_v2_route.RouteMatch{
+				PathSpecifier: &envoy_api_v2_route.RouteMatch_Prefix{
+					Prefix: "/foo",
+				},
+			},
+		},
+		"path regex": {
+			route: &dag.Route{
+				PathCondition: &dag.RegexCondition{
+					Regex: "/v.1/*",
+				},
+			},
+			want: &envoy_api_v2_route.RouteMatch{
+				PathSpecifier: &envoy_api_v2_route.RouteMatch_SafeRegex{
+					// note, unlike header conditions this is not a quoted regex because
+					// the value comes directly from the Ingress.Paths.Path value which
+					// is permitted to be a bare regex.
+					SafeRegex: SafeRegexMatch("/v.1/*"),
+				},
+			},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got := RouteMatchNew(tc.route)
+			assert.Equal(t, tc.want, got)
+		})
 	}
 }
+
+func virtualhosts(v ...*envoy_api_v2_route.VirtualHost) []*envoy_api_v2_route.VirtualHost { return v }

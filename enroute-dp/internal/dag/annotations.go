@@ -20,16 +20,23 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/gogo/protobuf/types"
+	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	"k8s.io/api/networking/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+type Object interface {
+	metav1.ObjectMetaAccessor
+}
 
 const (
 	// set docs/annotations.md for details of how these annotations
 	// are applied by Contour.
 
 	annotationRequestTimeout     = "contour.heptio.com/request-timeout"
+	annotationResponseTimeout    = "contour.heptio.com/response-timeout"
 	annotationWebsocketRoutes    = "contour.heptio.com/websocket-routes"
 	annotationUpstreamProtocol   = "contour.heptio.com/upstream-protocol"
 	annotationMaxConnections     = "contour.heptio.com/max-connections"
@@ -41,6 +48,39 @@ const (
 	annotationPerTryTimeout      = "contour.heptio.com/per-try-timeout"
 )
 
+// '0' is returned if the annotation is absent or unparseable.
+func maxConnections(o Object) uint32 {
+	return parseUInt32(compatAnnotation(o, "max-connections"))
+}
+
+func maxPendingRequests(o Object) uint32 {
+	return parseUInt32(compatAnnotation(o, "max-pending-requests"))
+}
+
+func maxRequests(o Object) uint32 {
+	return parseUInt32(compatAnnotation(o, "max-requests"))
+}
+
+func maxRetries(o Object) uint32 {
+	return parseUInt32(compatAnnotation(o, "max-retries"))
+}
+
+func compatAnnotation(o Object, key string) string {
+	a := o.GetObjectMeta().GetAnnotations()
+
+	return a["contour.heptio.com/"+key]
+}
+
+// parseUInt32 parses the supplied string as if it were a uint32.
+// If the value is not present, or malformed, or outside uint32's range, zero is returned.
+func parseUInt32(s string) uint32 {
+	v, err := strconv.ParseUint(s, 10, 32)
+	if err != nil {
+		return 0
+	}
+	return uint32(v)
+}
+
 // parseAnnotation parses the annotation map for the supplied key.
 // If the value is not present, or malformed, then zero is returned.
 func parseAnnotation(annotations map[string]string, annotation string) uint32 {
@@ -49,16 +89,6 @@ func parseAnnotation(annotations map[string]string, annotation string) uint32 {
 		return 0
 	}
 	return uint32(v)
-}
-
-// parseAnnotationUint32 parsers the annotation map for the supplied annotation key.
-// If the value is not present, or malformed, then nil is returned.
-func parseAnnotationUInt32(annotations map[string]string, annotation string) *types.UInt32Value {
-	v, err := strconv.ParseUint(annotations[annotation], 10, 32)
-	if err != nil {
-		return nil
-	}
-	return &types.UInt32Value{Value: uint32(v)}
 }
 
 // parseUpstreamProtocols parses the annotations map for a contour.heptio.com/upstream-protocol.{protocol}
@@ -99,4 +129,29 @@ func websocketRoutes(i *v1beta1.Ingress) map[string]bool {
 		}
 	}
 	return routes
+}
+// MinProtoVersion returns the TLS protocol version specified by an ingress annotation
+// or default if non present.
+func MinProtoVersion(version string) envoy_api_v2_auth.TlsParameters_TlsProtocol {
+	switch version {
+	case "1.3":
+		return envoy_api_v2_auth.TlsParameters_TLSv1_3
+	case "1.2":
+		return envoy_api_v2_auth.TlsParameters_TLSv1_2
+	default:
+		// any other value is interpreted as TLS/1.1
+		return envoy_api_v2_auth.TlsParameters_TLSv1_1
+	}
+}
+
+// perTryTimeout returns the duration envoy will wait per retry cycle.
+func perTryTimeout(i *v1beta1.Ingress) time.Duration {
+	return parseTimeout(compatAnnotation(i, "per-try-timeout"))
+}
+
+
+
+// numRetries returns the number of retries specified by the "contour.heptio.com/num-retries"
+func numRetries(i *v1beta1.Ingress) uint32 {
+	return parseUInt32(compatAnnotation(i, "num-retries"))
 }

@@ -19,6 +19,8 @@
 package dag
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
@@ -61,8 +63,50 @@ type HttpFilter struct {
 	has_changed bool
 }
 
+type Condition interface {
+	fmt.Stringer
+}
+
+// PrefixCondition matches the start of a URL.
+type PrefixCondition struct {
+	Prefix string
+}
+
+func (pc *PrefixCondition) String() string {
+	return "prefix: " + pc.Prefix
+}
+
+// RegexCondition matches the URL by regular expression.
+type RegexCondition struct {
+	Regex string
+}
+
+func (rc *RegexCondition) String() string {
+	return "regex: " + rc.Regex
+}
+
+type HeaderCondition struct {
+	Name      string
+	Value     string
+	MatchType string
+	Invert    bool
+}
+
+func (hc *HeaderCondition) String() string {
+	return "header: " + hc.Name
+}
+
+
+
 type Route struct {
-	Prefix   string
+	// PathCondition specifies a Condition to match on the request path.
+	// Must not be nil.
+	PathCondition Condition
+
+	// HeaderConditions specifies a set of additional Conditions to
+	// match on the request headers.
+	HeaderConditions []HeaderCondition
+
 	Clusters []*Cluster
 
 	// Should this route generate a 301 upgrade if accessed
@@ -143,7 +187,15 @@ func (v *VirtualHost) addRoute(route *Route) {
 	if v.routes == nil {
 		v.routes = make(map[string]*Route)
 	}
-	v.routes[route.Prefix] = route
+	v.routes[conditionsToString(route)] = route
+}
+
+func conditionsToString(r *Route) string {
+	s := []string{r.PathCondition.String()}
+	for _, cond := range r.HeaderConditions {
+		s = append(s, cond.String())
+	}
+	return strings.Join(s, ",")
 }
 
 func (v *VirtualHost) Visit(f func(Vertex)) {

@@ -19,10 +19,11 @@ package dag
 import (
 	"time"
 
-	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	enrouteapi "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	k8sapi "k8s.io/api/networking/v1beta1"
 )
 
-func retryPolicy(rp *v1beta1.RetryPolicy) *RetryPolicy {
+func retryPolicy(rp *enrouteapi.RetryPolicy) *RetryPolicy {
 	if rp == nil {
 		return nil
 	}
@@ -34,7 +35,7 @@ func retryPolicy(rp *v1beta1.RetryPolicy) *RetryPolicy {
 	}
 }
 
-func timeoutPolicy(tp *v1beta1.TimeoutPolicy) *TimeoutPolicy {
+func timeoutPolicy(tp *enrouteapi.TimeoutPolicy) *TimeoutPolicy {
 	if tp == nil {
 		return nil
 	}
@@ -42,6 +43,45 @@ func timeoutPolicy(tp *v1beta1.TimeoutPolicy) *TimeoutPolicy {
 		Timeout: parseTimeout(tp.Request),
 	}
 }
+
+// ingressRetryPolicy builds a RetryPolicy from ingress annotations.
+func ingressRetryPolicy(ingress *k8sapi.Ingress) *RetryPolicy {
+	retryOn := compatAnnotation(ingress, "retry-on")
+	if len(retryOn) < 1 {
+		return nil
+	}
+	// if there is a non empty retry-on annotation, build a RetryPolicy manually.
+	return &RetryPolicy{
+		RetryOn: retryOn,
+		// TODO(dfc) numRetries may parse as 0, which is inconsistent with
+		// retryPolicyIngressRoute()'s default value of 1.
+		NumRetries: numRetries(ingress),
+		// TODO(dfc) perTryTimeout will parse to -1, infinite, in the case of
+		// invalid data, this is inconsistent with retryPolicyIngressRoute()'s default value
+		// of 0 duration.
+		PerTryTimeout: perTryTimeout(ingress),
+	}
+}
+
+
+func ingressTimeoutPolicy(ingress *k8sapi.Ingress) *TimeoutPolicy {
+	response := compatAnnotation(ingress, "response-timeout")
+	if len(response) == 0 {
+		// Note: due to a misunderstanding the name of the annotation is
+		// request timeout, but it is actually applied as a timeout on
+		// the response body.
+		response = compatAnnotation(ingress, "request-timeout")
+		if len(response) == 0 {
+			return nil
+		}
+	}
+	// if the request timeout annotation is present on this ingress
+	// construct and use the ingressroute timeout policy logic.
+	return timeoutPolicy(&enrouteapi.TimeoutPolicy{
+		Request: response,
+	})
+}
+
 
 func parseTimeout(timeout string) time.Duration {
 	if timeout == "" {
