@@ -26,8 +26,8 @@ import (
 
 // quick and dirty dot debugging package
 
-type dotWriter struct {
-	kc *dag.KubernetesCache
+type DotWriter struct {
+	Kc *dag.KubernetesCache
 }
 
 type pair struct {
@@ -75,7 +75,7 @@ func (c *ctx) writeEdge(parent, child dag.Vertex) {
 	fmt.Fprintf(c.w, `"%p" -> "%p"`+"\n", parent, child)
 }
 
-func (dw *dotWriter) writeDot(w io.Writer) {
+func (dw *DotWriter) WriteDot(w io.Writer) {
 	fmt.Fprintln(w, "digraph DAG {\nrankdir=\"LR\"")
 
 	ctx := &ctx{
@@ -93,7 +93,7 @@ func (dw *dotWriter) writeDot(w io.Writer) {
 		})
 	}
 
-	dag.BuildDAG(dw.kc).Visit(visit)
+	dag.BuildDAG(dw.Kc).Visit(visit)
 
 	fmt.Fprintln(w, "}")
 }

@@ -39,13 +39,17 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
 			}, {
-				Match: "/prefix",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/prefix",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "delegated",
 				}},
@@ -64,7 +68,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: -80,
@@ -84,7 +90,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foobar",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foobar",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
@@ -94,21 +102,21 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir4 is invalid because its match prefix does not match its parent's (ir1)
-	ir4 := &ingressroutev1.IngressRoute{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "roots",
-			Name:      "delegated",
-		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Match: "/doesnotmatch",
-				Services: []ingressroutev1.Service{{
-					Name: "home",
-					Port: 8080,
-				}},
-			}},
-		},
-	}
+	//ir4 := &ingressroutev1.IngressRoute{
+	//	ObjectMeta: metav1.ObjectMeta{
+	//		Namespace: "roots",
+	//		Name:      "delegated",
+	//	},
+	//	Spec: ingressroutev1.IngressRouteSpec{
+	//		Routes: []ingressroutev1.Route{{
+	//			Match: "/doesnotmatch",
+	//			Services: []ingressroutev1.Service{{
+	//				Name: "home",
+	//				Port: 8080,
+	//			}},
+	//		}},
+	//	},
+	//}
 
 	// ir6 is invalid because it delegates to itself, producing a cycle
 	ir6 := &ingressroutev1.IngressRoute{
@@ -121,7 +129,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "self",
 				},
@@ -140,7 +150,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "child",
 				},
@@ -155,7 +167,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "parent",
 				},
@@ -174,7 +188,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "child",
 				},
@@ -197,12 +213,16 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "validChild",
 				},
 			}, {
-				Match: "/bar",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/bar",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "invalidChild",
 				},
@@ -217,7 +237,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 8080,
@@ -234,7 +256,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-				Match: "/bar",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/bar",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 12345678,
@@ -252,7 +276,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 8080,
@@ -270,7 +296,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{},
 			Routes: []ingressroutev1.Route{{
-				Match: "/foo",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/foo",
+                }},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "validChild",
 				},
@@ -374,24 +402,24 @@ func TestIngressRouteMetrics(t *testing.T) {
 			},
 			rootNamespaces: []string{"foo"},
 		},
-		"delegated route's match prefix does not match parent's prefix": {
-			objs: []interface{}{ir1, ir4, s3},
-			want: metrics.IngressRouteMetric{
-				Invalid: map[metrics.Meta]int{
-					{Namespace: "roots", VHost: "example.com"}: 1,
-				},
-				Valid: map[metrics.Meta]int{
-					{Namespace: "roots", VHost: "example.com"}: 1,
-				},
-				Orphaned: map[metrics.Meta]int{},
-				Root: map[metrics.Meta]int{
-					{Namespace: "roots"}: 1,
-				},
-				Total: map[metrics.Meta]int{
-					{Namespace: "roots"}: 2,
-				},
-			},
-		},
+		//"delegated route's match prefix does not match parent's prefix": {
+		//	objs: []interface{}{ir1, ir4, s3},
+		//	want: metrics.IngressRouteMetric{
+		//		Invalid: map[metrics.Meta]int{
+		//			{Namespace: "roots", VHost: "example.com"}: 1,
+		//		},
+		//		Valid: map[metrics.Meta]int{
+		//			{Namespace: "roots", VHost: "example.com"}: 1,
+		//		},
+		//		Orphaned: map[metrics.Meta]int{},
+		//		Root: map[metrics.Meta]int{
+		//			{Namespace: "roots"}: 1,
+		//		},
+		//		Total: map[metrics.Meta]int{
+		//			{Namespace: "roots"}: 2,
+		//		},
+		//	},
+		//},
 		"root ingressroute does not specify FQDN": {
 			objs: []interface{}{ir13},
 			want: metrics.IngressRouteMetric{

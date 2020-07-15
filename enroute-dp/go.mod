@@ -3,6 +3,7 @@ module github.com/saarasio/enroute/enroute-dp
 go 1.13
 
 require (
+	github.com/3rf/codecoroner v0.0.0-20190711181142-77c68ba76a4c // indirect
 	github.com/apache/thrift v0.12.0 // indirect
 	github.com/client9/misspell v0.3.4
 	github.com/davecgh/go-spew v1.1.1

@@ -55,9 +55,9 @@ func registerProfile(mux *http.ServeMux) {
 
 func registerDotWriter(mux *http.ServeMux, kc *dag.KubernetesCache) {
 	mux.HandleFunc("/debug/dag", func(w http.ResponseWriter, r *http.Request) {
-		dw := &dotWriter{
-			kc: kc,
+		dw := &DotWriter{
+			Kc: kc,
 		}
-		dw.writeDot(w)
+		dw.WriteDot(w)
 	})
 }

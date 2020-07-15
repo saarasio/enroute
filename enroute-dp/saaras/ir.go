@@ -4,17 +4,14 @@
 package saaras
 
 import (
-	"fmt"
 	_ "github.com/davecgh/go-spew/spew"
 	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"net"
-	"os"
 	"sort"
 	"strconv"
+    "strings"
 )
 
 const QIngressRoute string = `
@@ -402,7 +399,9 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 	routes := make([]v1beta1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
 		route := v1beta1.Route{
-			Match:    oneRoute.Route_prefix,
+            Conditions: []v1beta1.Condition{{
+                Prefix: oneRoute.Route_prefix,
+            }},
 			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
 			Filters:  saaras_ir_route_filter__to__v1b1_route_filter(oneRoute),
 		}
@@ -451,7 +450,9 @@ func saaras_ir__to__v1b1_ir(sdb *SaarasIngressRoute) *v1beta1.IngressRoute {
 
 	for _, oneRoute := range sdb.RoutessByappId {
 		route := v1beta1.Route{
-			Match:    oneRoute.Route_prefix,
+            Conditions: []v1beta1.Condition{{
+                Prefix: oneRoute.Route_prefix,
+            }},
 			Services: saaras_route_to_v1b1_service_slice(sdb, oneRoute),
 		}
 		routes = append(routes, route)
@@ -608,11 +609,21 @@ func v1b1_service_slice_equal(log logrus.FieldLogger, s1, s2 []v1beta1.Service) 
 }
 
 func v1b1_route_equal(log logrus.FieldLogger, ir_r1, ir_r2 v1beta1.Route) bool {
-	return ir_r1.Match == ir_r2.Match &&
-		ir_r1.PrefixRewrite == ir_r2.PrefixRewrite &&
-		ir_r1.EnableWebsockets == ir_r2.EnableWebsockets &&
-		ir_r1.PermitInsecure == ir_r2.PermitInsecure &&
-		v1b1_service_slice_equal(log, ir_r1.Services, ir_r2.Services)
+    if len(ir_r1.Conditions) > 0 && len(ir_r2.Conditions) > 0 {
+        if len(ir_r1.Conditions) == len(ir_r2.Conditions) {
+            // TODO: We only compare the prefix here (if present)
+            if ir_r1.Conditions[0].Prefix != "" && ir_r2.Conditions[0].Prefix != "" {
+	            return ir_r1.Conditions[0].Prefix == ir_r2.Conditions[0].Prefix &&
+	            	ir_r1.PrefixRewrite == ir_r2.PrefixRewrite &&
+	            	ir_r1.EnableWebsockets == ir_r2.EnableWebsockets &&
+	            	ir_r1.PermitInsecure == ir_r2.PermitInsecure &&
+	            	v1b1_service_slice_equal(log, ir_r1.Services, ir_r2.Services)
+
+            }
+        }
+    }
+
+    return false
 }
 
 type sliceOfIRRoutes []v1beta1.Route
@@ -625,8 +636,20 @@ func (o sliceOfIRRoutes) Swap(i, j int) {
 	o[i], o[j] = o[j], o[i]
 }
 
+func conditionsToString(r *v1beta1.Route) string {
+	s := []string{}
+	for _, cond := range r.Conditions {
+        if cond.Header != nil {
+		    s = append(s, cond.Prefix + cond.Header.Name)
+        } else {
+		    s = append(s, cond.Prefix)
+        }
+	}
+	return strings.Join(s, ",")
+}
+
 func (o sliceOfIRRoutes) Less(i, j int) bool {
-	return o[i].Match > o[j].Match
+	return conditionsToString(&o[i]) > conditionsToString(&o[j])
 }
 
 func v1b1_route_slice_equal(log logrus.FieldLogger, r1, r2 []v1beta1.Route) bool {
@@ -700,273 +723,3 @@ func saaras_route_to_v1b1_service_slice(sdb *SaarasIngressRoute, r SaarasRoute) 
 	}
 	return services
 }
-
-func saaras_ms_to_v1_serviceport(s *SaarasMicroService) []v1.ServicePort {
-	sp := make([]v1.ServicePort, 0)
-	// When a service lookup happens in builder, we first compare with port number, then with name
-	// A more common case for us is every service having one service port
-	// Service eventually gets transformed into a cluster
-	one_service_port := v1.ServicePort{
-		//Name: serviceName(s.Namespace,
-		//	s.MicroservicesBymicroserviceId.ClusterByclusterId.Cluster_name,
-		//	s.MicroservicesBymicroserviceId.Microservice_name),
-		Port: s.MicroservicesBymicroserviceId.Port,
-	}
-	sp = append(sp, one_service_port)
-	return sp
-}
-
-// Every Service -> Multiple ServicePort
-func saaras_ms_to_v1_service(s *SaarasMicroService) *v1.Service {
-	return &v1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      s.MicroservicesBymicroserviceId.Microservice_name,
-			Namespace: s.Namespace,
-		},
-		Spec: v1.ServiceSpec{
-			Ports: saaras_ms_to_v1_serviceport(s),
-		},
-	}
-}
-
-// One App -> Multiple Routes
-// Every Route -> Multiple Services
-func saaras_ir_to_v1_service_saaras_ms(sdb *SaarasIngressRoute) (*map[string]*v1.Service, *map[string]*SaarasMicroService) {
-	v1_services := make(map[string]*v1.Service)
-	cloud_services := make(map[string]*SaarasMicroService)
-	routes := sdb.RoutessByappId
-	for _, v := range routes {
-		mss := v.RouteMssByrouteId
-		for _, ms := range mss {
-			// When we build a SaarasMicroService from cloud state, it doesn't have
-			// SaarasMicroService.Namespace set. Set it before passing SaarasMicroService around.
-			// SaarasMicroService.Namespace was added later to SaarasMicroService so that SaarasIngressRoute
-			// is not needed when looking up SaarasIngressRoute.OrgByorgId.Org_name
-			// We use SaarasIngressRoute.OrgByorgId.Org_name as Namespace for a micro service for all computations
-			ms.Namespace = sdb.OrgByorgId.Org_name
-			v1_services[ms.Microservice_id] = saaras_ms_to_v1_service(&ms)
-			// Store the Org_name under Namespace so that we can use it later when looking up service from saaras service cache
-			ms.Namespace = sdb.OrgByorgId.Org_name
-			cloud_services[ms.Microservice_id] = &ms
-		}
-	}
-	return &v1_services, &cloud_services
-}
-
-func saaras_ir_to_v1_service(saaras_ir_map *map[string]*SaarasIngressRoute) (*map[string]*v1.Service, *map[string]*SaarasMicroService) {
-	v1_service_map := make(map[string]*v1.Service)
-	saaras_service_map := make(map[string]*SaarasMicroService)
-
-	for _, v := range *saaras_ir_map {
-		// Get services for one app
-		v1_svc, saaras_svc := saaras_ir_to_v1_service_saaras_ms(v)
-
-		for k, v := range *v1_svc {
-			v1_service_map[k] = v
-		}
-		for k, v := range *saaras_svc {
-			saaras_service_map[k] = v
-		}
-	}
-
-	return &v1_service_map, &saaras_service_map
-}
-
-// TODO
-func saaras_svc_equal(s1, s2 *SaarasMicroService) bool {
-	return true
-}
-
-///// Endpoints ////////////////////////////////////////////////
-///// Functions for Saaras Endpoints <-> v1.Endpoints /////////
-
-func saaras_ms_to_v1_ep(mss *SaarasMicroService) *v1.Endpoints {
-	ep_subsets := make([]v1.EndpointSubset, 0)
-	ep_subsets_addresses := make([]v1.EndpointAddress, 0)
-	ep_subsets_ports := make([]v1.EndpointPort, 0)
-
-	ep_subsets_port := v1.EndpointPort{
-		Port: mss.MicroservicesBymicroserviceId.Port,
-	}
-	ep_subsets_ports = append(ep_subsets_ports, ep_subsets_port)
-
-	var e_ip string
-
-	// Pick the EIP from the microservice if present
-	// Else pick the EIP from cluster
-	if mss.MicroservicesBymicroserviceId.External_ip != "" {
-		e_ip = mss.MicroservicesBymicroserviceId.External_ip
-	} else {
-		e_ip = mss.MicroservicesBymicroserviceId.ClusterByclusterId.External_ip
-	}
-
-	ep_subsets_address := v1.EndpointAddress{
-		IP: e_ip,
-	}
-	ep_subsets_addresses = append(ep_subsets_addresses, ep_subsets_address)
-
-	ep_subset := v1.EndpointSubset{
-		Addresses: ep_subsets_addresses,
-		Ports:     ep_subsets_ports,
-	}
-	ep_subsets = append(ep_subsets, ep_subset)
-
-	return &v1.Endpoints{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      mss.MicroservicesBymicroserviceId.Microservice_name,
-			Namespace: mss.Namespace,
-		},
-		Subsets: ep_subsets,
-	}
-}
-
-func saaras_ep_to_v1_ep(ep *SaarasEndpoint) *v1.Endpoints {
-	ep_subsets := make([]v1.EndpointSubset, 0)
-	ep_subsets_addresses := make([]v1.EndpointAddress, 0)
-	ep_subsets_ports := make([]v1.EndpointPort, 0)
-
-	var ep_subsets_address v1.EndpointAddress
-
-	ep_subsets_port := v1.EndpointPort{
-		Port: ep.Port,
-	}
-	ep_subsets_ports = append(ep_subsets_ports, ep_subsets_port)
-
-	// Check if we received a hostname.
-	// If hostname, perform lookup and extract all IPs.
-
-	if net.ParseIP(ep.Ip) == nil {
-		// The received value from the cloud is a hostname.
-		// Resolve it to IP(s)
-		// TODO: This uses the DNS settings of the current host.
-		ips, err := net.LookupIP(ep.Ip)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not get IPs: %v\n", err)
-			os.Exit(1)
-		}
-		for _, ip := range ips {
-			fmt.Printf("Resolved [%s] -> [%s]\n", ep.Ip, ip.String())
-			ep_subsets_address = v1.EndpointAddress{
-				IP: ip.String(),
-			}
-			ep_subsets_addresses = append(ep_subsets_addresses, ep_subsets_address)
-		}
-	} else {
-		ep_subsets_address = v1.EndpointAddress{
-			IP: ep.Ip,
-		}
-		ep_subsets_addresses = append(ep_subsets_addresses, ep_subsets_address)
-	}
-
-	ep_subset := v1.EndpointSubset{
-		Addresses: ep_subsets_addresses,
-		Ports:     ep_subsets_ports,
-	}
-	ep_subsets = append(ep_subsets, ep_subset)
-
-	return &v1.Endpoints{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      ep.Name,
-			Namespace: ep.Namespace,
-		},
-		Subsets: ep_subsets,
-	}
-}
-
-func saaras_ms_to_saaras_ep(mss *SaarasMicroService) *SaarasEndpoint {
-	var e_ip string
-
-	// Pick the EIP from the microservice if present
-	// Else pick the EIP from cluster
-	if mss.MicroservicesBymicroserviceId.External_ip != "" {
-		e_ip = mss.MicroservicesBymicroserviceId.External_ip
-	} else {
-		e_ip = mss.MicroservicesBymicroserviceId.ClusterByclusterId.External_ip
-	}
-
-	return &SaarasEndpoint{
-		Name:      mss.MicroservicesBymicroserviceId.Microservice_name,
-		Namespace: mss.Namespace,
-		Ip:        e_ip,
-		Port:      mss.MicroservicesBymicroserviceId.Port,
-	}
-}
-
-func saaras_ir_to_v1_ep_saaras_ep(sdb *SaarasIngressRoute) (*map[string]*v1.Endpoints, *map[string]*SaarasEndpoint) {
-	v1_ep := make(map[string]*v1.Endpoints)
-	saaras_ep := make(map[string]*SaarasEndpoint)
-	routes := sdb.RoutessByappId
-	for _, v := range routes {
-		mss := v.RouteMssByrouteId
-		for _, ms := range mss {
-			ms.Namespace = sdb.OrgByorgId.Org_name
-			v1_ep[ms.Microservice_id] = saaras_ms_to_v1_ep(&ms)
-			saaras_ep[ms.Microservice_id] = saaras_ms_to_saaras_ep(&ms)
-		}
-	}
-	return &v1_ep, &saaras_ep
-}
-
-func saaras_irs_to_v1_ep_saaras_ep(saaras_ir_map *map[string]*SaarasIngressRoute) (*map[string]*v1.Endpoints, *map[string]*SaarasEndpoint) {
-	v1_ep_map := make(map[string]*v1.Endpoints)
-	saaras_ep_map := make(map[string]*SaarasEndpoint)
-
-	for _, v := range *saaras_ir_map {
-		// Get services for one app
-		v1_ep, saaras_ep := saaras_ir_to_v1_ep_saaras_ep(v)
-
-		for k, v := range *v1_ep {
-			v1_ep_map[k] = v
-		}
-		for k, v := range *saaras_ep {
-			saaras_ep_map[k] = v
-		}
-	}
-	return &v1_ep_map, &saaras_ep_map
-}
-
-func saaras_ep_equal(ep1, ep2 *SaarasEndpoint) bool {
-	return (ep1.Name == ep2.Name &&
-		ep1.Namespace == ep2.Namespace &&
-		ep1.Ip == ep2.Ip &&
-		ep1.Port == ep2.Port)
-}
-
-var qApplicatons string = `
-query
-  get_applications($oname: String!) {
-
-    saaras_db_application (
-      where: {
-
-        _and:
-        [
-            { orgByorgId: {org_name: {_eq :$oname}} },
-            { orgByorgId: {org_name: {_eq :$oname}} }
-        ]
-
-      }
-    )
-      {
-        app_id
-        app_name
-        fqdn
-        create_ts
-        update_ts
-        orgByorgId {
-          org_name
-        }
-        applicationMicroservicessByappId {
-          create_ts
-          update_ts
-          load_percentage
-          microservicesBymicroserviceId {
-            microservice_name
-            clusterByclusterId {
-              cluster_name
-            }
-          }
-        }
-      }
-  }
-`

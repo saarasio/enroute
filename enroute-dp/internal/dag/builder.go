@@ -578,7 +578,7 @@ func (b *builder) computeIngressRoutes() {
 			b.processTCPProxy(ir, nil, host)
 		case ir.Spec.Routes != nil:
 			b.SetupVHHttpFilter(ir)
-			b.processRoutes(ir, "", nil, host, enforceTLS)
+			b.processRoutes(ir, nil, host, enforceTLS)
 		}
 	}
 }
@@ -692,27 +692,89 @@ func validCA(s *v1.Secret) bool {
 	return len(s.Data["ca.crt"]) > 0
 }
 
-func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch string, visited []*ingressroutev1.IngressRoute, host string, enforceTLS bool) {
+func (b *builder) handlePrefixReplacements(routes []ingressroutev1.Route) []ingressroutev1.Route {
+    //for _, r := routes {
+    //    if len(route.GetPrefixReplacements()) > 0 {
+    //        if !r.HasPathPrefix() {
+    //            sw.SetInvalid("cannot specify prefix replacements without a prefix condition")
+    //            return nil
+    //        }
+
+    //        if err := prefixReplacementsAreValid(route.GetPrefixReplacements()); err != nil {
+    //            sw.SetInvalid(err.Error())
+    //            return nil
+    //        }
+
+    //        // Note that we are guaranteed to always have a prefix
+    //        // condition. Even if the CRD user didn't specify a
+    //        // prefix condition, mergePathConditions() guarantees
+    //        // a prefix of '/'.
+    //        routingPrefix := r.PathCondition.(*PrefixCondition).Prefix
+
+    //        // First, try to apply an exact prefix match.
+    //        for _, prefix := range route.GetPrefixReplacements() {
+    //            if len(prefix.Prefix) > 0 && routingPrefix == prefix.Prefix {
+    //                r.PrefixRewrite = prefix.Replacement
+    //                break
+    //            }
+    //        }
+
+    //        // If there wasn't a match, we can apply the default replacement.
+    //        if len(r.PrefixRewrite) == 0 {
+    //            for _, prefix := range route.GetPrefixReplacements() {
+    //                if len(prefix.Prefix) == 0 {
+    //                    r.PrefixRewrite = prefix.Replacement
+    //                    break
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    return routes
+}
+
+// Process routes for one IngressRoute
+func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, visited []*ingressroutev1.IngressRoute, host string, enforceTLS bool) {
 	visited = append(visited, ir)
 
+    //prefixReplacedRoutes := b.handlePrefixReplacements(ir.Spec.Routes)
+    //if len(prefixReplacedRoutes) > 0 {
+    //    fmt.Printf("test")
+    //}
+
+    //// TODO: 
+    //// This is only for prefix replacement/rewrite use-cases
+	//// expandedPrefixReplacedRoutes = expandPrefixMatchOneRoute(prefixReplacedRoutes)
+
+    //for _, route := range expandedPrefixReplacedRoutes {
+    //}
+
 	for _, route := range ir.Spec.Routes {
+
+        pathConditionValid, errMesg := pathConditionsValid(route.Conditions, "route")
+	    if !pathConditionValid {
+			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: errMesg, Vhost: host})
+			continue
+		}
+	    // Look for duplicate exact match headers on this route
+        if !headerConditionsAreValid(route.Conditions) {
+            b.setStatus(Status{Object: ir, Status: StatusInvalid,
+                Description: "cannot specify duplicate header 'exact match' conditions in the same route", Vhost: host})
+            continue
+        }
+
 		// route cannot both delegate and point to services
 		if len(route.Services) > 0 && route.Delegate != nil {
-			//fmt.Printf("processRoutes(): [%s] cannot specify serivce and delegate in same route \n", ir.Spec.VirtualHost.Fqdn)
-			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: cannot specify services and delegate in the same route", route.Match), Vhost: host})
+			b.setStatus(Status{Object: ir, Status: StatusInvalid,
+                Description: fmt.Sprintf("cannot specify services and delegate in the same route"), Vhost: host})
 			return
 		}
 
 		// base case: The route points to services, so we add them to the vhost
 		if len(route.Services) > 0 {
-			if !matchesPathPrefix(route.Match, prefixMatch) {
-				//fmt.Printf("processRoutes(): [%s] path prefix does not match parent path prefix\n", ir.Spec.VirtualHost.Fqdn)
-				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("the path prefix %q does not match the parent's path prefix %q", route.Match, prefixMatch), Vhost: host})
-				return
-			}
-
 			r := &Route{
-				PathCondition: &PrefixCondition{Prefix: route.Match},
+				PathCondition: mergePathConditions(route.Conditions),
+                HeaderConditions: mergeHeaderConditions(route.Conditions),
 				Websocket:     route.EnableWebsockets,
 				HTTPSUpgrade:  routeEnforceTLS(enforceTLS, route.PermitInsecure),
 				PrefixRewrite: route.PrefixRewrite,
@@ -724,20 +786,20 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 
 			for _, service := range route.Services {
 				if service.Port < 1 || service.Port > 65535 {
-					//fmt.Printf("processRoutes(): [%s] service port not in range, service Port [%q] [%d] [%+v]\n", ir.Spec.VirtualHost.Fqdn, service.Port, service.Port, service.Port)
-					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: port must be in the range 1-65535", route.Match, service.Name), Vhost: host})
+					b.setStatus(Status{Object: ir, Status: StatusInvalid,
+                        Description: fmt.Sprintf("service %q: port must be in the range 1-65535", service.Name), Vhost: host})
 					return
 				}
 				if service.Weight < 0 {
-					//fmt.Printf("processRoutes(): [%s] weight must be greater than zero\n", ir.Spec.VirtualHost.Fqdn)
-					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: weight must be greater than or equal to zero", route.Match, service.Name), Vhost: host})
+					b.setStatus(Status{Object: ir, Status: StatusInvalid,
+                        Description: fmt.Sprintf("service %q: weight must be greater than or equal to zero", service.Name), Vhost: host})
 					return
 				}
 				m := Meta{name: service.Name, namespace: ir.Namespace}
 				s := b.lookupHTTPService(m, intstr.FromInt(service.Port))
 				if s == nil {
-					//fmt.Printf("processRoutes(): [%s] service invalid or missing \n", ir.Spec.VirtualHost.Fqdn)
-					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
+					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description:
+                        fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
 					return
 				}
 
@@ -762,7 +824,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 			}
 
 			b.lookupVirtualHost(host).addRoute(r)
-			b.lookupSecureVirtualHost(host).addRoute(r)
+            b.lookupSecureVirtualHost(host).addRoute(r)
 			continue
 		}
 
@@ -796,7 +858,7 @@ func (b *builder) processRoutes(ir *ingressroutev1.IngressRoute, prefixMatch str
 			}
 
 			// follow the link and process the target ingress route
-			b.processRoutes(dest, route.Match, visited, host, enforceTLS)
+			b.processRoutes(dest, visited, host, enforceTLS)
 		}
 	}
 
@@ -816,14 +878,14 @@ func (b *builder) lookupUpstreamValidation(ir *ingressroutev1.IngressRoute, host
 	cacert := b.lookupSecret(Meta{name: uv.CACertificate, namespace: namespace}, validCA)
 	if cacert == nil {
 		// UpstreamValidation is requested, but cert is missing or not configured
-		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: upstreamValidation requested but secret not found or misconfigured", route.Match, service.Name), Vhost: host})
-        return nil, fmt.Errorf("route %q: service %q: upstreamValidation requested but secret not found or misconfigured", route.Match, service.Name)
+		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: upstreamValidation requested but secret not found or misconfigured", service.Name), Vhost: host})
+        return nil, fmt.Errorf("service %q: upstreamValidation requested but secret not found or misconfigured", service.Name)
 	}
 
 	if uv.SubjectName == "" {
 		// UpstreamValidation is requested, but SAN is not provided
-		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("route %q: service %q: upstreamValidation requested but subject alt name not found or misconfigured", route.Match, service.Name), Vhost: host})
-        return nil, fmt.Errorf("route %q: service %q: upstreamValidation requested but subject alt name not found or misconfigured", route.Match, service.Name)
+		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name), Vhost: host})
+        return nil, fmt.Errorf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name)
 	}
 
 	return &UpstreamValidation{

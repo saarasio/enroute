@@ -19,6 +19,7 @@ package contour
 import (
 	"testing"
 	"time"
+    //"os"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_api_v2_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
@@ -30,6 +31,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	//"github.com/saarasio/enroute/enroute-dp/internal/debug"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	v1 "k8s.io/api/core/v1"
@@ -357,7 +359,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name: "backend",
 								Port: 80,
@@ -419,7 +423,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name: "backend",
 								Port: 80,
@@ -477,7 +483,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name: "backend",
 								Port: 80,
@@ -540,7 +548,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name:     "backend",
 								Port:     80,
@@ -583,7 +593,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name:     "backend",
 								Port:     80,
@@ -626,7 +638,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name:     "backend",
 								Port:     80,
@@ -669,14 +683,18 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/a",
+	                        Conditions: []ingressroutev1.Condition{{
+								Prefix: "/a",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "Random",
 							}},
 						}, {
-							Match: "/b",
+	                        Conditions: []ingressroutev1.Condition{{
+								Prefix: "/b",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name:     "backend",
 								Port:     80,
@@ -731,7 +749,9 @@ func TestClusterVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-							Match: "/",
+                            Conditions: []ingressroutev1.Condition{{
+                                Prefix: "/",
+                            }},
 							Services: []ingressroutev1.Service{{
 								Name:     "backend",
 								Port:     80,
@@ -869,6 +889,12 @@ func TestClusterVisit(t *testing.T) {
 				reh.OnAdd(o)
 			}
 			root := dag.BuildDAG(&reh.KubernetesCache)
+
+		    //dw := &debug.DotWriter{
+		    //    Kc: &reh.KubernetesCache,
+		    //}
+		    //dw.WriteDot(os.Stderr)
+
 			got := visitClusters(root)
 			assert.Equal(t, tc.want, got)
 		})

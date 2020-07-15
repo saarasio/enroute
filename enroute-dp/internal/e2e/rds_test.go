@@ -1208,20 +1208,26 @@ func TestWebsocketIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "websocket.hello.world"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Match:            "/ws-1",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/ws-1",
+			    }},
 				EnableWebsockets: true,
 				Services: []ingressroutev1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Match:            "/ws-2",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/ws-2",
+			    }},
 				EnableWebsockets: true,
 				Services: []ingressroutev1.Service{{
 					Name: "ws",
@@ -1275,20 +1281,26 @@ func TestPrefixRewriteIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "prefixrewrite.hello.world"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Match:         "/ws-1",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/ws-1",
+			    }},
 				PrefixRewrite: "/",
 				Services: []ingressroutev1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Match:         "/ws-2",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/ws-2",
+			    }},
 				PrefixRewrite: "/",
 				Services: []ingressroutev1.Service{{
 					Name: "ws",
@@ -1462,7 +1474,9 @@ func TestRDSIngressRouteInsideRootNamespaces(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1527,7 +1541,9 @@ func TestRDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1583,7 +1599,9 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				Fqdn: "www.example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{
 					{
 						Name: "kuard",
@@ -1618,7 +1636,9 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				Fqdn: "www.example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{
 					{
 						Name: "kuard",
@@ -1644,7 +1664,9 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				Fqdn: "www.example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{
 					{
 						Name: "kuard",
@@ -1670,7 +1692,9 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				Fqdn: "www.example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{
 					{
 						Name: "kuard",
@@ -1704,7 +1728,9 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				Fqdn: "www.example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{
 					{
 						Name: "kuard",
@@ -1902,7 +1928,9 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 				Spec: ingressroutev1.IngressRouteSpec{
 					VirtualHost: &ingressroutev1.VirtualHost{Fqdn: fmt.Sprintf("example-%d.com", i)},
 					Routes: []ingressroutev1.Route{{
-						Match: "/",
+                        Conditions: []ingressroutev1.Condition{{
+                            Prefix: "/",
+                        }},
 						Services: []ingressroutev1.Service{{
 							Name: "kuard",
 							Port: 80,
@@ -2025,7 +2053,9 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
@@ -2054,7 +2084,9 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
@@ -2126,7 +2158,9 @@ func TestRouteWithTLS(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 80,
@@ -2224,13 +2258,17 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match:          "/insecure",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/insecure",
+			    }},
 				PermitInsecure: true,
 				Services: []ingressroutev1.Service{{Name: "kuard",
 					Port: 80,
 				}},
 			}, {
-				Match: "/secure",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/secure",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name: "svc2",
 					Port: 80,
@@ -2357,7 +2395,9 @@ func TestRouteRetryIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				RetryPolicy: &ingressroutev1.RetryPolicy{
 					NumRetries:    7,
 					PerTryTimeout: "120ms",
@@ -2416,7 +2456,9 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "backend",
 					Port: 80,
@@ -2444,7 +2486,9 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
 					Request: "600",
 				},
@@ -2474,7 +2518,9 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
 					Request: "600s", // 10 * time.Minute
 				},
@@ -2504,7 +2550,9 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
 					Request: "infinity",
 				},
@@ -2558,7 +2606,9 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/cart",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/cart",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:     "app",
 					Port:     80,
@@ -2588,7 +2638,9 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/cart",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/cart",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:     "app",
 					Port:     80,
@@ -2626,7 +2678,9 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/cart",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/cart",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:     "app",
 					Port:     80,
@@ -2636,7 +2690,9 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 					Port: 8080,
 				}},
 			}, {
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "app",
 					Port: 80,
@@ -2718,7 +2774,9 @@ func TestLoadBalancingStrategies(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
 			Routes: []ingressroutev1.Route{{
-				Match:    "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: ss,
 			}},
 		},

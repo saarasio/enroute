@@ -319,7 +319,9 @@ func TestIngressRouteTLSListener(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "backend",
 					Port: 80,
@@ -343,7 +345,9 @@ func TestIngressRouteTLSListener(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "backend",
 					Port: 80,
@@ -1034,7 +1038,9 @@ func TestLDSIngressRouteInsideRootNamespaces(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1105,7 +1111,9 @@ func TestLDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1174,7 +1182,9 @@ func TestIngressRouteHTTPS(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1252,7 +1262,9 @@ func TestLDSIngressRouteTCPProxyTLSPassthrough(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "wrong-backend",
 					Port: 80,
@@ -1331,7 +1343,9 @@ func TestLDSIngressRouteTCPForward(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "wrong-backend",
 					Port: 80,
@@ -1432,7 +1446,9 @@ func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-				Match: "/",
+                Conditions: []ingressroutev1.Condition{{
+                    Prefix: "/",
+                }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,

@@ -96,8 +96,6 @@ func (hc *HeaderCondition) String() string {
 	return "header: " + hc.Name
 }
 
-
-
 type Route struct {
 	// PathCondition specifies a Condition to match on the request path.
 	// Must not be nil.

@@ -74,10 +74,57 @@ type TLS struct {
 	Passthrough bool `json:"passthrough,omitempty"`
 }
 
+// HeaderCondition specifies the header condition to match.
+// Name is required. Only one of Present or Contains must
+// be provided.
+type HeaderCondition struct {
+
+	// Name is the name of the header to match on. Name is required.
+	// Header names are case insensitive.
+	Name string `json:"name"`
+
+	// Present is true if the Header is present in the request.
+	// +optional
+	Present bool `json:"present,omitempty"`
+
+	// Contains is true if the Header containing this string is present
+	// in the request.
+	// +optional
+	Contains string `json:"contains,omitempty"`
+
+	// NotContains is true if the Header containing this string is not present
+	// in the request.
+	// +optional
+	NotContains string `json:"notcontains,omitempty"`
+
+	// Exact is true if the Header containing this string matches exactly
+	// in the request.
+	// +optional
+	Exact string `json:"exact,omitempty"`
+
+	// NotExact is true if the Header containing this string doesn't match exactly
+	// in the request.
+	// +optional
+	NotExact string `json:"notexact,omitempty"`
+}
+
+// Condition are policies that are applied on top of IngressRoute.
+// One of Prefix or Header must be provided.
+type Condition struct {
+	// Prefix defines a prefix match for a request.
+	// +optional
+	Prefix string `json:"prefix,omitempty"`
+
+	// Header specifies the header condition to match.
+	// +optional
+	Header *HeaderCondition `json:"header,omitempty"`
+}
+
 // Route contains the set of routes for a virtual host
 type Route struct {
-	// Match defines the prefix match
-	Match string `json:"match"`
+	// Conditions are a set of routing properties that is applied to an IngressRoute in a namespace.
+	// +optional
+	Conditions []Condition `json:"conditions,omitempty"`
 	// Services are the services to proxy traffic
 	Services []Service `json:"services,omitempty"`
 	// Delegate specifies that this route should be delegated to another IngressRoute
@@ -93,10 +140,55 @@ type Route struct {
 	TimeoutPolicy *TimeoutPolicy `json:"timeoutPolicy,omitempty"`
 	// // The retry policy for this route
 	RetryPolicy *RetryPolicy `json:"retryPolicy,omitempty"`
+	// The policy for rewriting the path of the request URL
+	// after the request has been routed to a Service.
+	//
+	// +kubebuilder:validation:Optional
+	PathRewrite *PathRewritePolicy `json:"pathRewritePolicy,omitempty"`
+
 
 	// Filters attached to this route
 	Filters []RouteAttachedFilter `json:"filters,omitempty"`
 }
+
+// PathRewritePolicy specifies how a request URL path should be
+// rewritten. This rewriting takes place after a request is routed
+// and has no subsequent effects on the proxy's routing decision.
+// No HTTP headers or body content is rewritten.
+//
+// Exactly one field in this struct may be specified.
+type PathRewritePolicy struct {
+	// ReplacePrefix describes how the path prefix should be replaced.
+	// +kubebuilder:validation:Optional
+	ReplacePrefix []ReplacePrefix `json:"replacePrefix,omitempty"`
+}
+
+// ReplacePrefix describes a path prefix replacement.
+type ReplacePrefix struct {
+	// Prefix specifies the URL path prefix to be replaced.
+	//
+	// If Prefix is specified, it must exactly match the Condition
+	// prefix that is rendered by the chain of including HTTPProxies
+	// and only that path prefix will be replaced by Replacement.
+	// This allows HTTPProxies that are included through multiple
+	// roots to only replace specific path prefixes, leaving others
+	// unmodified.
+	//
+	// If Prefix is not specified, all routing prefixes rendered
+	// by the include chain will be replaced.
+	//
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:validation:MinLength=1
+	Prefix string `json:"prefix,omitempty"`
+
+	// Replacement is the string that the routing path prefix
+	// will be replaced with. This must not be empty.
+	//
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	Replacement string `json:"replacement"`
+}
+
 
 // TCPProxy contains the set of services to proxy TCP connections.
 type TCPProxy struct {

@@ -610,14 +610,18 @@ func TestClusterPerServiceParameters(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 90,
 				}},
 			}, {
-				Match: "/b",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/b",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
@@ -665,14 +669,18 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:     "kuard",
 					Port:     80,
 					Strategy: "Random",
 				}},
 			}, {
-				Match: "/b",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/b",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:     "kuard",
 					Port:     80,
@@ -742,7 +750,9 @@ func TestClusterWithHealthChecks(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
@@ -856,7 +866,9 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 443,
@@ -889,7 +901,9 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-				Match: "/a",
+	            Conditions: []ingressroutev1.Condition{{
+			       Prefix: "/a",
+			    }},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 443,
