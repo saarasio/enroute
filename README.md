@@ -1,6 +1,10 @@
+[![Build Status](https://dev.azure.com/saaras-io/Enroute/_apis/build/status/saarasio.enroute?branchName=master)](https://dev.azure.com/saaras-io/Enroute/_build/latest?definitionId=6&branchName=master)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
 ![](enroute.png)
 
-# Universal Cloud Native Gateway with OpenAPI Spec support and advanced rate-limiting
+# Universal Gateway with OpenAPI Spec and Advanced Rate-limiting
 
 Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
@@ -8,24 +12,29 @@ One Control Plane to run Envoy Proxy as
 [Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Stateless SideCar Gateway
 
 <div class="row">
-  <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="400"/></div>
+  <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="300"/></div>
   <div class="column"><img src="https://getenroute.io/img/topology-saaras-standalone-gw.png" alt="Standalone" width="400"/></div>
 </div>
 
 
-# ```enroutectl```: Program OpenAPI Spec on Enroute Universal API Gateway in a minute
+### ```enroutectl```: Program OpenAPI Spec on Enroute Universal API Gateway in a minute
 
 ```enroutectl openapi --openapi-spec petstore.json --to-standalone-url http://localhost:1323/```
 
-# Extend using Global HTTP Filters and Route Filters
-<img src="https://getenroute.io/img/EnrouteConfigModel3.png" alt="Config Model" width="600"/>
+### Extend using Global HTTP Filters and Route Filters
+
+You can associate additional plugin/filter like functionality at global level or route level using filters.
+
+Filters/Plugins are supported for both Kubernetes Ingress Gateway and Standalonge Gateway.
+
+<img src="https://getenroute.io/img/EnrouteConfigModel3.png" alt="Config Model" width="400"/>
 
 
-# Grafana Telemetry for Standalone Gateway
+### Grafana Telemetry for Standalone Gateway
 
 ![Grafana Telemetry on Standalone Gateway](https://getenroute.io/img/grafana-swagger.png)
 
-# Why Enroute?
+### Why Enroute?
 
 Digital transformation is a key initiative in organizations to [meet business requirements](https://getenroute.io/blog/devops-secops-k8s-cloud-adoption-micro-services/) . This need is driving cloud adoption with a more self-serve DevOps driven approach. Application and micro-services are run in Kubernetes and in public/private cloud with an automated continous delivery pipeline.
 
@@ -35,5 +44,12 @@ Enroute is built from ground-up to support both traditional and cloud native use
 
 Enroute's powerful API brings automation and enables developer operations to treat infrastructure as code. Enroute natively supports [advanced rate-limiting and lua scripting](https://getenroute.io/cookbook/getting-started-advanced-rate-limiting/) as extensible filters or plugins that can be attached either for per-route traffic or all traffic. Enroute API Gateway control plane drives one or many data planes built using [Envoy Proxy](https://envoyproxy.io)
 
+### Getting Started
 
-Blogs, Cookbooks, getting started, examples and additional documentation can be found at - [getenroute.io](https://getenroute.io)
+Blogs, Cookbooks, getting started, examples and additional documentation can be found at
+
+- [getenroute.io](https://getenroute.io)
+- [Introduction](https://getenroute.io/docs/enroute-universal-api-gateway/)
+- [Getting Started](https://getenroute.io/docs/)
+- [Cookbook](https://getenroute.io/cookbook/)
+https://getenroute.io/blog/)
