@@ -52,4 +52,5 @@ Blogs, Cookbooks, getting started, examples and additional documentation can be 
 - [Introduction](https://getenroute.io/docs/enroute-universal-api-gateway/)
 - [Getting Started](https://getenroute.io/docs/)
 - [Cookbook](https://getenroute.io/cookbook/)
-https://getenroute.io/blog/)
+- [Blog](https://getenroute.io/blog/)
+
