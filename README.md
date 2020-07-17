@@ -22,7 +22,7 @@ One Control Plane to run Envoy Proxy as
 
 ### Extend using Global HTTP Filters and Route Filters
 
-You can associate additional plugin/filter like functionality at global level or route level using filters.
+You can associate additional plugin/filter functionality at global level or route level.
 
 Filters/Plugins are supported for both Kubernetes Ingress Gateway and Standalonge Gateway.
 
