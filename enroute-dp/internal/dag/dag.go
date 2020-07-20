@@ -181,6 +181,10 @@ type VirtualHost struct {
 	*TCPProxy
 }
 
+func (v *VirtualHost) GetVirtualHostRoutes() map[string]*Route {
+    return v.routes
+}
+
 func (v *VirtualHost) addRoute(route *Route) {
 	if v.routes == nil {
 		v.routes = make(map[string]*Route)

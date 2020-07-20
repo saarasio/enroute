@@ -17,7 +17,7 @@ import (
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
-func httpRateLimitTypedConfig(vh *dag.Vertex) *http.HttpFilter_TypedConfig {
+func httpRateLimitTypedConfig(vh dag.Vertex) *http.HttpFilter_TypedConfig {
 	return &http.HttpFilter_TypedConfig{
 		TypedConfig: toAny(&httprl.RateLimit{
 			Domain: "enroute",
@@ -56,9 +56,7 @@ var unusedLuaExampleCode = `
    end
 `
 
-func getHttpFilterConfigIfPresent(filter_type string, v *dag.Vertex) *cfg.SaarasRouteFilter {
-	// TODO: Get the HTTP filters on the listener
-
+func getVHHttpFilterConfigIfPresent(filter_type string, v *dag.Vertex) *cfg.SaarasRouteFilter {
 	var http_filters *dag.HttpFilter
 
 	if v == nil {
@@ -87,7 +85,7 @@ func getHttpFilterConfigIfPresent(filter_type string, v *dag.Vertex) *cfg.Saaras
 }
 
 func addLuaFilterConfigIfPresent(http_filters *[]*http.HttpFilter, v *dag.Vertex) {
-	lua_filter := getHttpFilterConfigIfPresent(cfg.FILTER_TYPE_HTTP_LUA, v)
+	lua_filter := getVHHttpFilterConfigIfPresent(cfg.FILTER_TYPE_HTTP_LUA, v)
 
 	if lua_filter != nil {
 		*http_filters = append(*http_filters,
@@ -98,69 +96,78 @@ func addLuaFilterConfigIfPresent(http_filters *[]*http.HttpFilter, v *dag.Vertex
 	}
 }
 
-func addRateLimitFilterConfigIfPresent(http_filters *[]*http.HttpFilter, vh *dag.Vertex) {
-	// TODO: Check all routes to determine if rate-limit is configured with any of them
-	//rl_filter := getVirtualHostFilterConfigIfPresent(cfg.FILTER_TYPE_VH_RATELIMIT, vh)
+func routeHasRateLimitFilter(routes map[string]*dag.Route) bool {
+    for _, r := range routes {
+        if r.RouteFilters != nil {
+            for _, rf := range r.RouteFilters.Filters {
+                if rf.Filter_type == cfg.FILTER_TYPE_RT_RATELIMIT {
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
 
-	//if rl_filter != nil {
-	*http_filters = append(*http_filters,
-		&http.HttpFilter{
-			//Name:       "envoy.rate_limit",
-			Name:       wellknown.HTTPRateLimit,
-			ConfigType: httpRateLimitTypedConfig(vh),
-		})
-	//}
+func addRateLimitFilterConfigIfPresent(http_filters *[]*http.HttpFilter, v dag.Vertex) {
+	if v == nil {
+		return
+	}
+
+    has := false
+
+	switch vh := v.(type) {
+	case *dag.VirtualHost:
+        routes := vh.GetVirtualHostRoutes()
+        has = routeHasRateLimitFilter(routes)
+	case *dag.SecureVirtualHost:
+        routes := vh.VirtualHost.GetVirtualHostRoutes()
+        has = routeHasRateLimitFilter(routes)
+	default:
+		// not interesting
+	}
+
+
+    if has {
+        *http_filters = append(*http_filters,
+        &http.HttpFilter{
+            Name:       wellknown.HTTPRateLimit,
+            ConfigType: httpRateLimitTypedConfig(v),
+        })
+    }
 }
 
 func httpFilters(vh *dag.Vertex) []*http.HttpFilter {
 
-	http_filters := make([]*http.HttpFilter, 0)
+    http_filters := make([]*http.HttpFilter, 0)
 
-	addLuaFilterConfigIfPresent(&http_filters, vh)
+    if vh != nil {
+        addLuaFilterConfigIfPresent(&http_filters, vh)
+    }
 
-	http_filters = append(http_filters,
-		&http.HttpFilter{
-			Name:       wellknown.Gzip,
-			ConfigType: nil,
-		})
+    http_filters = append(http_filters,
+    &http.HttpFilter{
+        Name:       wellknown.Gzip,
+        ConfigType: nil,
+    })
 
-	http_filters = append(http_filters,
-		&http.HttpFilter{
-			Name:       wellknown.GRPCWeb,
-			ConfigType: nil,
-		})
+    http_filters = append(http_filters,
+    &http.HttpFilter{
+        Name:       wellknown.GRPCWeb,
+        ConfigType: nil,
+    })
 
-	// TODO:
-	// If any of the routes have a rate-limit policy, add the envoy.rate_limit
-	// filter here.
-	addRateLimitFilterConfigIfPresent(&http_filters, vh)
+    if vh != nil {
+        addRateLimitFilterConfigIfPresent(&http_filters, *vh)
+    }
 
-	http_filters = append(http_filters,
-		&http.HttpFilter{
-			Name:       wellknown.Router,
-			ConfigType: nil,
-		})
+    http_filters = append(http_filters,
+    &http.HttpFilter{
+        Name:       wellknown.Router,
+        ConfigType: nil,
+    })
 
-	return http_filters
-
-	//return []*http.HttpFilter{{
-	//    Name:       wellknown.Gzip,
-	//    ConfigType: nil,
-	//}, {
-	//    Name:       wellknown.GRPCWeb,
-	//    ConfigType: nil,
-	//}, {
-	//    //  TODO
-	//    //  go-control-plane defines this constant as "envoy.ratelimit"
-	//    //  While we run this with envoy 1.12, "envoy.ratelimit" is not recognized
-	//    //  However "envoy.rate_limit" is recognized
-	//    //  Name: wellknown.RateLimit,
-	//    Name:       "envoy.rate_limit",
-	//    ConfigType: httpRateLimitTypedConfig(vh),
-	//}, {
-	//    Name:       wellknown.Router,
-	//    ConfigType: nil,
-	//}}
+    return http_filters
 }
 
 type ListenerFilterInfo struct {
@@ -224,8 +231,6 @@ func updateHttpFilters(listener_filters *[]*http.HttpFilter,
 	buildHttpFilterMap(listener_filters, dag_http_filters, &m)
 
 	// Correctly order the HttpFilters from the map constructed in previous step
-
-	// fmt.Printf("updateHttpFilters(): Filters to install \n[%+v]\n", m)
 
 	// Lua
 	if hf, ok := m["envoy.lua"]; ok {

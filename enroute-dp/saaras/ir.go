@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sort"
-	"strconv"
+	//"strconv"
 	"strings"
 )
 
@@ -399,9 +399,17 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 	routes := make([]v1beta1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
 		route := v1beta1.Route{
-			Conditions: []v1beta1.Condition{{
-				Prefix: oneRoute.Route_prefix,
-			}},
+            Conditions: []v1beta1.Condition{
+                {
+                    Prefix: oneRoute.Route_prefix,
+                },
+               // {
+               //     Header: &v1beta1.HeaderCondition{
+               //         Name: ":method",
+               //         Exact: "GET",
+               //     },
+               // },
+            },
 			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
 			Filters:  saaras_ir_route_filter__to__v1b1_route_filter(oneRoute),
 		}
@@ -431,7 +439,8 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus
 	for _, oneSaarasIRService := range *s {
 		onev1b1ir := saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
 		//spew.Dump(onev1b1ir)
-		m[strconv.FormatInt(oneSaarasIRService.Service.Service_id, 10)] = onev1b1ir
+		//m[strconv.FormatInt(oneSaarasIRService.Service.Service_id, 10)] = onev1b1ir
+		m[onev1b1ir.Spec.VirtualHost.Fqdn] = onev1b1ir
 	}
 
 	return &m

@@ -8,19 +8,21 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 
 	// "fmt"
-	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
+	// cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
-var luaInlineCode = `
-function envoy_on_request(request_handle)
-   request_handle:logInfo("Hello World request");
-end
+// TODO: Move to test
 
-function envoy_on_response(response_handle)
-   response_handle:logInfo("Hello World response");
-end
-`
-
+//var luaInlineCode = `
+//function envoy_on_request(request_handle)
+//   request_handle:logInfo("Hello World request");
+//end
+//
+//function envoy_on_response(response_handle)
+//   response_handle:logInfo("Hello World response");
+//end
+//`
+//
 //func populateTestLuaFilter(v *dag.Vertex) {
 //    if v == nil {
 //        fmt.Printf("populateTestLuaFilter() Vertex nil [%+v]\n", v)
@@ -46,25 +48,24 @@ end
 //		// not interesting
 //	}
 //}
-
-func populateTestLuaFilter2(vh *dag.VirtualHost) {
-	if vh == nil {
-		return
-	}
-
-	if vh.HttpFilters == nil {
-		vh.HttpFilters = &dag.HttpFilter{}
-	}
-	if vh.HttpFilters.Filters == nil {
-		vh.HttpFilters.Filters = make([]*cfg.SaarasRouteFilter, 0)
-		vh.HttpFilters.Filters = append(vh.HttpFilters.Filters,
-			&cfg.SaarasRouteFilter{
-				Filter_name:   "lua_test_filter",
-				Filter_type:   cfg.FILTER_TYPE_HTTP_LUA,
-				Filter_config: luaInlineCode,
-			})
-	}
-}
+//func populateTestLuaFilter2(vh *dag.VirtualHost) {
+//	if vh == nil {
+//		return
+//	}
+//
+//	if vh.HttpFilters == nil {
+//		vh.HttpFilters = &dag.HttpFilter{}
+//	}
+//	if vh.HttpFilters.Filters == nil {
+//		vh.HttpFilters.Filters = make([]*cfg.SaarasRouteFilter, 0)
+//		vh.HttpFilters.Filters = append(vh.HttpFilters.Filters,
+//			&cfg.SaarasRouteFilter{
+//				Filter_name:   "lua_test_filter",
+//				Filter_type:   cfg.FILTER_TYPE_HTTP_LUA,
+//				Filter_config: luaInlineCode,
+//			})
+//	}
+//}
 
 func (v *listenerVisitor) updateListener(name string, vh *dag.VirtualHost) {
 	// populateTestLuaFilter2(vh)

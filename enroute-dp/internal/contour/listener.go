@@ -238,7 +238,10 @@ type listenerVisitor struct {
 	*ListenerVisitorConfig
 
 	listeners map[string]*v2.Listener
-	http      bool // at least one dag.VirtualHost encountered
+    // 6-5-2020 - If we find a dag.VirtualHost, we add the listener 
+    // in visit() just like dag.SecureVirtualHost
+    // This simplifies switch/case here and elsewhere
+    // http      bool // at least one dag.VirtualHost encountered
 }
 
 func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.Listener {
@@ -253,17 +256,6 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.
 		},
 	}
 	lv.visit(root)
-
-	// add a listener if there are vhosts bound to http.
-	if lv.http {
-		lv.listeners[ENVOY_HTTP_LISTENER] = envoy.Listener(
-			ENVOY_HTTP_LISTENER,
-			lvc.httpAddress(), lvc.httpPort(),
-			proxyProtocol(lvc.UseProxyProto),
-			envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, lvc.httpAccessLog(), &root),
-		)
-
-	}
 
 	// remove the https listener if there are no vhosts bound to it.
 	if len(lv.listeners[ENVOY_HTTPS_LISTENER].FilterChains) == 0 {
@@ -303,10 +295,13 @@ func secureProxyProtocol(useProxy bool) []*envoy_api_v2_listener.ListenerFilter 
 func (v *listenerVisitor) visit(vertex dag.Vertex) {
 	switch vh := vertex.(type) {
 	case *dag.VirtualHost:
-		// we only create on http listener so record the fact
-		// that we need to then double back at the end and add
-		// the listener properly.
-		v.http = true
+		v.listeners[ENVOY_HTTP_LISTENER] = envoy.Listener(
+			ENVOY_HTTP_LISTENER,
+			v.httpAddress(), v.httpPort(),
+			proxyProtocol(v.UseProxyProto),
+			envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, v.httpAccessLog(), &vertex),
+		)
+
 	case *dag.SecureVirtualHost:
 
 		filters := envoy.Filters(

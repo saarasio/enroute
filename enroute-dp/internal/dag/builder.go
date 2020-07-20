@@ -279,44 +279,6 @@ func (b *builder) compute() *DAG {
 	return b.DAG()
 }
 
-// prefixRoute returns a new dag.Route for the (ingress,prefix) tuple.
-//func prefixRoute(ingress *v1beta1.Ingress, prefix string) *Route {
-//	// compute websocket enabled routes
-//	wr := websocketRoutes(ingress)
-//
-//	var retry *RetryPolicy
-//	if retryOn, ok := ingress.Annotations[annotationRetryOn]; ok && len(retryOn) > 0 {
-//		// if there is a non empty retry-on annotation, build a RetryPolicy manually.
-//		retry = &RetryPolicy{
-//			RetryOn: retryOn,
-//			// TODO(dfc) NumRetries may parse as 0, which is inconsistent with
-//			// retryPolicy()'s default value of 1.
-//			NumRetries: parseAnnotation(ingress.Annotations, annotationNumRetries),
-//			// TODO(dfc) PerTryTimeout will parse to -1, infinite, in the case of
-//			// invalid data, this is inconsistent with retryPolicy()'s default value
-//			// of 0 duration.
-//			PerTryTimeout: parseTimeout(ingress.Annotations[annotationPerTryTimeout]),
-//		}
-//	}
-//
-//	var timeout *TimeoutPolicy
-//	if request, ok := ingress.Annotations[annotationRequestTimeout]; ok {
-//		// if the request timeout annotation is present on this ingress
-//		// construct and use the ingressroute timeout policy logic.
-//		timeout = timeoutPolicy(&ingressroutev1.TimeoutPolicy{
-//			Request: request,
-//		})
-//	}
-//
-//	return &Route{
-//		Prefix:        prefix,
-//		HTTPSUpgrade:  tlsRequired(ingress),
-//		Websocket:     wr[prefix],
-//		TimeoutPolicy: timeout,
-//		RetryPolicy:   retry,
-//	}
-//}
-
 // route builds a dag.Route for the supplied Ingress.
 func route(ingress *v1beta1.Ingress, path string, service *HTTPService) *Route {
 	wr := websocketRoutes(ingress)
@@ -512,18 +474,8 @@ func stringOrDefault(s, def string) string {
 	return s
 }
 
-func (b *builder) SetupVHHttpFilter(ir *ingressroutev1.IngressRoute) {
-	host := ir.Spec.VirtualHost.Fqdn
-	vh := b.lookupVirtualHost(host)
-	svh := b.lookupSecureVirtualHost(host)
-
-	b.SetupHttpFilters(vh, ir.Spec.VirtualHost, ir.Namespace)
-	b.SetupHttpFilters(&svh.VirtualHost, ir.Spec.VirtualHost, ir.Namespace)
-}
-
 func (b *builder) computeIngressRoutes() {
 	for _, ir := range b.validIngressRoutes() {
-		//fmt.Printf("computeIngressRoutes(): Inspecting [%s] \n", ir.Spec.VirtualHost.Fqdn)
 		if ir.Spec.VirtualHost == nil {
 			// mark delegate ingressroute orphaned.
 			b.setOrphaned(ir)
@@ -532,20 +484,17 @@ func (b *builder) computeIngressRoutes() {
 
 		// ensure root ingressroute lives in allowed namespace
 		if !b.rootAllowed(ir) {
-			//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute cannot be defined in this namespace \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "root IngressRoute cannot be defined in this namespace"})
 			continue
 		}
 
 		host := ir.Spec.VirtualHost.Fqdn
 		if isBlank(host) {
-			//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute Fqdn must be specified \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "Spec.VirtualHost.Fqdn must be specified"})
 			continue
 		}
 
 		if strings.Contains(host, "*") {
-			//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute Fqdn cannot use wildcard \n", ir.Spec.VirtualHost.Fqdn)
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Spec.VirtualHost.Fqdn %q cannot use wildcards", host), Vhost: host})
 			continue
 		}
@@ -561,6 +510,7 @@ func (b *builder) computeIngressRoutes() {
 				svhost.Secret = sec
 				svhost.MinProtoVersion = minProtoVersion(ir.Spec.VirtualHost.TLS.MinimumProtocolVersion)
 				enforceTLS = true
+                b.SetupHttpFilters(&svhost.VirtualHost, ir.Spec.VirtualHost, ir.Namespace)
 			}
 			// passthrough is true if tls.secretName is not present, and
 			// tls.passthrough is set to true.
@@ -568,7 +518,6 @@ func (b *builder) computeIngressRoutes() {
 
 			// If not passthrough and secret is invalid, then set status
 			if secretInvalidOrNotFound && !passthrough {
-				//fmt.Printf("computeIngressRoutes(): [%s] IngressRoute TLS secret not found \n", ir.Spec.VirtualHost.Fqdn)
 				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed", tls.SecretName)})
 			}
 		}
@@ -577,7 +526,8 @@ func (b *builder) computeIngressRoutes() {
 		case ir.Spec.TCPProxy != nil && (passthrough || enforceTLS):
 			b.processTCPProxy(ir, nil, host)
 		case ir.Spec.Routes != nil:
-			b.SetupVHHttpFilter(ir)
+	        vh := b.lookupVirtualHost(host)
+	        b.SetupHttpFilters(vh, ir.Spec.VirtualHost, ir.Namespace)
 			b.processRoutes(ir, nil, host, enforceTLS)
 		}
 	}
@@ -624,13 +574,11 @@ func (b *builder) DAG() *DAG {
 			case *VirtualHost:
 				// suppress virtual hosts without routes.
 				if len(vh.routes) < 1 {
-					//fmt.Printf("DAG(): Suppressing Virtual Host [%+v]\n", vh)
 					delete(l.VirtualHosts, k)
 				}
 			case *SecureVirtualHost:
 				// suppress secure virtual hosts without secrets or tcpproxy.
 				if vh.Secret == nil && vh.TCPProxy == nil {
-					//fmt.Printf("DAG(): Suppressing Secure Virtual Host [%+v]\n", vh)
 					delete(l.VirtualHosts, k)
 				}
 			}
