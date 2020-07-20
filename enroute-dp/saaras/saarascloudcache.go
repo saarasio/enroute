@@ -218,31 +218,42 @@ func saaras_ir_slice__to__v1b1_service_map(
 	svc := make(map[string]*v1.Service, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneRoute := range oneSaarasIRService.Service.Routes {
-			for _, oneService := range oneRoute.Route_upstreams {
-				sp := make([]v1.ServicePort, 0)
-				one_service_port := v1.ServicePort{
-					Port: oneService.Upstream.Upstream_port,
-				}
-				sp = append(sp, one_service_port)
-				one_service := &v1.Service{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      oneService.Upstream.Upstream_name,
-						Namespace: ENROUTE_NAME,
-					},
-					Spec: v1.ServiceSpec{
-						Ports: sp,
-					},
-				}
+            for _, oneService := range oneRoute.Route_upstreams {
+                sp := make([]v1.ServicePort, 0)
+                one_service_port := v1.ServicePort{
+                    Port: oneService.Upstream.Upstream_port,
+                }
+                sp = append(sp, one_service_port)
+                one_service := &v1.Service{
+                    ObjectMeta: metav1.ObjectMeta{
+                        Name:      oneService.Upstream.Upstream_name,
+                        Namespace: ENROUTE_NAME,
+                    },
+                    Spec: v1.ServiceSpec{
+                        Ports: sp,
+                    },
+                }
 
-				// tell contour that this upstream is gRPC
-				if oneService.Upstream.Upstream_protocol == "grpc" {
-					annotate := make(map[string]string)
-					annotate["contour.heptio.com/upstream-protocol.h2c"] =
-						strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
-					one_service.Annotations = annotate
-				}
-				svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
-			}
+                // tell contour that this upstream is gRPC
+                if oneService.Upstream.Upstream_protocol == "grpc" {
+                    annotate := make(map[string]string)
+                    annotate["contour.heptio.com/upstream-protocol.h2c"] =
+                    strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
+                    one_service.Annotations = annotate
+                }
+
+                // If oneService Upstream_ip is a DNS name, make an external service
+                // This will create a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS without using EDS
+                ip := net.ParseIP(oneService.Upstream.Upstream_ip)
+                if ip == nil {
+                    // Couldn't parse IP, assume it's a domain name
+                    // Set service external name to indicate STRICT_DNS
+                    one_service.Spec.ExternalName = oneService.Upstream.Upstream_ip
+                    one_service.Spec.Type = v1.ServiceTypeExternalName
+                }
+
+                svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
+            }
 		}
 	}
 	return &svc
@@ -266,12 +277,20 @@ func saaras_upstream__to__v1_ep(mss *SaarasMicroService2) *v1.Endpoints {
 		}
 		for _, ip := range ips {
 			if ip.To4() != nil {
-				fmt.Printf("Resolved [%s] -> [%s]\n", mss.Upstream.Upstream_ip, ip.String())
-				ep_subset_address = v1.EndpointAddress{
-					IP:       ip.String(),
-					Hostname: mss.Upstream.Upstream_ip,
-				}
-				ep_subsets_addresses = append(ep_subsets_addresses, ep_subset_address)
+                // TODO: We need a knob for this behavior:
+                // If we get DNS in a service IP, should we create -
+                // (1) v2.Cluster_STRICT_DNS and let Envoy handle resolution?
+                // (1) Create EDS where Enroute does the resolution
+
+                // Not a valid IP, won't use EDS, Don't create an Endpoint
+                // use hard coded service name. We'll set external name on service
+                // which will result in a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS
+				// fmt.Printf("Resolved [%s] -> [%s]\n", mss.Upstream.Upstream_ip, ip.String())
+				// ep_subset_address = v1.EndpointAddress{
+				// 	IP:       ip.String(),
+				// 	Hostname: mss.Upstream.Upstream_ip,
+				// }
+				// ep_subsets_addresses = append(ep_subsets_addresses, ep_subset_address)
 			}
 		}
 	} else {
