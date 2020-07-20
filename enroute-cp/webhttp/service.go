@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2019 Saaras Inc.
 
@@ -9,11 +10,29 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/enroute-dp/saaras"
+	"github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"net/http"
 	"time"
+    "fmt"
 
 	"github.com/sirupsen/logrus"
 )
+
+type Route struct {
+	Route_name   string `json:"route_name" xml:"route_name" form:"route_name" query:"route_name"`
+	Route_prefix string `json:"route_prefix" xml:"route_prefix" form:"route_prefix" query:"route_prefix"`
+
+    // Route_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
+	Route_config string `json:"route_config" xml:"route_config" form:"route_config" query:"route_config"`
+}
+
+type Service struct {
+	Service_name string `json:"service_name" xml:"service_name" form:"service_name" query:"service_name"`
+	Fqdn         string `json:"fqdn" xml:"fqdn" form:"fqdn" query:"fqdn"`
+
+    // Service_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
+	Service_config string `json:"service_config" xml:"service_config" form:"service_config" query:"service_config"`
+}
 
 var QDeleteService = `
 mutation delete_service($service_name: String!) {
@@ -41,6 +60,7 @@ query get_service_routes($service_name: String!){
     route_id
     route_name
     route_prefix
+    config_json
     create_ts
     update_ts
     route_filters {
@@ -230,6 +250,10 @@ query get_upstream($service_name: String!) {
   }
 }
 `
+
+func GetURL() string {
+    return "http://" + HOST + ":" + PORT + "/v1/graphql"
+}
 
 func db_update_service(s *Service, log *logrus.Entry) (int, string) {
 
@@ -750,15 +774,31 @@ mutation update_route($service_name:String!, $route_name:String!, $route_prefix:
 	return http.StatusCreated, buf.String()
 }
 
+func setRouteConfigJson(log *logrus.Entry, route_config string, args *map[string]interface{}) {
+    cfg, err := saarasconfig.UnmarshalRouteMatchCondition(route_config)
+    if err == nil {
+        (*args)["config_json"] = cfg
+    } else {
+        default_routematchconditions := saarasconfig.RouteMatchConditions {
+            Prefix : "/",
+            MatchConditions : []saarasconfig.RouteMatchCondition{{
+            }},
+        }
+        (*args)["config_json"] = default_routematchconditions
+    }
+}
+
 func db_insert_service_route(service_name string, r *Route, log *logrus.Entry) (int, string) {
 
 	var QPostServiceRoute = `
-mutation insert_service_route($route_name: String!, $route_prefix: String!, $service_name: String!) {
+mutation insert_service_route($route_name: String!, $route_prefix: String, $service_name: String!, $route_config: String, $config_json: jsonb) {
   insert_saaras_db_route(
     objects: 
     {
       route_name: $route_name, 
       route_prefix: $route_prefix, 
+      route_config: $route_config, 
+      config_json: $config_json, 
       service: 
       {
         data: 
@@ -775,15 +815,18 @@ mutation insert_service_route($route_name: String!, $route_prefix: String!, $ser
 }
 `
 	var buf bytes.Buffer
-	var args map[string]string
-	args = make(map[string]string)
+	var args map[string]interface{}
+	args = make(map[string]interface{})
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
+	args["route_config"] = r.Route_config
 	args["route_name"] = r.Route_name
 	args["route_prefix"] = r.Route_prefix
 	args["service_name"] = service_name
 
-	if err := saaras.RunDBQuery(url, QPostServiceRoute, &buf, args, log); err != nil {
+    setRouteConfigJson(log, r.Route_config, &args)
+
+	if err := saaras.RunDBQueryGenericVals(url, QPostServiceRoute, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 		return http.StatusBadRequest, buf.String()
 	}
@@ -796,9 +839,25 @@ func validate_service_route(r *Route) (int, string) {
 		return http.StatusBadRequest, "{\"Error\" : \"Please provide route name using Name field\"}"
 	}
 
-	if len(r.Route_prefix) == 0 {
-		return http.StatusBadRequest, "{\"Error\" : \"Please provide route prefix using Prefix field\"}"
-	}
+    // Look for config in Route_config (which is specified as json)
+    // If absent, fallback to reading prefix from Route_prefix
+    if len(r.Route_config) > 0 {
+        routeConfig, err := saarasconfig.UnmarshalRouteMatchCondition(r.Route_config)
+        if err != nil {
+            return http.StatusBadRequest, fmt.Sprintf("{\"Error\" : \"Please provide route prefix using Prefix field\"}")
+        }
+
+        if routeConfig.Prefix != "" {
+            if routeConfig.Prefix[0] != '/' {
+                return http.StatusBadRequest, fmt.Sprintf("{\"Error\" : \"Prefix condition must start with /\"}")
+            }
+        }
+
+    } else {
+        if len(r.Route_prefix) == 0 {
+            return http.StatusBadRequest, "{\"Error\" : \"Please provide route prefix using Prefix field\"}"
+        }
+    }
 
 	return http.StatusOK, "{}"
 }
@@ -1005,7 +1064,10 @@ func GET_Service_Route(c echo.Context) error {
 	if err := saaras.RunDBQuery(url, QServiceRoutes, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
-	return c.JSONBlob(http.StatusOK, buf.Bytes())
+
+	buf2 := bytes.Replace(buf.Bytes(), []byte("config_json"), []byte("route_config"), -1)
+
+	return c.JSONBlob(http.StatusOK, buf2)
 }
 
 func db_get_one_service_route(service_name string, route_name string, decode bool, log *logrus.Entry) (int, string, *Route) {

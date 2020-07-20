@@ -31,14 +31,16 @@ type RequestHeadersType struct {
 	DescriptorKey string `json:"descriptor_key,omitempty"`
 }
 
+type Descriptors struct {
+    GenericKey         *GenericKeyType     `json:"generic_key,omitempty"`
+    RequestHeaders     *RequestHeadersType `json:"request_headers,omitempty"`
+    SourceCluster      string              `json:"source_cluster,omitempty"`
+    DestinationCluster string              `json:"destination_cluster,omitempty"`
+    RemoteAddress      string              `json:"remote_address,omitempty"`
+}
+
 type RouteActionDescriptors struct {
-	Descriptors []struct {
-		GenericKey         *GenericKeyType     `json:"generic_key,omitempty"`
-		RequestHeaders     *RequestHeadersType `json:"request_headers,omitempty"`
-		SourceCluster      string              `json:"source_cluster,omitempty"`
-		DestinationCluster string              `json:"destination_cluster,omitempty"`
-		RemoteAddress      string              `json:"remote_address,omitempty"`
-	} `json:"descriptors,omitempty"`
+    Descriptors []Descriptors `json:"descriptors,omitempty"`
 }
 
 func UnmarshalRateLimitRouteFilterConfig(filter_config string) (RouteActionDescriptors, error) {
@@ -52,4 +54,26 @@ func UnmarshalRateLimitRouteFilterConfig(filter_config string) (RouteActionDescr
 	}
 
 	return gr, err
+}
+
+type RouteMatchConditions struct {
+    Prefix string `json:"prefix"`
+    MatchConditions []RouteMatchCondition `json:"match"`
+}
+
+type RouteMatchCondition struct {
+	HeaderName string `json:"header_name,omitempty"`
+	HeaderValue string `json:"header_value,omitempty"`
+}
+
+func UnmarshalRouteMatchCondition(route_config string) (RouteMatchConditions, error) {
+    var mc RouteMatchConditions
+    var err error
+
+    buf := strings.NewReader(route_config)
+	if err = json.NewDecoder(buf).Decode(&mc); err != nil {
+		errors.Wrap(err, "decoding response")
+	}
+
+	return mc, err
 }

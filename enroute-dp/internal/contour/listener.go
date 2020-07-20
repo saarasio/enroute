@@ -244,6 +244,7 @@ type listenerVisitor struct {
     // http      bool // at least one dag.VirtualHost encountered
 }
 
+// Entry-point from builder
 func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.Listener {
 	lv := listenerVisitor{
 		ListenerVisitorConfig: lvc,

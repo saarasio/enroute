@@ -15,16 +15,6 @@ type Proxy struct {
 	Name string `json:"name" xml:"name" form:"name" query:"name"`
 }
 
-type Service struct {
-	Service_name string `json:"service_name" xml:"service_name" form:"service_name" query:"service_name"`
-	Fqdn         string `json:"fqdn" xml:"fqdn" form:"fqdn" query:"fqdn"`
-}
-
-type Route struct {
-	Route_name   string `json:"route_name" xml:"route_name" form:"route_name" query:"route_name"`
-	Route_prefix string `json:"route_prefix" xml:"route_prefix" form:"route_prefix" query:"route_prefix"`
-}
-
 type Upstream struct {
 	Upstream_name                       string `json:"upstream_name" xml:"upstream_name" form:"upstream_name" query:"upstream_name"`
 	Upstream_ip                         string `json:"upstream_ip" xml:"upstream_ip" form:"upstream_ip" query:"upstream_ip"`
@@ -40,6 +30,9 @@ type Upstream struct {
 	Upstream_validation_subjectname     string `json:"upstream_validation_subjectname" xml:"upstream_validation_subjectname" form:"upstream_validation_subjectname" query:"upstream_validation_subjectname"`
 	Upstream_protocol                   string `json:"upstream_protocol" xml:"upstream_protocol" form:"upstream_protocol" query:"upstream_protocol"`
 	Upstream_hc_timeoutseconds          string `json:"upstream_hc_timeoutseconds" xml:"upstream_hc_timeoutseconds" form:"upstream_hc_timeoutseconds" query:"upstream_hc_timeoutseconds"`
+
+    // Upstream_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
+	Upstream_config                     string `json:"upstream_config" xml:"upstream_config" form:"upstream_config" query:"upstream_config"`
 }
 
 type Secret struct {
@@ -47,6 +40,9 @@ type Secret struct {
 	Secret_key  string `json:"secret_key" xml:"secret_key" form:"secret_key" query:"secret_key"`
 	Secret_cert string `json:"secret_cert" xml:"secret_cert" form:"secret_cert" query:"secret_cert"`
 	Secret_sni  string `json:"secret_sni" xml:"secret_sni" form:"secret_sni" query:"secret_sni"`
+
+    // Secret_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
+	Secret_config string `json:"secret_config" xml:"secret_config" form:"secret_config" query:"secret_config"`
 }
 
 type GlobalConfig struct {

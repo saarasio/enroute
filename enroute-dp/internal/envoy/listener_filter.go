@@ -194,7 +194,6 @@ func dagFilterToHttpFilter(df *cfg.SaarasRouteFilter) *http.HttpFilter {
 				ConfigType: httpLuaTypedConfig(df),
 			}
 			return lua_http_filter
-			// case cfg.FILTER_TYPE_HTTP_RATELIMIT:
 		default:
 		}
 	}
@@ -218,7 +217,7 @@ func buildHttpFilterMap(listener_filters *[]*http.HttpFilter, dag_http_filters *
 	}
 }
 
-func updateHttpFilters(listener_filters *[]*http.HttpFilter,
+func updateHttpVHFilters(listener_filters *[]*http.HttpFilter,
 	dag_http_filters *dag.HttpFilter) []*http.HttpFilter {
 
 	http_filters := make([]*http.HttpFilter, 0)
@@ -234,7 +233,6 @@ func updateHttpFilters(listener_filters *[]*http.HttpFilter,
 
 	// Lua
 	if hf, ok := m["envoy.lua"]; ok {
-		// fmt.Printf("updateHttpFilters() Adding LUA filter\n")
 		http_filters = append(http_filters, hf)
 	}
 
@@ -257,8 +255,6 @@ func updateHttpFilters(listener_filters *[]*http.HttpFilter,
 	if hf, ok := m[wellknown.Router]; ok {
 		http_filters = append(http_filters, hf)
 	}
-
-	// fmt.Printf("updateHttpFilters() Http Filters to install [%+v]\n", http_filters)
 
 	return http_filters
 }
@@ -293,12 +289,12 @@ func AddHttpFilterToListener(l *v2.Listener, dag_filters *dag.HttpFilter, name s
 							if config := one_filter.GetTypedConfig(); config != nil {
 								types.UnmarshalAny(config, httpConnManagerConfig)
 								httpConnManagerConfig.HttpFilters =
-									updateHttpFilters(&httpConnManagerConfig.HttpFilters, dag_filters)
+									updateHttpVHFilters(&httpConnManagerConfig.HttpFilters, dag_filters)
 								one_filter.ConfigType = &envoy_api_v2_listener.Filter_TypedConfig{
 									TypedConfig: toAny(httpConnManagerConfig),
 								}
 
-								// Delete one_filter from slice and add it back again
+								// Update modified filter
 								filterchain.Filters = remove(filterchain.Filters, idx)
 								filterchain.Filters = append(filterchain.Filters, one_filter)
 
@@ -321,12 +317,12 @@ func AddHttpFilterToListener(l *v2.Listener, dag_filters *dag.HttpFilter, name s
 						if config := one_filter.GetTypedConfig(); config != nil {
 							types.UnmarshalAny(config, httpConnManagerConfig)
 							httpConnManagerConfig.HttpFilters =
-								updateHttpFilters(&httpConnManagerConfig.HttpFilters, dag_filters)
+								updateHttpVHFilters(&httpConnManagerConfig.HttpFilters, dag_filters)
 							one_filter.ConfigType = &envoy_api_v2_listener.Filter_TypedConfig{
 								TypedConfig: toAny(httpConnManagerConfig),
 							}
 
-							// Delete one_filter from slice and add it back again
+							// update modified filter
 							filterchain.Filters = remove(filterchain.Filters, idx)
 							filterchain.Filters = append(filterchain.Filters, one_filter)
 

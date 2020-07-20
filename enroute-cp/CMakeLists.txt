@@ -3,6 +3,7 @@ set(target_name		enroute-cp)
 set(target_tag latest)
 set(target_image  	"${image_registry}/${target_name}:${target_tag}")
 set(target_name_push "${target_name}_push")
+set(target_name_test "${target_name}_test")
 
 file(GLOB_RECURSE enroute_project_source ${CMAKE_SOURCE_DIR}/${target_name}/*.go)
 
@@ -41,6 +42,10 @@ add_custom_command(TARGET ${target_name_gw}
 		  COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name enroute -type f -exec rm {} '\;'
           COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name Dockerfile -type f -exec rm {} '\;'
 )
+
+add_custom_target(${target_name_test} ALL DEPENDS ${target_name}
+    COMMAND cd ${CMAKE_SOURCE_DIR}/${target_name} && go test -mod=readonly ./...
+		  )
 
 #Push container
 add_custom_target(${target_name_push_gw}

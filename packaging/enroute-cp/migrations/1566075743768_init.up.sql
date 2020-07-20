@@ -155,7 +155,8 @@ CREATE TABLE saaras_db.route (
     create_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
     service_id bigint NOT NULL,
-    update_ts timestamp with time zone DEFAULT now()
+    update_ts timestamp with time zone DEFAULT now(),
+    config_json jsonb
 );
 CREATE TABLE saaras_db.route_filter (
     route_id bigint NOT NULL,
@@ -222,7 +223,8 @@ CREATE TABLE saaras_db.service (
     fqdn character varying,
     create_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
-    update_ts timestamp with time zone DEFAULT now()
+    update_ts timestamp with time zone DEFAULT now(),
+    config_json jsonb
 );
 CREATE TABLE saaras_db.service_filter (
     service_id integer NOT NULL,
@@ -285,7 +287,8 @@ CREATE TABLE saaras_db.upstream (
     upstream_validation_subjectname character varying,
     upstream_hc_timeoutseconds integer,
     update_ts timestamp with time zone DEFAULT now(),
-    upstream_protocol text
+    upstream_protocol text,
+    config_json jsonb
 );
 CREATE SEQUENCE saaras_db.upstream_upstream_id_seq
     START WITH 1
