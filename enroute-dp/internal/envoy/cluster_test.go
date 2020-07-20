@@ -24,8 +24,8 @@ import (
 	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
 	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type"
-	"github.com/google/go-cmp/cmp"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/google/go-cmp/cmp"
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
@@ -125,8 +125,8 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:             v2.Cluster_ROUND_ROBIN,
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:       v2.Cluster_ROUND_ROBIN,
 				TransportSocket: UpstreamTLSTransportSocket(
 					UpstreamTLSContext(nil, "", "h2"),
 				),

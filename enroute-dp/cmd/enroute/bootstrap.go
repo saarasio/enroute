@@ -55,13 +55,13 @@ func doBootstrap(ctx *bootstrapContext) {
 	case "-":
 		out = os.Stdout
 	default:
-	f, err := os.Create(ctx.path)
-	check(err)
+		f, err := os.Create(ctx.path)
+		check(err)
 
 		out = f
 
 		defer func() {
-	check(f.Close())
+			check(f.Close())
 		}()
 	}
 

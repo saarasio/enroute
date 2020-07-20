@@ -43,14 +43,14 @@ func healthCheck(cluster *dag.Cluster) *envoy_api_v2_core.HealthCheck {
 		host = hc.Host
 	}
 
-    //// https://golang.org/pkg/time/#Duration
-    //To convert an integer number of units to a Duration, multiply:
+	//// https://golang.org/pkg/time/#Duration
+	//To convert an integer number of units to a Duration, multiply:
 
-    //seconds := 10
-    //fmt.Print(time.Duration(seconds)*time.Second) // prints 10s
+	//seconds := 10
+	//fmt.Print(time.Duration(seconds)*time.Second) // prints 10s
 
-    timeoutSecondsDuration := time.Duration(hc.TimeoutSeconds) * time.Second
-    intervalSecondsDuration := time.Duration(hc.IntervalSeconds) * time.Second
+	timeoutSecondsDuration := time.Duration(hc.TimeoutSeconds) * time.Second
+	intervalSecondsDuration := time.Duration(hc.IntervalSeconds) * time.Second
 
 	// TODO(dfc) why do we need to specify our own default, what is the default
 	// that envoy applies if these fields are left nil?

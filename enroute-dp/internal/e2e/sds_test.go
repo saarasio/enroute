@@ -85,7 +85,7 @@ func TestSDSVisibility(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
-        ),
+		),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -135,7 +135,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
-        ),
+		),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -147,7 +147,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
-        ),
+		),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})
@@ -174,7 +174,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
-        ),
+		),
 		TypeUrl: secretType,
 		Nonce:   "2",
 	})

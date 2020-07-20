@@ -25,8 +25,8 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
-	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
+	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
@@ -209,9 +209,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "backend",
@@ -403,9 +403,9 @@ func TestRouteVisit(t *testing.T) {
 							},
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name: "backend",
 								Port: 8080,
@@ -1055,9 +1055,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "kuard",
@@ -1114,9 +1114,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "kuard",
@@ -1173,9 +1173,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "kuard",
@@ -1378,9 +1378,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "backend",
@@ -1463,9 +1463,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "backend",
@@ -1549,9 +1549,9 @@ func TestRouteVisit(t *testing.T) {
 							Fqdn: "www.example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name:   "backend",
@@ -1634,9 +1634,9 @@ func TestRouteVisit(t *testing.T) {
 					Spec: ingressroutev1.IngressRouteSpec{
 						VirtualHost: &ingressroutev1.VirtualHost{},
 						Routes: []ingressroutev1.Route{{
-                            Conditions: []ingressroutev1.Condition{{
-                                Prefix: "/",
-                            }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/",
+							}},
 							Services: []ingressroutev1.Service{
 								{
 									Name: "backend",

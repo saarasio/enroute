@@ -70,7 +70,7 @@ func TestAddRemoveEndpoints(t *testing.T) {
 				envoy.SocketAddress("172.16.0.1", 8443),
 				envoy.SocketAddress("172.16.0.2", 8443),
 			),
-        ),
+		),
 		TypeUrl: endpointType,
 		Nonce:   "1",
 	}, streamEDS(t, cc))
@@ -152,7 +152,7 @@ func TestAddEndpointComplicated(t *testing.T) {
 				envoy.SocketAddress("10.48.1.77", 9999), // TODO(dfc) order is not guaranteed by endpoint controller
 				envoy.SocketAddress("10.48.1.78", 8080),
 			),
-        ),
+		),
 		TypeUrl: endpointType,
 		Nonce:   "1",
 	}, streamEDS(t, cc))
@@ -207,7 +207,7 @@ func TestEndpointFilter(t *testing.T) {
 				envoy.SocketAddress("10.48.1.77", 9999), // TODO(dfc) order is not guaranteed by endpoint controller
 				envoy.SocketAddress("10.48.1.78", 8080),
 			),
-        ),
+		),
 		TypeUrl: endpointType,
 		Nonce:   "1",
 	}, streamEDS(t, cc, "default/kuard/foo"))
@@ -219,7 +219,7 @@ func TestEndpointFilter(t *testing.T) {
 			envoy.ClusterLoadAssignment(
 				"default/kuard/bar",
 			),
-        ),
+		),
 
 		Nonce: "1",
 	}, streamEDS(t, cc, "default/kuard/bar"))
@@ -245,7 +245,7 @@ func TestIssue602(t *testing.T) {
 		VersionInfo: "1",
 		Resources: resources(t,
 			envoy.ClusterLoadAssignment("default/simple", envoy.SocketAddress("192.168.183.24", 8080)),
-        ),
+		),
 		TypeUrl: endpointType,
 		Nonce:   "1",
 	}, streamEDS(t, cc))

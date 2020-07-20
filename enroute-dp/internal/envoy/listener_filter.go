@@ -11,10 +11,10 @@ import (
 	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	envoy_config_ratelimit_v2 "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
-    "github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	types "github.com/golang/protobuf/ptypes"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
-	types "github.com/golang/protobuf/ptypes"
 )
 
 func httpRateLimitTypedConfig(vh *dag.Vertex) *http.HttpFilter_TypedConfig {

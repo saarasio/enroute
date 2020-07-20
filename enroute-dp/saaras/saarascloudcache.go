@@ -54,7 +54,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 
 	for cloud_ir_id, cloud_ir := range *saaras_ir_cloud_map {
 		if len(cloud_ir_id) > 0 {
-            cache_key := cloud_ir.Spec.VirtualHost.Fqdn
+			cache_key := cloud_ir.Spec.VirtualHost.Fqdn
 			if cached_ir, ok := sac.ir[cloud_ir_id]; ok {
 				// ir in cache, compare cache and one fetched from cp
 				if apiequality.Semantic.DeepEqual(cached_ir, cloud_ir) && reflect.DeepEqual(cached_ir, cloud_ir) {
@@ -83,7 +83,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 
 	for cache_ir_id, cached_ir := range sac.ir {
 		if len(cache_ir_id) > 0 {
-            cache_key := cached_ir.Spec.VirtualHost.Fqdn
+			cache_key := cached_ir.Spec.VirtualHost.Fqdn
 			if _, ok := (*saaras_ir_cloud_map)[cache_ir_id]; !ok {
 				log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - removed from cloud - OnDelete()\n",
 					cache_ir_id, sac.ir[cache_ir_id].Spec.VirtualHost.Fqdn)

@@ -14,7 +14,7 @@
 package dag
 
 import (
-    "fmt"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -35,15 +35,15 @@ func mergePathConditions(conds []ingressroutev1.Condition) Condition {
 	re := regexp.MustCompile(`//+`)
 	prefix = re.ReplaceAllString(prefix, `/`)
 
-    // TODO 6-3-2020 Support Regex Routes
-    // If this smells like regex, provide a RegexCondition instead of a PrefixCondition
-    if len(prefix) > 0 {
-        if strings.ContainsAny(prefix, "^+*[]%") {
-            return &RegexCondition {
-		       Regex: prefix,
-            }
-        }
-    }
+	// TODO 6-3-2020 Support Regex Routes
+	// If this smells like regex, provide a RegexCondition instead of a PrefixCondition
+	if len(prefix) > 0 {
+		if strings.ContainsAny(prefix, "^+*[]%") {
+			return &RegexCondition{
+				Regex: prefix,
+			}
+		}
+	}
 
 	// After the merge operation is done, if the string is still empty, then
 	// we need to set the prefix to /.
@@ -61,18 +61,18 @@ func mergePathConditions(conds []ingressroutev1.Condition) Condition {
 
 // pathConditionsValid validates a slice of Conditions can be correctly merged.
 // It encodes the business rules about what is allowed for prefix Conditions.
-func pathConditionsValid(conds []ingressroutev1.Condition, conditionsContext string) (bool, string)  {
+func pathConditionsValid(conds []ingressroutev1.Condition, conditionsContext string) (bool, string) {
 	prefixCount := 0
 	for _, cond := range conds {
 		if cond.Prefix != "" {
 			prefixCount++
 			if cond.Prefix[0] != '/' {
-                err_message := fmt.Sprintf("%s: Prefix conditions must start with /, %s was supplied", conditionsContext, cond.Prefix)
+				err_message := fmt.Sprintf("%s: Prefix conditions must start with /, %s was supplied", conditionsContext, cond.Prefix)
 				return false, err_message
 			}
 		}
 		if prefixCount > 1 {
-            err_message := fmt.Sprintf("%s: More than one prefix is not allowed in a condition block", conditionsContext)
+			err_message := fmt.Sprintf("%s: More than one prefix is not allowed in a condition block", conditionsContext)
 			return false, err_message
 		}
 	}

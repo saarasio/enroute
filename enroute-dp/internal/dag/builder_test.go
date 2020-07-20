@@ -684,9 +684,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -710,9 +710,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -800,9 +800,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -825,9 +825,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -850,9 +850,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/blog",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/blog",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name:      "blog",
 					Namespace: "marketing",
@@ -869,17 +869,17 @@ func TestDAGInsert(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/blog",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/blog",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "blog",
 					Port: 8080,
 				}},
 			}, {
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/blog/admin",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/blog/admin",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name:      "marketing-admin",
 					Namespace: "operations",
@@ -896,9 +896,9 @@ func TestDAGInsert(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/blog/admin",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/blog/admin",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "blog-admin",
 					Port: 8080,
@@ -921,9 +921,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -947,9 +947,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -973,9 +973,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -999,9 +999,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1021,17 +1021,17 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
 			}, {
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/websocket",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/websocket",
+				}},
 				EnableWebsockets: true,
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
@@ -1052,17 +1052,17 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
 			}, {
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/websocket",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/websocket",
+				}},
 				PrefixRewrite: "/",
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
@@ -1084,18 +1084,18 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   8080,
 					Weight: 90,
 				}},
 			}, {
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/b",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/b",
+				}},
 				Services: []ingressroutev1.Service{{Name: "kuard",
 					Port:   8080,
 					Weight: 60,
@@ -1114,9 +1114,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   8080,
@@ -1144,9 +1144,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				PermitInsecure: true,
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
@@ -1166,9 +1166,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "bar.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				RetryPolicy: &ingressroutev1.RetryPolicy{
 					NumRetries:    6,
 					PerTryTimeout: "10s",
@@ -1191,9 +1191,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "bar.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				RetryPolicy: &ingressroutev1.RetryPolicy{
 					NumRetries:    6,
 					PerTryTimeout: "please",
@@ -1216,9 +1216,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "bar.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				RetryPolicy: &ingressroutev1.RetryPolicy{
 					NumRetries:    0,
 					PerTryTimeout: "10s",
@@ -1241,9 +1241,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "bar.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
 					Request: "peanut",
 				},
@@ -1265,9 +1265,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "bar.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
 					Request: "1m30s", // 90 seconds y'all
 				},
@@ -1289,9 +1289,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "bar.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
 					Request: "infinite",
 				},
@@ -1313,9 +1313,9 @@ func TestDAGInsert(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -1581,9 +1581,9 @@ func TestDAGInsert(t *testing.T) {
 	//			},
 	//		},
 	//		Routes: []ingressroutev1.Route{{
-    //          Conditions: []ingressroutev1.Condition{{
-    //              Prefix: "/",
-    //          }},
+	//          Conditions: []ingressroutev1.Condition{{
+	//              Prefix: "/",
+	//          }},
 	//			Services: []ingressroutev1.Service{{
 	//				Name: s10.Name,
 	//				Port: 80, // proxy non secure traffic to port 80
@@ -1611,9 +1611,9 @@ func TestDAGInsert(t *testing.T) {
 	//			},
 	//		},
 	//		Routes: []ingressroutev1.Route{{
-    //          Conditions: []ingressroutev1.Condition{{
-    //              Prefix: "/",
-    //          }},
+	//          Conditions: []ingressroutev1.Condition{{
+	//              Prefix: "/",
+	//          }},
 	//			Services: []ingressroutev1.Service{{
 	//				Name: s10.Name,
 	//				Port: 80,
@@ -1621,8 +1621,6 @@ func TestDAGInsert(t *testing.T) {
 	//		}},
 	//	},
 	//}
-
-
 
 	tests := map[string]struct {
 		objs []interface{}
@@ -1809,8 +1807,8 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-        // 6-3-2020 - Since no service is specified, Listener shouldn't be created
-        // TODO: Debug
+		// 6-3-2020 - Since no service is specified, Listener shouldn't be created
+		// TODO: Debug
 		//"insert secret then ingress w/ tls": {
 		//	objs: []interface{}{
 		//		sec1,
@@ -1868,9 +1866,9 @@ func TestDAGInsert(t *testing.T) {
 			},
 			want: listeners(),
 		},
-        // TODO: 6-3-2020 - Incorporate invalid secret handling. This test should pass
-        // This test results in creating a https listener (expected behavior is that it shouldn't be created)
-        // cdc2913f2d47ea0771ad383eb4eefab35000348b, cba7fe03d0c2e4a3be38d2d95aa8b8622554b0ad, 46d3ae3251a5f2c12a48a4baaaf1b869200300e6, 240366e4fbabe79a76a00e5121b1fc23980a3ead
+		// TODO: 6-3-2020 - Incorporate invalid secret handling. This test should pass
+		// This test results in creating a https listener (expected behavior is that it shouldn't be created)
+		// cdc2913f2d47ea0771ad383eb4eefab35000348b, cba7fe03d0c2e4a3be38d2d95aa8b8622554b0ad, 46d3ae3251a5f2c12a48a4baaaf1b869200300e6, 240366e4fbabe79a76a00e5121b1fc23980a3ead
 		//"insert service, invalid secret then ingress w/o tls": {
 		//	objs: []interface{}{
 		//		s1,
@@ -1912,7 +1910,7 @@ func TestDAGInsert(t *testing.T) {
 			objs: []interface{}{
 				i6,
 			},
-            want: nil,
+			want: nil,
 		},
 		"insert ingress w/ two vhosts then matching service": {
 			objs: []interface{}{
@@ -1989,7 +1987,7 @@ func TestDAGInsert(t *testing.T) {
 		"insert ingress w/ two paths then one service": {
 			objs: []interface{}{
 				i7,
-                s1,
+				s1,
 			},
 			want: listeners(
 				&Listener{
@@ -2460,7 +2458,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("*", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							TimeoutPolicy: &TimeoutPolicy{
 								Timeout: -1, // invalid timeout equals infinity ¯\_(ツ)_/¯.
 							},
@@ -2480,7 +2478,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("bar.com", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							TimeoutPolicy: &TimeoutPolicy{
 								Timeout: -1, // invalid timeout equals infinity ¯\_(ツ)_/¯.
 							},
@@ -2500,7 +2498,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("*", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							TimeoutPolicy: &TimeoutPolicy{
 								Timeout: 90 * time.Second,
 							},
@@ -2520,7 +2518,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("bar.com", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							TimeoutPolicy: &TimeoutPolicy{
 								Timeout: 90 * time.Second,
 							},
@@ -2540,7 +2538,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("*", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							TimeoutPolicy: &TimeoutPolicy{
 								Timeout: -1,
 							},
@@ -2560,7 +2558,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("bar.com", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							TimeoutPolicy: &TimeoutPolicy{
 								Timeout: -1,
 							},
@@ -2620,7 +2618,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-        // 6-3-2020 TODO: Revisit ingressroute delegtion, tls delegation
+		// 6-3-2020 TODO: Revisit ingressroute delegtion, tls delegation
 		//"insert ingressroute with missing tls delegation should not present port 80": {
 		//	objs: []interface{}{
 		//		s10, ir19,
@@ -2654,7 +2652,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("bar.com", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							RetryPolicy: &RetryPolicy{
 								RetryOn:       "5xx",
 								NumRetries:    6,
@@ -2676,7 +2674,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("bar.com", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							RetryPolicy: &RetryPolicy{
 								RetryOn:       "5xx",
 								NumRetries:    6,
@@ -2699,7 +2697,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("bar.com", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							RetryPolicy: &RetryPolicy{
 								RetryOn:       "5xx",
 								NumRetries:    1,
@@ -2721,7 +2719,7 @@ func TestDAGInsert(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						virtualhost("*", &Route{
 							PathCondition: prefix("/"),
-							Clusters: clustermap(s1),
+							Clusters:      clustermap(s1),
 							RetryPolicy: &RetryPolicy{
 								RetryOn:       "gateway-error",
 								NumRetries:    6,
@@ -2929,7 +2927,7 @@ func TestDAGInsert(t *testing.T) {
 							Fqdn: "example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
+							Conditions: []ingressroutev1.Condition{{
 								Prefix: "/finance",
 							}},
 							Delegate: &ingressroutev1.Delegate{
@@ -2954,7 +2952,7 @@ func TestDAGInsert(t *testing.T) {
 							Fqdn: "example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
+							Conditions: []ingressroutev1.Condition{{
 								Prefix: "/finance",
 							}},
 							Delegate: &ingressroutev1.Delegate{
@@ -2979,9 +2977,9 @@ func TestDAGInsert(t *testing.T) {
 							Fqdn: "example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/finance",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/finance",
+							}},
 							Delegate: &ingressroutev1.Delegate{
 								Name:      "finance-root",
 								Namespace: "finance",
@@ -2996,9 +2994,9 @@ func TestDAGInsert(t *testing.T) {
 					},
 					Spec: ingressroutev1.IngressRouteSpec{
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/prefixDoesntMatch",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/prefixDoesntMatch",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name: "home",
 							}},
@@ -3020,9 +3018,9 @@ func TestDAGInsert(t *testing.T) {
 							Fqdn: "example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/foo",
+							}},
 							Delegate: &ingressroutev1.Delegate{
 								Name:      "finance-root",
 								Namespace: "finance",
@@ -3037,16 +3035,16 @@ func TestDAGInsert(t *testing.T) {
 					},
 					Spec: ingressroutev1.IngressRouteSpec{
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foobar",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/foobar",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name: "home",
 							}},
 						}, {
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo/bar",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/foo/bar",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name: "home",
 							}},
@@ -3068,9 +3066,9 @@ func TestDAGInsert(t *testing.T) {
 							Fqdn: "example.com",
 						},
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/finance",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/finance",
+							}},
 							Delegate: &ingressroutev1.Delegate{
 								Name:      "finance-root",
 								Namespace: "finance",
@@ -3085,17 +3083,17 @@ func TestDAGInsert(t *testing.T) {
 					},
 					Spec: ingressroutev1.IngressRouteSpec{
 						Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/finance",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/finance",
+							}},
 							Services: []ingressroutev1.Service{{
 								Name: "home",
 								Port: 8080,
 							}},
 						}, {
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/finance/stocks",
-			                }},
+							Conditions: []ingressroutev1.Condition{{
+								Prefix: "/finance/stocks",
+							}},
 							Delegate: &ingressroutev1.Delegate{
 								Name:      "example-com",
 								Namespace: "default",
@@ -3114,7 +3112,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-        // 6-3-2020 TODO: IngressRoute delegation
+		// 6-3-2020 TODO: IngressRoute delegation
 		//"ingressroute root delegates to another ingressroute root": {
 		//	objs: []interface{}{
 		//		&ingressroutev1.IngressRoute{
@@ -3127,9 +3125,9 @@ func TestDAGInsert(t *testing.T) {
 		//					Fqdn: "blog.containersteve.com",
 		//				},
 		//				Routes: []ingressroutev1.Route{{
-        //                  Conditions: []ingressroutev1.Condition{{
-        //                      Prefix: "/",
-        //                  }},
+		//                  Conditions: []ingressroutev1.Condition{{
+		//                      Prefix: "/",
+		//                  }},
 		//					Delegate: &ingressroutev1.Delegate{
 		//						Name:      "blog",
 		//						Namespace: "marketing",
@@ -3147,9 +3145,9 @@ func TestDAGInsert(t *testing.T) {
 		//					Fqdn: "www.containersteve.com",
 		//				},
 		//				Routes: []ingressroutev1.Route{{
-        //                  Conditions: []ingressroutev1.Condition{{
-        //                      Prefix: "/",
-        //                  }},
+		//                  Conditions: []ingressroutev1.Condition{{
+		//                      Prefix: "/",
+		//                  }},
 		//					Services: []ingressroutev1.Service{{
 		//						Name: "green",
 		//						Port: 80,
@@ -3169,71 +3167,71 @@ func TestDAGInsert(t *testing.T) {
 		//	),
 		//},
 		// issue 1399
-//		"service shared across ingress and ingressroute tcpproxy": {
-//			objs: []interface{}{
-//				sec1,
-//				s9,
-//				&v1beta1.Ingress{
-//					ObjectMeta: metav1.ObjectMeta{
-//						Name:      "nginx",
-//						Namespace: "default",
-//					},
-//					Spec: v1beta1.IngressSpec{
-//						TLS: []v1beta1.IngressTLS{{
-//							Hosts:      []string{"example.com"},
-//							SecretName: s1.Name,
-//						}},
-//						Rules: []v1beta1.IngressRule{{
-//							Host:             "example.com",
-//							IngressRuleValue: ingressrulevalue(backend(s9.Name, intstr.FromInt(80))),
-//						}},
-//					},
-//				},
-//				&ingressroutev1.IngressRoute{
-//					ObjectMeta: metav1.ObjectMeta{
-//						Name:      "nginx",
-//						Namespace: "default",
-//					},
-//					Spec: ingressroutev1.IngressRouteSpec{
-//						VirtualHost: &projcontour.VirtualHost{
-//							Fqdn: "example.com",
-//							TLS: &projcontour.TLS{
-//								SecretName: sec1.Name,
-//							},
-//						},
-//						TCPProxy: &ingressroutev1.TCPProxy{
-//							Services: []ingressroutev1.Service{{
-//								Name: s9.Name,
-//								Port: 80,
-//							}},
-//						},
-//					},
-//				},
-//			},
-//			want: listeners(
-//				&Listener{
-//					Port: 80,
-//					VirtualHosts: virtualhosts(
-//						virtualhost("example.com", prefixroute("/", service(s9))),
-//					),
-//				},
-//				&Listener{
-//					Port: 443,
-//					VirtualHosts: virtualhosts(
-//						&SecureVirtualHost{
-//							VirtualHost: VirtualHost{
-//								Name: "example.com",
-//							},
-//							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
-//							Secret:          secret(sec1),
-//							TCPProxy: &TCPProxy{
-//								Clusters: clusters(service(s9)),
-//							},
-//						},
-//					),
-//				},
-//			),
-//		},
+		//		"service shared across ingress and ingressroute tcpproxy": {
+		//			objs: []interface{}{
+		//				sec1,
+		//				s9,
+		//				&v1beta1.Ingress{
+		//					ObjectMeta: metav1.ObjectMeta{
+		//						Name:      "nginx",
+		//						Namespace: "default",
+		//					},
+		//					Spec: v1beta1.IngressSpec{
+		//						TLS: []v1beta1.IngressTLS{{
+		//							Hosts:      []string{"example.com"},
+		//							SecretName: s1.Name,
+		//						}},
+		//						Rules: []v1beta1.IngressRule{{
+		//							Host:             "example.com",
+		//							IngressRuleValue: ingressrulevalue(backend(s9.Name, intstr.FromInt(80))),
+		//						}},
+		//					},
+		//				},
+		//				&ingressroutev1.IngressRoute{
+		//					ObjectMeta: metav1.ObjectMeta{
+		//						Name:      "nginx",
+		//						Namespace: "default",
+		//					},
+		//					Spec: ingressroutev1.IngressRouteSpec{
+		//						VirtualHost: &projcontour.VirtualHost{
+		//							Fqdn: "example.com",
+		//							TLS: &projcontour.TLS{
+		//								SecretName: sec1.Name,
+		//							},
+		//						},
+		//						TCPProxy: &ingressroutev1.TCPProxy{
+		//							Services: []ingressroutev1.Service{{
+		//								Name: s9.Name,
+		//								Port: 80,
+		//							}},
+		//						},
+		//					},
+		//				},
+		//			},
+		//			want: listeners(
+		//				&Listener{
+		//					Port: 80,
+		//					VirtualHosts: virtualhosts(
+		//						virtualhost("example.com", prefixroute("/", service(s9))),
+		//					),
+		//				},
+		//				&Listener{
+		//					Port: 443,
+		//					VirtualHosts: virtualhosts(
+		//						&SecureVirtualHost{
+		//							VirtualHost: VirtualHost{
+		//								Name: "example.com",
+		//							},
+		//							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
+		//							Secret:          secret(sec1),
+		//							TCPProxy: &TCPProxy{
+		//								Clusters: clusters(service(s9)),
+		//							},
+		//						},
+		//					),
+		//				},
+		//			),
+		//		},
 
 	}
 
@@ -3362,9 +3360,9 @@ func TestDAGRootNamespaces(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -3384,9 +3382,9 @@ func TestDAGRootNamespaces(t *testing.T) {
 				Fqdn: "example2.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -3595,17 +3593,17 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
 			}, {
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/prefix",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/prefix",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "delegated",
 				}},
@@ -3624,9 +3622,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: -80,
@@ -3646,9 +3644,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foobar",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foobar",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
@@ -3657,8 +3655,8 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		},
 	}
 
-    // 6-4-2020 We have removed this validation from builder.go where
-    // we used to check delegate's prefix is child of parent's prefix
+	// 6-4-2020 We have removed this validation from builder.go where
+	// we used to check delegate's prefix is child of parent's prefix
 	// ir4 is invalid because its match prefix does not match its parent's (ir1)
 	//ir4 := &ingressroutev1.IngressRoute{
 	//	ObjectMeta: metav1.ObjectMeta{
@@ -3689,9 +3687,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "self",
 				},
@@ -3710,9 +3708,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "child",
 				},
@@ -3727,9 +3725,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "parent",
 				},
@@ -3748,9 +3746,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "child",
 				},
@@ -3773,16 +3771,16 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "validChild",
 				},
 			}, {
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/bar",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/bar",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "invalidChild",
 				},
@@ -3797,9 +3795,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "foo2",
 					Port: 8080,
@@ -3816,9 +3814,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/bar",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/bar",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "foo3",
 					Port: 12345678,
@@ -3836,9 +3834,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 8080,
@@ -3856,9 +3854,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "validChild",
 				},
@@ -3877,9 +3875,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.*.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
@@ -3899,9 +3897,9 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-	                        Conditions: []ingressroutev1.Condition{{
-			                   Prefix: "/foo",
-			                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "invalid",
 					Port: 8080,
@@ -4087,9 +4085,9 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -4109,9 +4107,9 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 8080,
@@ -4371,9 +4369,9 @@ func TestSplitSecret(t *testing.T) {
 }
 
 func routemap(routes ...*Route) map[string]*Route {
-    if len(routes) == 0 {
-        return nil
-    }
+	if len(routes) == 0 {
+		return nil
+	}
 	m := make(map[string]*Route)
 	for _, r := range routes {
 		m[conditionsToString(r)] = r
@@ -4396,7 +4394,7 @@ func prefixroute(prefix string, services ...*HTTPService) *Route {
 func routeCluster(prefix string, clusters ...*Cluster) *Route {
 	route := Route{
 		PathCondition: &PrefixCondition{Prefix: prefix},
-		Clusters: clusters,
+		Clusters:      clusters,
 	}
 	return &route
 }

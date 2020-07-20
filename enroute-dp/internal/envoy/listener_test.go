@@ -24,17 +24,17 @@ import (
 	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
+	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	envoy_config_v2_tcpproxy "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
+	envoy_config_ratelimit_v2 "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/google/go-cmp/cmp"
+	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	v1 "k8s.io/api/core/v1"
-    "k8s.io/apimachinery/pkg/util/intstr"
-	httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
-	envoy_config_ratelimit_v2 "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
-    "github.com/saarasio/enroute/enroute-dp/internal/assert"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func TestListener(t *testing.T) {
@@ -49,16 +49,15 @@ func TestListener(t *testing.T) {
 			name:    "http",
 			address: "0.0.0.0",
 			port:    9000,
-			f:       []*envoy_api_v2_listener.Filter{
-                HTTPConnectionManager("http", "/dev/null", nil),
-            },
+			f: []*envoy_api_v2_listener.Filter{
+				HTTPConnectionManager("http", "/dev/null", nil),
+			},
 			want: &v2.Listener{
 				Name:    "http",
 				Address: SocketAddress("0.0.0.0", 9000),
 				FilterChains: FilterChains(
 					HTTPConnectionManager("http", "/dev/null", nil),
 				),
-
 			},
 		},
 		"insecure listener w/ proxy": {
@@ -76,10 +75,10 @@ func TestListener(t *testing.T) {
 				Address: SocketAddress("0.0.0.0", 9000),
 				ListenerFilters: ListenerFilters(
 					ProxyProtocol(),
-                ),
+				),
 				FilterChains: FilterChains(
-						HTTPConnectionManager("http-proxy", "/dev/null", nil),
-               ),
+					HTTPConnectionManager("http-proxy", "/dev/null", nil),
+				),
 			},
 		},
 		"secure listener": {
@@ -94,7 +93,7 @@ func TestListener(t *testing.T) {
 				Address: SocketAddress("0.0.0.0", 9000),
 				ListenerFilters: ListenerFilters(
 					TLSInspector(),
-                ),
+				),
 			},
 		},
 		"secure listener w/ proxy": {
@@ -111,7 +110,7 @@ func TestListener(t *testing.T) {
 				ListenerFilters: ListenerFilters(
 					ProxyProtocol(),
 					TLSInspector(),
-                ),
+				),
 			},
 		},
 	}
@@ -245,29 +244,29 @@ func TestHTTPConnectionManager(t *testing.T) {
 							},
 						},
 						HttpFilters: []*http.HttpFilter{{
-							Name: wellknown.Gzip,
+							Name:       wellknown.Gzip,
 							ConfigType: nil,
 						}, {
-							Name: wellknown.GRPCWeb,
+							Name:       wellknown.GRPCWeb,
 							ConfigType: nil,
-                        }, {
-                            Name: wellknown.HTTPRateLimit,
-                            ConfigType: &http.HttpFilter_TypedConfig{
-                                TypedConfig: toAny(&httprl.RateLimit{
-                                    Domain: "enroute",
-                                    RateLimitService: &envoy_config_ratelimit_v2.RateLimitServiceConfig{
-                                        GrpcService: &envoy_api_v2_core.GrpcService{
-                                            TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-                                                EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
-                                                    ClusterName: "enroute_ratelimit",
-                                                },
-                                            },
-                                        },
-                                    },
-                                }),
-                            },
-                        }, {
-							Name: wellknown.Router,
+						}, {
+							Name: wellknown.HTTPRateLimit,
+							ConfigType: &http.HttpFilter_TypedConfig{
+								TypedConfig: toAny(&httprl.RateLimit{
+									Domain: "enroute",
+									RateLimitService: &envoy_config_ratelimit_v2.RateLimitServiceConfig{
+										GrpcService: &envoy_api_v2_core.GrpcService{
+											TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
+												EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+													ClusterName: "enroute_ratelimit",
+												},
+											},
+										},
+									},
+								}),
+							},
+						}, {
+							Name:       wellknown.Router,
 							ConfigType: nil,
 						}},
 						HttpProtocolOptions: &envoy_api_v2_core.Http1ProtocolOptions{

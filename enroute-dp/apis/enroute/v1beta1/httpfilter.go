@@ -10,8 +10,8 @@ type GenericHttpFilterConfig struct {
 
 // HttpFilterSpec defines the spec of the CRD
 type HttpFilterSpec struct {
-	Name                    string                         `json:"name,omitempty"`
-	Type                    string                         `json:"type,omitempty"`
+	Name             string                  `json:"name,omitempty"`
+	Type             string                  `json:"type,omitempty"`
 	HttpFilterConfig GenericHttpFilterConfig `json:"httpFilterConfig,omitempty"`
 }
 

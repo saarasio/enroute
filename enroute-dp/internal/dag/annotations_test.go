@@ -28,7 +28,7 @@ import (
 
 func TestParseAnnotation(t *testing.T) {
 	tests := map[string]struct {
-		s  string
+		s    string
 		want uint32
 	}{
 		"blank": {

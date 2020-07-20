@@ -59,9 +59,9 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 				LbPolicy:             api.Cluster_ROUND_ROBIN,
 				LoadAssignment: &api.ClusterLoadAssignment{
 					ClusterName: "enroute",
-                    Endpoints: Endpoints(
-                        SocketAddress(stringOrDefault(c.XDSAddress, "127.0.0.1"), intOrDefault(c.XDSGRPCPort, 8001)),
-                    ),
+					Endpoints: Endpoints(
+						SocketAddress(stringOrDefault(c.XDSAddress, "127.0.0.1"), intOrDefault(c.XDSGRPCPort, 8001)),
+					),
 				},
 				Http2ProtocolOptions: new(envoy_api_v2_core.Http2ProtocolOptions), // enables http2
 				CircuitBreakers: &clusterv2.CircuitBreakers{
@@ -88,9 +88,9 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 					LbPolicy:             api.Cluster_ROUND_ROBIN,
 					LoadAssignment: &api.ClusterLoadAssignment{
 						ClusterName: "enroute_ratelimit",
-                        Endpoints: Endpoints(
-                            SocketAddress(stringOrDefault(c.RLAddress, "127.0.0.1"), intOrDefault(c.RLPort, 8003)),
-                        ),
+						Endpoints: Endpoints(
+							SocketAddress(stringOrDefault(c.RLAddress, "127.0.0.1"), intOrDefault(c.RLPort, 8003)),
+						),
 					},
 					Http2ProtocolOptions: new(envoy_api_v2_core.Http2ProtocolOptions), // enables http2
 					CircuitBreakers: &clusterv2.CircuitBreakers{
@@ -115,12 +115,12 @@ func Bootstrap(c *BootstrapConfig) *bootstrap.Bootstrap {
 					ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 					ClusterDiscoveryType: ClusterDiscoveryType(api.Cluster_LOGICAL_DNS),
 					LbPolicy:             api.Cluster_ROUND_ROBIN,
-                    LoadAssignment: &api.ClusterLoadAssignment{
-                        ClusterName: "service-stats",
-                        Endpoints: Endpoints(
-                            SocketAddress(stringOrDefault(c.AdminAddress, "127.0.0.1"), intOrDefault(c.AdminPort, 9001)),
-                        ),
-                    },
+					LoadAssignment: &api.ClusterLoadAssignment{
+						ClusterName: "service-stats",
+						Endpoints: Endpoints(
+							SocketAddress(stringOrDefault(c.AdminAddress, "127.0.0.1"), intOrDefault(c.AdminPort, 9001)),
+						),
+					},
 				}},
 		},
 		Admin: &bootstrap.Admin{

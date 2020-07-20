@@ -289,21 +289,21 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	}
 
 	// step 5. register out resource event handler with the k8s informers.
-    if mode_ingress {
-        coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
-        coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-        coreInformers.Networking().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
-        contourInformers.Enroute().V1beta1().IngressRoutes().Informer().AddEventHandler(&reh)
+	if mode_ingress {
+		coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
+		coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+		coreInformers.Networking().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1beta1().IngressRoutes().Informer().AddEventHandler(&reh)
 
-        // Add informers for each root-ingressroute namespaces
-        for _, inf := range namespacedInformers {
-            inf.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-        }
-        // If root-ingressroutes are not defined, then add the informer for all namespaces
-        if len(namespacedInformers) == 0 {
-            coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-        }
-    }
+		// Add informers for each root-ingressroute namespaces
+		for _, inf := range namespacedInformers {
+			inf.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+		}
+		// If root-ingressroutes are not defined, then add the informer for all namespaces
+		if len(namespacedInformers) == 0 {
+			coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+		}
+	}
 
 	// step 5.5 register resource event handler with k8s informers
 	if mode_ingress {
@@ -334,13 +334,13 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	// step 7. setup workgroup runner and register informers.
 	var g workgroup.Group
-    if mode_ingress {
-        g.Add(startInformer(coreInformers, log.WithField("context", "coreinformers")))
-        g.Add(startInformer(contourInformers, log.WithField("context", "contourinformers")))
-        for _, inf := range namespacedInformers {
-            g.Add(startInformer(inf, log.WithField("context", "corenamespacedinformers")))
-        }
-    }
+	if mode_ingress {
+		g.Add(startInformer(coreInformers, log.WithField("context", "coreinformers")))
+		g.Add(startInformer(contourInformers, log.WithField("context", "contourinformers")))
+		for _, inf := range namespacedInformers {
+			g.Add(startInformer(inf, log.WithField("context", "corenamespacedinformers")))
+		}
+	}
 
 	// step 8. setup prometheus registry and register base metrics.
 	registry := prometheus.NewRegistry()

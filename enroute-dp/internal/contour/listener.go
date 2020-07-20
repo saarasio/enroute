@@ -311,12 +311,12 @@ func (v *listenerVisitor) visit(vertex dag.Vertex) {
 
 		filters := envoy.Filters(
 			envoy.HTTPConnectionManager(ENVOY_HTTPS_LISTENER, v.httpsAccessLog(), &vertex),
-        )
+		)
 		alpnProtos := []string{"h2", "http/1.1"}
 		if vh.VirtualHost.TCPProxy != nil {
 			filters = envoy.Filters(
 				envoy.TCPProxy(ENVOY_HTTPS_LISTENER, vh.VirtualHost.TCPProxy, v.httpsAccessLog()),
-            )
+			)
 			alpnProtos = nil // do not offer ALPN
 		}
 

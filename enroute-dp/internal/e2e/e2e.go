@@ -31,11 +31,11 @@ import (
 
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	cgrpc "github.com/saarasio/enroute/enroute-dp/internal/grpc"
 	"github.com/saarasio/enroute/enroute-dp/internal/k8s"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"

@@ -17,8 +17,8 @@
 package envoy
 
 import (
-    "fmt"
-    "regexp"
+	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"time"

@@ -39,17 +39,17 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
 			}, {
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/prefix",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/prefix",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "delegated",
 				}},
@@ -68,9 +68,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: -80,
@@ -90,9 +90,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foobar",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foobar",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "home",
 					Port: 8080,
@@ -129,9 +129,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "self",
 				},
@@ -150,9 +150,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "child",
 				},
@@ -167,9 +167,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "parent",
 				},
@@ -188,9 +188,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "child",
 				},
@@ -213,16 +213,16 @@ func TestIngressRouteMetrics(t *testing.T) {
 				Fqdn: "example.com",
 			},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "validChild",
 				},
 			}, {
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/bar",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/bar",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "invalidChild",
 				},
@@ -237,9 +237,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 8080,
@@ -256,9 +256,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		Spec: ingressroutev1.IngressRouteSpec{
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/bar",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/bar",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 12345678,
@@ -276,9 +276,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "foo",
 					Port: 8080,
@@ -296,9 +296,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{},
 			Routes: []ingressroutev1.Route{{
-                Conditions: []ingressroutev1.Condition{{
-                    Prefix: "/foo",
-                }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/foo",
+				}},
 				Delegate: &ingressroutev1.Delegate{
 					Name: "validChild",
 				},

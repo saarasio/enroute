@@ -11,7 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sort"
 	"strconv"
-    "strings"
+	"strings"
 )
 
 const QIngressRoute string = `
@@ -399,9 +399,9 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 	routes := make([]v1beta1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
 		route := v1beta1.Route{
-            Conditions: []v1beta1.Condition{{
-                Prefix: oneRoute.Route_prefix,
-            }},
+			Conditions: []v1beta1.Condition{{
+				Prefix: oneRoute.Route_prefix,
+			}},
 			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
 			Filters:  saaras_ir_route_filter__to__v1b1_route_filter(oneRoute),
 		}
@@ -450,9 +450,9 @@ func saaras_ir__to__v1b1_ir(sdb *SaarasIngressRoute) *v1beta1.IngressRoute {
 
 	for _, oneRoute := range sdb.RoutessByappId {
 		route := v1beta1.Route{
-            Conditions: []v1beta1.Condition{{
-                Prefix: oneRoute.Route_prefix,
-            }},
+			Conditions: []v1beta1.Condition{{
+				Prefix: oneRoute.Route_prefix,
+			}},
 			Services: saaras_route_to_v1b1_service_slice(sdb, oneRoute),
 		}
 		routes = append(routes, route)
@@ -609,21 +609,21 @@ func v1b1_service_slice_equal(log logrus.FieldLogger, s1, s2 []v1beta1.Service) 
 }
 
 func v1b1_route_equal(log logrus.FieldLogger, ir_r1, ir_r2 v1beta1.Route) bool {
-    if len(ir_r1.Conditions) > 0 && len(ir_r2.Conditions) > 0 {
-        if len(ir_r1.Conditions) == len(ir_r2.Conditions) {
-            // TODO: We only compare the prefix here (if present)
-            if ir_r1.Conditions[0].Prefix != "" && ir_r2.Conditions[0].Prefix != "" {
-	            return ir_r1.Conditions[0].Prefix == ir_r2.Conditions[0].Prefix &&
-	            	ir_r1.PrefixRewrite == ir_r2.PrefixRewrite &&
-	            	ir_r1.EnableWebsockets == ir_r2.EnableWebsockets &&
-	            	ir_r1.PermitInsecure == ir_r2.PermitInsecure &&
-	            	v1b1_service_slice_equal(log, ir_r1.Services, ir_r2.Services)
+	if len(ir_r1.Conditions) > 0 && len(ir_r2.Conditions) > 0 {
+		if len(ir_r1.Conditions) == len(ir_r2.Conditions) {
+			// TODO: We only compare the prefix here (if present)
+			if ir_r1.Conditions[0].Prefix != "" && ir_r2.Conditions[0].Prefix != "" {
+				return ir_r1.Conditions[0].Prefix == ir_r2.Conditions[0].Prefix &&
+					ir_r1.PrefixRewrite == ir_r2.PrefixRewrite &&
+					ir_r1.EnableWebsockets == ir_r2.EnableWebsockets &&
+					ir_r1.PermitInsecure == ir_r2.PermitInsecure &&
+					v1b1_service_slice_equal(log, ir_r1.Services, ir_r2.Services)
 
-            }
-        }
-    }
+			}
+		}
+	}
 
-    return false
+	return false
 }
 
 type sliceOfIRRoutes []v1beta1.Route
@@ -639,11 +639,11 @@ func (o sliceOfIRRoutes) Swap(i, j int) {
 func conditionsToString(r *v1beta1.Route) string {
 	s := []string{}
 	for _, cond := range r.Conditions {
-        if cond.Header != nil {
-		    s = append(s, cond.Prefix + cond.Header.Name)
-        } else {
-		    s = append(s, cond.Prefix)
-        }
+		if cond.Header != nil {
+			s = append(s, cond.Prefix+cond.Header.Name)
+		} else {
+			s = append(s, cond.Prefix)
+		}
 	}
 	return strings.Join(s, ",")
 }

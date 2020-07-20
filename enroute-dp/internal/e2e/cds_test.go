@@ -69,7 +69,7 @@ func TestClusterLongServiceName(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			cluster("default/kbujbkuh-c83ceb/8080/da39a3ee5e", "default/kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r", "default_kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r_8080"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "2",
 	}, streamCDS(t, cc))
@@ -131,7 +131,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 		VersionInfo: "3",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "3",
 	}, streamCDS(t, cc))
@@ -152,7 +152,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 		VersionInfo: "4",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard/http", "default_kuard_80"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "4",
 	}, streamCDS(t, cc))
@@ -184,7 +184,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard/http", "default_kuard_80"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "5",
 	}, streamCDS(t, cc))
@@ -208,7 +208,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 		VersionInfo: "6",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "6",
 	}, streamCDS(t, cc))
@@ -269,7 +269,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard/http", "default_kuard_80"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "2",
 	}, streamCDS(t, cc))
@@ -288,7 +288,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 		VersionInfo: "3",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard", "default_kuard_443"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "3",
 	}, streamCDS(t, cc))
@@ -300,7 +300,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard/http", "default_kuard_80"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "4",
 	}, streamCDS(t, cc))
@@ -610,18 +610,18 @@ func TestClusterPerServiceParameters(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 90,
 				}},
 			}, {
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/b",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/b",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
@@ -635,7 +635,7 @@ func TestClusterPerServiceParameters(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "2",
 	}, streamCDS(t, cc))
@@ -669,18 +669,18 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:     "kuard",
 					Port:     80,
 					Strategy: "Random",
 				}},
 			}, {
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/b",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/b",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:     "kuard",
 					Port:     80,
@@ -690,7 +690,7 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 		},
 	})
 
-    assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &v2.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			&v2.Cluster{
@@ -750,9 +750,9 @@ func TestClusterWithHealthChecks(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name:   "kuard",
 					Port:   80,
@@ -769,7 +769,7 @@ func TestClusterWithHealthChecks(t *testing.T) {
 		VersionInfo: "2",
 		Resources: resources(t,
 			clusterWithHealthCheck("default/kuard/80/bc862a33ca", "default/kuard", "default_kuard_80", "/healthz", true),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "2",
 	}, streamCDS(t, cc))
@@ -866,9 +866,9 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 443,
@@ -888,7 +888,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 				"default_kuard_443",
 				nil,
 				""),
-            ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "3",
 	}, streamCDS(t, cc))
@@ -901,9 +901,9 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		Spec: ingressroutev1.IngressRouteSpec{
 			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
 			Routes: []ingressroutev1.Route{{
-	            Conditions: []ingressroutev1.Condition{{
-			       Prefix: "/a",
-			    }},
+				Conditions: []ingressroutev1.Condition{{
+					Prefix: "/a",
+				}},
 				Services: []ingressroutev1.Service{{
 					Name: "kuard",
 					Port: 443,
@@ -927,7 +927,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 				"default_kuard_443",
 				[]byte("ca"),
 				"subjname"),
-        ),
+		),
 		TypeUrl: clusterType,
 		Nonce:   "4",
 	}, streamCDS(t, cc))

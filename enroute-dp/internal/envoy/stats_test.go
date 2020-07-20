@@ -41,14 +41,14 @@ func TestStatsListener(t *testing.T) {
 				Name:    "stats-health",
 				Address: SocketAddress("127.0.0.127", 8123),
 				FilterChains: FilterChains(
-			        &envoy_api_v2_listener.Filter{
-			        	Name: wellknown.HTTPConnectionManager,
-			        	ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-			        		TypedConfig: toAny(&http.HttpConnectionManager{
+					&envoy_api_v2_listener.Filter{
+						Name: wellknown.HTTPConnectionManager,
+						ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
+							TypedConfig: toAny(&http.HttpConnectionManager{
 								StatPrefix: "stats",
 								RouteSpecifier: &http.HttpConnectionManager_RouteConfig{
 									RouteConfig: &v2.RouteConfiguration{
-								        VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+										VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
 											Name:    "backend",
 											Domains: []string{"*"},
 											Routes: []*envoy_api_v2_route.Route{{

@@ -63,7 +63,6 @@ func ingressRetryPolicy(ingress *k8sapi.Ingress) *RetryPolicy {
 	}
 }
 
-
 func ingressTimeoutPolicy(ingress *k8sapi.Ingress) *TimeoutPolicy {
 	response := compatAnnotation(ingress, "response-timeout")
 	if len(response) == 0 {
@@ -81,7 +80,6 @@ func ingressTimeoutPolicy(ingress *k8sapi.Ingress) *TimeoutPolicy {
 		Request: response,
 	})
 }
-
 
 func parseTimeout(timeout string) time.Duration {
 	if timeout == "" {

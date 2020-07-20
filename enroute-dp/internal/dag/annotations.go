@@ -130,6 +130,7 @@ func websocketRoutes(i *v1beta1.Ingress) map[string]bool {
 	}
 	return routes
 }
+
 // MinProtoVersion returns the TLS protocol version specified by an ingress annotation
 // or default if non present.
 func MinProtoVersion(version string) envoy_api_v2_auth.TlsParameters_TlsProtocol {
@@ -148,8 +149,6 @@ func MinProtoVersion(version string) envoy_api_v2_auth.TlsParameters_TlsProtocol
 func perTryTimeout(i *v1beta1.Ingress) time.Duration {
 	return parseTimeout(compatAnnotation(i, "per-try-timeout"))
 }
-
-
 
 // numRetries returns the number of retries specified by the "contour.heptio.com/num-retries"
 func numRetries(i *v1beta1.Ingress) uint32 {

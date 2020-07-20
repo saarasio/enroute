@@ -146,7 +146,6 @@ type Route struct {
 	// +kubebuilder:validation:Optional
 	PathRewrite *PathRewritePolicy `json:"pathRewritePolicy,omitempty"`
 
-
 	// Filters attached to this route
 	Filters []RouteAttachedFilter `json:"filters,omitempty"`
 }
@@ -188,7 +187,6 @@ type ReplacePrefix struct {
 	// +kubebuilder:validation:MinLength=1
 	Replacement string `json:"replacement"`
 }
-
 
 // TCPProxy contains the set of services to proxy TCP connections.
 type TCPProxy struct {
