@@ -113,7 +113,9 @@ CREATE TABLE saaras_db.proxy (
     proxy_name character varying NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
     delete_flag boolean DEFAULT false,
-    update_ts timestamp with time zone DEFAULT now()
+    update_ts timestamp with time zone DEFAULT now(),
+    proxy_config text,
+    config_json jsonb
 );
 CREATE SEQUENCE saaras_db.proxy_config_proxy_config_id_seq
     START WITH 1
@@ -156,7 +158,8 @@ CREATE TABLE saaras_db.route (
     delete_flag boolean DEFAULT false,
     service_id bigint NOT NULL,
     update_ts timestamp with time zone DEFAULT now(),
-    config_json jsonb
+    config_json jsonb,
+    route_config text
 );
 CREATE TABLE saaras_db.route_filter (
     route_id bigint NOT NULL,
@@ -224,7 +227,8 @@ CREATE TABLE saaras_db.service (
     create_ts timestamp with time zone DEFAULT now(),
     delete_flag boolean DEFAULT false,
     update_ts timestamp with time zone DEFAULT now(),
-    config_json jsonb
+    config_json jsonb,
+    service_config text
 );
 CREATE TABLE saaras_db.service_filter (
     service_id integer NOT NULL,
@@ -288,7 +292,8 @@ CREATE TABLE saaras_db.upstream (
     upstream_hc_timeoutseconds integer,
     update_ts timestamp with time zone DEFAULT now(),
     upstream_protocol text,
-    config_json jsonb
+    config_json jsonb,
+    upstream_config text
 );
 CREATE SEQUENCE saaras_db.upstream_upstream_id_seq
     START WITH 1
