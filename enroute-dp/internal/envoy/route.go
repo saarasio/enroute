@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -200,18 +200,21 @@ func RouteMatchNew(route *dag.Route) *envoy_api_v2_route.RouteMatch {
 			PathSpecifier: &envoy_api_v2_route.RouteMatch_SafeRegex{
 				SafeRegex: SafeRegexMatch(c.Regex),
 			},
-			Headers: headerMatcher(route.HeaderConditions),
+			QueryParameters: nil,
+			Headers:         headerMatcher(route.HeaderConditions),
 		}
 	case *dag.PrefixCondition:
 		return &envoy_api_v2_route.RouteMatch{
 			PathSpecifier: &envoy_api_v2_route.RouteMatch_Prefix{
 				Prefix: c.Prefix,
 			},
-			Headers: headerMatcher(route.HeaderConditions),
+			QueryParameters: nil,
+			Headers:         headerMatcher(route.HeaderConditions),
 		}
 	default:
 		return &envoy_api_v2_route.RouteMatch{
-			Headers: headerMatcher(route.HeaderConditions),
+			QueryParameters: nil,
+			Headers:         headerMatcher(route.HeaderConditions),
 		}
 	}
 }

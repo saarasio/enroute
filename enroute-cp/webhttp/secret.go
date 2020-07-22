@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
-
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package webhttp
 
@@ -160,7 +159,7 @@ func POST_Secret_Key(c echo.Context) error {
 
 	file, err := c.FormFile("Secret_key")
 	if file == nil {
-	  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Secret_key empty\"}")
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Secret_key empty\"}")
 	}
 	src, err := file.Open()
 	if err != nil {
@@ -174,7 +173,7 @@ func POST_Secret_Key(c echo.Context) error {
 	secret_name := c.Param("secret_name")
 
 	if len(secret_name) == 0 {
-			  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide secret name\"}")
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Please provide secret name\"}")
 	}
 
 	args["secret_name"] = secret_name
@@ -212,7 +211,7 @@ func POST_Secret_Cert(c echo.Context) error {
 
 	file, err := c.FormFile("Secret_cert")
 	if file == nil {
-	  return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Secret_cert empty\"}")
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Secret_cert empty\"}")
 	}
 	src, err := file.Open()
 	if err != nil {

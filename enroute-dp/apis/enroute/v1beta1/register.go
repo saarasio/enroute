@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	// SchemeBuilder collects the scheme builder functions for the Contour API
+	// SchemeBuilder collects the scheme builder functions for the Enroute API
 	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 	// AddToScheme applies the SchemeBuilder functions to a specified scheme
@@ -42,8 +42,14 @@ func Resource(resource string) schema.GroupResource {
 
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&IngressRoute{},
-		&IngressRouteList{},
+		&GatewayHost{},
+		&GatewayHostList{},
+		&GlobalConfig{},
+		&GlobalConfigList{},
+		&HttpFilter{},
+		&HttpFilterList{},
+		&RouteFilter{},
+		&RouteFilterList{},
 		&TLSCertificateDelegation{},
 		&TLSCertificateDelegationList{},
 	)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 )
 
-func TestRetryPolicyIngressRoute(t *testing.T) {
+func TestRetryPolicyGatewayHost(t *testing.T) {
 	tests := map[string]struct {
 		rp   *v1beta1.RetryPolicy
 		want *RetryPolicy
@@ -81,7 +81,7 @@ func TestRetryPolicyIngressRoute(t *testing.T) {
 	}
 }
 
-func TestTimeoutPolicyIngressRoute(t *testing.T) {
+func TestTimeoutPolicyGatewayHost(t *testing.T) {
 	tests := map[string]struct {
 		tp   *v1beta1.TimeoutPolicy
 		want *TimeoutPolicy
@@ -111,7 +111,7 @@ func TestTimeoutPolicyIngressRoute(t *testing.T) {
 			want: &TimeoutPolicy{
 				// the documentation for an invalid timeout says the duration will
 				// be undefined. In practice we take the spec from the
-				// contour.heptio.com/request-timeout annotation, which is defined
+				// enroute.saaras.io/request-timeout annotation, which is defined
 				// to choose infinite when its valid cannot be parsed.
 				Timeout: -1,
 			},

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -21,11 +21,11 @@ limitations under the License.
 
 package v1beta1
 
+type GatewayHostExpansion interface{}
+
 type GlobalConfigExpansion interface{}
 
 type HttpFilterExpansion interface{}
-
-type IngressRouteExpansion interface{}
 
 type RouteFilterExpansion interface{}
 

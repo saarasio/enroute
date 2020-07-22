@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
@@ -287,7 +287,7 @@ func TestTLSListener(t *testing.T) {
 	}, streamLDS(t, cc))
 }
 
-func TestIngressRouteTLSListener(t *testing.T) {
+func TestGatewayHostTLSListener(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
@@ -304,25 +304,25 @@ func TestIngressRouteTLSListener(t *testing.T) {
 		},
 	}
 
-	// i1 is a tls ingressroute
-	i1 := &ingressroutev1.IngressRoute{
+	// i1 is a tls gatewayhost
+	i1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName:             "secret",
 					MinimumProtocolVersion: "1.1",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -330,25 +330,25 @@ func TestIngressRouteTLSListener(t *testing.T) {
 		},
 	}
 
-	// i2 is a tls ingressroute
-	i2 := &ingressroutev1.IngressRoute{
+	// i2 is a tls gatewayhost
+	i2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName:             "secret",
 					MinimumProtocolVersion: "1.3",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -628,7 +628,7 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 			Name:      "simple",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/tls-minimum-protocol-version": "1.3",
+				"enroute.saaras.io/tls-minimum-protocol-version": "1.3",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -1009,10 +1009,10 @@ func TestLDSCustomAccessLogPaths(t *testing.T) {
 	}, streamLDS(t, cc))
 }
 
-func TestLDSIngressRouteInsideRootNamespaces(t *testing.T) {
+func TestLDSGatewayHostInsideRootNamespaces(t *testing.T) {
 	rh, cc, done := setup(t, func(reh *contour.ResourceEventHandler) {
-		reh.IngressRouteRootNamespaces = []string{"roots"}
-		reh.Notifier.(*contour.CacheHandler).IngressRouteStatus = &k8s.IngressRouteStatus{
+		reh.GatewayHostRootNamespaces = []string{"roots"}
+		reh.Notifier.(*contour.CacheHandler).GatewayHostStatus = &k8s.GatewayHostStatus{
 			Client: fake.NewSimpleClientset(),
 		}
 	})
@@ -1028,19 +1028,19 @@ func TestLDSIngressRouteInsideRootNamespaces(t *testing.T) {
 		Nonce:   "0",
 	}, streamLDS(t, cc))
 
-	// ir1 is an ingressroute that is in the root namespace
-	ir1 := &ingressroutev1.IngressRoute{
+	// ir1 is an gatewayhost that is in the root namespace
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "roots",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1062,7 +1062,7 @@ func TestLDSIngressRouteInsideRootNamespaces(t *testing.T) {
 		},
 	}
 
-	// add ingressroute & service
+	// add gatewayhost & service
 	rh.OnAdd(svc1)
 	rh.OnAdd(ir1)
 
@@ -1082,10 +1082,10 @@ func TestLDSIngressRouteInsideRootNamespaces(t *testing.T) {
 	}, streamLDS(t, cc))
 }
 
-func TestLDSIngressRouteOutsideRootNamespaces(t *testing.T) {
+func TestLDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 	rh, cc, done := setup(t, func(reh *contour.ResourceEventHandler) {
-		reh.IngressRouteRootNamespaces = []string{"roots"}
-		reh.Notifier.(*contour.CacheHandler).IngressRouteStatus = &k8s.IngressRouteStatus{
+		reh.GatewayHostRootNamespaces = []string{"roots"}
+		reh.Notifier.(*contour.CacheHandler).GatewayHostStatus = &k8s.GatewayHostStatus{
 			Client: fake.NewSimpleClientset(),
 		}
 	})
@@ -1101,19 +1101,19 @@ func TestLDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 		Nonce:   "0",
 	}, streamLDS(t, cc))
 
-	// ir1 is an ingressroute that is not in the root namespaces
-	ir1 := &ingressroutev1.IngressRoute{
+	// ir1 is an gatewayhost that is not in the root namespaces
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1121,7 +1121,7 @@ func TestLDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 		},
 	}
 
-	// add ingressroute
+	// add gatewayhost
 	rh.OnAdd(ir1)
 
 	// assert that there is only a static listener
@@ -1135,10 +1135,10 @@ func TestLDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 	}, streamLDS(t, cc))
 }
 
-func TestIngressRouteHTTPS(t *testing.T) {
+func TestGatewayHostHTTPS(t *testing.T) {
 	rh, cc, done := setup(t, func(reh *contour.ResourceEventHandler) {
-		reh.IngressRouteRootNamespaces = []string{}
-		reh.Notifier.(*contour.CacheHandler).IngressRouteStatus = &k8s.IngressRouteStatus{
+		reh.GatewayHostRootNamespaces = []string{}
+		reh.Notifier.(*contour.CacheHandler).GatewayHostStatus = &k8s.GatewayHostStatus{
 			Client: fake.NewSimpleClientset(),
 		}
 	})
@@ -1167,24 +1167,24 @@ func TestIngressRouteHTTPS(t *testing.T) {
 		},
 	}
 
-	// ir1 is an ingressroute that has TLS
-	ir1 := &ingressroutev1.IngressRoute{
+	// ir1 is an gatewayhost that has TLS
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "secret",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1212,7 +1212,7 @@ func TestIngressRouteHTTPS(t *testing.T) {
 	// add service
 	rh.OnAdd(svc1)
 
-	// add ingressroute
+	// add gatewayhost
 	rh.OnAdd(ir1)
 
 	ingressHTTP := &v2.Listener{
@@ -1244,33 +1244,33 @@ func TestIngressRouteHTTPS(t *testing.T) {
 // Assert that when a spec.vhost.tls spec is present with tls.passthrough
 // set to true we configure envoy to forward the TLS session to the cluster
 // after using SNI to determine the target.
-func TestLDSIngressRouteTCPProxyTLSPassthrough(t *testing.T) {
+func TestLDSGatewayHostTCPProxyTLSPassthrough(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &ingressroutev1.IngressRoute{
+	i1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard-tcp.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					Passthrough: true,
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "wrong-backend",
 					Port: 80,
 				}},
 			}},
-			TCPProxy: &ingressroutev1.TCPProxy{
-				Services: []ingressroutev1.Service{{
+			TCPProxy: &gatewayhostv1.TCPProxy{
+				Services: []gatewayhostv1.Service{{
 					Name: "correct-backend",
 					Port: 80,
 				}},
@@ -1312,7 +1312,7 @@ func TestLDSIngressRouteTCPProxyTLSPassthrough(t *testing.T) {
 	}, streamLDS(t, cc))
 }
 
-func TestLDSIngressRouteTCPForward(t *testing.T) {
+func TestLDSGatewayHostTCPForward(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
@@ -1329,29 +1329,29 @@ func TestLDSIngressRouteTCPForward(t *testing.T) {
 		},
 	}
 
-	i1 := &ingressroutev1.IngressRoute{
+	i1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard-tcp.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "secret",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "wrong-backend",
 					Port: 80,
 				}},
 			}},
-			TCPProxy: &ingressroutev1.TCPProxy{
-				Services: []ingressroutev1.Service{{
+			TCPProxy: &gatewayhostv1.TCPProxy{
+				Services: []gatewayhostv1.Service{{
 					Name: "correct-backend",
 					Port: 80,
 				}},
@@ -1388,7 +1388,7 @@ func TestLDSIngressRouteTCPForward(t *testing.T) {
 }
 
 // Test that TLS Cerfiticate delegation works correctly.
-func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
+func TestGatewayHostTLSCertificateDelegation(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
@@ -1431,24 +1431,24 @@ func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
 		},
 	})
 
-	// add an ingressroute in a different namespace mentioning secret/wildcard.
-	rh.OnAdd(&ingressroutev1.IngressRoute{
+	// add an gatewayhost in a different namespace mentioning secret/wildcard.
+	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "secret/wildcard",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1474,13 +1474,13 @@ func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// t1 is a TLSCertificateDelegation that permits default to access secret/wildcard
-	t1 := &ingressroutev1.TLSCertificateDelegation{
+	t1 := &gatewayhostv1.TLSCertificateDelegation{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "delegation",
 			Namespace: "secret",
 		},
-		Spec: ingressroutev1.TLSCertificateDelegationSpec{
-			Delegations: []ingressroutev1.CertificateDelegation{{
+		Spec: gatewayhostv1.TLSCertificateDelegationSpec{
+			Delegations: []gatewayhostv1.CertificateDelegation{{
 				SecretName: "wildcard",
 				TargetNamespaces: []string{
 					"default",
@@ -1511,13 +1511,13 @@ func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// t2 is a TLSCertificateDelegation that permits access to secret/wildcard from all namespaces.
-	t2 := &ingressroutev1.TLSCertificateDelegation{
+	t2 := &gatewayhostv1.TLSCertificateDelegation{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "delegation",
 			Namespace: "secret",
 		},
-		Spec: ingressroutev1.TLSCertificateDelegationSpec{
-			Delegations: []ingressroutev1.CertificateDelegation{{
+		Spec: gatewayhostv1.TLSCertificateDelegationSpec{
+			Delegations: []gatewayhostv1.CertificateDelegation{{
 				SecretName: "wildcard",
 				TargetNamespaces: []string{
 					"*",
@@ -1539,13 +1539,13 @@ func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// t3 is a TLSCertificateDelegation that permits access to secret/different all namespaces.
-	t3 := &ingressroutev1.TLSCertificateDelegation{
+	t3 := &gatewayhostv1.TLSCertificateDelegation{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "delegation",
 			Namespace: "secret",
 		},
-		Spec: ingressroutev1.TLSCertificateDelegationSpec{
-			Delegations: []ingressroutev1.CertificateDelegation{{
+		Spec: gatewayhostv1.TLSCertificateDelegationSpec{
+			Delegations: []gatewayhostv1.CertificateDelegation{{
 				SecretName: "different",
 				TargetNamespaces: []string{
 					"*",
@@ -1566,13 +1566,13 @@ func TestIngressRouteTLSCertificateDelegation(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// t4 is a TLSCertificateDelegation that permits access to secret/wildcard from the kube-secret namespace.
-	t4 := &ingressroutev1.TLSCertificateDelegation{
+	t4 := &gatewayhostv1.TLSCertificateDelegation{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "delegation",
 			Namespace: "secret",
 		},
-		Spec: ingressroutev1.TLSCertificateDelegationSpec{
-			Delegations: []ingressroutev1.CertificateDelegation{{
+		Spec: gatewayhostv1.TLSCertificateDelegationSpec{
+			Delegations: []gatewayhostv1.CertificateDelegation{{
 				SecretName: "wildcard",
 				TargetNamespaces: []string{
 					"kube-secret",

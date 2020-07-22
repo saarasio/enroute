@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,7 @@ func TestSDSVisibility(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// assert that the secret is _not_ visible as it is
-	// not referenced by any ingress/ingressroute
+	// not referenced by any ingress/gatewayhost
 	c.Request(secretType).Equals(&v2.DiscoveryResponse{
 		VersionInfo: "1",
 		Resources:   resources(t),

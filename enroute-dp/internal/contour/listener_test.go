@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/prometheus/client_golang/prometheus"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -173,19 +173,19 @@ func TestListenerVisit(t *testing.T) {
 				FilterChains: envoy.FilterChains(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG, nil)),
 			}),
 		},
-		"one http only ingressroute": {
+		"one http only gatewayhost": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Services: []ingressroutev1.Service{
+						Routes: []gatewayhostv1.Route{{
+							Services: []gatewayhostv1.Service{
 								{
 									Name: "backend",
 									Port: 80,
@@ -403,23 +403,23 @@ func TestListenerVisit(t *testing.T) {
 				FilterChains: envoy.FilterChains(envoy.HTTPConnectionManager(ENVOY_HTTP_LISTENER, DEFAULT_HTTP_ACCESS_LOG, nil)),
 			}),
 		},
-		"simple ingressroute with secret": {
+		"simple gatewayhost with secret": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
-							TLS: &ingressroutev1.TLS{
+							TLS: &gatewayhostv1.TLS{
 								SecretName: "secret",
 							},
 						},
-						Routes: []ingressroutev1.Route{
+						Routes: []gatewayhostv1.Route{
 							{
-								Services: []ingressroutev1.Service{
+								Services: []gatewayhostv1.Service{
 									{
 										Name: "backend",
 										Port: 80,

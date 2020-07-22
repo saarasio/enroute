@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,27 +25,27 @@ import (
 	"k8s.io/api/networking/v1beta1"
 	"k8s.io/client-go/tools/cache"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 )
 
 // A KubernetesCache holds Kubernetes objects and associated configuration and produces
 // DAG values.
 type KubernetesCache struct {
-	// IngressRouteRootNamespaces specifies the namespaces where root
-	// IngressRoutes can be defined. If empty, roots can be defined in any
+	// GatewayHostRootNamespaces specifies the namespaces where root
+	// GatewayHosts can be defined. If empty, roots can be defined in any
 	// namespace.
-	IngressRouteRootNamespaces []string
+	GatewayHostRootNamespaces []string
 
 	mu sync.RWMutex
 
-	ingresses     map[Meta]*v1beta1.Ingress
-	ingressroutes map[Meta]*ingressroutev1.IngressRoute
-	secrets       map[Meta]*v1.Secret
-	delegations   map[Meta]*ingressroutev1.TLSCertificateDelegation
-	services      map[Meta]*v1.Service
+	ingresses    map[Meta]*v1beta1.Ingress
+	gatewayhosts map[Meta]*gatewayhostv1.GatewayHost
+	secrets      map[Meta]*v1.Secret
+	delegations  map[Meta]*gatewayhostv1.TLSCertificateDelegation
+	services     map[Meta]*v1.Service
 
-	routefilters map[RouteFilterMeta]*ingressroutev1.RouteFilter
-	httpfilters  map[HttpFilterMeta]*ingressroutev1.HttpFilter
+	routefilters map[RouteFilterMeta]*gatewayhostv1.RouteFilter
+	httpfilters  map[HttpFilterMeta]*gatewayhostv1.HttpFilter
 }
 
 // Meta holds the name and namespace of a Kubernetes object.
@@ -85,30 +85,30 @@ func (kc *KubernetesCache) Insert(obj interface{}) {
 			kc.ingresses = make(map[Meta]*v1beta1.Ingress)
 		}
 		kc.ingresses[m] = obj
-	case *ingressroutev1.IngressRoute:
+	case *gatewayhostv1.GatewayHost:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
-		if kc.ingressroutes == nil {
-			kc.ingressroutes = make(map[Meta]*ingressroutev1.IngressRoute)
+		if kc.gatewayhosts == nil {
+			kc.gatewayhosts = make(map[Meta]*gatewayhostv1.GatewayHost)
 		}
-		kc.ingressroutes[m] = obj
-	case *ingressroutev1.TLSCertificateDelegation:
+		kc.gatewayhosts[m] = obj
+	case *gatewayhostv1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		if kc.delegations == nil {
-			kc.delegations = make(map[Meta]*ingressroutev1.TLSCertificateDelegation)
+			kc.delegations = make(map[Meta]*gatewayhostv1.TLSCertificateDelegation)
 		}
 		kc.delegations[m] = obj
 
-	case *ingressroutev1.HttpFilter:
+	case *gatewayhostv1.HttpFilter:
 		m := HttpFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
 		if kc.httpfilters == nil {
-			kc.httpfilters = make(map[HttpFilterMeta]*ingressroutev1.HttpFilter)
+			kc.httpfilters = make(map[HttpFilterMeta]*gatewayhostv1.HttpFilter)
 		}
 		kc.httpfilters[m] = obj
 
-	case *ingressroutev1.RouteFilter:
+	case *gatewayhostv1.RouteFilter:
 		m := RouteFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
 		if kc.routefilters == nil {
-			kc.routefilters = make(map[RouteFilterMeta]*ingressroutev1.RouteFilter)
+			kc.routefilters = make(map[RouteFilterMeta]*gatewayhostv1.RouteFilter)
 		}
 		kc.routefilters[m] = obj
 
@@ -141,18 +141,18 @@ func (kc *KubernetesCache) remove(obj interface{}) {
 	case *v1beta1.Ingress:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.ingresses, m)
-	case *ingressroutev1.IngressRoute:
+	case *gatewayhostv1.GatewayHost:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
-		delete(kc.ingressroutes, m)
-	case *ingressroutev1.TLSCertificateDelegation:
+		delete(kc.gatewayhosts, m)
+	case *gatewayhostv1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.delegations, m)
 
-	case *ingressroutev1.HttpFilter:
+	case *gatewayhostv1.HttpFilter:
 		m := HttpFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
 		delete(kc.httpfilters, m)
 
-	case *ingressroutev1.RouteFilter:
+	case *gatewayhostv1.RouteFilter:
 		m := RouteFilterMeta{filter_type: obj.Spec.Type, name: obj.Name, namespace: obj.Namespace}
 		delete(kc.routefilters, m)
 	default:

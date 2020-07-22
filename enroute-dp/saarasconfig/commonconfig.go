@@ -57,20 +57,28 @@ func UnmarshalRateLimitRouteFilterConfig(filter_config string) (RouteActionDescr
 }
 
 type RouteMatchConditions struct {
-    Prefix string `json:"prefix"`
-    MatchConditions []RouteMatchCondition `json:"match"`
+	Prefix          string                `json:"prefix"`
+	MatchConditions []RouteMatchCondition `json:"header"`
+}
+
+type RouteMatchConditionsByHeaderNameVal []RouteMatchCondition
+
+func (l RouteMatchConditionsByHeaderNameVal) Len() int      { return len(l) }
+func (l RouteMatchConditionsByHeaderNameVal) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
+func (l RouteMatchConditionsByHeaderNameVal) Less(i, j int) bool {
+	return l[i].HeaderName+l[i].HeaderValue < l[j].HeaderName+l[j].HeaderValue
 }
 
 type RouteMatchCondition struct {
-	HeaderName string `json:"header_name,omitempty"`
+	HeaderName  string `json:"header_name,omitempty"`
 	HeaderValue string `json:"header_value,omitempty"`
 }
 
 func UnmarshalRouteMatchCondition(route_config string) (RouteMatchConditions, error) {
-    var mc RouteMatchConditions
-    var err error
+	var mc RouteMatchConditions
+	var err error
 
-    buf := strings.NewReader(route_config)
+	buf := strings.NewReader(route_config)
 	if err = json.NewDecoder(buf).Decode(&mc); err != nil {
 		errors.Wrap(err, "decoding response")
 	}

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,11 @@ package contour
 
 import (
 	"time"
+	//"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	//"github.com/saarasio/enroute/enroute-dp/internal/debug"
 	"github.com/saarasio/enroute/enroute-dp/internal/k8s"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/sirupsen/logrus"
@@ -37,7 +39,7 @@ type CacheHandler struct {
 	ClusterCache
 	SecretCache
 
-	IngressRouteStatus *k8s.IngressRouteStatus
+	GatewayHostStatus *k8s.GatewayHostStatus
 	logrus.FieldLogger
 	*metrics.Metrics
 }
@@ -50,20 +52,22 @@ func (ch *CacheHandler) OnChange(kc *dag.KubernetesCache) {
 	timer := prometheus.NewTimer(ch.CacheHandlerOnUpdateSummary)
 	defer timer.ObserveDuration()
 	dag := dag.BuildDAG(kc)
-	ch.setIngressRouteStatus(dag)
+	//dw := debug.DotWriter{kc}
+	//dw.WriteDot(os.Stderr)
+	ch.setGatewayHostStatus(dag)
 	ch.updateSecrets(dag)
 	ch.updateListeners(dag)
 	ch.updateRoutes(dag)
 	ch.updateClusters(dag)
-	ch.updateIngressRouteMetric(dag)
+	ch.updateGatewayHostMetric(dag)
 	ch.SetDAGLastRebuilt(time.Now())
 }
 
-func (ch *CacheHandler) setIngressRouteStatus(st statusable) {
+func (ch *CacheHandler) setGatewayHostStatus(st statusable) {
 	for _, s := range st.Statuses() {
-		err := ch.IngressRouteStatus.SetStatus(s.Status, s.Description, s.Object)
+		err := ch.GatewayHostStatus.SetStatus(s.Status, s.Description, s.Object)
 		if err != nil {
-			ch.Errorf("Error Setting Status of IngressRoute: %v", err)
+			ch.Errorf("Error Setting Status of GatewayHost: %v", err)
 		}
 	}
 }
@@ -88,12 +92,12 @@ func (ch *CacheHandler) updateClusters(root dag.Visitable) {
 	ch.ClusterCache.Update(clusters)
 }
 
-func (ch *CacheHandler) updateIngressRouteMetric(st statusable) {
-	metrics := calculateIngressRouteMetric(st)
-	ch.Metrics.SetIngressRouteMetric(metrics)
+func (ch *CacheHandler) updateGatewayHostMetric(st statusable) {
+	metrics := calculateGatewayHostMetric(st)
+	ch.Metrics.SetGatewayHostMetric(metrics)
 }
 
-func calculateIngressRouteMetric(st statusable) metrics.IngressRouteMetric {
+func calculateGatewayHostMetric(st statusable) metrics.GatewayHostMetric {
 	metricTotal := make(map[metrics.Meta]int)
 	metricValid := make(map[metrics.Meta]int)
 	metricInvalid := make(map[metrics.Meta]int)
@@ -116,7 +120,7 @@ func calculateIngressRouteMetric(st statusable) metrics.IngressRouteMetric {
 		}
 	}
 
-	return metrics.IngressRouteMetric{
+	return metrics.GatewayHostMetric{
 		Invalid:  metricInvalid,
 		Valid:    metricValid,
 		Orphaned: metricOrphaned,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -21,6 +21,14 @@ limitations under the License.
 
 package v1beta1
 
+// GatewayHostListerExpansion allows custom methods to be added to
+// GatewayHostLister.
+type GatewayHostListerExpansion interface{}
+
+// GatewayHostNamespaceListerExpansion allows custom methods to be added to
+// GatewayHostNamespaceLister.
+type GatewayHostNamespaceListerExpansion interface{}
+
 // GlobalConfigListerExpansion allows custom methods to be added to
 // GlobalConfigLister.
 type GlobalConfigListerExpansion interface{}
@@ -36,14 +44,6 @@ type HttpFilterListerExpansion interface{}
 // HttpFilterNamespaceListerExpansion allows custom methods to be added to
 // HttpFilterNamespaceLister.
 type HttpFilterNamespaceListerExpansion interface{}
-
-// IngressRouteListerExpansion allows custom methods to be added to
-// IngressRouteLister.
-type IngressRouteListerExpansion interface{}
-
-// IngressRouteNamespaceListerExpansion allows custom methods to be added to
-// IngressRouteNamespaceLister.
-type IngressRouteNamespaceListerExpansion interface{}
 
 // RouteFilterListerExpansion allows custom methods to be added to
 // RouteFilterLister.

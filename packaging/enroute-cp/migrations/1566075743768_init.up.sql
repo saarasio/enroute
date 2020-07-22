@@ -353,8 +353,6 @@ ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_pkey PRIMARY KEY (route_id);
 ALTER TABLE ONLY saaras_db.route
     ADD CONSTRAINT route_service_id_route_name_key UNIQUE (service_id, route_name);
-ALTER TABLE ONLY saaras_db.route
-    ADD CONSTRAINT route_service_id_route_prefix_key UNIQUE (service_id, route_prefix);
 ALTER TABLE ONLY saaras_db.route_upstream
     ADD CONSTRAINT route_upstream_pkey PRIMARY KEY (route_upstream_id);
 ALTER TABLE ONLY saaras_db.route_upstream

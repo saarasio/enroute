@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,22 +31,22 @@ import (
 
 // Metrics provide Prometheus metrics for the app
 type Metrics struct {
-	ingressRouteTotalGauge      *prometheus.GaugeVec
-	ingressRouteRootTotalGauge  *prometheus.GaugeVec
-	ingressRouteInvalidGauge    *prometheus.GaugeVec
-	ingressRouteValidGauge      *prometheus.GaugeVec
-	ingressRouteOrphanedGauge   *prometheus.GaugeVec
-	ingressRouteDAGRebuildGauge *prometheus.GaugeVec
+	gatewayHostTotalGauge      *prometheus.GaugeVec
+	gatewayHostRootTotalGauge  *prometheus.GaugeVec
+	gatewayHostInvalidGauge    *prometheus.GaugeVec
+	gatewayHostValidGauge      *prometheus.GaugeVec
+	gatewayHostOrphanedGauge   *prometheus.GaugeVec
+	gatewayHostDAGRebuildGauge *prometheus.GaugeVec
 
 	CacheHandlerOnUpdateSummary prometheus.Summary
 	ResourceEventHandlerSummary *prometheus.SummaryVec
 
 	// Keep a local cache of metrics for comparison on updates
-	metricCache *IngressRouteMetric
+	metricCache *GatewayHostMetric
 }
 
-// IngressRouteMetric stores various metrics for IngressRoute objects
-type IngressRouteMetric struct {
+// GatewayHostMetric stores various metrics for GatewayHost objects
+type GatewayHostMetric struct {
 	Total    map[Meta]int
 	Valid    map[Meta]int
 	Invalid  map[Meta]int
@@ -60,60 +60,60 @@ type Meta struct {
 }
 
 const (
-	IngressRouteTotalGauge      = "contour_ingressroute_total"
-	IngressRouteRootTotalGauge  = "contour_ingressroute_root_total"
-	IngressRouteInvalidGauge    = "contour_ingressroute_invalid_total"
-	IngressRouteValidGauge      = "contour_ingressroute_valid_total"
-	IngressRouteOrphanedGauge   = "contour_ingressroute_orphaned_total"
-	IngressRouteDAGRebuildGauge = "contour_ingressroute_dagrebuild_timestamp"
+	GatewayHostTotalGauge      = "enroute_gatewayhost_total"
+	GatewayHostRootTotalGauge  = "enroute_gatewayhost_root_total"
+	GatewayHostInvalidGauge    = "enroute_gatewayhost_invalid_total"
+	GatewayHostValidGauge      = "enroute_gatewayhost_valid_total"
+	GatewayHostOrphanedGauge   = "enroute_gatewayhost_orphaned_total"
+	GatewayHostDAGRebuildGauge = "enroute_gatewayhost_dagrebuild_timestamp"
 
-	cacheHandlerOnUpdateSummary = "contour_cachehandler_onupdate_duration_seconds"
-	resourceEventHandlerSummary = "contour_resourceeventhandler_duration_seconds"
+	cacheHandlerOnUpdateSummary = "enroute_cachehandler_onupdate_duration_seconds"
+	resourceEventHandlerSummary = "enroute_resourceeventhandler_duration_seconds"
 )
 
 // NewMetrics creates a new set of metrics and registers them with
 // the supplied registry.
 func NewMetrics(registry *prometheus.Registry) *Metrics {
 	m := Metrics{
-		metricCache: &IngressRouteMetric{},
-		ingressRouteTotalGauge: prometheus.NewGaugeVec(
+		metricCache: &GatewayHostMetric{},
+		gatewayHostTotalGauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name: IngressRouteTotalGauge,
-				Help: "Total number of IngressRoutes",
+				Name: GatewayHostTotalGauge,
+				Help: "Total number of GatewayHosts",
 			},
 			[]string{"namespace"},
 		),
-		ingressRouteRootTotalGauge: prometheus.NewGaugeVec(
+		gatewayHostRootTotalGauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name: IngressRouteRootTotalGauge,
-				Help: "Total number of root IngressRoutes",
+				Name: GatewayHostRootTotalGauge,
+				Help: "Total number of root GatewayHosts",
 			},
 			[]string{"namespace"},
 		),
-		ingressRouteInvalidGauge: prometheus.NewGaugeVec(
+		gatewayHostInvalidGauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name: IngressRouteInvalidGauge,
-				Help: "Total number of invalid IngressRoutes",
+				Name: GatewayHostInvalidGauge,
+				Help: "Total number of invalid GatewayHosts",
 			},
 			[]string{"namespace", "vhost"},
 		),
-		ingressRouteValidGauge: prometheus.NewGaugeVec(
+		gatewayHostValidGauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name: IngressRouteValidGauge,
-				Help: "Total number of valid IngressRoutes",
+				Name: GatewayHostValidGauge,
+				Help: "Total number of valid GatewayHosts",
 			},
 			[]string{"namespace", "vhost"},
 		),
-		ingressRouteOrphanedGauge: prometheus.NewGaugeVec(
+		gatewayHostOrphanedGauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name: IngressRouteOrphanedGauge,
-				Help: "Total number of orphaned IngressRoutes",
+				Name: GatewayHostOrphanedGauge,
+				Help: "Total number of orphaned GatewayHosts",
 			},
 			[]string{"namespace"},
 		),
-		ingressRouteDAGRebuildGauge: prometheus.NewGaugeVec(
+		gatewayHostDAGRebuildGauge: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Name: IngressRouteDAGRebuildGauge,
+				Name: GatewayHostDAGRebuildGauge,
 				Help: "Timestamp of the last DAG rebuild",
 			},
 			[]string{},
@@ -138,12 +138,12 @@ func NewMetrics(registry *prometheus.Registry) *Metrics {
 // register registers the Metrics with the supplied registry.
 func (m *Metrics) register(registry *prometheus.Registry) {
 	registry.MustRegister(
-		m.ingressRouteTotalGauge,
-		m.ingressRouteRootTotalGauge,
-		m.ingressRouteInvalidGauge,
-		m.ingressRouteValidGauge,
-		m.ingressRouteOrphanedGauge,
-		m.ingressRouteDAGRebuildGauge,
+		m.gatewayHostTotalGauge,
+		m.gatewayHostRootTotalGauge,
+		m.gatewayHostInvalidGauge,
+		m.gatewayHostValidGauge,
+		m.gatewayHostOrphanedGauge,
+		m.gatewayHostDAGRebuildGauge,
 		m.CacheHandlerOnUpdateSummary,
 		m.ResourceEventHandlerSummary,
 	)
@@ -151,52 +151,52 @@ func (m *Metrics) register(registry *prometheus.Registry) {
 
 // SetDAGLastRebuilt records the last time the DAG was rebuilt.
 func (m *Metrics) SetDAGLastRebuilt(ts time.Time) {
-	m.ingressRouteDAGRebuildGauge.WithLabelValues().Set(float64(ts.Unix()))
+	m.gatewayHostDAGRebuildGauge.WithLabelValues().Set(float64(ts.Unix()))
 }
 
-// SetIngressRouteMetric sets metric values for a set of IngressRoutes
-func (m *Metrics) SetIngressRouteMetric(metrics IngressRouteMetric) {
+// SetGatewayHostMetric sets metric values for a set of GatewayHosts
+func (m *Metrics) SetGatewayHostMetric(metrics GatewayHostMetric) {
 	// Process metrics
 	for meta, value := range metrics.Total {
-		m.ingressRouteTotalGauge.WithLabelValues(meta.Namespace).Set(float64(value))
+		m.gatewayHostTotalGauge.WithLabelValues(meta.Namespace).Set(float64(value))
 		delete(m.metricCache.Total, meta)
 	}
 	for meta, value := range metrics.Invalid {
-		m.ingressRouteInvalidGauge.WithLabelValues(meta.Namespace, meta.VHost).Set(float64(value))
+		m.gatewayHostInvalidGauge.WithLabelValues(meta.Namespace, meta.VHost).Set(float64(value))
 		delete(m.metricCache.Invalid, meta)
 	}
 	for meta, value := range metrics.Orphaned {
-		m.ingressRouteOrphanedGauge.WithLabelValues(meta.Namespace).Set(float64(value))
+		m.gatewayHostOrphanedGauge.WithLabelValues(meta.Namespace).Set(float64(value))
 		delete(m.metricCache.Orphaned, meta)
 	}
 	for meta, value := range metrics.Valid {
-		m.ingressRouteValidGauge.WithLabelValues(meta.Namespace, meta.VHost).Set(float64(value))
+		m.gatewayHostValidGauge.WithLabelValues(meta.Namespace, meta.VHost).Set(float64(value))
 		delete(m.metricCache.Valid, meta)
 	}
 	for meta, value := range metrics.Root {
-		m.ingressRouteRootTotalGauge.WithLabelValues(meta.Namespace).Set(float64(value))
+		m.gatewayHostRootTotalGauge.WithLabelValues(meta.Namespace).Set(float64(value))
 		delete(m.metricCache.Root, meta)
 	}
 
 	// All metrics processed, now remove what's left as they are not needed
 	for meta := range m.metricCache.Total {
-		m.ingressRouteTotalGauge.DeleteLabelValues(meta.Namespace)
+		m.gatewayHostTotalGauge.DeleteLabelValues(meta.Namespace)
 	}
 	for meta := range m.metricCache.Invalid {
-		m.ingressRouteInvalidGauge.DeleteLabelValues(meta.Namespace, meta.VHost)
+		m.gatewayHostInvalidGauge.DeleteLabelValues(meta.Namespace, meta.VHost)
 	}
 	for meta := range m.metricCache.Orphaned {
-		m.ingressRouteOrphanedGauge.DeleteLabelValues(meta.Namespace)
+		m.gatewayHostOrphanedGauge.DeleteLabelValues(meta.Namespace)
 	}
 	for meta := range m.metricCache.Valid {
-		m.ingressRouteValidGauge.DeleteLabelValues(meta.Namespace, meta.VHost)
+		m.gatewayHostValidGauge.DeleteLabelValues(meta.Namespace, meta.VHost)
 	}
 	for meta := range m.metricCache.Root {
-		m.ingressRouteRootTotalGauge.DeleteLabelValues(meta.Namespace)
+		m.gatewayHostRootTotalGauge.DeleteLabelValues(meta.Namespace)
 	}
 
 	// copier.Copy(&m.metricCache, metrics)
-	m.metricCache = &IngressRouteMetric{
+	m.metricCache = &GatewayHostMetric{
 		Total:    metrics.Total,
 		Invalid:  metrics.Invalid,
 		Valid:    metrics.Valid,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -238,10 +238,10 @@ type listenerVisitor struct {
 	*ListenerVisitorConfig
 
 	listeners map[string]*v2.Listener
-    // 6-5-2020 - If we find a dag.VirtualHost, we add the listener 
-    // in visit() just like dag.SecureVirtualHost
-    // This simplifies switch/case here and elsewhere
-    // http      bool // at least one dag.VirtualHost encountered
+	// 6-5-2020 - If we find a dag.VirtualHost, we add the listener
+	// in visit() just like dag.SecureVirtualHost
+	// This simplifies switch/case here and elsewhere
+	// http      bool // at least one dag.VirtualHost encountered
 }
 
 // Entry-point from builder

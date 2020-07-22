@@ -32,7 +32,7 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/
 RUN apt-get update && apt-get install -y python-software-properties software-properties-common postgresql-11 postgresql-client-11 postgresql-contrib-11
 
 #1.2
-RUN apt-get update && apt-get install -y supervisor vim netcat net-tools sed
+RUN apt-get update && apt-get install -y supervisor vim netcat net-tools sed curl jq
 RUN mkdir -p /var/log/supervisord
 
 # 1.3
@@ -59,6 +59,29 @@ RUN chmod +x /bin/run_enroute_envoy.sh
 # 1.4.5
 COPY redis-server /bin/
 
+# 1.4.6
+RUN ["mkdir", "-p", "/prom"]
+COPY prom/* /prom/
+
+RUN ["mkdir", "-p", "/graf"]
+COPY graf/* /graf/
+
+RUN ["mkdir", "-p", "/examples"]
+COPY petstore.json /examples/
+
+WORKDIR /prom
+RUN ["tar", "-xzf", "/prom/prometheus-2.19.0.linux-amd64.tar.gz"]
+RUN ["chown", "-R", "postgres:postgres", "/prom"]
+RUN ["chmod", "-R", "+x", "/prom/prometheus-2.19.0.linux-amd64/data"]
+WORKDIR /graf
+RUN ["tar", "-xzf", "grafana-7.0.3.linux-amd64.tar.gz"]
+RUN ["chown", "-R", "postgres:postgres", "/graf"]
+RUN ["chmod", "-R", "+x", "/graf/grafana-7.0.3/data"]
+WORKDIR /examples
+RUN ["chown", "-R", "postgres:postgres", "/examples"]
+
+WORKDIR /bin
+
 # 1.5
 COPY supervisord.conf.gw /etc/supervisor/conf.d/supervisord.conf
 
@@ -66,6 +89,7 @@ COPY supervisord.conf.gw /etc/supervisor/conf.d/supervisord.conf
 COPY enroute-cp /bin/
 COPY envoy /bin/
 COPY enroute /bin/
+COPY enroutectl /bin/
 
 ENV HASURA_GRAPHQL_CLI_ENVIRONMENT=server-on-docker
 ENV HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:@localhost:5432/postgres
@@ -90,6 +114,7 @@ VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/
 ENV DB_PORT=8888
 ENV DB_HOST=127.0.0.1
 ENV WEBAPP_SECRET=""
+ENV SEND_ANON_STAT="1"
 
 RUN mkdir -p /supervisord
 RUN chown -R postgres:postgres /supervisord

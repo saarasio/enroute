@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	ingressroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,19 +31,19 @@ func TestSetStatus(t *testing.T) {
 	tests := map[string]struct {
 		msg           string
 		desc          string
-		existing      *ingressroutev1beta1.IngressRoute
+		existing      *gatewayhostv1beta1.GatewayHost
 		expectedPatch string
 		expectedVerbs []string
 	}{
 		"simple update": {
 			msg:  "valid",
 			desc: "this is a valid IR",
-			existing: &ingressroutev1beta1.IngressRoute{
+			existing: &gatewayhostv1beta1.GatewayHost{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test",
 					Namespace: "default",
 				},
-				Status: ingressroutev1beta1.Status{
+				Status: gatewayhostv1beta1.Status{
 					CurrentStatus: "",
 					Description:   "",
 				},
@@ -54,12 +54,12 @@ func TestSetStatus(t *testing.T) {
 		"no update": {
 			msg:  "valid",
 			desc: "this is a valid IR",
-			existing: &ingressroutev1beta1.IngressRoute{
+			existing: &gatewayhostv1beta1.GatewayHost{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test",
 					Namespace: "default",
 				},
-				Status: ingressroutev1beta1.Status{
+				Status: gatewayhostv1beta1.Status{
 					CurrentStatus: "valid",
 					Description:   "this is a valid IR",
 				},
@@ -70,12 +70,12 @@ func TestSetStatus(t *testing.T) {
 		"replace existing status": {
 			msg:  "valid",
 			desc: "this is a valid IR",
-			existing: &ingressroutev1beta1.IngressRoute{
+			existing: &gatewayhostv1beta1.GatewayHost{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test",
 					Namespace: "default",
 				},
-				Status: ingressroutev1beta1.Status{
+				Status: gatewayhostv1beta1.Status{
 					CurrentStatus: "invalid",
 					Description:   "boo hiss",
 				},
@@ -89,7 +89,7 @@ func TestSetStatus(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			var gotPatchBytes []byte
 			client := fake.NewSimpleClientset(tc.existing)
-			client.PrependReactor("patch", "ingressroutes", func(action k8stesting.Action) (bool, runtime.Object, error) {
+			client.PrependReactor("patch", "gatewayhosts", func(action k8stesting.Action) (bool, runtime.Object, error) {
 				switch patchAction := action.(type) {
 				default:
 					return true, nil, fmt.Errorf("got unexpected action of type: %T", action)
@@ -98,7 +98,7 @@ func TestSetStatus(t *testing.T) {
 					return true, tc.existing, nil
 				}
 			})
-			irs := IngressRouteStatus{
+			irs := GatewayHostStatus{
 				Client: client,
 			}
 			if err := irs.SetStatus(tc.msg, tc.desc, tc.existing); err != nil {

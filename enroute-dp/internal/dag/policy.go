@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2019 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,10 +54,10 @@ func ingressRetryPolicy(ingress *k8sapi.Ingress) *RetryPolicy {
 	return &RetryPolicy{
 		RetryOn: retryOn,
 		// TODO(dfc) numRetries may parse as 0, which is inconsistent with
-		// retryPolicyIngressRoute()'s default value of 1.
+		// retryPolicyGatewayHost()'s default value of 1.
 		NumRetries: numRetries(ingress),
 		// TODO(dfc) perTryTimeout will parse to -1, infinite, in the case of
-		// invalid data, this is inconsistent with retryPolicyIngressRoute()'s default value
+		// invalid data, this is inconsistent with retryPolicyGatewayHost()'s default value
 		// of 0 duration.
 		PerTryTimeout: perTryTimeout(ingress),
 	}
@@ -75,7 +75,7 @@ func ingressTimeoutPolicy(ingress *k8sapi.Ingress) *TimeoutPolicy {
 		}
 	}
 	// if the request timeout annotation is present on this ingress
-	// construct and use the ingressroute timeout policy logic.
+	// construct and use the gatewayhost timeout policy logic.
 	return timeoutPolicy(&enrouteapi.TimeoutPolicy{
 		Request: response,
 	})

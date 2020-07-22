@@ -11,12 +11,12 @@ import (
 
 func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
 	tests := map[string]struct {
-	    filter_config   string
-		want            RouteActionDescriptors
-    }{
+		filter_config string
+		want          RouteActionDescriptors
+	}{
 
-        "one descriptor": {
-            filter_config :  `
+		"one descriptor": {
+			filter_config: `
             {
                 "descriptors":
                 [
@@ -24,14 +24,14 @@ func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
                 ]
             }
             `,
-            want: RouteActionDescriptors{
-                Descriptors : []Descriptors{{
-                    RemoteAddress : "{}",
-                },},
-            },
-        },
-        "two descriptors": {
-            filter_config :  `
+			want: RouteActionDescriptors{
+				Descriptors: []Descriptors{{
+					RemoteAddress: "{}",
+				}},
+			},
+		},
+		"two descriptors": {
+			filter_config: `
             {
                 "descriptors":
                 [
@@ -40,15 +40,15 @@ func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
                 ]
             }
             `,
-            want: RouteActionDescriptors{
-                Descriptors : []Descriptors{
-                    { RemoteAddress : "{}" },
-                    { SourceCluster: "{}" },
-                },
-            },
-        },
-        "three descriptors": {
-            filter_config :  `
+			want: RouteActionDescriptors{
+				Descriptors: []Descriptors{
+					{RemoteAddress: "{}"},
+					{SourceCluster: "{}"},
+				},
+			},
+		},
+		"three descriptors": {
+			filter_config: `
             {
                 "descriptors":
                 [
@@ -58,16 +58,16 @@ func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
                 ]
             }
             `,
-            want: RouteActionDescriptors{
-                Descriptors : []Descriptors{
-                    { RemoteAddress : "{}" },
-                    { SourceCluster: "{}", },
-                    { DestinationCluster: "{}" },
-                },
-            },
-        },
-        "four descriptors": {
-            filter_config :  `
+			want: RouteActionDescriptors{
+				Descriptors: []Descriptors{
+					{RemoteAddress: "{}"},
+					{SourceCluster: "{}"},
+					{DestinationCluster: "{}"},
+				},
+			},
+		},
+		"four descriptors": {
+			filter_config: `
             {
                 "descriptors":
                 [
@@ -79,16 +79,16 @@ func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
             }
             `,
 			want: RouteActionDescriptors{
-				Descriptors : []Descriptors{
-					{RemoteAddress : "{}"},
+				Descriptors: []Descriptors{
+					{RemoteAddress: "{}"},
 					{SourceCluster: "{}"},
 					{DestinationCluster: "{}"},
 					{GenericKey: &GenericKeyType{DescriptorValue: "blah"}},
 				},
 			},
-        },
-        "five descriptors": {
-            filter_config :  `
+		},
+		"five descriptors": {
+			filter_config: `
             {
                 "descriptors":
                 [
@@ -101,8 +101,8 @@ func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
             }
             `,
 			want: RouteActionDescriptors{
-				Descriptors : []Descriptors{
-					{RemoteAddress : "{}"},
+				Descriptors: []Descriptors{
+					{RemoteAddress: "{}"},
 					{SourceCluster: "{}"},
 					{DestinationCluster: "{}"},
 					{GenericKey: &GenericKeyType{DescriptorValue: "blah"}},
@@ -111,46 +111,46 @@ func TestRateLimitRouteFilterUnmarshal(t *testing.T) {
 					},
 				},
 			},
-        },
-    }
+		},
+	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got,_ := UnmarshalRateLimitRouteFilterConfig(tc.filter_config)
+			got, _ := UnmarshalRateLimitRouteFilterConfig(tc.filter_config)
 			assert.Equal(t, tc.want, got)
 		})
 	}
 }
 
 func TestRouteMatchUnmarshal(t *testing.T) {
-    tests := map[string]struct {
-        route_config    string
-        want            RouteMatchConditions
-    }{
+	tests := map[string]struct {
+		route_config string
+		want         RouteMatchConditions
+	}{
 
-        "GET with prefix /": {
-            route_config :  `
+		"GET with prefix /": {
+			route_config: `
             {   
                 "Prefix" : "/",  
-                "match":
+                "header":
                 [
                 { "header_name" : ":method", "header_value" : "GET"}
                 ]
             }
             `,
-            want: RouteMatchConditions{
-                    Prefix: "/",
-                MatchConditions: []RouteMatchCondition{{
-                    HeaderName: ":method",
-                    HeaderValue: "GET",
-                },},
-            },
-        },
-    }
-    for name, tc := range tests {
-        t.Run(name, func(t *testing.T) {
-            got,_ := UnmarshalRouteMatchCondition(tc.route_config)
-            assert.Equal(t, tc.want, got)
-        })
-    }
+			want: RouteMatchConditions{
+				Prefix: "/",
+				MatchConditions: []RouteMatchCondition{{
+					HeaderName:  ":method",
+					HeaderValue: "GET",
+				}},
+			},
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got, _ := UnmarshalRouteMatchCondition(tc.route_config)
+			assert.Equal(t, tc.want, got)
+		})
+	}
 }

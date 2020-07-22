@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/prometheus/client_golang/prometheus"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -285,7 +285,7 @@ func TestClusterVisit(t *testing.T) {
 					"default",
 					"kuard",
 					map[string]string{
-						"contour.heptio.com/upstream-protocol.h2c": "80,http",
+						"enroute.saaras.io/upstream-protocol.h2c": "80,http",
 					},
 					v1.ServicePort{
 						Protocol: "TCP",
@@ -349,20 +349,20 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"two service ports": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "backend",
 								Port: 80,
 							}, {
@@ -411,25 +411,25 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with simple path healthcheck": {
+		"gatewayhost with simple path healthcheck": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "backend",
 								Port: 80,
-								HealthCheck: &ingressroutev1.HealthCheck{
+								HealthCheck: &gatewayhostv1.HealthCheck{
 									Path: "/healthy",
 								},
 							}},
@@ -471,25 +471,25 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with custom healthcheck": {
+		"gatewayhost with custom healthcheck": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "backend",
 								Port: 80,
-								HealthCheck: &ingressroutev1.HealthCheck{
+								HealthCheck: &gatewayhostv1.HealthCheck{
 									Host:                    "foo-bar-host",
 									Path:                    "/healthy",
 									TimeoutSeconds:          99,
@@ -536,22 +536,22 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with RoundRobin lb algorithm": {
+		"gatewayhost with RoundRobin lb algorithm": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "RoundRobin",
@@ -581,22 +581,22 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with WeightedLeastRequest lb algorithm": {
+		"gatewayhost with WeightedLeastRequest lb algorithm": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "WeightedLeastRequest",
@@ -626,22 +626,22 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with Random lb algorithm": {
+		"gatewayhost with Random lb algorithm": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "Random",
@@ -671,31 +671,31 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with differing lb algorithms": {
+		"gatewayhost with differing lb algorithms": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/a",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "Random",
 							}},
 						}, {
-							Conditions: []ingressroutev1.Condition{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/b",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "WeightedLeastRequest",
@@ -737,22 +737,22 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute with unknown lb algorithm": {
+		"gatewayhost with unknown lb algorithm": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name:     "backend",
 								Port:     80,
 								Strategy: "lulz",
@@ -800,10 +800,10 @@ func TestClusterVisit(t *testing.T) {
 					"default",
 					"kuard",
 					map[string]string{
-						"contour.heptio.com/max-connections":      "9000",
-						"contour.heptio.com/max-pending-requests": "4096",
-						"contour.heptio.com/max-requests":         "404",
-						"contour.heptio.com/max-retries":          "7",
+						"enroute.saaras.io/max-connections":      "9000",
+						"enroute.saaras.io/max-pending-requests": "4096",
+						"enroute.saaras.io/max-requests":         "404",
+						"enroute.saaras.io/max-retries":          "7",
 					},
 					v1.ServicePort{
 						Protocol: "TCP",
@@ -835,15 +835,15 @@ func TestClusterVisit(t *testing.T) {
 				},
 			),
 		},
-		"contour.heptio.com/num-retries annotation": {
+		"enroute.saaras.io/num-retries annotation": {
 			objs: []interface{}{
 				&v1beta1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "kuard",
 						Namespace: "default",
 						Annotations: map[string]string{
-							"contour.heptio.com/num-retries": "7",
-							"contour.heptio.com/retry-on":    "gateway-error",
+							"enroute.saaras.io/num-retries": "7",
+							"enroute.saaras.io/retry-on":    "gateway-error",
 						},
 					},
 					Spec: v1beta1.IngressSpec{

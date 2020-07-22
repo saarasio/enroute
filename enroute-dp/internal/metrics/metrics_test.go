@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ func TestSetDAGLastRebuilt(t *testing.T) {
 		"simple": {
 			value: time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC),
 			timestampMetric: testMetric{
-				metric: IngressRouteDAGRebuildGauge,
+				metric: GatewayHostDAGRebuildGauge,
 				want: []*io_prometheus_client.Metric{
 					{
 						Gauge: &io_prometheus_client.Gauge{
@@ -81,9 +81,9 @@ func TestSetDAGLastRebuilt(t *testing.T) {
 	}
 }
 
-func TestWriteIngressRouteMetric(t *testing.T) {
+func TestWriteGatewayHostMetric(t *testing.T) {
 	tests := map[string]struct {
-		irMetrics IngressRouteMetric
+		irMetrics GatewayHostMetric
 		total     testMetric
 		valid     testMetric
 		invalid   testMetric
@@ -91,7 +91,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 		root      testMetric
 	}{
 		"simple": {
-			irMetrics: IngressRouteMetric{
+			irMetrics: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 					{Namespace: "foons"}:  3,
@@ -110,7 +110,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 				},
 			},
 			total: testMetric{
-				metric: IngressRouteTotalGauge,
+				metric: GatewayHostTotalGauge,
 				want: []*io_prometheus_client.Metric{
 					{
 						Label: []*io_prometheus_client.LabelPair{{
@@ -133,7 +133,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 				},
 			},
 			orphaned: testMetric{
-				metric: IngressRouteOrphanedGauge,
+				metric: GatewayHostOrphanedGauge,
 				want: []*io_prometheus_client.Metric{
 					{
 						Label: []*io_prometheus_client.LabelPair{{
@@ -147,7 +147,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 				},
 			},
 			valid: testMetric{
-				metric: IngressRouteValidGauge,
+				metric: GatewayHostValidGauge,
 				want: []*io_prometheus_client.Metric{
 					{
 						Label: []*io_prometheus_client.LabelPair{{
@@ -164,7 +164,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 				},
 			},
 			invalid: testMetric{
-				metric: IngressRouteInvalidGauge,
+				metric: GatewayHostInvalidGauge,
 				want: []*io_prometheus_client.Metric{
 					{
 						Label: []*io_prometheus_client.LabelPair{{
@@ -181,7 +181,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 				},
 			},
 			root: testMetric{
-				metric: IngressRouteRootTotalGauge,
+				metric: GatewayHostRootTotalGauge,
 				want: []*io_prometheus_client.Metric{
 					{
 						Label: []*io_prometheus_client.LabelPair{{
@@ -201,7 +201,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r := prometheus.NewRegistry()
 			m := NewMetrics(r)
-			m.SetIngressRouteMetric(tc.irMetrics)
+			m.SetGatewayHostMetric(tc.irMetrics)
 
 			gatherers := prometheus.Gatherers{
 				r,
@@ -254,7 +254,7 @@ func TestWriteIngressRouteMetric(t *testing.T) {
 func TestRemoveMetric(t *testing.T) {
 
 	total := testMetric{
-		metric: IngressRouteTotalGauge,
+		metric: GatewayHostTotalGauge,
 		want: []*io_prometheus_client.Metric{
 			{
 				Label: []*io_prometheus_client.LabelPair{{
@@ -278,7 +278,7 @@ func TestRemoveMetric(t *testing.T) {
 	}
 
 	orphaned := testMetric{
-		metric: IngressRouteOrphanedGauge,
+		metric: GatewayHostOrphanedGauge,
 		want: []*io_prometheus_client.Metric{
 			{
 				Label: []*io_prometheus_client.LabelPair{{
@@ -293,7 +293,7 @@ func TestRemoveMetric(t *testing.T) {
 	}
 
 	valid := testMetric{
-		metric: IngressRouteValidGauge,
+		metric: GatewayHostValidGauge,
 		want: []*io_prometheus_client.Metric{
 			{
 				Label: []*io_prometheus_client.LabelPair{{
@@ -311,7 +311,7 @@ func TestRemoveMetric(t *testing.T) {
 	}
 
 	invalid := testMetric{
-		metric: IngressRouteInvalidGauge,
+		metric: GatewayHostInvalidGauge,
 		want: []*io_prometheus_client.Metric{
 			{
 				Label: []*io_prometheus_client.LabelPair{{
@@ -329,7 +329,7 @@ func TestRemoveMetric(t *testing.T) {
 	}
 
 	root := testMetric{
-		metric: IngressRouteRootTotalGauge,
+		metric: GatewayHostRootTotalGauge,
 		want: []*io_prometheus_client.Metric{
 			{
 				Label: []*io_prometheus_client.LabelPair{{
@@ -344,8 +344,8 @@ func TestRemoveMetric(t *testing.T) {
 	}
 
 	tests := map[string]struct {
-		irMetrics        IngressRouteMetric
-		irMetricsUpdated IngressRouteMetric
+		irMetrics        GatewayHostMetric
+		irMetricsUpdated GatewayHostMetric
 		totalWant        []*io_prometheus_client.Metric
 		validWant        []*io_prometheus_client.Metric
 		invalidWant      []*io_prometheus_client.Metric
@@ -353,7 +353,7 @@ func TestRemoveMetric(t *testing.T) {
 		rootWant         []*io_prometheus_client.Metric
 	}{
 		"orphan is resolved": {
-			irMetrics: IngressRouteMetric{
+			irMetrics: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 					{Namespace: "foons"}:  3,
@@ -371,7 +371,7 @@ func TestRemoveMetric(t *testing.T) {
 					{Namespace: "testns"}: 4,
 				},
 			},
-			irMetricsUpdated: IngressRouteMetric{
+			irMetricsUpdated: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 					{Namespace: "foons"}:  3,
@@ -448,8 +448,8 @@ func TestRemoveMetric(t *testing.T) {
 				},
 			},
 		},
-		"root IngressRoute is deleted": {
-			irMetrics: IngressRouteMetric{
+		"root GatewayHost is deleted": {
+			irMetrics: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 					{Namespace: "foons"}:  3,
@@ -467,7 +467,7 @@ func TestRemoveMetric(t *testing.T) {
 					{Namespace: "testns"}: 4,
 				},
 			},
-			irMetricsUpdated: IngressRouteMetric{
+			irMetricsUpdated: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 				},
@@ -535,7 +535,7 @@ func TestRemoveMetric(t *testing.T) {
 			},
 		},
 		"valid is deleted from namespace": {
-			irMetrics: IngressRouteMetric{
+			irMetrics: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 					{Namespace: "foons"}:  3,
@@ -553,7 +553,7 @@ func TestRemoveMetric(t *testing.T) {
 					{Namespace: "testns"}: 4,
 				},
 			},
-			irMetricsUpdated: IngressRouteMetric{
+			irMetricsUpdated: GatewayHostMetric{
 				Total: map[Meta]int{
 					{Namespace: "testns"}: 6,
 				},
@@ -626,7 +626,7 @@ func TestRemoveMetric(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			r := prometheus.NewRegistry()
 			m := NewMetrics(r)
-			m.SetIngressRouteMetric(tc.irMetrics)
+			m.SetGatewayHostMetric(tc.irMetrics)
 
 			gatherers := prometheus.Gatherers{
 				r,
@@ -674,7 +674,7 @@ func TestRemoveMetric(t *testing.T) {
 				t.Fatalf("write metric orphaned metric failed, want: %v got: %v", root.want, gotRoot)
 			}
 
-			m.SetIngressRouteMetric(tc.irMetricsUpdated)
+			m.SetGatewayHostMetric(tc.irMetricsUpdated)
 
 			// Now validate that metrics got removed
 			gatherers = prometheus.Gatherers{

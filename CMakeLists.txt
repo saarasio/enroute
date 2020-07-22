@@ -41,6 +41,7 @@ add_custom_target(gofmtmodified
   VERBATIM
 )
 
+add_subdirectory(enroutectl)
 add_subdirectory(enroute-dp)
 add_subdirectory(enroute-cp)
 add_subdirectory(examples)

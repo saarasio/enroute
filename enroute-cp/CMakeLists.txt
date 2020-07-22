@@ -35,12 +35,16 @@ add_custom_command(TARGET ${target_name_gw}
 		  COMMAND GO111MODULE=on GOPATH=${CMAKE_BINARY_DIR}/packaging/ make -C ${CMAKE_SOURCE_DIR}/${target_name} install
 		  COMMAND cp ${CMAKE_BINARY_DIR}/packaging/bin/enroute-cp ${CMAKE_SOURCE_DIR}/packaging/enroute-cp
 		  COMMAND cp ${CMAKE_BINARY_DIR}/packaging/bin/enroute ${CMAKE_SOURCE_DIR}/packaging/enroute-cp
+          COMMAND cp ${CMAKE_BINARY_DIR}/enroutectl/bin/enroutectl ${CMAKE_SOURCE_DIR}/packaging/enroute-cp
+          COMMAND cp ${CMAKE_SOURCE_DIR}/enroutectl/examples/petstore2.json  ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/petstore.json
           COMMAND cp ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/Dockerfile.gw ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/Dockerfile
 		  COMMAND docker build ${CMAKE_SOURCE_DIR}/packaging/enroute-cp -t ${target_image_gw}
           # build done, cleanup
 		  COMMAND find ${CMAKE_SOURCE_DIR}/packaging/${target_name} -name enroute-cp -type f -exec rm {} '\;'
 		  COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name enroute -type f -exec rm {} '\;'
           COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name Dockerfile -type f -exec rm {} '\;'
+          COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name enroutectl -type f -exec rm {} '\;'
+          COMMAND find ${CMAKE_SOURCE_DIR}/packaging/enroute-cp/ -name petstore.json -type f -exec rm {} '\;'
 )
 
 add_custom_target(${target_name_test} ALL DEPENDS ${target_name}

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package main
 
@@ -69,5 +69,6 @@ func main() {
 	webhttp.Add_upstream_routes(e)
 	webhttp.Add_secret_routes(e)
 	webhttp.Add_filter_routes(e)
+	go webhttp.Reporter()
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }

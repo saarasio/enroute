@@ -1,6 +1,6 @@
 ---
 apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+kind: GatewayHost
 metadata: 
   name: contour-validname
   namespace: heptio-contour
@@ -15,7 +15,7 @@ spec:
 
 ---
 apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+kind: GatewayHost
 metadata: 
   name: contour-shortname
   namespace: heptio-contour
@@ -29,7 +29,7 @@ spec:
           port: 8080
 ---
 apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+kind: GatewayHost
 metadata: 
   name: contour-singlechar
   namespace: heptio-contour
@@ -43,7 +43,7 @@ spec:
           port: 8080
 ---
 apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+kind: GatewayHost
 metadata: 
   name: contour-hyphen
   namespace: heptio-contour
@@ -57,7 +57,7 @@ spec:
           port: 8080
 ---
 apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+kind: GatewayHost
 metadata: 
   name: contour-fqdn
   namespace: heptio-contour

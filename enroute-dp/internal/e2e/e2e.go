@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,7 +78,7 @@ func setup(t *testing.T, opts ...func(*contour.ResourceEventHandler)) (cache.Res
 
 	r := prometheus.NewRegistry()
 	ch := &contour.CacheHandler{
-		IngressRouteStatus: &k8s.IngressRouteStatus{
+		GatewayHostStatus: &k8s.GatewayHostStatus{
 			Client: fake.NewSimpleClientset(),
 		},
 		Metrics:       metrics.NewMetrics(r),

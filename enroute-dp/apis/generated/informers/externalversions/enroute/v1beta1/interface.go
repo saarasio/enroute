@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -27,12 +27,12 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// GatewayHosts returns a GatewayHostInformer.
+	GatewayHosts() GatewayHostInformer
 	// GlobalConfigs returns a GlobalConfigInformer.
 	GlobalConfigs() GlobalConfigInformer
 	// HttpFilters returns a HttpFilterInformer.
 	HttpFilters() HttpFilterInformer
-	// IngressRoutes returns a IngressRouteInformer.
-	IngressRoutes() IngressRouteInformer
 	// RouteFilters returns a RouteFilterInformer.
 	RouteFilters() RouteFilterInformer
 	// TLSCertificateDelegations returns a TLSCertificateDelegationInformer.
@@ -50,6 +50,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
+// GatewayHosts returns a GatewayHostInformer.
+func (v *version) GatewayHosts() GatewayHostInformer {
+	return &gatewayHostInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
 // GlobalConfigs returns a GlobalConfigInformer.
 func (v *version) GlobalConfigs() GlobalConfigInformer {
 	return &globalConfigInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
@@ -58,11 +63,6 @@ func (v *version) GlobalConfigs() GlobalConfigInformer {
 // HttpFilters returns a HttpFilterInformer.
 func (v *version) HttpFilters() HttpFilterInformer {
 	return &httpFilterInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
-}
-
-// IngressRoutes returns a IngressRouteInformer.
-func (v *version) IngressRoutes() IngressRouteInformer {
-	return &ingressRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // RouteFilters returns a RouteFilterInformer.

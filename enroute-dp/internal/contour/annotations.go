@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ const (
 	// set docs/annotations.md for details of how these annotations
 	// are applied by Contour.
 
-	annotationWebsocketRoutes = "contour.heptio.com/websocket-routes"
+	annotationWebsocketRoutes = "enroute.saaras.io/websocket-routes"
 )
 
 // httpAllowed returns true unless the kubernetes.io/ingress.allow-http annotation is

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/prometheus/client_golang/prometheus"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/sirupsen/logrus"
@@ -82,7 +82,7 @@ func (reh *ResourceEventHandler) OnUpdate(oldObj, newObj interface{}) {
 		reh.OnDelete(oldObj)
 	default:
 		if cmp.Equal(oldObj, newObj,
-			cmpopts.IgnoreFields(ingressroutev1.IngressRoute{}, "Status"),
+			cmpopts.IgnoreFields(gatewayhostv1.GatewayHost{}, "Status"),
 			cmpopts.IgnoreFields(metav1.ObjectMeta{}, "ResourceVersion")) {
 			reh.WithField("op", "update").Debugf("%T skipping update, only status has changed", newObj)
 			return
@@ -112,12 +112,12 @@ func (reh *ResourceEventHandler) update() {
 
 // validIngressClass returns true iff:
 //
-// 1. obj is not of type *v1beta1.Ingress or ingressroutev1.IngressRoute.
+// 1. obj is not of type *v1beta1.Ingress or gatewayhostv1.GatewayHost.
 // 2. obj has no ingress.class annotation.
 // 2. obj's ingress.class annotation matches d.IngressClass.
 func (reh *ResourceEventHandler) validIngressClass(obj interface{}) bool {
 	switch i := obj.(type) {
-	case *ingressroutev1.IngressRoute:
+	case *gatewayhostv1.GatewayHost:
 		class, ok := getIngressClassAnnotation(i.Annotations)
 		return !ok || class == reh.ingressClass()
 	case *v1beta1.Ingress:
@@ -138,12 +138,12 @@ func (reh *ResourceEventHandler) ingressClass() string {
 }
 
 // getIngressClassAnnotation checks for the acceptable ingress class annotations
-// 1. contour.heptio.com/ingress.class
+// 1. enroute.saaras.io/ingress.class
 // 2. kubernetes.io/ingress.class
 //
 // it returns the first matching ingress annotation (in the above order) with test
 func getIngressClassAnnotation(annotations map[string]string) (string, bool) {
-	class, ok := annotations["contour.heptio.com/ingress.class"]
+	class, ok := annotations["enroute.saaras.io/ingress.class"]
 	if ok {
 		return class, true
 	}

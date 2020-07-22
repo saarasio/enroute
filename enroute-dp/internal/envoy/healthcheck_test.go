@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ import (
 
 	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/google/go-cmp/cmp"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )
@@ -36,7 +36,7 @@ func TestHealthCheck(t *testing.T) {
 		// when hc is nil, so if hc is not nil, at least one of the parameters on it must be set.
 		"blank healthcheck": {
 			cluster: &dag.Cluster{
-				HealthCheck: new(ingressroutev1.HealthCheck),
+				HealthCheck: new(gatewayhostv1.HealthCheck),
 			},
 			want: &envoy_api_v2_core.HealthCheck{
 				Timeout:            protobuf.Duration(hcTimeout),
@@ -53,7 +53,7 @@ func TestHealthCheck(t *testing.T) {
 		},
 		"healthcheck path only": {
 			cluster: &dag.Cluster{
-				HealthCheck: &ingressroutev1.HealthCheck{
+				HealthCheck: &gatewayhostv1.HealthCheck{
 					Path: "/healthy",
 				},
 			},
@@ -72,7 +72,7 @@ func TestHealthCheck(t *testing.T) {
 		},
 		"explicit healthcheck": {
 			cluster: &dag.Cluster{
-				HealthCheck: &ingressroutev1.HealthCheck{
+				HealthCheck: &gatewayhostv1.HealthCheck{
 					Host:                    "foo-bar-host",
 					Path:                    "/healthy",
 					TimeoutSeconds:          99,

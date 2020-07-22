@@ -1,0 +1,620 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: 'Swagger SPEI Terceros'
+host: jda30e6f1m.execute-api.us-east-1.amazonaws.com
+basePath: /dev
+tags:
+  - name: 'Login'
+    description: 'Login.'
+  - name: 'Swagger (SPEI) FDB - CACAO'
+    description: 'Microservicios x.'
+schemes:
+  - 'https'
+paths:
+  '/login':
+    put:
+      tags:
+        - 'Login'
+      security:
+        - apikey: []
+      summary: 'Login.'
+      operationId: 'login'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          schema:
+            $ref: '#/definitions/input_login'
+          required: true
+      responses:
+        '200':
+          description: 'OK'
+          schema:
+            type: 'object'
+            properties:
+              statusCode:
+                type: 'integer'
+                example: 200
+              body:
+                type: 'object'
+                properties:
+                  token:
+                    type: 'string'
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc3VhcmlvIjoiQmlkX1B5bWUiLCJDb250cmFzZcOxYSI6InFIN3JGQWE3N0JYUSIsImlhdCI6MTU3OTIyMjAxMywiZXhwIjoxNTc5MzA4NDEzfQ.oRoUpeaAogAT1BzPUcNGMl9rSS0C2PXx7ANhVBNWDGI'
+                  fecha_vencimiento:
+                    type: 'string'
+                    example: '17/1/2020 18:46:53'
+        '400':
+          description: 'Bad Request'
+          schema:
+            $ref: '#/definitions/400_mensaje_login'
+        '401':
+          description: 'Unauthorized'
+          schema:
+            $ref: '#/definitions/401_mensaje_login'
+        '500':
+          description: 'Internal Server Error'
+          schema:
+            $ref: '#/definitions/500_mensaje'
+  '/spei/terceros/intervinientes':
+    post:
+      tags:
+        - 'Swagger (SPEI) FDB - CACAO'
+      security:
+        - apikey: []
+      summary: 'Alta de intervinientes.'
+      operationId: 'alta_intervinientes'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          schema:
+            $ref: '#/definitions/body_alta_intervinientes'
+          required: true
+      responses:
+        '201':
+          description: 'Created'
+          schema:
+            $ref: '#/definitions/201_output_alta_intervinientes'
+        '400':
+          description: 'Bad Request'
+          schema:
+            $ref: '#/definitions/400_mensaje'
+        '500':
+          description: 'Internal Server Error'
+          schema:
+            $ref: '#/definitions/500_mensaje'
+    put:
+      tags:
+        - 'Swagger (SPEI) FDB - CACAO'
+      security:
+        - apikey: []
+      summary: 'Actualización de intervinientes.'
+      operationId: 'actualizacion_intervinientes'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          description: 'Objeto necesario para actualizar intervinientes.'
+          required: true
+          schema:
+            $ref: '#/definitions/body_actualiza_intervinientes'
+        - in: 'header'
+          name: 'nombre_aplicativo'
+          type: 'string'
+          default: 'string'
+          required: true
+          description: 'Nombre del aplicativo que llama al servicio.'
+        - in: 'header'
+          name: 'identificador_usuario'
+          type: 'string'
+          default: 'string'
+          required: true
+          description: 'Usuario que llama al servicio.'
+      responses:
+        '200':
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/200_mensaje_intervinientes'
+        '400':
+          description: 'Bad Request'
+          schema:
+            $ref: '#/definitions/400_mensaje'
+        '500':
+          description: 'Internal Server Error'
+          schema:
+            $ref: '#/definitions/500_mensaje'
+  '/spei/terceros/envío':
+    post:
+      tags:
+        - 'Swagger (SPEI) FDB - CACAO'
+      security:
+        - apikey: []
+      summary: 'Envío spei.'
+      operationId: 'envio_spei'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      parameters:
+        - in: 'body'
+          name: 'body'
+          schema:
+            $ref: '#/definitions/body_spei_envio'
+          required: true
+      responses:
+        '201':
+          description: 'Created'
+          schema:
+            $ref: '#/definitions/201_mensaje_envio_spei'
+        '400':
+          description: 'Bad Request'
+          schema:
+            $ref: '#/definitions/400_mensaje'
+        '500':
+          description: 'Internal Server Error'
+          schema:
+            $ref: '#/definitions/500_mensaje'
+  '/spei/terceros/instituciones':
+    get:
+      tags:
+        - 'Swagger (SPEI) FDB - CACAO'
+      security:
+        - apikey: []
+      summary: 'Consulta de instituciones.'
+      operationId: 'consulta_instituciones'
+      consumes:
+        - 'application/json'
+      produces:
+        - 'application/json'
+      responses:
+        '200':
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/200_mensaje_instituciones'
+        '500':
+          description: 'Internal Server Error'
+          schema:
+            $ref: '#/definitions/500_mensaje'
+definitions:
+  input_login:
+    type: 'object'
+    properties:
+      credencial:
+        type: 'string'
+        example: 'credencial'
+        default: 'credencial'
+      usuario:
+        type: 'string'
+        example: 'usuario'
+        default: 'usuario'
+      password:
+        type: 'string'
+        example: 'password'
+        default: 'password'
+  body_alta_intervinientes:
+    type: 'object'
+    required:
+      - tarjeta
+      - codigo_participante
+      - cuenta_participante
+      - num_celular
+      - fecha_alta
+      - nombre_completo
+      - fecha_nacimiento
+      - nacionalidad
+      - domicilio_completo
+    properties:
+      id_medio_acceso:
+        type: 'string'
+        description: ''
+        example: '1'
+        default: '1'
+      tarjeta:
+        type: 'string'
+        description: ''
+        example: '9900001134567896'
+        default: '9900001134567896'
+      codigo_participante:
+        type: 'string'
+        description: ''
+        example: '1231'
+        default: '1231'
+      cuenta_participante:
+        type: 'string'
+        description: ''
+        example: '251910309958500162'
+        default: '251910309958500162'
+      referencia:
+        type: 'string'
+        description: ''
+        example: '300000'
+        default: '300000'
+      num_celular:
+        type: 'string'
+        description: ''
+        example: '9999999999'
+        default: '9999999999'
+      fecha_alta:
+        type: 'string'
+        description: ''
+        example: '01/01/1900'
+        default: '01/01/1900'
+      nombre_completo:
+        type: 'string'
+        description: ''
+        example: 'GEOVANNY DANIEL AVILA CEN'
+        default: 'GEOVANNY DANIEL AVILA CEN'
+      fecha_nacimiento:
+        type: 'string'
+        description: ''
+        example: '01/01/1900'
+        default: '01/01/1900'
+      nacionalidad:
+        type: 'string'
+        description: ''
+        example: 'MEXICANA'
+        default: 'MEXICANA'
+      domicilio_completo:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      rfc:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+  body_spei_envio:
+    type: 'object'
+    properties:
+      codigo_operacion:
+        type: 'string'
+        description: ''
+        example: '11536996548'
+        default: '11536996548'
+      referencia_cuenta:
+        type: 'string'
+        description: ''
+        example: '1000000505'
+        default: '1000000505'
+      emisor_institucion:
+        type: 'string'
+        description: ''
+        example: '40151'
+        default: '40151'
+      emisor_tipo_cuenta:
+        type: 'string'
+        description: ''
+        example: '40'
+        default: '40'
+      emisor_cuenta:
+        type: 'string'
+        description: ''
+        example: '151910000000837380'
+        default: '151910000000837380'
+      emisor_nombre:
+        type: 'string'
+        description: ''
+        example: 'IRVIN MORIMOTO'
+        default: 'IRVIN MORIMOTO'
+      emisor_rfc:
+        type: 'string'
+        description: ''
+        example: 'SEKA880806AZ1'
+        default: 'SEKA880806AZ1'
+      receptor_institucion:
+        type: 'string'
+        description: ''
+        example: '451'
+        default: '451'
+      receptor_tipo_cuenta:
+        type: 'string'
+        description: ''
+        example: '40'
+        default: '40'
+      receptor_cuenta:
+        type: 'string'
+        description: ''
+        example: '151910180000063249'
+        default: '151910180000063249'
+      receptor_nombre:
+        type: 'string'
+        description: ''
+        example: 'ALFONSO LUNA SIERRA'
+        default: 'ALFONSO LUNA SIERRA'
+      receptor_rfc:
+        type: 'string'
+        description: ''
+        example: 'NACA660616AZ1'
+        default: 'NACA660616AZ1'
+      receptor_adicional_tipo_cuenta:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      receptor_adicional_cuenta:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      receptor_adicional_nombre:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      receptor_adicional_rfc:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      emisor_cantidad:
+        type: 'integer'
+        description: ''
+        example: 1
+        default: 1
+      emisor_iva:
+        type: 'integer'
+        description: ''
+        example: 0
+        default: 0
+      emisor_comision:
+        type: 'integer'
+        description: ''
+        example: 0
+        default: 0
+      emisor_concepto_pago:
+        type: 'string'
+        description: ''
+        example: 'concepto pago'
+        default: 'concepto pago'
+      emisor_concepto_pago_uno:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      emisor_concepto_pago_dos:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      emisor_referencia_cobro:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      emisor_clave_rastreo:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      codigo_causa_devolucion:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      emisor_referencia_numerica:
+        type: 'string'
+        description: ''
+        example: '0035568'
+        default: '0035568'
+      codigo_acceso:
+        type: 'string'
+        description: ''
+        example: '02'
+        default: '02'
+      orden_firma_digital:
+        type: 'string'
+        description: ''
+        example: 'UdThKJi8tMPgq6PomaGG/oM2FflxwxVzf+ILwnoqSLzXwrhc7prD+ROVXksoPqKjXzrOxCsCYf7zJ4bYn8RN27tlC4XDMJ8xnACQvUu/WP7PM70EB/gFuT1OaNm7xTjbKZMuhzrfuskKIP7stcR1kru27tRAvM5tnsj1KdnWcochTjfhaDdfa9W0oerxDIOM5y72GgI166+MoZuBTR20Vw857adBvyRTR5lqFe1wxoTZDGqHQg7scx8j43MCSeroWRV9I9lnhcUKNPdJDRa1cgOsQkE2Om/zHHzwG4ffOr8msqodAc5jTAfA4+BkFjMizuP9HOiUBxbvjnZpZgE9qA=='
+        default: 'UdThKJi8tMPgq6PomaGG/oM2FflxwxVzf+ILwnoqSLzXwrhc7prD+ROVXksoPqKjXzrOxCsCYf7zJ4bYn8RN27tlC4XDMJ8xnACQvUu/WP7PM70EB/gFuT1OaNm7xTjbKZMuhzrfuskKIP7stcR1kru27tRAvM5tnsj1KdnWcochTjfhaDdfa9W0oerxDIOM5y72GgI166+MoZuBTR20Vw857adBvyRTR5lqFe1wxoTZDGqHQg7scx8j43MCSeroWRV9I9lnhcUKNPdJDRa1cgOsQkE2Om/zHHzwG4ffOr8msqodAc5jTAfA4+BkFjMizuP9HOiUBxbvjnZpZgE9qA=='
+  body_actualiza_intervinientes:
+    type: 'object'
+    required:
+      - tarjeta
+      - codigo_participante
+      - cuenta_participante
+      - num_celular
+      - fecha_alta
+      - nombre_completo
+      - fecha_nacimiento
+      - nacionalidad
+      - domicilio_completo
+    properties:
+      id_medio_acceso:
+        type: 'string'
+        description: ''
+        example: '1'
+        default: '1'
+      tarjeta:
+        type: 'string'
+        description: ''
+        example: '9900001134567896'
+        default: '9900001134567896'
+      codigo_participante:
+        type: 'string'
+        description: ''
+        example: '1231'
+        default: '1231'
+      cuenta_participante:
+        type: 'string'
+        description: ''
+        example: '251910309958500162'
+        default: '251910309958500162'
+      referencia:
+        type: 'string'
+        description: ''
+        example: '300000'
+        default: '300000'
+      num_celular:
+        type: 'string'
+        description: ''
+        example: '9999999999'
+        default: '9999999999'
+      fecha_alta:
+        type: 'string'
+        description: ''
+        example: '01/01/1900'
+        default: '01/01/1900'
+      nombre_completo:
+        type: 'string'
+        description: ''
+        example: 'GEOVANNY DANIEL AVILA CEN'
+        default: 'GEOVANNY DANIEL AVILA CEN'
+      fecha_nacimiento:
+        type: 'string'
+        description: ''
+        example: '01/01/1900'
+        default: '01/01/1900'
+      nacionalidad:
+        type: 'string'
+        description: ''
+        example: 'MEXICANA'
+        default: 'MEXICANA'
+      domicilio_completo:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+      rfc:
+        type: 'string'
+        description: ''
+        example: ''
+        default: ''
+  200_mensaje_instituciones:
+    type: 'object'
+    properties:
+      mensaje:
+        type: 'string'
+        example: 'Operación exitosa'
+      resultObject:
+        type: 'array'
+        items:
+          type: 'object'
+        example:
+          - Ins_Clave: '40155'
+            Ins_Descri: 'ICBC'
+            Ins_NumCer: 3
+            Ins_Status: 'C'
+            Ins_StaRec: 'R'
+            Ins_Bloque: ''
+          - Ins_Clave: '90613'
+            Ins_Descri: 'MULTIVA CBOLSA'
+            Ins_NumCer: 2
+            Ins_Status: 'C'
+            Ins_StaRec: 'R'
+            Ins_Bloque: ''     
+          - Ins_Clave: '40158'
+            Ins_Descri: 'MIZUHO BANK'
+            Ins_NumCer: 3
+            Ins_Status: 'C'
+            Ins_StaRec: 'R'
+            Ins_Bloque: ''
+  200_mensaje_intervinientes:
+    type: 'object'
+    properties:
+      codigo_operacion:
+        type: 'string'
+        example: '0001 | 0002'
+      mensaje:
+        type: 'string'
+        example: 'No se pudo obtener la cuenta | No se pudo obtener la clabe'
+  201_output_alta_intervinientes:
+    type: 'object'
+    properties:
+      num_cuenta:
+        type: 'string'
+        example: '151910309958500160'
+      clabe:
+        type: 'string'
+        example: ''
+      codigo_operacion:
+        type: 'string'
+        example: '0000'
+      mensaje:
+        type: 'string'
+        example: ''
+  201_mensaje_envio_spei:
+    type: 'object'
+    properties:
+      fecha_operacion:
+        type: 'string'
+        example: '2020-06-09 12:34:23'
+      num_transaccion:
+        type: 'string'
+        example: '0004109055'
+      clave_rastreo:
+        type: 'string'
+        example: '164-09/06/2020/09-8000051529'
+      numero_orden:
+        type: 'string'
+        example: '0051529'
+      codigo_operacion:
+        type: 'string'
+        example: ''
+      mensaje:
+        type: 'string'
+        example: ''
+  400_mensaje_login:
+    type: 'object'
+    properties:
+      codigo:
+        type: 'string'
+        example: '10'
+      errores:
+        type: 'array'
+        items:
+          type: 'string'
+        example: 
+          - "instance requires property 'password'"
+      mensaje:
+        type: 'string'
+        example: 'Esquema inválido'
+  400_mensaje:
+    type: 'object'
+    properties:
+      error:
+        type: 'array'
+        items:
+          type: 'string'
+        example:
+          - 'instance.codigo_participante is not of a type(s) string'
+  401_mensaje_login:
+    type: 'object'
+    properties:
+      codigo:
+        type: 'string'
+        example: '011'
+      errores:
+        type: 'array'
+        items:
+          type: 'string'
+        example: []
+      mensaje:
+        type: 'string'
+        example: 'No autorizado'
+  500_mensaje:
+    type: 'object'
+    properties:
+      codigo:
+        type: 'string'
+        example: '101'
+      mensaje:
+        type: 'string'
+        example: 'Consulte a su administrador de sistema'
+securityDefinitions:
+  apikey:
+    type: 'apiKey'
+    name: 'Authorization'
+    in: 'header'
+    description: 'Ejemplo de token: s3EfLvXWU6UN4S1RNehqqhFKCFHJUJ2S'

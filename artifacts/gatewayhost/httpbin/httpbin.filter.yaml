@@ -1,0 +1,104 @@
+apiVersion: enroute.saaras.io/v1beta1
+kind: GatewayHost
+metadata:
+  labels:
+    app: httpbin
+  name: httpbin
+  namespace: enroute-gw-k8s
+spec:
+  virtualhost:
+    fqdn: '*'
+    filters:
+      - name: luatestfilter
+        type: http_filter_lua
+  routes:
+    - match: /
+      services:
+        - name: httpbin
+          port: 80
+      filters:
+        - name: rl2
+          type: route_filter_ratelimit
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: GlobalConfig
+metadata:
+  labels:
+    app: httpbin
+  name: rl-global-config
+  namespace: enroute-gw-k8s
+spec:
+  name: rl-global-config
+  type: globalconfig_ratelimit
+  config: |
+        {
+          "domain": "enroute",
+          "descriptors" :
+          [
+            {
+              "key": "generic_key",
+              "value" : "default",
+              "descriptors" :
+              [
+                {
+                  "key" : "remote_address",
+                  "rate_limit" :
+                  {
+                    "unit" : "second",
+                    "requests_per_unit" : 1
+                  }
+                }
+              ]
+            },
+            {
+              "key" : "remote_address",
+              "rate_limit" :
+              {
+                "unit" : "second",
+                "requests_per_unit" : 1
+              }
+            }
+          ]
+        }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: RouteFilter
+metadata:
+  labels:
+    app: httpbin
+  name: rl2
+  namespace: enroute-gw-k8s
+spec:
+  name: rl2
+  type: route_filter_ratelimit
+  routeFilterConfig:
+    config: |
+          { 
+            "descriptors" : 
+            [ 
+              {
+                "remote_address": "{}"
+              }
+            ] 
+          }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: HttpFilter
+metadata:
+  labels:
+    app: httpbin
+  name: luatestfilter
+  namespace: enroute-gw-k8s
+spec:
+  name: luatestfilter
+  type: http_filter_lua
+  httpFilterConfig:
+    config: |
+        function envoy_on_request(request_handle)
+           request_handle:logInfo("Hello World request httpbin");
+        end
+
+        function envoy_on_response(response_handle)
+           response_handle:logInfo("Hello World response httpbin");
+        end
+---

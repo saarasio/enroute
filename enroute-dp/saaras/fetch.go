@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package saaras
 
@@ -17,7 +17,7 @@ type Service struct {
 	logrus.FieldLogger
 }
 
-func WatchCloudIngressRoute(g *workgroup.Group,
+func WatchCloudGatewayHost(g *workgroup.Group,
 	log logrus.FieldLogger,
 	reh *contour.ResourceEventHandler,
 	et *contour.EndpointsTranslator,
@@ -34,10 +34,10 @@ func WatchCloudIngressRoute(g *workgroup.Group,
 			time.Sleep(oneSecond * 1000 * time.Millisecond)
 			count = count + 1
 
-			// Poll for IngressRoute every cloudPollIntervalSeconds seconds
+			// Poll for GatewayHost every cloudPollIntervalSeconds seconds
 			if (count % cloudPollIntervalSeconds) == 0 {
 				log.Infoln("Fetch-and-Apply configuration from cloud")
-				FetchIngressRoute(reh, et, pct, scc, log)
+				FetchGatewayHost(reh, et, pct, scc, log)
 			}
 		}
 

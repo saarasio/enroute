@@ -1,8 +1,7 @@
 package dag
 
 import (
-
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
@@ -28,7 +27,7 @@ func (b *builder) lookupHTTPVHFilter(m HttpFilterMeta) *cfg.SaarasRouteFilter {
 	return hf
 }
 
-func (b *builder) addHttpFilter(hf_k8s *ingressroutev1.HttpFilter, m HttpFilterMeta) *cfg.SaarasRouteFilter {
+func (b *builder) addHttpFilter(hf_k8s *gatewayhostv1.HttpFilter, m HttpFilterMeta) *cfg.SaarasRouteFilter {
 	if b.httpfilters == nil {
 		b.httpfilters = make(map[HttpFilterMeta]*cfg.SaarasRouteFilter)
 	}
@@ -43,7 +42,7 @@ func (b *builder) addHttpFilter(hf_k8s *ingressroutev1.HttpFilter, m HttpFilterM
 	return hf_dag
 }
 
-func (b *builder) SetupHttpFilters(dag_vh *VirtualHost, k8s_vh *ingressroutev1.VirtualHost, ns string) {
+func (b *builder) SetupHttpFilters(dag_vh *VirtualHost, k8s_vh *gatewayhostv1.VirtualHost, ns string) {
 
 	if k8s_vh != nil && k8s_vh.Filters != nil {
 		if len(k8s_vh.Filters) > 0 {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package saaras
 
@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const QIngressRoute string = `
+const QGatewayHost string = `
 
 query get_services_by_proxy($proxy_name: String!) {
   saaras_db_proxy_service(where: {proxy: {proxy_name: {_eq: $proxy_name}}}) {
@@ -36,6 +36,7 @@ query get_services_by_proxy($proxy_name: String!) {
       routes {
         route_name
         route_prefix
+		route_config
         create_ts
         update_ts
         route_upstreams {
@@ -145,7 +146,7 @@ type SaarasOrg struct {
 	Org_id   string
 }
 
-type SaarasIngressRoute struct {
+type SaarasGatewayHost struct {
 	App_id                      string
 	App_name                    string
 	Fqdn                        string
@@ -193,6 +194,7 @@ type SaarasRFilter struct {
 type SaarasRoute2 struct {
 	Route_name      string
 	Route_prefix    string
+	Route_config    string
 	Create_ts       string
 	Update_ts       string
 	Route_upstreams []SaarasMicroService2
@@ -221,16 +223,18 @@ type SaarasSecrets struct {
 	Secret SaarasSecret
 }
 
-type SaarasServiceFilters struct {
-	Filter struct {
-		Filter_id     int    `json:"filter_id"`
-		Filter_name   string `json:"filter_name"`
-		Filter_type   string `json:"filter_type"`
-		Filter_config string `json:"filter_config"`
-	} `json:"filter"`
+type SaarasServiceFilter struct {
+	Filter_id     int    `json:"filter_id"`
+	Filter_name   string `json:"filter_name"`
+	Filter_type   string `json:"filter_type"`
+	Filter_config string `json:"filter_config"`
 }
 
-type SaarasIngressRoute2 struct {
+type SaarasServiceFilters struct {
+	Filter SaarasServiceFilter `json:"filter"`
+}
+
+type SaarasGatewayHost2 struct {
 	Service_id      int64
 	Service_name    string
 	Fqdn            string
@@ -245,8 +249,8 @@ type SaarasProxyConfig struct {
 	Global_config string
 }
 
-type SaarasIngressRouteService struct {
-	Service SaarasIngressRoute2
+type SaarasGatewayHostService struct {
+	Service SaarasGatewayHost2
 	Proxy   struct {
 		ProxyGlobalconfigs []struct {
 			Globalconfig struct {
@@ -259,7 +263,7 @@ type SaarasIngressRouteService struct {
 }
 
 type SaarasApp2 struct {
-	Saaras_db_proxy_service []SaarasIngressRouteService
+	Saaras_db_proxy_service []SaarasGatewayHostService
 }
 
 type DataPayloadSaarasApp2 struct {
@@ -267,35 +271,41 @@ type DataPayloadSaarasApp2 struct {
 	Errors []GraphErr
 }
 
-////////////// IngressRoute //////////////////////////////////////////////
+////////////// GatewayHost //////////////////////////////////////////////
 
 func upstream_hc(oneService *SaarasMicroService2) *v1beta1.HealthCheck {
-	hc := v1beta1.HealthCheck{}
-	if len(oneService.Upstream.Upstream_hc_path) > 0 {
-		hc.Path = oneService.Upstream.Upstream_hc_path
-	}
 
-	if len(oneService.Upstream.Upstream_hc_host) > 0 {
-		hc.Host = oneService.Upstream.Upstream_hc_host
-	}
+	if need_hc(oneService) {
 
-	if oneService.Upstream.Upstream_hc_intervalseconds > 0 {
-		hc.IntervalSeconds = oneService.Upstream.Upstream_hc_intervalseconds
-	}
+		hc := v1beta1.HealthCheck{}
+		if len(oneService.Upstream.Upstream_hc_path) > 0 {
+			hc.Path = oneService.Upstream.Upstream_hc_path
+		}
 
-	if oneService.Upstream.Upstream_hc_timeoutseconds > 0 {
-		hc.TimeoutSeconds = oneService.Upstream.Upstream_hc_timeoutseconds
-	}
+		if len(oneService.Upstream.Upstream_hc_host) > 0 {
+			hc.Host = oneService.Upstream.Upstream_hc_host
+		}
 
-	if oneService.Upstream.Upstream_hc_unhealthythresholdcount > 0 {
-		hc.UnhealthyThresholdCount = oneService.Upstream.Upstream_hc_unhealthythresholdcount
-	}
+		if oneService.Upstream.Upstream_hc_intervalseconds > 0 {
+			hc.IntervalSeconds = oneService.Upstream.Upstream_hc_intervalseconds
+		}
 
-	if oneService.Upstream.Upstream_hc_healthythresholdcount > 0 {
-		hc.HealthyThresholdCount = oneService.Upstream.Upstream_hc_healthythresholdcount
-	}
+		if oneService.Upstream.Upstream_hc_timeoutseconds > 0 {
+			hc.TimeoutSeconds = oneService.Upstream.Upstream_hc_timeoutseconds
+		}
 
-	return &hc
+		if oneService.Upstream.Upstream_hc_unhealthythresholdcount > 0 {
+			hc.UnhealthyThresholdCount = oneService.Upstream.Upstream_hc_unhealthythresholdcount
+		}
+
+		if oneService.Upstream.Upstream_hc_healthythresholdcount > 0 {
+			hc.HealthyThresholdCount = oneService.Upstream.Upstream_hc_healthythresholdcount
+		}
+
+		return &hc
+
+	}
+	return nil
 }
 
 func need_hc(oneService *SaarasMicroService2) bool {
@@ -331,7 +341,7 @@ func upstream_service(oneService *SaarasMicroService2) v1beta1.Service {
 	return s
 }
 
-func saaras_route_to_v1b1_service_slice2(sir *SaarasIngressRouteService, r SaarasRoute2) []v1beta1.Service {
+func saaras_route_to_v1b1_service_slice2(sir *SaarasGatewayHostService, r SaarasRoute2) []v1beta1.Service {
 	services := make([]v1beta1.Service, 0)
 	for _, oneService := range r.Route_upstreams {
 		s := v1beta1.Service{
@@ -345,7 +355,7 @@ func saaras_route_to_v1b1_service_slice2(sir *SaarasIngressRouteService, r Saara
 	return services
 }
 
-func getIrSecretName2(sir *SaarasIngressRouteService) string {
+func getIrSecretName2(sir *SaarasGatewayHostService) string {
 	// If there are multiple secrets, we pick the first one.
 
 	var secret_name string
@@ -357,7 +367,7 @@ func getIrSecretName2(sir *SaarasIngressRouteService) string {
 	return secret_name
 }
 
-func getIrTLS(sir *SaarasIngressRouteService) *v1beta1.TLS {
+func getIrTLS(sir *SaarasGatewayHostService) *v1beta1.TLS {
 	secret_name := getIrSecretName2(sir)
 	if len(secret_name) > 0 {
 		return &v1beta1.TLS{
@@ -368,7 +378,7 @@ func getIrTLS(sir *SaarasIngressRouteService) *v1beta1.TLS {
 	}
 }
 
-func saaras_ir_host_filter__to__v1b1_host_filter(sir *SaarasIngressRouteService) []v1beta1.HostAttachedFilter {
+func saaras_ir_host_filter__to__v1b1_host_filter(sir *SaarasGatewayHostService) []v1beta1.HostAttachedFilter {
 	haf_slice := []v1beta1.HostAttachedFilter{}
 
 	for _, oneServiceFilter := range sir.Service.Service_filters {
@@ -395,32 +405,71 @@ func saaras_ir_route_filter__to__v1b1_route_filter(r SaarasRoute2) []v1beta1.Rou
 	return raf_slice
 }
 
-func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRoute {
+// TODO: This needs a test
+func saaras_routecondition_to_v1b1_ir_routecondition(r SaarasRoute2) []v1beta1.Condition {
+	conds := make([]v1beta1.Condition, 0)
+
+	// If Route_prefix is populated, ignore Route_config
+	if len(r.Route_prefix) > 0 {
+		conds = append(conds, v1beta1.Condition{Prefix: r.Route_prefix})
+		return conds
+	}
+
+	// Route configuration provided in Route_config, unmarshal and convert to dag Conditions
+	saarasRouteCond, err := cfg.UnmarshalRouteMatchCondition(r.Route_config)
+	if err != nil {
+		conds = append(conds, v1beta1.Condition{Prefix: "/"})
+		return conds
+	}
+
+	cond := v1beta1.Condition{
+		Prefix: saarasRouteCond.Prefix,
+	}
+
+	conds = append(conds, cond)
+
+	for _, rmc := range saarasRouteCond.MatchConditions {
+		cond2 := v1beta1.Condition{
+			Header: &v1beta1.HeaderCondition{
+				Name:     rmc.HeaderName,
+				Contains: strings.TrimSpace(rmc.HeaderValue),
+			},
+		}
+
+		conds = append(conds, cond2)
+	}
+
+	return conds
+}
+
+func Saaras_ir__to__v1b1_ir2(sir *SaarasGatewayHostService) *v1beta1.GatewayHost {
 	routes := make([]v1beta1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
-		route := v1beta1.Route{
-            Conditions: []v1beta1.Condition{
-                {
-                    Prefix: oneRoute.Route_prefix,
-                },
-               // {
-               //     Header: &v1beta1.HeaderCondition{
-               //         Name: ":method",
-               //         Exact: "GET",
-               //     },
-               // },
-            },
+		routes = append(routes, v1beta1.Route{
+
+			Conditions: saaras_routecondition_to_v1b1_ir_routecondition(oneRoute),
+			//Conditions: []v1beta1.Condition{
+			//    {
+			//        Prefix: oneRoute.Route_prefix,
+			//    },
+			//   // TODO: Convert Route_config to a Conditions[]
+			//   // {
+			//   //     Header: &v1beta1.HeaderCondition{
+			//   //         Name: ":method",
+			//   //         Exact: "GET",
+			//   //     },
+			//   // },
+			//},
 			Services: saaras_route_to_v1b1_service_slice2(sir, oneRoute),
 			Filters:  saaras_ir_route_filter__to__v1b1_route_filter(oneRoute),
-		}
-		routes = append(routes, route)
+		})
 	}
-	return &v1beta1.IngressRoute{
+	return &v1beta1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      sir.Service.Service_name,
 			Namespace: ENROUTE_NAME,
 		},
-		Spec: v1beta1.IngressRouteSpec{
+		Spec: v1beta1.GatewayHostSpec{
 			VirtualHost: &v1beta1.VirtualHost{
 				Fqdn: sir.Service.Fqdn,
 				// TODO
@@ -432,12 +481,12 @@ func saaras_ir__to__v1b1_ir2(sir *SaarasIngressRouteService) *v1beta1.IngressRou
 	}
 }
 
-func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.IngressRoute {
-	var m map[string]*v1beta1.IngressRoute
-	m = make(map[string]*v1beta1.IngressRoute)
+func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1beta1.GatewayHost {
+	var m map[string]*v1beta1.GatewayHost
+	m = make(map[string]*v1beta1.GatewayHost)
 
 	for _, oneSaarasIRService := range *s {
-		onev1b1ir := saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
+		onev1b1ir := Saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
 		//spew.Dump(onev1b1ir)
 		//m[strconv.FormatInt(oneSaarasIRService.Service.Service_id, 10)] = onev1b1ir
 		m[onev1b1ir.Spec.VirtualHost.Fqdn] = onev1b1ir
@@ -446,7 +495,7 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasIngressRouteService, log logrus
 	return &m
 }
 
-func getIrSecretName(sdb *SaarasIngressRoute) string {
+func getIrSecretName(sdb *SaarasGatewayHost) string {
 	if len(sdb.Application_secretsByApp_id) > 0 {
 		return sdb.Application_secretsByApp_id[0].SecretsBySecretId.Secret_name
 	}
@@ -454,7 +503,7 @@ func getIrSecretName(sdb *SaarasIngressRoute) string {
 	return ""
 }
 
-func saaras_ir__to__v1b1_ir(sdb *SaarasIngressRoute) *v1beta1.IngressRoute {
+func saaras_ir__to__v1b1_ir(sdb *SaarasGatewayHost) *v1beta1.GatewayHost {
 	routes := make([]v1beta1.Route, 0)
 
 	for _, oneRoute := range sdb.RoutessByappId {
@@ -467,12 +516,12 @@ func saaras_ir__to__v1b1_ir(sdb *SaarasIngressRoute) *v1beta1.IngressRoute {
 		routes = append(routes, route)
 	}
 
-	return &v1beta1.IngressRoute{
+	return &v1beta1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      sdb.App_name,
 			Namespace: sdb.OrgByorgId.Org_name,
 		},
-		Spec: v1beta1.IngressRouteSpec{
+		Spec: v1beta1.GatewayHostSpec{
 			VirtualHost: &v1beta1.VirtualHost{
 				Fqdn: sdb.Fqdn,
 				TLS: &v1beta1.TLS{
@@ -563,7 +612,7 @@ func saaras_route_slices_equal(log logrus.FieldLogger, r1 []SaarasRoute, r2 []Sa
 	return true
 }
 
-func saaras_ir_equal(log logrus.FieldLogger, sdb1, sdb2 *SaarasIngressRoute) bool {
+func saaras_ir_equal(log logrus.FieldLogger, sdb1, sdb2 *SaarasGatewayHost) bool {
 	return ((sdb1.App_id == sdb2.App_id) &&
 		(sdb1.App_name == sdb2.App_name) &&
 		(sdb1.Fqdn == sdb2.Fqdn) &&
@@ -696,7 +745,7 @@ func v1b1_vh_equal(log logrus.FieldLogger, vh1, vh2 *v1beta1.VirtualHost) bool {
 		v1b1_tls_equal(vh1.TLS, vh2.TLS)
 }
 
-func v1b1_ir_equal(log logrus.FieldLogger, ir1, ir2 *v1beta1.IngressRoute) bool {
+func v1b1_ir_equal(log logrus.FieldLogger, ir1, ir2 *v1beta1.GatewayHost) bool {
 	return ir1.Name == ir2.Name &&
 		ir1.Namespace == ir2.Namespace &&
 		v1b1_vh_equal(log, ir1.Spec.VirtualHost, ir2.Spec.VirtualHost) &&
@@ -718,7 +767,7 @@ func serviceName2(microservice_name string) string {
 	return microservice_name
 }
 
-func saaras_route_to_v1b1_service_slice(sdb *SaarasIngressRoute, r SaarasRoute) []v1beta1.Service {
+func saaras_route_to_v1b1_service_slice(sdb *SaarasGatewayHost, r SaarasRoute) []v1beta1.Service {
 	services := make([]v1beta1.Service, 0)
 	for _, oneService := range r.RouteMssByrouteId {
 		s := v1beta1.Service{

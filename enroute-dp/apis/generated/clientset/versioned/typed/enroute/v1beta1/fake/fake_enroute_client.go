@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -31,16 +31,16 @@ type FakeEnrouteV1beta1 struct {
 	*testing.Fake
 }
 
+func (c *FakeEnrouteV1beta1) GatewayHosts(namespace string) v1beta1.GatewayHostInterface {
+	return &FakeGatewayHosts{c, namespace}
+}
+
 func (c *FakeEnrouteV1beta1) GlobalConfigs(namespace string) v1beta1.GlobalConfigInterface {
 	return &FakeGlobalConfigs{c, namespace}
 }
 
 func (c *FakeEnrouteV1beta1) HttpFilters(namespace string) v1beta1.HttpFilterInterface {
 	return &FakeHttpFilters{c, namespace}
-}
-
-func (c *FakeEnrouteV1beta1) IngressRoutes(namespace string) v1beta1.IngressRouteInterface {
-	return &FakeIngressRoutes{c, namespace}
 }
 
 func (c *FakeEnrouteV1beta1) RouteFilters(namespace string) v1beta1.RouteFilterInterface {

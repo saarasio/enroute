@@ -16,13 +16,13 @@ package dag
 import (
 	"testing"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 )
 
 func TestPathCondition(t *testing.T) {
 	tests := map[string]struct {
-		conditions []ingressroutev1.Condition
+		conditions []gatewayhostv1.Condition
 		want       Condition
 	}{
 		"empty condition list": {
@@ -30,13 +30,13 @@ func TestPathCondition(t *testing.T) {
 			want:       &PrefixCondition{Prefix: "/"},
 		},
 		"single slash": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/",
 			}},
 			want: &PrefixCondition{Prefix: "/"},
 		},
 		"two slashes": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/",
 			}, {
 				Prefix: "/",
@@ -44,7 +44,7 @@ func TestPathCondition(t *testing.T) {
 			want: &PrefixCondition{Prefix: "/"},
 		},
 		"mixed conditions": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/a/",
 			}, {
 				Prefix: "/b",
@@ -52,13 +52,13 @@ func TestPathCondition(t *testing.T) {
 			want: &PrefixCondition{Prefix: "/a/b"},
 		},
 		"trailing slash": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/a/",
 			}},
 			want: &PrefixCondition{Prefix: "/a/"},
 		},
 		"trailing slash on second prefix condition": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/a",
 			},
 				{
@@ -67,7 +67,7 @@ func TestPathCondition(t *testing.T) {
 			want: &PrefixCondition{Prefix: "/a/b/"},
 		},
 		"nothing but slashes": {
-			conditions: []ingressroutev1.Condition{
+			conditions: []gatewayhostv1.Condition{
 				{
 					Prefix: "///",
 				},
@@ -77,8 +77,8 @@ func TestPathCondition(t *testing.T) {
 			want: &PrefixCondition{Prefix: "/"},
 		},
 		"header condition": {
-			conditions: []ingressroutev1.Condition{{
-				Header: new(ingressroutev1.HeaderCondition),
+			conditions: []gatewayhostv1.Condition{{
+				Header: new(gatewayhostv1.HeaderCondition),
 			}},
 			want: &PrefixCondition{Prefix: "/"},
 		},
@@ -94,7 +94,7 @@ func TestPathCondition(t *testing.T) {
 
 func TestHeaderConditions(t *testing.T) {
 	tests := map[string]struct {
-		conditions []ingressroutev1.Condition
+		conditions []gatewayhostv1.Condition
 		want       []HeaderCondition
 	}{
 		"empty condition list": {
@@ -102,20 +102,20 @@ func TestHeaderConditions(t *testing.T) {
 			want:       nil,
 		},
 		"prefix": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/",
 			}},
 			want: nil,
 		},
 		"header condition empty": {
-			conditions: []ingressroutev1.Condition{{
-				Header: new(ingressroutev1.HeaderCondition),
+			conditions: []gatewayhostv1.Condition{{
+				Header: new(gatewayhostv1.HeaderCondition),
 			}},
 			want: nil,
 		},
 		"header present": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:    "x-request-id",
 					Present: true,
 				},
@@ -126,8 +126,8 @@ func TestHeaderConditions(t *testing.T) {
 			}},
 		},
 		"header name but missing condition": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name: "x-request-id",
 				},
 			}},
@@ -136,8 +136,8 @@ func TestHeaderConditions(t *testing.T) {
 			want: nil,
 		},
 		"header contains": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-request-id",
 					Contains: "abcdef",
 				},
@@ -149,8 +149,8 @@ func TestHeaderConditions(t *testing.T) {
 			}},
 		},
 		"header not contains": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:        "x-request-id",
 					NotContains: "abcdef",
 				},
@@ -163,8 +163,8 @@ func TestHeaderConditions(t *testing.T) {
 			}},
 		},
 		"header exact": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:  "x-request-id",
 					Exact: "abcdef",
 				},
@@ -176,8 +176,8 @@ func TestHeaderConditions(t *testing.T) {
 			}},
 		},
 		"header not exact": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-request-id",
 					NotExact: "abcdef",
 				},
@@ -190,13 +190,13 @@ func TestHeaderConditions(t *testing.T) {
 			}},
 		},
 		"two header contains": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-request-id",
 					Contains: "abcdef",
 				},
 			}, {
-				Header: &ingressroutev1.HeaderCondition{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-request-id",
 					Contains: "cedfg",
 				},
@@ -212,13 +212,13 @@ func TestHeaderConditions(t *testing.T) {
 			}},
 		},
 		"two header contains different case": {
-			conditions: []ingressroutev1.Condition{{
-				Header: &ingressroutev1.HeaderCondition{
+			conditions: []gatewayhostv1.Condition{{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-request-id",
 					Contains: "abcdef",
 				},
 			}, {
-				Header: &ingressroutev1.HeaderCondition{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "X-Request-Id",
 					Contains: "abcdef",
 				},
@@ -245,7 +245,7 @@ func TestHeaderConditions(t *testing.T) {
 
 func TestPrefixConditionsValid(t *testing.T) {
 	tests := map[string]struct {
-		conditions []ingressroutev1.Condition
+		conditions []gatewayhostv1.Condition
 		want       bool
 	}{
 		"empty condition list": {
@@ -253,15 +253,15 @@ func TestPrefixConditionsValid(t *testing.T) {
 			want:       true,
 		},
 		"valid path condition only": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/api",
 			}},
 			want: true,
 		},
 		"valid path condition with headers": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/api",
-				Header: &ingressroutev1.HeaderCondition{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-header",
 					Contains: "abc",
 				},
@@ -269,7 +269,7 @@ func TestPrefixConditionsValid(t *testing.T) {
 			want: true,
 		},
 		"two prefix conditions": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/api",
 			}, {
 				Prefix: "/v1",
@@ -277,9 +277,9 @@ func TestPrefixConditionsValid(t *testing.T) {
 			want: false,
 		},
 		"two prefix conditions with headers": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "/api",
-				Header: &ingressroutev1.HeaderCondition{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-header",
 					Contains: "abc",
 				},
@@ -289,15 +289,15 @@ func TestPrefixConditionsValid(t *testing.T) {
 			want: false,
 		},
 		"invalid prefix condition": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "api",
 			}},
 			want: false,
 		},
 		"invalid prefix condition with headers": {
-			conditions: []ingressroutev1.Condition{{
+			conditions: []gatewayhostv1.Condition{{
 				Prefix: "api",
-				Header: &ingressroutev1.HeaderCondition{
+				Header: &gatewayhostv1.HeaderCondition{
 					Name:     "x-header",
 					Contains: "abc",
 				},
@@ -319,7 +319,7 @@ func TestPrefixConditionsValid(t *testing.T) {
 
 func TestValidateHeaderConditions(t *testing.T) {
 	tests := map[string]struct {
-		conditions []ingressroutev1.Condition
+		conditions []gatewayhostv1.Condition
 		want       bool
 	}{
 		"empty condition list": {
@@ -327,9 +327,9 @@ func TestValidateHeaderConditions(t *testing.T) {
 			want:       true,
 		},
 		"valid conditions": {
-			conditions: []ingressroutev1.Condition{
+			conditions: []gatewayhostv1.Condition{
 				{
-					Header: &ingressroutev1.HeaderCondition{
+					Header: &gatewayhostv1.HeaderCondition{
 						Name:     "x-header",
 						Contains: "abc",
 					},
@@ -338,14 +338,14 @@ func TestValidateHeaderConditions(t *testing.T) {
 			want: true,
 		},
 		"invalid conditions": {
-			conditions: []ingressroutev1.Condition{
+			conditions: []gatewayhostv1.Condition{
 				{
-					Header: &ingressroutev1.HeaderCondition{
+					Header: &gatewayhostv1.HeaderCondition{
 						Name:  "x-header",
 						Exact: "abc",
 					},
 				}, {
-					Header: &ingressroutev1.HeaderCondition{
+					Header: &gatewayhostv1.HeaderCondition{
 						Name:  "x-header",
 						Exact: "123",
 					},
@@ -354,7 +354,7 @@ func TestValidateHeaderConditions(t *testing.T) {
 			want: false,
 		},
 		"prefix only": {
-			conditions: []ingressroutev1.Condition{
+			conditions: []gatewayhostv1.Condition{
 				{
 					Prefix: "/blog",
 				},
@@ -362,16 +362,16 @@ func TestValidateHeaderConditions(t *testing.T) {
 			want: true,
 		},
 		"prefix conditions + valid headers": {
-			conditions: []ingressroutev1.Condition{
+			conditions: []gatewayhostv1.Condition{
 				{
 					Prefix: "/blog",
 				}, {
-					Header: &ingressroutev1.HeaderCondition{
+					Header: &gatewayhostv1.HeaderCondition{
 						Name:        "x-header",
 						NotContains: "abc",
 					},
 				}, {
-					Header: &ingressroutev1.HeaderCondition{
+					Header: &gatewayhostv1.HeaderCondition{
 						Name:        "another-header",
 						NotContains: "123",
 					},

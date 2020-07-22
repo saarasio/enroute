@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -29,9 +29,9 @@ import (
 
 type EnrouteV1beta1Interface interface {
 	RESTClient() rest.Interface
+	GatewayHostsGetter
 	GlobalConfigsGetter
 	HttpFiltersGetter
-	IngressRoutesGetter
 	RouteFiltersGetter
 	TLSCertificateDelegationsGetter
 }
@@ -41,16 +41,16 @@ type EnrouteV1beta1Client struct {
 	restClient rest.Interface
 }
 
+func (c *EnrouteV1beta1Client) GatewayHosts(namespace string) GatewayHostInterface {
+	return newGatewayHosts(c, namespace)
+}
+
 func (c *EnrouteV1beta1Client) GlobalConfigs(namespace string) GlobalConfigInterface {
 	return newGlobalConfigs(c, namespace)
 }
 
 func (c *EnrouteV1beta1Client) HttpFilters(namespace string) HttpFilterInterface {
 	return newHttpFilters(c, namespace)
-}
-
-func (c *EnrouteV1beta1Client) IngressRoutes(namespace string) IngressRouteInterface {
-	return newIngressRoutes(c, namespace)
 }
 
 func (c *EnrouteV1beta1Client) RouteFilters(namespace string) RouteFilterInterface {

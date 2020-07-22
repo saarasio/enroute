@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ import (
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
 	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	"google.golang.org/grpc"
@@ -496,10 +496,10 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 		"default",
 		"kuard",
 		map[string]string{
-			"contour.heptio.com/max-connections":      "9000",
-			"contour.heptio.com/max-pending-requests": "4096",
-			"contour.heptio.com/max-requests":         "404",
-			"contour.heptio.com/max-retries":          "7",
+			"enroute.saaras.io/max-connections":      "9000",
+			"enroute.saaras.io/max-pending-requests": "4096",
+			"enroute.saaras.io/max-requests":         "404",
+			"enroute.saaras.io/max-retries":          "7",
 		},
 		v1.ServicePort{
 			Protocol:   "TCP",
@@ -543,9 +543,9 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 		"default",
 		"kuard",
 		map[string]string{
-			"contour.heptio.com/max-pending-requests": "9999",
-			"contour.heptio.com/max-requests":         "1e6",
-			"contour.heptio.com/max-retries":          "0",
+			"enroute.saaras.io/max-pending-requests": "9999",
+			"enroute.saaras.io/max-requests":         "1e6",
+			"enroute.saaras.io/max-retries":          "0",
 		},
 		v1.ServicePort{
 			Protocol:   "TCP",
@@ -602,27 +602,27 @@ func TestClusterPerServiceParameters(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&ingressroutev1.IngressRoute{
+	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 90,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/b",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 60,
@@ -661,27 +661,27 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&ingressroutev1.IngressRoute{
+	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:     "kuard",
 					Port:     80,
 					Strategy: "Random",
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/b",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:     "kuard",
 					Port:     80,
 					Strategy: "WeightedLeastRequest",
@@ -742,22 +742,22 @@ func TestClusterWithHealthChecks(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&ingressroutev1.IngressRoute{
+	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 90,
-					HealthCheck: &ingressroutev1.HealthCheck{
+					HealthCheck: &gatewayhostv1.HealthCheck{
 						Path: "/healthz",
 					},
 				}},
@@ -775,7 +775,7 @@ func TestClusterWithHealthChecks(t *testing.T) {
 	}, streamCDS(t, cc))
 }
 
-// Test that contour correctly recognizes the "contour.heptio.com/upstream-protocol.tls"
+// Test that contour correctly recognizes the "enroute.saaras.io/upstream-protocol.tls"
 // service annotation.
 func TestClusterServiceTLSBackend(t *testing.T) {
 	rh, cc, done := setup(t)
@@ -800,7 +800,7 @@ func TestClusterServiceTLSBackend(t *testing.T) {
 			Name:      "kuard",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/upstream-protocol.tls": "securebackend",
+				"enroute.saaras.io/upstream-protocol.tls": "securebackend",
 			},
 		},
 		Spec: v1.ServiceSpec{
@@ -833,7 +833,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 			Name:      "kuard",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/upstream-protocol.tls": "securebackend,443",
+				"enroute.saaras.io/upstream-protocol.tls": "securebackend,443",
 			},
 		},
 		Spec: v1.ServiceSpec{
@@ -858,18 +858,18 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 
 	rh.OnAdd(secret)
 
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 443,
 				}},
@@ -893,21 +893,21 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		Nonce:   "3",
 	}, streamCDS(t, cc))
 
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 443,
-					UpstreamValidation: &ingressroutev1.UpstreamValidation{
+					UpstreamValidation: &gatewayhostv1.UpstreamValidation{
 						CACertificate: "foo",
 						SubjectName:   "subjname",
 					},

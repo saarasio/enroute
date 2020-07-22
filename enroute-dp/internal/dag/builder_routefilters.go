@@ -3,12 +3,12 @@ package dag
 import (
 	// "fmt"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	//"github.com/davecgh/go-spew/spew"
 )
 
-//func v1b1RouteFilterToDagRouteFilter(ir_rl *ingressroutev1.RouteFilter) *RouteFilter {
+//func v1b1RouteFilterToDagRouteFilter(ir_rl *gatewayhostv1.RouteFilter) *RouteFilter {
 //	if ir_rl == nil {
 //		return nil
 //	}
@@ -41,7 +41,7 @@ func (b *builder) lookupHTTPRouteFilter(m RouteFilterMeta) *cfg.SaarasRouteFilte
 	return rf
 }
 
-func (b *builder) addRouteFilter(rf_k8s *ingressroutev1.RouteFilter, m RouteFilterMeta) *cfg.SaarasRouteFilter {
+func (b *builder) addRouteFilter(rf_k8s *gatewayhostv1.RouteFilter, m RouteFilterMeta) *cfg.SaarasRouteFilter {
 	if b.routefilters == nil {
 		b.routefilters = make(map[RouteFilterMeta]*cfg.SaarasRouteFilter)
 	}
@@ -57,7 +57,7 @@ func (b *builder) addRouteFilter(rf_k8s *ingressroutev1.RouteFilter, m RouteFilt
 	return rf_dag
 }
 
-func (b *builder) SetupRouteFilters(dag_r *Route, k8s_r *ingressroutev1.Route, ns string) {
+func (b *builder) SetupRouteFilters(dag_r *Route, k8s_r *gatewayhostv1.Route, ns string) {
 
 	// fmt.Printf("SetupRouteFilters() k8s route - %+v\n", k8s_r)
 	if k8s_r != nil && k8s_r.Filters != nil {

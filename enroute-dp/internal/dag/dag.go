@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"k8s.io/api/core/v1"
 )
@@ -92,8 +92,14 @@ type HeaderCondition struct {
 	Invert    bool
 }
 
+type QueryParamsCondition struct {
+	Key          string
+	Value        string
+	IsValueRegex bool
+}
+
 func (hc *HeaderCondition) String() string {
-	return "header: " + hc.Name
+	return "header: " + hc.Name + " value: " + hc.Value
 }
 
 type Route struct {
@@ -104,6 +110,8 @@ type Route struct {
 	// HeaderConditions specifies a set of additional Conditions to
 	// match on the request headers.
 	HeaderConditions []HeaderCondition
+
+	QueryParamConditions []QueryParamsCondition
 
 	Clusters []*Cluster
 
@@ -182,7 +190,7 @@ type VirtualHost struct {
 }
 
 func (v *VirtualHost) GetVirtualHostRoutes() map[string]*Route {
-    return v.routes
+	return v.routes
 }
 
 func (v *VirtualHost) addRoute(route *Route) {
@@ -338,7 +346,7 @@ type Cluster struct {
 	// See https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cds.proto#envoy-api-enum-cluster-lbpolicy
 	LoadBalancerStrategy string
 
-	HealthCheck *ingressroutev1.HealthCheck
+	HealthCheck *gatewayhostv1.HealthCheck
 }
 
 func (c Cluster) Visit(f func(Vertex)) {

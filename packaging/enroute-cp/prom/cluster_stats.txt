@@ -1,0 +1,126 @@
+- Panel Cluster Circuit Breakers
+envoy_cluster_swagger_io_80_circuit_breakers_default_cx_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_default_cx_pool_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_default_rq_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_default_rq_pending_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_default_rq_retry_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_high_cx_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_high_cx_pool_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_high_rq_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_high_rq_pending_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_circuit_breakers_high_rq_retry_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+
+- Panel Cluster HTTP1
+envoy_cluster_swagger_io_80_http1_dropped_headers_with_underscores{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_http1_metadata_not_supported_error{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_http1_requests_rejected_with_underscores_in_headers{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_http1_response_flood{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+
+- Panel Cluster LB Stats
+envoy_cluster_swagger_io_80_lb_healthy_panic{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_local_cluster_not_ok{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_recalculate_zone_structures{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_subsets_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_subsets_created{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_subsets_fallback_panic{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_subsets_fallback{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_subsets_removed{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_subsets_selected{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_zone_cluster_too_small{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_zone_no_capacity_left{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_zone_number_differs{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_zone_routing_all_directly{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_zone_routing_cross_zone{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_lb_zone_routing_sampled{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_max_host_weight{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+
+- Panel Cluster Membership Stats
+envoy_cluster_swagger_io_80_membership_change{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+envoy_cluster_swagger_io_80_membership_degraded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_membership_excluded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_membership_healthy{envoy_cluster_name="gw_openapi-upstream-petstore"} 2
+envoy_cluster_swagger_io_80_membership_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 2
+
+- Panel Cluster Update Stats
+envoy_cluster_swagger_io_80_update_attempt{envoy_cluster_name="gw_openapi-upstream-petstore"} 1192
+envoy_cluster_swagger_io_80_update_empty{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_update_failure{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_update_no_rebuild{envoy_cluster_name="gw_openapi-upstream-petstore"} 1191
+envoy_cluster_swagger_io_80_update_success{envoy_cluster_name="gw_openapi-upstream-petstore"} 1192
+
+- Panel Cluster Flow Control
+envoy_cluster_swagger_io_80_upstream_flow_control_backed_up_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_flow_control_drained_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_flow_control_paused_reading_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 11
+envoy_cluster_swagger_io_80_upstream_flow_control_resumed_reading_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 11
+
+- Panel Cluster Upstream Request
+envoy_cluster_swagger_io_80_upstream_rq_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_cancelled{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_completed{envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+envoy_cluster_swagger_io_80_upstream_rq_maintenance_mode{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_pending_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_pending_failure_eject{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_pending_overflow{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_pending_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+envoy_cluster_swagger_io_80_upstream_rq_per_try_timeout{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_retry_limit_exceeded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_retry_overflow{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_retry_success{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_retry{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_rx_reset{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+envoy_cluster_swagger_io_80_internal_upstream_rq{envoy_response_code="200",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+
+- Panel Upstream Request Time Histogram
+sum(increase(envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket[10m])) by le
+sum(increase(envoy_cluster_{cluster_name}_internal_upstream_rq_time_bucket[10m])) by le
+sum(increase(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[1m])) by (le)
+sum(increase(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[30s])) by (le)  
+sum(increase(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[25s])) by (le)  
+sum(deriv(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[30s])) by (le)  
+sum(idelta(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[30s])) by (le)  
+sum(irate(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[30s])) by (le)  
+sum(rate(envoy_cluster_${cluster_name}_internal_upstream_rq_time_bucket[30s])) by (le)  
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="0.5"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="25"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="50"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="100"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="250"} 6
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="500"} 467
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1000"} 479
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="2500"} 479
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="30000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="60000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="300000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="600000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1800000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="3600000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="+Inf"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_sum{envoy_cluster_name="gw_openapi-upstream-petstore"} 172975
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 481
+
+- Panel Upstream Request Stats
+envoy_cluster_swagger_io_80_upstream_rq_timeout{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+envoy_cluster_swagger_io_80_upstream_rq_tx_reset{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+envoy_cluster_swagger_io_80_upstream_rq{envoy_response_code="200",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+envoy_cluster_swagger_io_80_version{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+
+- Panel Cluster Misc Stats
+envoy_cluster_swagger_io_80_assignment_stale{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_assignment_timeout_received{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_bind_errors{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_default_total_match_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 2384
+envoy_cluster_swagger_io_80_internal_upstream_rq_completed{envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+envoy_cluster_swagger_io_80_original_dst_host_invalid{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_retry_or_shadow_abandoned{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+envoy_cluster_swagger_io_80_upstream_cx_rx_bytes_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 1739143479
+envoy_cluster_swagger_io_80_upstream_cx_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+envoy_cluster_swagger_io_80_upstream_cx_tx_bytes_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 163880

@@ -1,0 +1,1817 @@
+# HELP enroute_cachehandler_onupdate_duration_seconds Histogram for the runtime of xDS cache regeneration
+# TYPE enroute_cachehandler_onupdate_duration_seconds summary
+enroute_cachehandler_onupdate_duration_seconds{quantile="0.5"} NaN
+enroute_cachehandler_onupdate_duration_seconds{quantile="0.9"} NaN
+enroute_cachehandler_onupdate_duration_seconds{quantile="0.99"} NaN
+enroute_cachehandler_onupdate_duration_seconds_sum 0.002171352
+enroute_cachehandler_onupdate_duration_seconds_count 2
+# HELP enroute_ingressroute_dagrebuild_timestamp Timestamp of the last DAG rebuild
+# TYPE enroute_ingressroute_dagrebuild_timestamp gauge
+enroute_ingressroute_dagrebuild_timestamp 1.592513118e+09
+# HELP enroute_ingressroute_root_total Total number of root GatewayHosts
+# TYPE enroute_ingressroute_root_total gauge
+enroute_ingressroute_root_total{namespace="gw"} 1
+# HELP enroute_ingressroute_total Total number of GatewayHosts
+# TYPE enroute_ingressroute_total gauge
+enroute_ingressroute_total{namespace="gw"} 1
+# HELP enroute_ingressroute_valid_total Total number of valid GatewayHosts
+# TYPE enroute_ingressroute_valid_total gauge
+enroute_ingressroute_valid_total{namespace="gw",vhost="*"} 1
+# HELP enroute_resourceeventhandler_duration_seconds Histogram for the runtime of k8s watcher events
+# TYPE enroute_resourceeventhandler_duration_seconds summary
+enroute_resourceeventhandler_duration_seconds{op="OnAdd",quantile="0.5"} NaN
+enroute_resourceeventhandler_duration_seconds{op="OnAdd",quantile="0.9"} NaN
+enroute_resourceeventhandler_duration_seconds{op="OnAdd",quantile="0.99"} NaN
+enroute_resourceeventhandler_duration_seconds_sum{op="OnAdd"} 0.001183741
+enroute_resourceeventhandler_duration_seconds_count{op="OnAdd"} 2
+# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{quantile="0"} 1.3132e-05
+go_gc_duration_seconds{quantile="0.25"} 1.5284e-05
+go_gc_duration_seconds{quantile="0.5"} 1.7267e-05
+go_gc_duration_seconds{quantile="0.75"} 4.588e-05
+go_gc_duration_seconds{quantile="1"} 0.000275439
+go_gc_duration_seconds_sum 0.003622547
+go_gc_duration_seconds_count 95
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines 26
+# HELP go_info Information about the Go environment.
+# TYPE go_info gauge
+go_info{version="go1.13.9"} 1
+# HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
+# TYPE go_memstats_alloc_bytes gauge
+go_memstats_alloc_bytes 9.673608e+06
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
+# TYPE go_memstats_alloc_bytes_total counter
+go_memstats_alloc_bytes_total 4.4118068e+08
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table.
+# TYPE go_memstats_buck_hash_sys_bytes gauge
+go_memstats_buck_hash_sys_bytes 1.488227e+06
+# HELP go_memstats_frees_total Total number of frees.
+# TYPE go_memstats_frees_total counter
+go_memstats_frees_total 2.915212e+06
+# HELP go_memstats_gc_cpu_fraction The fraction of this program's available CPU time used by the GC since the program started.
+# TYPE go_memstats_gc_cpu_fraction gauge
+go_memstats_gc_cpu_fraction 7.03075880978476e-06
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
+# TYPE go_memstats_gc_sys_bytes gauge
+go_memstats_gc_sys_bytes 2.38592e+06
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
+# TYPE go_memstats_heap_alloc_bytes gauge
+go_memstats_heap_alloc_bytes 9.673608e+06
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used.
+# TYPE go_memstats_heap_idle_bytes gauge
+go_memstats_heap_idle_bytes 5.5156736e+07
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use.
+# TYPE go_memstats_heap_inuse_bytes gauge
+go_memstats_heap_inuse_bytes 1.1132928e+07
+# HELP go_memstats_heap_objects Number of allocated objects.
+# TYPE go_memstats_heap_objects gauge
+go_memstats_heap_objects 46377
+# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS.
+# TYPE go_memstats_heap_released_bytes gauge
+go_memstats_heap_released_bytes 5.4468608e+07
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system.
+# TYPE go_memstats_heap_sys_bytes gauge
+go_memstats_heap_sys_bytes 6.6289664e+07
+# HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
+# TYPE go_memstats_last_gc_time_seconds gauge
+go_memstats_last_gc_time_seconds 1.5925190409774442e+09
+# HELP go_memstats_lookups_total Total number of pointer lookups.
+# TYPE go_memstats_lookups_total counter
+go_memstats_lookups_total 0
+# HELP go_memstats_mallocs_total Total number of mallocs.
+# TYPE go_memstats_mallocs_total counter
+go_memstats_mallocs_total 2.961589e+06
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures.
+# TYPE go_memstats_mcache_inuse_bytes gauge
+go_memstats_mcache_inuse_bytes 6944
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system.
+# TYPE go_memstats_mcache_sys_bytes gauge
+go_memstats_mcache_sys_bytes 16384
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures.
+# TYPE go_memstats_mspan_inuse_bytes gauge
+go_memstats_mspan_inuse_bytes 109616
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system.
+# TYPE go_memstats_mspan_sys_bytes gauge
+go_memstats_mspan_sys_bytes 147456
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place.
+# TYPE go_memstats_next_gc_bytes gauge
+go_memstats_next_gc_bytes 1.2682624e+07
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations.
+# TYPE go_memstats_other_sys_bytes gauge
+go_memstats_other_sys_bytes 1.139605e+06
+# HELP go_memstats_stack_inuse_bytes Number of bytes in use by the stack allocator.
+# TYPE go_memstats_stack_inuse_bytes gauge
+go_memstats_stack_inuse_bytes 819200
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator.
+# TYPE go_memstats_stack_sys_bytes gauge
+go_memstats_stack_sys_bytes 819200
+# HELP go_memstats_sys_bytes Number of bytes obtained from system.
+# TYPE go_memstats_sys_bytes gauge
+go_memstats_sys_bytes 7.2286456e+07
+# HELP go_threads Number of OS threads created.
+# TYPE go_threads gauge
+go_threads 13
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 16.15
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 22
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 4.1525248e+07
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.59251310757e+09
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 5.2252672e+08
+# HELP process_virtual_memory_max_bytes Maximum amount of virtual memory available in bytes.
+# TYPE process_virtual_memory_max_bytes gauge
+process_virtual_memory_max_bytes -1
+ubuntu@ip-172-31-18-157:~/gitlab/enroute-rl-with-upgraded-go/enroute/build/enroutectl/bin$ curl localhost:8000/stats/prometheus
+404 page not found
+ubuntu@ip-172-31-18-157:~/gitlab/enroute-rl-with-upgraded-go/enroute/build/enroutectl/bin$ curl localhost:8002/stats/prometheus
+# TYPE envoy_vhost_vcluster_upstream_rq_retry_overflow counter
+envoy_vhost_vcluster_upstream_rq_retry_overflow{envoy_virtual_cluster="other",envoy_virtual_host="*"} 0
+# TYPE envoy_vhost_vcluster_upstream_rq_timeout counter
+envoy_vhost_vcluster_upstream_rq_timeout{envoy_virtual_cluster="other",envoy_virtual_host="*"} 0
+# TYPE envoy_vhost_vcluster_upstream_rq_retry counter
+envoy_vhost_vcluster_upstream_rq_retry{envoy_virtual_cluster="other",envoy_virtual_host="*"} 0
+# TYPE envoy_vhost_vcluster_upstream_rq_retry_success counter
+envoy_vhost_vcluster_upstream_rq_retry_success{envoy_virtual_cluster="other",envoy_virtual_host="*"} 0
+# TYPE envoy_vhost_vcluster_upstream_rq_retry_limit_exceeded counter
+envoy_vhost_vcluster_upstream_rq_retry_limit_exceeded{envoy_virtual_cluster="other",envoy_virtual_host="*"} 0
+# TYPE envoy_vhost_vcluster_upstream_rq_total counter
+envoy_vhost_vcluster_upstream_rq_total{envoy_virtual_cluster="other",envoy_virtual_host="*"} 0
+# TYPE envoy_listener_worker_2_downstream_cx_total counter
+envoy_listener_worker_2_downstream_cx_total{envoy_listener_address="0.0.0.0_8080"} 205
+# TYPE envoy_listener_http_downstream_rq_xx counter
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="3",envoy_http_conn_manager_prefix="ingress_http",envoy_listener_address="0.0.0.0_8080"} 0
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="4",envoy_http_conn_manager_prefix="ingress_http",envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_worker_1_downstream_cx_total counter
+envoy_listener_worker_1_downstream_cx_total{envoy_listener_address="0.0.0.0_8080"} 25
+# TYPE envoy_listener_worker_3_downstream_cx_total counter
+envoy_listener_worker_3_downstream_cx_total{envoy_listener_address="0.0.0.0_8080"} 244
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="5",envoy_http_conn_manager_prefix="ingress_http",envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_downstream_cx_total counter
+envoy_listener_downstream_cx_total{envoy_listener_address="0.0.0.0_8080"} 482
+# TYPE envoy_listener_downstream_pre_cx_timeout counter
+envoy_listener_downstream_pre_cx_timeout{envoy_listener_address="0.0.0.0_8080"} 0
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="2",envoy_http_conn_manager_prefix="ingress_http",envoy_listener_address="0.0.0.0_8080"} 482
+# TYPE envoy_listener_no_filter_chain_match counter
+envoy_listener_no_filter_chain_match{envoy_listener_address="0.0.0.0_8080"} 0
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="1",envoy_http_conn_manager_prefix="ingress_http",envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_downstream_cx_destroy counter
+envoy_listener_downstream_cx_destroy{envoy_listener_address="0.0.0.0_8080"} 482
+# TYPE envoy_listener_worker_0_downstream_cx_total counter
+envoy_listener_worker_0_downstream_cx_total{envoy_listener_address="0.0.0.0_8080"} 8
+# TYPE envoy_listener_http_downstream_rq_completed counter
+envoy_listener_http_downstream_rq_completed{envoy_http_conn_manager_prefix="ingress_http",envoy_listener_address="0.0.0.0_8080"} 482
+# TYPE envoy_server_worker_3_watchdog_mega_miss counter
+envoy_server_worker_3_watchdog_mega_miss{} 2
+# TYPE envoy_http1_metadata_not_supported_error counter
+envoy_http1_metadata_not_supported_error{} 0
+# TYPE envoy_http_downstream_cx_upgrades_total counter
+envoy_http_downstream_cx_upgrades_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_idle_timeout counter
+envoy_http_downstream_rq_idle_timeout{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_xx counter
+envoy_http_downstream_rq_xx{envoy_response_code_class="2",envoy_http_conn_manager_prefix="admin"} 403
+# TYPE envoy_cluster_manager_cluster_added counter
+envoy_cluster_manager_cluster_added{} 4
+# TYPE envoy_http_downstream_flow_control_paused_reading_total counter
+envoy_http_downstream_flow_control_paused_reading_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_idle_timeout counter
+envoy_http_downstream_cx_idle_timeout{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_tx_reset counter
+envoy_http_downstream_rq_tx_reset{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_cluster_manager_cluster_removed counter
+envoy_cluster_manager_cluster_removed{} 0
+# TYPE envoy_runtime_deprecated_feature_use counter
+envoy_runtime_deprecated_feature_use{} 4
+# TYPE envoy_server_static_unknown_fields counter
+envoy_server_static_unknown_fields{} 0
+# TYPE envoy_filesystem_write_failed counter
+envoy_filesystem_write_failed{} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="3",envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_debug_assertion_failures counter
+envoy_server_debug_assertion_failures{} 0
+# TYPE envoy_http_downstream_cx_protocol_error counter
+envoy_http_downstream_cx_protocol_error{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_http3_total counter
+envoy_http_downstream_rq_http3_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_filesystem_write_completed counter
+envoy_filesystem_write_completed{} 438
+# TYPE envoy_cluster_manager_cluster_updated_via_merge counter
+envoy_cluster_manager_cluster_updated_via_merge{} 0
+# TYPE envoy_server_worker_2_watchdog_mega_miss counter
+envoy_server_worker_2_watchdog_mega_miss{} 0
+# TYPE envoy_server_worker_2_watchdog_miss counter
+envoy_server_worker_2_watchdog_miss{} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="4",envoy_http_conn_manager_prefix="admin"} 3
+# TYPE envoy_server_main_thread_watchdog_miss counter
+envoy_server_main_thread_watchdog_miss{} 1
+# TYPE envoy_server_main_thread_watchdog_mega_miss counter
+envoy_server_main_thread_watchdog_mega_miss{} 1
+# TYPE envoy_http_rq_retry_skipped_request_not_complete counter
+envoy_http_rq_retry_skipped_request_not_complete{envoy_http_conn_manager_prefix="async-client"} 0
+# TYPE envoy_http_downstream_cx_http3_total counter
+envoy_http_downstream_cx_http3_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_destroy_remote_active_rq counter
+envoy_http_downstream_cx_destroy_remote_active_rq{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_rq_redirect counter
+envoy_http_rq_redirect{envoy_http_conn_manager_prefix="async-client"} 0
+# TYPE envoy_http1_dropped_headers_with_underscores counter
+envoy_http1_dropped_headers_with_underscores{} 0
+# TYPE envoy_filesystem_write_buffered counter
+envoy_filesystem_write_buffered{} 888
+# TYPE envoy_cluster_manager_cluster_modified counter
+envoy_cluster_manager_cluster_modified{} 0
+# TYPE envoy_http_downstream_cx_ssl_total counter
+envoy_http_downstream_cx_ssl_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_http1_total counter
+envoy_http_downstream_cx_http1_total{envoy_http_conn_manager_prefix="admin"} 8
+# TYPE envoy_server_worker_0_watchdog_miss counter
+envoy_server_worker_0_watchdog_miss{} 0
+# TYPE envoy_http_downstream_rq_total counter
+envoy_http_downstream_rq_total{envoy_http_conn_manager_prefix="admin"} 407
+# TYPE envoy_http_downstream_rq_max_duration_reached counter
+envoy_http_downstream_rq_max_duration_reached{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_rq_direct_response counter
+envoy_http_rq_direct_response{envoy_http_conn_manager_prefix="async-client"} 0
+# TYPE envoy_http_downstream_cx_max_duration_reached counter
+envoy_http_downstream_cx_max_duration_reached{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_runtime_override_dir_not_exists counter
+envoy_runtime_override_dir_not_exists{} 1
+# TYPE envoy_http_rq_total counter
+envoy_http_rq_total{envoy_http_conn_manager_prefix="async-client"} 3
+# TYPE envoy_http_downstream_rq_completed counter
+envoy_http_downstream_rq_completed{envoy_http_conn_manager_prefix="admin"} 406
+# TYPE envoy_runtime_override_dir_exists counter
+envoy_runtime_override_dir_exists{} 0
+# TYPE envoy_http_downstream_cx_rx_bytes_total counter
+envoy_http_downstream_cx_rx_bytes_total{envoy_http_conn_manager_prefix="admin"} 155560
+# TYPE envoy_http_downstream_rq_non_relative_path counter
+envoy_http_downstream_rq_non_relative_path{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_cluster_manager_update_out_of_merge_window counter
+envoy_cluster_manager_update_out_of_merge_window{} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="5",envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_http1_total counter
+envoy_http_downstream_rq_http1_total{envoy_http_conn_manager_prefix="admin"} 407
+# TYPE envoy_server_watchdog_mega_miss counter
+envoy_server_watchdog_mega_miss{} 3
+# TYPE envoy_runtime_load_success counter
+envoy_runtime_load_success{} 1
+# TYPE envoy_http_downstream_cx_delayed_close_timeout counter
+envoy_http_downstream_cx_delayed_close_timeout{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_destroy_active_rq counter
+envoy_http_downstream_cx_destroy_active_rq{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_flow_control_resumed_reading_total counter
+envoy_http_downstream_flow_control_resumed_reading_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_worker_1_watchdog_miss counter
+envoy_server_worker_1_watchdog_miss{} 0
+# TYPE envoy_http_downstream_cx_total counter
+envoy_http_downstream_cx_total{envoy_http_conn_manager_prefix="admin"} 8
+# TYPE envoy_http_downstream_cx_destroy_local_active_rq counter
+envoy_http_downstream_cx_destroy_local_active_rq{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_destroy_local counter
+envoy_http_downstream_cx_destroy_local{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_dynamic_unknown_fields counter
+envoy_server_dynamic_unknown_fields{} 0
+# TYPE envoy_http_downstream_rq_http2_total counter
+envoy_http_downstream_rq_http2_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_overload_close counter
+envoy_http_downstream_rq_overload_close{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_rx_reset counter
+envoy_http_downstream_rq_rx_reset{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_destroy counter
+envoy_http_downstream_cx_destroy{envoy_http_conn_manager_prefix="admin"} 6
+# TYPE envoy_http_downstream_rq_timeout counter
+envoy_http_downstream_rq_timeout{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_destroy_remote counter
+envoy_http_downstream_cx_destroy_remote{envoy_http_conn_manager_prefix="admin"} 6
+# TYPE envoy_http_downstream_cx_overload_disable_keepalive counter
+envoy_http_downstream_cx_overload_disable_keepalive{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_cx_tx_bytes_total counter
+envoy_http_downstream_cx_tx_bytes_total{envoy_http_conn_manager_prefix="admin"} 56559935
+# TYPE envoy_http_downstream_rq_ws_on_non_ws_route counter
+envoy_http_downstream_rq_ws_on_non_ws_route{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_runtime_load_error counter
+envoy_runtime_load_error{} 0
+# TYPE envoy_cluster_manager_update_merge_cancelled counter
+envoy_cluster_manager_update_merge_cancelled{} 0
+# TYPE envoy_http_no_route counter
+envoy_http_no_route{envoy_http_conn_manager_prefix="async-client"} 0
+# TYPE envoy_http_downstream_rq_too_large counter
+envoy_http_downstream_rq_too_large{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http1_response_flood counter
+envoy_http1_response_flood{} 0
+# TYPE envoy_filesystem_reopen_failed counter
+envoy_filesystem_reopen_failed{} 0
+# TYPE envoy_http_downstream_cx_drain_close counter
+envoy_http_downstream_cx_drain_close{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_rs_too_large counter
+envoy_http_rs_too_large{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http1_requests_rejected_with_underscores_in_headers counter
+envoy_http1_requests_rejected_with_underscores_in_headers{} 0
+# TYPE envoy_cluster_manager_cluster_updated counter
+envoy_cluster_manager_cluster_updated{} 0
+# TYPE envoy_server_worker_0_watchdog_mega_miss counter
+envoy_server_worker_0_watchdog_mega_miss{} 0
+# TYPE envoy_filesystem_flushed_by_timer counter
+envoy_filesystem_flushed_by_timer{} 1196
+envoy_http_downstream_rq_xx{envoy_response_code_class="1",envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_downstream_rq_response_before_rq_complete counter
+envoy_http_downstream_rq_response_before_rq_complete{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_http_rq_reset_after_downstream_response_started counter
+envoy_http_rq_reset_after_downstream_response_started{envoy_http_conn_manager_prefix="async-client"} 0
+# TYPE envoy_server_worker_3_watchdog_miss counter
+envoy_server_worker_3_watchdog_miss{} 2
+# TYPE envoy_http_downstream_cx_http2_total counter
+envoy_http_downstream_cx_http2_total{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_watchdog_miss counter
+envoy_server_watchdog_miss{} 3
+# TYPE envoy_server_worker_1_watchdog_mega_miss counter
+envoy_server_worker_1_watchdog_mega_miss{} 0
+# TYPE envoy_http_no_cluster counter
+envoy_http_no_cluster{envoy_http_conn_manager_prefix="async-client"} 0
+# TYPE envoy_cluster_original_dst_host_invalid counter
+envoy_cluster_original_dst_host_invalid{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_protocol_error counter
+envoy_cluster_upstream_cx_protocol_error{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_subsets_created counter
+envoy_cluster_lb_subsets_created{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_retry_overflow counter
+envoy_cluster_upstream_rq_retry_overflow{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_http1_total counter
+envoy_cluster_upstream_cx_http1_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_retry_limit_exceeded counter
+envoy_cluster_upstream_rq_retry_limit_exceeded{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_tx_reset counter
+envoy_cluster_upstream_rq_tx_reset{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_membership_change counter
+envoy_cluster_membership_change{envoy_cluster_name="saaras-enroute_enroute_8003"} 1
+# TYPE envoy_cluster_lb_subsets_fallback_panic counter
+envoy_cluster_lb_subsets_fallback_panic{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_destroy counter
+envoy_cluster_upstream_cx_destroy{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_rx_bytes_total counter
+envoy_cluster_upstream_cx_rx_bytes_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_assignment_stale counter
+envoy_cluster_assignment_stale{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_zone_routing_sampled counter
+envoy_cluster_lb_zone_routing_sampled{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_bind_errors counter
+envoy_cluster_bind_errors{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_cancelled counter
+envoy_cluster_upstream_rq_cancelled{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_retry counter
+envoy_cluster_upstream_rq_retry{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_internal_redirect_succeeded_total counter
+envoy_cluster_upstream_internal_redirect_succeeded_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_subsets_selected counter
+envoy_cluster_lb_subsets_selected{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_destroy_remote counter
+envoy_cluster_upstream_cx_destroy_remote{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_close_notify counter
+envoy_cluster_upstream_cx_close_notify{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_local_cluster_not_ok counter
+envoy_cluster_lb_local_cluster_not_ok{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_maintenance_mode counter
+envoy_cluster_upstream_rq_maintenance_mode{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_flow_control_drained_total counter
+envoy_cluster_upstream_flow_control_drained_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_max_requests counter
+envoy_cluster_upstream_cx_max_requests{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_flow_control_resumed_reading_total counter
+envoy_cluster_upstream_flow_control_resumed_reading_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_pending_overflow counter
+envoy_cluster_upstream_rq_pending_overflow{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_tx_bytes_total counter
+envoy_cluster_upstream_cx_tx_bytes_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_connect_fail counter
+envoy_cluster_upstream_cx_connect_fail{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_zone_no_capacity_left counter
+envoy_cluster_lb_zone_no_capacity_left{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_zone_cluster_too_small counter
+envoy_cluster_lb_zone_cluster_too_small{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_connect_attempts_exceeded counter
+envoy_cluster_upstream_cx_connect_attempts_exceeded{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_destroy_local counter
+envoy_cluster_upstream_cx_destroy_local{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_destroy_remote_with_active_rq counter
+envoy_cluster_upstream_cx_destroy_remote_with_active_rq{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_recalculate_zone_structures counter
+envoy_cluster_lb_recalculate_zone_structures{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_internal_redirect_failed_total counter
+envoy_cluster_upstream_internal_redirect_failed_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_healthy_panic counter
+envoy_cluster_lb_healthy_panic{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_pending_failure_eject counter
+envoy_cluster_upstream_rq_pending_failure_eject{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_total counter
+envoy_cluster_upstream_rq_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_update_success counter
+envoy_cluster_update_success{envoy_cluster_name="saaras-enroute_enroute_8003"} 1200
+# TYPE envoy_cluster_upstream_rq_timeout counter
+envoy_cluster_upstream_rq_timeout{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_completed counter
+envoy_cluster_upstream_rq_completed{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_zone_routing_all_directly counter
+envoy_cluster_lb_zone_routing_all_directly{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_subsets_removed counter
+envoy_cluster_lb_subsets_removed{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_update_failure counter
+envoy_cluster_update_failure{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_http2_total counter
+envoy_cluster_upstream_cx_http2_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_pool_overflow counter
+envoy_cluster_upstream_cx_pool_overflow{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_retry_success counter
+envoy_cluster_upstream_rq_retry_success{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_retry_or_shadow_abandoned counter
+envoy_cluster_retry_or_shadow_abandoned{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_rx_reset counter
+envoy_cluster_upstream_rq_rx_reset{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_destroy_with_active_rq counter
+envoy_cluster_upstream_cx_destroy_with_active_rq{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_flow_control_backed_up_total counter
+envoy_cluster_upstream_flow_control_backed_up_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_subsets_fallback counter
+envoy_cluster_lb_subsets_fallback{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_flow_control_paused_reading_total counter
+envoy_cluster_upstream_flow_control_paused_reading_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_connect_timeout counter
+envoy_cluster_upstream_cx_connect_timeout{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_destroy_local_with_active_rq counter
+envoy_cluster_upstream_cx_destroy_local_with_active_rq{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_zone_number_differs counter
+envoy_cluster_lb_zone_number_differs{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_zone_routing_cross_zone counter
+envoy_cluster_lb_zone_routing_cross_zone{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_update_empty counter
+envoy_cluster_update_empty{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_update_no_rebuild counter
+envoy_cluster_update_no_rebuild{envoy_cluster_name="saaras-enroute_enroute_8003"} 1199
+# TYPE envoy_cluster_upstream_cx_idle_timeout counter
+envoy_cluster_upstream_cx_idle_timeout{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_overflow counter
+envoy_cluster_upstream_cx_overflow{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_assignment_timeout_received counter
+envoy_cluster_assignment_timeout_received{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_total counter
+envoy_cluster_upstream_cx_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_pending_total counter
+envoy_cluster_upstream_rq_pending_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_none_healthy counter
+envoy_cluster_upstream_cx_none_healthy{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_update_attempt counter
+envoy_cluster_update_attempt{envoy_cluster_name="saaras-enroute_enroute_8003"} 1200
+# TYPE envoy_cluster_upstream_rq_per_try_timeout counter
+envoy_cluster_upstream_rq_per_try_timeout{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_default_total_match_count counter
+envoy_cluster_default_total_match_count{envoy_cluster_name="saaras-enroute_enroute_8003"} 1200
+envoy_http_downstream_rq_xx{envoy_response_code_class="5",envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_no_cluster{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_total{envoy_http_conn_manager_prefix="stats"} 2
+envoy_http_downstream_cx_drain_close{envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_http_tracing_health_check counter
+envoy_http_tracing_health_check{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_destroy_remote{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_rx_bytes_total{envoy_http_conn_manager_prefix="stats"} 100894
+envoy_http_downstream_rq_http3_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_destroy_remote_active_rq{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_max_duration_reached{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_tx_reset{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_completed{envoy_http_conn_manager_prefix="stats"} 400
+envoy_http_rq_redirect{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_rq_direct_response{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_http2_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_http2_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_ws_on_non_ws_route{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_rq_retry_skipped_request_not_complete{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_ssl_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_rq_total{envoy_http_conn_manager_prefix="stats"} 401
+envoy_http_rq_reset_after_downstream_response_started{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_idle_timeout{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_overload_close{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_rx_reset{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_upgrades_total{envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_http_tracing_not_traceable counter
+envoy_http_tracing_not_traceable{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_destroy{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_rs_too_large{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="4",envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_destroy_local_active_rq{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_response_before_rq_complete{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_protocol_error{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_http3_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_too_large{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_total{envoy_http_conn_manager_prefix="stats"} 401
+envoy_http_no_route{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="2",envoy_http_conn_manager_prefix="stats"} 400
+envoy_http_downstream_flow_control_paused_reading_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_timeout{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_overload_disable_keepalive{envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_http_tracing_client_enabled counter
+envoy_http_tracing_client_enabled{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_destroy_active_rq{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="1",envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="3",envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_http_tracing_service_forced counter
+envoy_http_tracing_service_forced{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_http1_total{envoy_http_conn_manager_prefix="stats"} 2
+envoy_http_downstream_rq_idle_timeout{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_destroy_local{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_delayed_close_timeout{envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_http_tracing_random_sampling counter
+envoy_http_tracing_random_sampling{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_max_duration_reached{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_tx_bytes_total{envoy_http_conn_manager_prefix="stats"} 56562049
+envoy_http_downstream_flow_control_resumed_reading_total{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_http1_total{envoy_http_conn_manager_prefix="stats"} 401
+envoy_http_downstream_rq_non_relative_path{envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_listener_manager_listener_added counter
+envoy_listener_manager_listener_added{} 2
+# TYPE envoy_listener_manager_listener_create_success counter
+envoy_listener_manager_listener_create_success{} 8
+# TYPE envoy_listener_manager_listener_create_failure counter
+envoy_listener_manager_listener_create_failure{} 0
+# TYPE envoy_listener_manager_listener_modified counter
+envoy_listener_manager_listener_modified{} 0
+# TYPE envoy_listener_manager_listener_removed counter
+envoy_listener_manager_listener_removed{} 0
+# TYPE envoy_listener_manager_listener_stopped counter
+envoy_listener_manager_listener_stopped{} 0
+envoy_vhost_vcluster_upstream_rq_retry_overflow{envoy_virtual_cluster="other",envoy_virtual_host="backend"} 0
+envoy_vhost_vcluster_upstream_rq_retry_success{envoy_virtual_cluster="other",envoy_virtual_host="backend"} 0
+envoy_vhost_vcluster_upstream_rq_timeout{envoy_virtual_cluster="other",envoy_virtual_host="backend"} 0
+envoy_vhost_vcluster_upstream_rq_retry{envoy_virtual_cluster="other",envoy_virtual_host="backend"} 0
+envoy_vhost_vcluster_upstream_rq_total{envoy_virtual_cluster="other",envoy_virtual_host="backend"} 0
+envoy_vhost_vcluster_upstream_rq_retry_limit_exceeded{envoy_virtual_cluster="other",envoy_virtual_host="backend"} 0
+# TYPE envoy_listener_admin_http_downstream_rq_xx counter
+envoy_listener_admin_http_downstream_rq_xx{envoy_response_code_class="2",envoy_http_conn_manager_prefix="admin"} 403
+# TYPE envoy_listener_admin_downstream_pre_cx_timeout counter
+envoy_listener_admin_downstream_pre_cx_timeout{} 0
+envoy_listener_admin_http_downstream_rq_xx{envoy_response_code_class="5",envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_listener_admin_http_downstream_rq_completed counter
+envoy_listener_admin_http_downstream_rq_completed{envoy_http_conn_manager_prefix="admin"} 406
+envoy_listener_admin_http_downstream_rq_xx{envoy_response_code_class="1",envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_listener_admin_downstream_cx_total counter
+envoy_listener_admin_downstream_cx_total{} 8
+envoy_listener_admin_http_downstream_rq_xx{envoy_response_code_class="3",envoy_http_conn_manager_prefix="admin"} 0
+envoy_listener_admin_http_downstream_rq_xx{envoy_response_code_class="4",envoy_http_conn_manager_prefix="admin"} 3
+# TYPE envoy_listener_admin_main_thread_downstream_cx_total counter
+envoy_listener_admin_main_thread_downstream_cx_total{} 8
+# TYPE envoy_listener_admin_downstream_cx_destroy counter
+envoy_listener_admin_downstream_cx_destroy{} 6
+# TYPE envoy_listener_admin_no_filter_chain_match counter
+envoy_listener_admin_no_filter_chain_match{} 0
+envoy_cluster_upstream_cx_pool_overflow{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+# TYPE envoy_cluster_http1_response_flood counter
+envoy_cluster_http1_response_flood{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_internal_redirect_succeeded_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_destroy_local_with_active_rq{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_protocol_error{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_completed{envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+envoy_cluster_upstream_cx_tx_bytes_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 155029
+envoy_cluster_upstream_cx_none_healthy{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_cancelled{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+# TYPE envoy_cluster_external_upstream_rq counter
+envoy_cluster_external_upstream_rq{envoy_response_code="200",envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+envoy_cluster_lb_subsets_fallback_panic{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_retry{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_update_empty{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_bind_errors{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_destroy_remote_with_active_rq{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_destroy_local{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_idle_timeout{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_assignment_stale{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_max_requests{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_update_attempt{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1200
+envoy_cluster_upstream_cx_http2_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_connect_attempts_exceeded{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 2
+envoy_cluster_lb_recalculate_zone_structures{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_original_dst_host_invalid{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_flow_control_backed_up_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_flow_control_resumed_reading_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_timeout{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+# TYPE envoy_cluster_upstream_rq_xx counter
+envoy_cluster_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+# TYPE envoy_cluster_upstream_rq counter
+envoy_cluster_upstream_rq{envoy_response_code="200",envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+# TYPE envoy_cluster_external_upstream_rq_xx counter
+envoy_cluster_external_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+envoy_cluster_upstream_flow_control_drained_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_retry_success{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_subsets_selected{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_close_notify{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_assignment_timeout_received{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_zone_routing_all_directly{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_zone_cluster_too_small{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_membership_change{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1
+envoy_cluster_upstream_rq_pending_overflow{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_flow_control_paused_reading_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_retry_overflow{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 401
+envoy_cluster_default_total_match_count{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1
+envoy_cluster_upstream_cx_destroy{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_overflow{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_subsets_removed{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_rx_reset{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_pending_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 2
+envoy_cluster_upstream_cx_destroy_remote{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_subsets_created{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+# TYPE envoy_cluster_http1_dropped_headers_with_underscores counter
+envoy_cluster_http1_dropped_headers_with_underscores{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_per_try_timeout{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_local_cluster_not_ok{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_update_success{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1200
+envoy_cluster_lb_subsets_fallback{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_zone_no_capacity_left{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_destroy_with_active_rq{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+# TYPE envoy_cluster_http1_requests_rejected_with_underscores_in_headers counter
+envoy_cluster_http1_requests_rejected_with_underscores_in_headers{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+# TYPE envoy_cluster_external_upstream_rq_completed counter
+envoy_cluster_external_upstream_rq_completed{envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+envoy_cluster_lb_zone_number_differs{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_retry_limit_exceeded{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_update_no_rebuild{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_maintenance_mode{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_tx_reset{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_healthy_panic{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_retry_or_shadow_abandoned{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_pending_failure_eject{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_zone_routing_cross_zone{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_zone_routing_sampled{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_update_failure{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_connect_fail{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_connect_timeout{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_http1_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 2
+envoy_cluster_upstream_internal_redirect_failed_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_rx_bytes_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 56548449
+# TYPE envoy_cluster_http1_metadata_not_supported_error counter
+envoy_cluster_http1_metadata_not_supported_error{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_idle_timeout{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_update_success{envoy_cluster_name="saaras-enroute_enroute_8001"} 1200
+# TYPE envoy_cluster_http2_outbound_control_flood counter
+envoy_cluster_http2_outbound_control_flood{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_connect_fail{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_destroy_remote_with_active_rq{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_upstream_flow_control_backed_up_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_zone_routing_cross_zone{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_recalculate_zone_structures{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_http1_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_rx_reset counter
+envoy_cluster_http2_rx_reset{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_timeout{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_too_many_header_frames counter
+envoy_cluster_http2_too_many_header_frames{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_flow_control_drained_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_retry_or_shadow_abandoned{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_per_try_timeout{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_update_no_rebuild{envoy_cluster_name="saaras-enroute_enroute_8001"} 1199
+envoy_cluster_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+envoy_cluster_upstream_rq_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+# TYPE envoy_cluster_http2_inbound_window_update_frames_flood counter
+envoy_cluster_http2_inbound_window_update_frames_flood{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_tx_reset counter
+envoy_cluster_http2_tx_reset{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_pending_overflow{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_zone_cluster_too_small{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_internal_upstream_rq_completed counter
+envoy_cluster_internal_upstream_rq_completed{envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+# TYPE envoy_cluster_internal_upstream_rq counter
+envoy_cluster_internal_upstream_rq{envoy_response_code="200",envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+envoy_cluster_update_empty{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_max_requests{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_retry_overflow{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_destroy_local{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_pending_failure_eject{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_assignment_stale{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_destroy{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_zone_no_capacity_left{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_bind_errors{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_destroy_remote{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_retry_success{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_header_overflow counter
+envoy_cluster_http2_header_overflow{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_pool_overflow{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_subsets_fallback{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_http2_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_upstream_internal_redirect_failed_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_completed{envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+envoy_cluster_upstream_cx_connect_timeout{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_zone_routing_all_directly{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_destroy_local_with_active_rq{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_dropped_headers_with_underscores counter
+envoy_cluster_http2_dropped_headers_with_underscores{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_update_failure{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_requests_rejected_with_underscores_in_headers counter
+envoy_cluster_http2_requests_rejected_with_underscores_in_headers{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_outbound_flood counter
+envoy_cluster_http2_outbound_flood{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_retry{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_tx_reset{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_local_cluster_not_ok{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq{envoy_response_code="200",envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+# TYPE envoy_cluster_http2_inbound_priority_frames_flood counter
+envoy_cluster_http2_inbound_priority_frames_flood{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_flow_control_paused_reading_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_zone_routing_sampled{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_membership_change{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+# TYPE envoy_cluster_http2_headers_cb_no_stream counter
+envoy_cluster_http2_headers_cb_no_stream{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_zone_number_differs{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_healthy_panic{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_connect_attempts_exceeded{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_destroy_with_active_rq{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_none_healthy{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_close_notify{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_inbound_empty_frames_flood counter
+envoy_cluster_http2_inbound_empty_frames_flood{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_flow_control_resumed_reading_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_internal_redirect_succeeded_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_rx_bytes_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 5812
+envoy_cluster_upstream_rq_pending_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_upstream_rq_rx_reset{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_trailers counter
+envoy_cluster_http2_trailers{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_assignment_timeout_received{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_default_total_match_count{envoy_cluster_name="saaras-enroute_enroute_8001"} 1200
+envoy_cluster_original_dst_host_invalid{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_http2_rx_messaging_error counter
+envoy_cluster_http2_rx_messaging_error{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_cancelled{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_retry_limit_exceeded{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_subsets_fallback_panic{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_overflow{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_update_attempt{envoy_cluster_name="saaras-enroute_enroute_8001"} 1200
+envoy_cluster_lb_subsets_removed{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_protocol_error{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_maintenance_mode{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_internal_upstream_rq_xx counter
+envoy_cluster_internal_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+envoy_cluster_lb_subsets_created{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_tx_bytes_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 81897
+envoy_cluster_lb_subsets_selected{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_rx_bytes_total counter
+envoy_cluster_swagger_io_80_upstream_cx_rx_bytes_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 1739143479
+# TYPE envoy_cluster_swagger_io_80_lb_zone_no_capacity_left counter
+envoy_cluster_swagger_io_80_lb_zone_no_capacity_left{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_healthy_panic counter
+envoy_cluster_swagger_io_80_lb_healthy_panic{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_close_notify counter
+envoy_cluster_swagger_io_80_upstream_cx_close_notify{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_http1_requests_rejected_with_underscores_in_headers counter
+envoy_cluster_swagger_io_80_http1_requests_rejected_with_underscores_in_headers{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_zone_cluster_too_small counter
+envoy_cluster_swagger_io_80_lb_zone_cluster_too_small{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_connect_attempts_exceeded counter
+envoy_cluster_swagger_io_80_upstream_cx_connect_attempts_exceeded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_subsets_fallback_panic counter
+envoy_cluster_swagger_io_80_lb_subsets_fallback_panic{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_zone_routing_cross_zone counter
+envoy_cluster_swagger_io_80_lb_zone_routing_cross_zone{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_assignment_stale counter
+envoy_cluster_swagger_io_80_assignment_stale{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_destroy_local counter
+envoy_cluster_swagger_io_80_upstream_cx_destroy_local{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+# TYPE envoy_cluster_swagger_io_80_upstream_flow_control_resumed_reading_total counter
+envoy_cluster_swagger_io_80_upstream_flow_control_resumed_reading_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 11
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_tx_bytes_total counter
+envoy_cluster_swagger_io_80_upstream_cx_tx_bytes_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 163880
+# TYPE envoy_cluster_swagger_io_80_default_total_match_count counter
+envoy_cluster_swagger_io_80_default_total_match_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 2384
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_connect_timeout counter
+envoy_cluster_swagger_io_80_upstream_cx_connect_timeout{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_update_success counter
+envoy_cluster_swagger_io_80_update_success{envoy_cluster_name="gw_openapi-upstream-petstore"} 1192
+# TYPE envoy_cluster_swagger_io_80_upstream_internal_redirect_failed_total counter
+envoy_cluster_swagger_io_80_upstream_internal_redirect_failed_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_pending_total counter
+envoy_cluster_swagger_io_80_upstream_rq_pending_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_tx_reset counter
+envoy_cluster_swagger_io_80_upstream_rq_tx_reset{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_http1_dropped_headers_with_underscores counter
+envoy_cluster_swagger_io_80_http1_dropped_headers_with_underscores{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_internal_upstream_rq_xx counter
+envoy_cluster_swagger_io_80_internal_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_xx counter
+envoy_cluster_swagger_io_80_upstream_rq_xx{envoy_response_code_class="2",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_membership_change counter
+envoy_cluster_swagger_io_80_membership_change{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_http1_total counter
+envoy_cluster_swagger_io_80_upstream_cx_http1_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+# TYPE envoy_cluster_swagger_io_80_upstream_flow_control_drained_total counter
+envoy_cluster_swagger_io_80_upstream_flow_control_drained_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_internal_upstream_rq counter
+envoy_cluster_swagger_io_80_internal_upstream_rq{envoy_response_code="200",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_protocol_error counter
+envoy_cluster_swagger_io_80_upstream_cx_protocol_error{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_update_no_rebuild counter
+envoy_cluster_swagger_io_80_update_no_rebuild{envoy_cluster_name="gw_openapi-upstream-petstore"} 1191
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_overflow counter
+envoy_cluster_swagger_io_80_upstream_cx_overflow{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_update_empty counter
+envoy_cluster_swagger_io_80_update_empty{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_destroy_remote counter
+envoy_cluster_swagger_io_80_upstream_cx_destroy_remote{envoy_cluster_name="gw_openapi-upstream-petstore"} 12
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_retry_overflow counter
+envoy_cluster_swagger_io_80_upstream_rq_retry_overflow{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_recalculate_zone_structures counter
+envoy_cluster_swagger_io_80_lb_recalculate_zone_structures{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_destroy_local_with_active_rq counter
+envoy_cluster_swagger_io_80_upstream_cx_destroy_local_with_active_rq{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_destroy_with_active_rq counter
+envoy_cluster_swagger_io_80_upstream_cx_destroy_with_active_rq{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+# TYPE envoy_cluster_swagger_io_80_upstream_internal_redirect_succeeded_total counter
+envoy_cluster_swagger_io_80_upstream_internal_redirect_succeeded_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_retry counter
+envoy_cluster_swagger_io_80_upstream_rq_retry{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_original_dst_host_invalid counter
+envoy_cluster_swagger_io_80_original_dst_host_invalid{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_per_try_timeout counter
+envoy_cluster_swagger_io_80_upstream_rq_per_try_timeout{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_flow_control_paused_reading_total counter
+envoy_cluster_swagger_io_80_upstream_flow_control_paused_reading_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 11
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_retry_limit_exceeded counter
+envoy_cluster_swagger_io_80_upstream_rq_retry_limit_exceeded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_retry_or_shadow_abandoned counter
+envoy_cluster_swagger_io_80_retry_or_shadow_abandoned{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_subsets_removed counter
+envoy_cluster_swagger_io_80_lb_subsets_removed{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_update_attempt counter
+envoy_cluster_swagger_io_80_update_attempt{envoy_cluster_name="gw_openapi-upstream-petstore"} 1192
+# TYPE envoy_cluster_swagger_io_80_lb_zone_number_differs counter
+envoy_cluster_swagger_io_80_lb_zone_number_differs{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_idle_timeout counter
+envoy_cluster_swagger_io_80_upstream_cx_idle_timeout{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_maintenance_mode counter
+envoy_cluster_swagger_io_80_upstream_rq_maintenance_mode{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_internal_upstream_rq_completed counter
+envoy_cluster_swagger_io_80_internal_upstream_rq_completed{envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_lb_subsets_created counter
+envoy_cluster_swagger_io_80_lb_subsets_created{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_none_healthy counter
+envoy_cluster_swagger_io_80_upstream_cx_none_healthy{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_rx_reset counter
+envoy_cluster_swagger_io_80_upstream_rq_rx_reset{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_pending_failure_eject counter
+envoy_cluster_swagger_io_80_upstream_rq_pending_failure_eject{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_timeout counter
+envoy_cluster_swagger_io_80_upstream_rq_timeout{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_pool_overflow counter
+envoy_cluster_swagger_io_80_upstream_cx_pool_overflow{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_max_requests counter
+envoy_cluster_swagger_io_80_upstream_cx_max_requests{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_connect_fail counter
+envoy_cluster_swagger_io_80_upstream_cx_connect_fail{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_total counter
+envoy_cluster_swagger_io_80_upstream_cx_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_cancelled counter
+envoy_cluster_swagger_io_80_upstream_rq_cancelled{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_http1_metadata_not_supported_error counter
+envoy_cluster_swagger_io_80_http1_metadata_not_supported_error{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_completed counter
+envoy_cluster_swagger_io_80_upstream_rq_completed{envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_update_failure counter
+envoy_cluster_swagger_io_80_update_failure{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_retry_success counter
+envoy_cluster_swagger_io_80_upstream_rq_retry_success{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_flow_control_backed_up_total counter
+envoy_cluster_swagger_io_80_upstream_flow_control_backed_up_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_total counter
+envoy_cluster_swagger_io_80_upstream_rq_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_lb_subsets_selected counter
+envoy_cluster_swagger_io_80_lb_subsets_selected{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_zone_routing_all_directly counter
+envoy_cluster_swagger_io_80_lb_zone_routing_all_directly{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_subsets_fallback counter
+envoy_cluster_swagger_io_80_lb_subsets_fallback{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_local_cluster_not_ok counter
+envoy_cluster_swagger_io_80_lb_local_cluster_not_ok{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_bind_errors counter
+envoy_cluster_swagger_io_80_bind_errors{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_destroy_remote_with_active_rq counter
+envoy_cluster_swagger_io_80_upstream_cx_destroy_remote_with_active_rq{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_http2_total counter
+envoy_cluster_swagger_io_80_upstream_cx_http2_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_assignment_timeout_received counter
+envoy_cluster_swagger_io_80_assignment_timeout_received{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_http1_response_flood counter
+envoy_cluster_swagger_io_80_http1_response_flood{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq counter
+envoy_cluster_swagger_io_80_upstream_rq{envoy_response_code="200",envoy_cluster_name="gw_openapi-upstream-petstore"} 482
+# TYPE envoy_cluster_swagger_io_80_lb_zone_routing_sampled counter
+envoy_cluster_swagger_io_80_lb_zone_routing_sampled{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_pending_overflow counter
+envoy_cluster_swagger_io_80_upstream_rq_pending_overflow{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_destroy counter
+envoy_cluster_swagger_io_80_upstream_cx_destroy{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+# TYPE envoy_cluster_manager_cds_init_fetch_timeout counter
+envoy_cluster_manager_cds_init_fetch_timeout{} 0
+# TYPE envoy_cluster_manager_cds_update_rejected counter
+envoy_cluster_manager_cds_update_rejected{} 0
+# TYPE envoy_cluster_manager_cds_update_attempt counter
+envoy_cluster_manager_cds_update_attempt{} 4
+# TYPE envoy_cluster_manager_cds_update_success counter
+envoy_cluster_manager_cds_update_success{} 3
+# TYPE envoy_cluster_manager_cds_control_plane_rate_limit_enforced counter
+envoy_cluster_manager_cds_control_plane_rate_limit_enforced{} 0
+# TYPE envoy_cluster_manager_cds_update_failure counter
+envoy_cluster_manager_cds_update_failure{} 0
+# TYPE envoy_http_rds_init_fetch_timeout counter
+envoy_http_rds_init_fetch_timeout{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 0
+# TYPE envoy_http_rds_update_attempt counter
+envoy_http_rds_update_attempt{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 2
+# TYPE envoy_http_rds_update_failure counter
+envoy_http_rds_update_failure{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 0
+# TYPE envoy_http_rds_update_rejected counter
+envoy_http_rds_update_rejected{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 0
+# TYPE envoy_http_rds_rate_limit_enforced counter
+envoy_http_rds_rate_limit_enforced{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http.control_plane"} 0
+# TYPE envoy_http_rds_update_success counter
+envoy_http_rds_update_success{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 1
+# TYPE envoy_http_rds_update_empty counter
+envoy_http_rds_update_empty{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 0
+# TYPE envoy_http_rds_config_reload counter
+envoy_http_rds_config_reload{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 1
+envoy_listener_no_filter_chain_match{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="4",envoy_http_conn_manager_prefix="stats",envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_downstream_pre_cx_timeout{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_worker_1_downstream_cx_total{envoy_listener_address="0.0.0.0_8002"} 1
+envoy_listener_worker_0_downstream_cx_total{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_worker_2_downstream_cx_total{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_worker_3_downstream_cx_total{envoy_listener_address="0.0.0.0_8002"} 1
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="2",envoy_http_conn_manager_prefix="stats",envoy_listener_address="0.0.0.0_8002"} 400
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="1",envoy_http_conn_manager_prefix="stats",envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_downstream_cx_destroy{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_http_downstream_rq_completed{envoy_http_conn_manager_prefix="stats",envoy_listener_address="0.0.0.0_8002"} 400
+envoy_listener_downstream_cx_total{envoy_listener_address="0.0.0.0_8002"} 2
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="5",envoy_http_conn_manager_prefix="stats",envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_http_downstream_rq_xx{envoy_response_code_class="3",envoy_http_conn_manager_prefix="stats",envoy_listener_address="0.0.0.0_8002"} 0
+envoy_http_downstream_rq_response_before_rq_complete{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_destroy_local{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_total{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_tracing_random_sampling{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_tracing_client_enabled{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_destroy_local_active_rq{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_destroy_active_rq{envoy_http_conn_manager_prefix="ingress_http"} 1
+envoy_http_downstream_cx_http1_total{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_cx_max_duration_reached{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_http2_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_idle_timeout{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_not_compressed_etag counter
+envoy_http_gzip_not_compressed_etag{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_rs_too_large{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_tx_reset{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_protocol_error{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_rq_total{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_cx_ssl_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_header_compressor_overshadowed counter
+envoy_http_gzip_header_compressor_overshadowed{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_tx_bytes_total{envoy_http_conn_manager_prefix="ingress_http"} 1740056110
+envoy_http_downstream_rq_http1_total{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_rq_reset_after_downstream_response_started{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_tracing_service_forced{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="4",envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_http3_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_header_not_valid counter
+envoy_http_gzip_header_not_valid{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_destroy_remote{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_rq_xx{envoy_response_code_class="3",envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_drain_close{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_flow_control_paused_reading_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_overload_close{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_no_cluster{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_upgrades_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_header_wildcard counter
+envoy_http_gzip_header_wildcard{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_rq_retry_skipped_request_not_complete{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_total_compressed_bytes counter
+envoy_http_gzip_total_compressed_bytes{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_rx_bytes_total{envoy_http_conn_manager_prefix="ingress_http"} 54948
+# TYPE envoy_http_gzip_header_identity counter
+envoy_http_gzip_header_identity{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_content_length_too_small counter
+envoy_http_gzip_content_length_too_small{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_rq_direct_response{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_header_gzip counter
+envoy_http_gzip_header_gzip{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_rx_reset{envoy_http_conn_manager_prefix="ingress_http"} 1
+# TYPE envoy_http_gzip_compressed counter
+envoy_http_gzip_compressed{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_no_accept_header counter
+envoy_http_gzip_no_accept_header{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_rq_redirect{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_delayed_close_timeout{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_http3_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_tracing_not_traceable{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_header_compressor_used counter
+envoy_http_gzip_header_compressor_used{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_ws_on_non_ws_route{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_http_gzip_total_uncompressed_bytes counter
+envoy_http_gzip_total_uncompressed_bytes{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="5",envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_destroy{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_rq_xx{envoy_response_code_class="2",envoy_http_conn_manager_prefix="ingress_http"} 482
+# TYPE envoy_http_gzip_not_compressed counter
+envoy_http_gzip_not_compressed{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_rq_non_relative_path{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_destroy_remote_active_rq{envoy_http_conn_manager_prefix="ingress_http"} 1
+envoy_http_downstream_rq_max_duration_reached{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_completed{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_cx_http2_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_no_route{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_too_large{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_idle_timeout{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_timeout{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_overload_disable_keepalive{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_total{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_flow_control_resumed_reading_total{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_xx{envoy_response_code_class="1",envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_tracing_health_check{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_listener_manager_lds_update_attempt counter
+envoy_listener_manager_lds_update_attempt{} 4
+# TYPE envoy_listener_manager_lds_update_failure counter
+envoy_listener_manager_lds_update_failure{} 0
+# TYPE envoy_listener_manager_lds_update_rejected counter
+envoy_listener_manager_lds_update_rejected{} 0
+# TYPE envoy_listener_manager_lds_update_success counter
+envoy_listener_manager_lds_update_success{} 3
+# TYPE envoy_listener_manager_lds_control_plane_rate_limit_enforced counter
+envoy_listener_manager_lds_control_plane_rate_limit_enforced{} 0
+# TYPE envoy_listener_manager_lds_init_fetch_timeout counter
+envoy_listener_manager_lds_init_fetch_timeout{} 0
+# TYPE envoy_listener_downstream_cx_active gauge
+envoy_listener_downstream_cx_active{envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_worker_2_downstream_cx_active gauge
+envoy_listener_worker_2_downstream_cx_active{envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_worker_3_downstream_cx_active gauge
+envoy_listener_worker_3_downstream_cx_active{envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_downstream_pre_cx_active gauge
+envoy_listener_downstream_pre_cx_active{envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_worker_0_downstream_cx_active gauge
+envoy_listener_worker_0_downstream_cx_active{envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_listener_worker_1_downstream_cx_active gauge
+envoy_listener_worker_1_downstream_cx_active{envoy_listener_address="0.0.0.0_8080"} 0
+# TYPE envoy_server_state gauge
+envoy_server_state{} 0
+# TYPE envoy_server_uptime gauge
+envoy_server_uptime{} 5999
+# TYPE envoy_server_memory_physical_size gauge
+envoy_server_memory_physical_size{} 18350080
+# TYPE envoy_server_version gauge
+envoy_server_version{} 3474644
+# TYPE envoy_http_downstream_cx_http1_active gauge
+envoy_http_downstream_cx_http1_active{envoy_http_conn_manager_prefix="admin"} 2
+# TYPE envoy_http_downstream_cx_upgrades_active gauge
+envoy_http_downstream_cx_upgrades_active{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_cluster_manager_active_clusters gauge
+envoy_cluster_manager_active_clusters{} 4
+# TYPE envoy_cluster_manager_warming_clusters gauge
+envoy_cluster_manager_warming_clusters{} 0
+# TYPE envoy_server_concurrency gauge
+envoy_server_concurrency{} 4
+# TYPE envoy_filesystem_write_total_buffered gauge
+envoy_filesystem_write_total_buffered{} 175
+# TYPE envoy_server_parent_connections gauge
+envoy_server_parent_connections{} 0
+# TYPE envoy_http_downstream_cx_http3_active gauge
+envoy_http_downstream_cx_http3_active{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_runtime_admin_overrides_active gauge
+envoy_runtime_admin_overrides_active{} 0
+# TYPE envoy_http_downstream_cx_rx_bytes_buffered gauge
+envoy_http_downstream_cx_rx_bytes_buffered{envoy_http_conn_manager_prefix="admin"} 616
+# TYPE envoy_server_hot_restart_epoch gauge
+envoy_server_hot_restart_epoch{} 0
+# TYPE envoy_server_stats_recent_lookups gauge
+envoy_server_stats_recent_lookups{} 0
+# TYPE envoy_server_total_connections gauge
+envoy_server_total_connections{} 1
+# TYPE envoy_server_live gauge
+envoy_server_live{} 1
+# TYPE envoy_runtime_num_layers gauge
+envoy_runtime_num_layers{} 2
+# TYPE envoy_http_downstream_cx_active gauge
+envoy_http_downstream_cx_active{envoy_http_conn_manager_prefix="admin"} 2
+# TYPE envoy_http_downstream_cx_tx_bytes_buffered gauge
+envoy_http_downstream_cx_tx_bytes_buffered{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_memory_heap_size gauge
+envoy_server_memory_heap_size{} 15728640
+# TYPE envoy_http_downstream_cx_http2_active gauge
+envoy_http_downstream_cx_http2_active{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_days_until_first_cert_expiring gauge
+envoy_server_days_until_first_cert_expiring{} 2147483647
+# TYPE envoy_http_downstream_rq_active gauge
+envoy_http_downstream_rq_active{envoy_http_conn_manager_prefix="admin"} 1
+# TYPE envoy_runtime_num_keys gauge
+envoy_runtime_num_keys{} 0
+# TYPE envoy_server_memory_allocated gauge
+envoy_server_memory_allocated{} 7646808
+# TYPE envoy_http_downstream_cx_ssl_active gauge
+envoy_http_downstream_cx_ssl_active{envoy_http_conn_manager_prefix="admin"} 0
+# TYPE envoy_server_hot_restart_generation gauge
+envoy_server_hot_restart_generation{} 1
+# TYPE envoy_cluster_upstream_cx_active gauge
+envoy_cluster_upstream_cx_active{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_membership_healthy gauge
+envoy_cluster_membership_healthy{envoy_cluster_name="saaras-enroute_enroute_8003"} 1
+# TYPE envoy_cluster_circuit_breakers_default_rq_retry_open gauge
+envoy_cluster_circuit_breakers_default_rq_retry_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_tx_bytes_buffered gauge
+envoy_cluster_upstream_cx_tx_bytes_buffered{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_high_cx_open gauge
+envoy_cluster_circuit_breakers_high_cx_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_max_host_weight gauge
+envoy_cluster_max_host_weight{envoy_cluster_name="saaras-enroute_enroute_8003"} 1
+# TYPE envoy_cluster_upstream_rq_pending_active gauge
+envoy_cluster_upstream_rq_pending_active{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_default_rq_pending_open gauge
+envoy_cluster_circuit_breakers_default_rq_pending_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_default_cx_pool_open gauge
+envoy_cluster_circuit_breakers_default_cx_pool_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_default_cx_open gauge
+envoy_cluster_circuit_breakers_default_cx_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_version gauge
+envoy_cluster_version{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_high_rq_pending_open gauge
+envoy_cluster_circuit_breakers_high_rq_pending_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_high_rq_retry_open gauge
+envoy_cluster_circuit_breakers_high_rq_retry_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_default_rq_open gauge
+envoy_cluster_circuit_breakers_default_rq_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_high_rq_open gauge
+envoy_cluster_circuit_breakers_high_rq_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_membership_total gauge
+envoy_cluster_membership_total{envoy_cluster_name="saaras-enroute_enroute_8003"} 1
+# TYPE envoy_cluster_upstream_cx_rx_bytes_buffered gauge
+envoy_cluster_upstream_cx_rx_bytes_buffered{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_membership_degraded gauge
+envoy_cluster_membership_degraded{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_circuit_breakers_high_cx_pool_open gauge
+envoy_cluster_circuit_breakers_high_cx_pool_open{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_rq_active gauge
+envoy_cluster_upstream_rq_active{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_lb_subsets_active gauge
+envoy_cluster_lb_subsets_active{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_membership_excluded gauge
+envoy_cluster_membership_excluded{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+envoy_http_downstream_cx_active{envoy_http_conn_manager_prefix="stats"} 2
+envoy_http_downstream_cx_rx_bytes_buffered{envoy_http_conn_manager_prefix="stats"} 346
+envoy_http_downstream_cx_http2_active{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_tx_bytes_buffered{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_active{envoy_http_conn_manager_prefix="stats"} 1
+envoy_http_downstream_cx_http1_active{envoy_http_conn_manager_prefix="stats"} 2
+envoy_http_downstream_cx_upgrades_active{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_http3_active{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_ssl_active{envoy_http_conn_manager_prefix="stats"} 0
+# TYPE envoy_listener_manager_total_listeners_draining gauge
+envoy_listener_manager_total_listeners_draining{} 0
+# TYPE envoy_listener_manager_total_listeners_active gauge
+envoy_listener_manager_total_listeners_active{} 2
+# TYPE envoy_listener_manager_total_listeners_warming gauge
+envoy_listener_manager_total_listeners_warming{} 0
+# TYPE envoy_listener_manager_workers_started gauge
+envoy_listener_manager_workers_started{} 1
+# TYPE envoy_listener_admin_main_thread_downstream_cx_active gauge
+envoy_listener_admin_main_thread_downstream_cx_active{} 2
+# TYPE envoy_listener_admin_downstream_pre_cx_active gauge
+envoy_listener_admin_downstream_pre_cx_active{} 0
+# TYPE envoy_listener_admin_downstream_cx_active gauge
+envoy_listener_admin_downstream_cx_active{} 2
+envoy_cluster_upstream_cx_tx_bytes_buffered{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_default_rq_retry_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_high_cx_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_high_rq_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_high_rq_pending_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_high_rq_retry_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_default_cx_pool_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_default_cx_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_membership_healthy{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1
+envoy_cluster_circuit_breakers_default_rq_pending_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_active{envoy_cluster_name="saaras-enroute_service-stats_9001"} 2
+envoy_cluster_upstream_cx_rx_bytes_buffered{envoy_cluster_name="saaras-enroute_service-stats_9001"} 141458
+envoy_cluster_membership_degraded{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_membership_excluded{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_lb_subsets_active{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_rq_pending_active{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_version{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_max_host_weight{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_default_rq_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_circuit_breakers_high_cx_pool_open{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_membership_total{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1
+envoy_cluster_upstream_rq_active{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1
+envoy_cluster_upstream_cx_active{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_upstream_cx_rx_bytes_buffered{envoy_cluster_name="saaras-enroute_enroute_8001"} 30
+envoy_cluster_circuit_breakers_default_cx_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_membership_excluded{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_default_cx_pool_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_high_cx_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_rq_active{envoy_cluster_name="saaras-enroute_enroute_8001"} 3
+envoy_cluster_version{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_high_rq_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_membership_total{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_max_host_weight{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_circuit_breakers_high_rq_pending_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_membership_degraded{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_default_rq_pending_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_default_rq_retry_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_tx_bytes_buffered{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_membership_healthy{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+envoy_cluster_upstream_rq_pending_active{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_high_cx_pool_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_lb_subsets_active{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_default_rq_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_circuit_breakers_high_rq_retry_open{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+# TYPE envoy_cluster_swagger_io_80_max_host_weight gauge
+envoy_cluster_swagger_io_80_max_host_weight{envoy_cluster_name="gw_openapi-upstream-petstore"} 1
+# TYPE envoy_cluster_swagger_io_80_membership_healthy gauge
+envoy_cluster_swagger_io_80_membership_healthy{envoy_cluster_name="gw_openapi-upstream-petstore"} 2
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_tx_bytes_buffered gauge
+envoy_cluster_swagger_io_80_upstream_cx_tx_bytes_buffered{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_high_rq_pending_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_high_rq_pending_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_version gauge
+envoy_cluster_swagger_io_80_version{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_default_rq_retry_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_default_rq_retry_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_high_rq_retry_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_high_rq_retry_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_default_cx_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_default_cx_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_membership_total gauge
+envoy_cluster_swagger_io_80_membership_total{envoy_cluster_name="gw_openapi-upstream-petstore"} 2
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_default_rq_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_default_rq_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_high_rq_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_high_rq_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_default_rq_pending_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_default_rq_pending_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_active gauge
+envoy_cluster_swagger_io_80_upstream_cx_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_lb_subsets_active gauge
+envoy_cluster_swagger_io_80_lb_subsets_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_active gauge
+envoy_cluster_swagger_io_80_upstream_rq_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_high_cx_pool_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_high_cx_pool_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_high_cx_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_high_cx_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_membership_excluded gauge
+envoy_cluster_swagger_io_80_membership_excluded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_rx_bytes_buffered gauge
+envoy_cluster_swagger_io_80_upstream_cx_rx_bytes_buffered{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_membership_degraded gauge
+envoy_cluster_swagger_io_80_membership_degraded{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_circuit_breakers_default_cx_pool_open gauge
+envoy_cluster_swagger_io_80_circuit_breakers_default_cx_pool_open{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_pending_active gauge
+envoy_cluster_swagger_io_80_upstream_rq_pending_active{envoy_cluster_name="gw_openapi-upstream-petstore"} 0
+# TYPE envoy_cluster_manager_cds_update_time gauge
+envoy_cluster_manager_cds_update_time{} 1592513118254
+# TYPE envoy_cluster_manager_cds_version gauge
+envoy_cluster_manager_cds_version{} 6927017134761466251
+# TYPE envoy_cluster_manager_cds_control_plane_connected_state gauge
+envoy_cluster_manager_cds_control_plane_connected_state{} 1
+# TYPE envoy_cluster_manager_cds_control_plane_pending_requests gauge
+envoy_cluster_manager_cds_control_plane_pending_requests{} 0
+# TYPE envoy_http_rds_pending_requests gauge
+envoy_http_rds_pending_requests{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http.control_plane"} 0
+# TYPE envoy_http_rds_version gauge
+envoy_http_rds_version{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 6927017134761466251
+# TYPE envoy_http_rds_update_time gauge
+envoy_http_rds_update_time{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http"} 1592513118259
+# TYPE envoy_http_rds_connected_state gauge
+envoy_http_rds_connected_state{envoy_http_conn_manager_prefix="ingress_http",envoy_rds_route_config="ingress_http.control_plane"} 1
+envoy_listener_worker_2_downstream_cx_active{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_worker_0_downstream_cx_active{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_worker_1_downstream_cx_active{envoy_listener_address="0.0.0.0_8002"} 1
+envoy_listener_downstream_pre_cx_active{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_worker_3_downstream_cx_active{envoy_listener_address="0.0.0.0_8002"} 1
+envoy_listener_downstream_cx_active{envoy_listener_address="0.0.0.0_8002"} 2
+envoy_http_downstream_cx_ssl_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_http1_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_http3_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_tx_bytes_buffered{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_upgrades_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_rq_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_rx_bytes_buffered{envoy_http_conn_manager_prefix="ingress_http"} 0
+envoy_http_downstream_cx_http2_active{envoy_http_conn_manager_prefix="ingress_http"} 0
+# TYPE envoy_listener_manager_lds_update_time gauge
+envoy_listener_manager_lds_update_time{} 1592513118252
+# TYPE envoy_listener_manager_lds_version gauge
+envoy_listener_manager_lds_version{} 6927017134761466251
+# TYPE envoy_listener_manager_lds_control_plane_pending_requests gauge
+envoy_listener_manager_lds_control_plane_pending_requests{} 0
+# TYPE envoy_listener_manager_lds_control_plane_connected_state gauge
+envoy_listener_manager_lds_control_plane_connected_state{} 1
+# TYPE envoy_listener_downstream_cx_length_ms histogram
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="0.5"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="1"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="5"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="10"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="25"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="50"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="100"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="250"} 6
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="500"} 468
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="1000"} 480
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="2500"} 480
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="5000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="10000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="30000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="60000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="300000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="600000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="1800000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="3600000"} 482
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8080",le="+Inf"} 482
+envoy_listener_downstream_cx_length_ms_sum{envoy_listener_address="0.0.0.0_8080"} 173480
+envoy_listener_downstream_cx_length_ms_count{envoy_listener_address="0.0.0.0_8080"} 482
+# TYPE envoy_server_initialization_time_ms histogram
+envoy_server_initialization_time_ms_bucket{le="0.5"} 0
+envoy_server_initialization_time_ms_bucket{le="1"} 0
+envoy_server_initialization_time_ms_bucket{le="5"} 0
+envoy_server_initialization_time_ms_bucket{le="10"} 0
+envoy_server_initialization_time_ms_bucket{le="25"} 1
+envoy_server_initialization_time_ms_bucket{le="50"} 1
+envoy_server_initialization_time_ms_bucket{le="100"} 1
+envoy_server_initialization_time_ms_bucket{le="250"} 1
+envoy_server_initialization_time_ms_bucket{le="500"} 1
+envoy_server_initialization_time_ms_bucket{le="1000"} 1
+envoy_server_initialization_time_ms_bucket{le="2500"} 1
+envoy_server_initialization_time_ms_bucket{le="5000"} 1
+envoy_server_initialization_time_ms_bucket{le="10000"} 1
+envoy_server_initialization_time_ms_bucket{le="30000"} 1
+envoy_server_initialization_time_ms_bucket{le="60000"} 1
+envoy_server_initialization_time_ms_bucket{le="300000"} 1
+envoy_server_initialization_time_ms_bucket{le="600000"} 1
+envoy_server_initialization_time_ms_bucket{le="1800000"} 1
+envoy_server_initialization_time_ms_bucket{le="3600000"} 1
+envoy_server_initialization_time_ms_bucket{le="+Inf"} 1
+envoy_server_initialization_time_ms_sum{} 14.5
+envoy_server_initialization_time_ms_count{} 1
+# TYPE envoy_http_downstream_rq_time histogram
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="0.5"} 6
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="1"} 6
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="5"} 6
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="10"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="25"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="50"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="100"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="250"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="500"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="1000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="2500"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="5000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="10000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="30000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="60000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="300000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="600000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="1800000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="3600000"} 406
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="admin",le="+Inf"} 406
+envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="admin"} 2022.9999999999997726263245567679
+envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="admin"} 406
+# TYPE envoy_http_downstream_cx_length_ms histogram
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="0.5"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="1"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="5"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="10"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="25"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="50"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="100"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="250"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="500"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="1000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="2500"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="5000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="10000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="30000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="60000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="300000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="600000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="1800000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="3600000"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="admin",le="+Inf"} 6
+envoy_http_downstream_cx_length_ms_sum{envoy_http_conn_manager_prefix="admin"} 0
+envoy_http_downstream_cx_length_ms_count{envoy_http_conn_manager_prefix="admin"} 6
+# TYPE envoy_cluster_upstream_cx_connect_ms histogram
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="0.5"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="1"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="5"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="10"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="25"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="50"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="100"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="250"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="500"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="1000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="2500"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="5000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="10000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="30000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="60000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="300000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="600000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="1800000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="3600000"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="+Inf"} 0
+envoy_cluster_upstream_cx_connect_ms_sum{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+envoy_cluster_upstream_cx_connect_ms_count{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+# TYPE envoy_cluster_upstream_cx_length_ms histogram
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="0.5"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="1"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="5"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="10"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="25"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="50"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="100"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="250"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="500"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="1000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="2500"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="5000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="10000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="30000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="60000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="300000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="600000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="1800000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="3600000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8003",le="+Inf"} 0
+envoy_cluster_upstream_cx_length_ms_sum{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+envoy_cluster_upstream_cx_length_ms_count{envoy_cluster_name="saaras-enroute_enroute_8003"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="0.5"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="1"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="5"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="10"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="25"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="50"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="100"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="250"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="500"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="1000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="2500"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="5000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="10000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="30000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="60000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="300000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="600000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="1800000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="3600000"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="stats",le="+Inf"} 0
+envoy_http_downstream_cx_length_ms_sum{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_cx_length_ms_count{envoy_http_conn_manager_prefix="stats"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="0.5"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="1"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="5"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="10"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="25"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="50"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="100"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="250"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="500"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="1000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="2500"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="5000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="10000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="30000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="60000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="300000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="600000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="1800000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="3600000"} 400
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="stats",le="+Inf"} 400
+envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="stats"} 2215
+envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="stats"} 400
+# TYPE envoy_listener_admin_downstream_cx_length_ms histogram
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="0.5"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="1"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="5"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="10"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="25"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="50"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="100"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="250"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="500"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="1000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="2500"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="5000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="10000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="30000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="60000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="300000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="600000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="1800000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="3600000"} 6
+envoy_listener_admin_downstream_cx_length_ms_bucket{le="+Inf"} 6
+envoy_listener_admin_downstream_cx_length_ms_sum{} 0
+envoy_listener_admin_downstream_cx_length_ms_count{} 6
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="0.5"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="25"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="50"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="100"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="250"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="500"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="2500"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="30000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="60000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="300000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="600000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1800000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="3600000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="+Inf"} 0
+envoy_cluster_upstream_cx_length_ms_sum{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_length_ms_count{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="0.5"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="25"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="50"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="100"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="250"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="500"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="2500"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="30000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="60000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="300000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="600000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1800000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="3600000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="+Inf"} 1
+envoy_cluster_upstream_cx_connect_ms_sum{envoy_cluster_name="saaras-enroute_service-stats_9001"} 0
+envoy_cluster_upstream_cx_connect_ms_count{envoy_cluster_name="saaras-enroute_service-stats_9001"} 1
+# TYPE envoy_cluster_upstream_rq_time histogram
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="0.5"} 0
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1"} 0
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5"} 0
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="25"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="50"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="100"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="250"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="500"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="2500"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="30000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="60000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="300000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="600000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1800000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="3600000"} 400
+envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="+Inf"} 400
+envoy_cluster_upstream_rq_time_sum{envoy_cluster_name="saaras-enroute_service-stats_9001"} 2045
+envoy_cluster_upstream_rq_time_count{envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+# TYPE envoy_cluster_external_upstream_rq_time histogram
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="0.5"} 0
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1"} 0
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5"} 0
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="25"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="50"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="100"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="250"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="500"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="2500"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="5000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="10000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="30000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="60000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="300000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="600000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="1800000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="3600000"} 400
+envoy_cluster_external_upstream_rq_time_bucket{envoy_cluster_name="saaras-enroute_service-stats_9001",le="+Inf"} 400
+envoy_cluster_external_upstream_rq_time_sum{envoy_cluster_name="saaras-enroute_service-stats_9001"} 2045
+envoy_cluster_external_upstream_rq_time_count{envoy_cluster_name="saaras-enroute_service-stats_9001"} 400
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="0.5"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="1"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="5"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="10"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="25"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="50"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="100"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="250"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="500"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="1000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="2500"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="5000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="10000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="30000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="60000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="300000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="600000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="1800000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="3600000"} 0
+envoy_cluster_upstream_cx_length_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="+Inf"} 0
+envoy_cluster_upstream_cx_length_ms_sum{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_length_ms_count{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="0.5"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="1"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="5"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="10"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="25"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="50"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="100"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="250"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="500"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="1000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="2500"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="5000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="10000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="30000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="60000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="300000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="600000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="1800000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="3600000"} 1
+envoy_cluster_upstream_cx_connect_ms_bucket{envoy_cluster_name="saaras-enroute_enroute_8001",le="+Inf"} 1
+envoy_cluster_upstream_cx_connect_ms_sum{envoy_cluster_name="saaras-enroute_enroute_8001"} 0
+envoy_cluster_upstream_cx_connect_ms_count{envoy_cluster_name="saaras-enroute_enroute_8001"} 1
+# TYPE envoy_cluster_swagger_io_80_upstream_rq_time histogram
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="0.5"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="25"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="50"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="100"} 0
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="250"} 6
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="500"} 467
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1000"} 479
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="2500"} 479
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="30000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="60000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="300000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="600000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1800000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="3600000"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="+Inf"} 481
+envoy_cluster_swagger_io_80_upstream_rq_time_sum{envoy_cluster_name="gw_openapi-upstream-petstore"} 172975
+envoy_cluster_swagger_io_80_upstream_rq_time_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 481
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_length_ms histogram
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="0.5"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="25"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="50"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="100"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="250"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="500"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1000"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="2500"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5000"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10000"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="30000"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="60000"} 0
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="300000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="600000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1800000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="3600000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="+Inf"} 13
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_sum{envoy_cluster_name="gw_openapi-upstream-petstore"} 1905500
+envoy_cluster_swagger_io_80_upstream_cx_length_ms_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+# TYPE envoy_cluster_swagger_io_80_upstream_cx_connect_ms histogram
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="0.5"} 0
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1"} 0
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5"} 0
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10"} 0
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="25"} 0
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="50"} 0
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="100"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="250"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="500"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="2500"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="30000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="60000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="300000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="600000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1800000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="3600000"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="+Inf"} 13
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_sum{envoy_cluster_name="gw_openapi-upstream-petstore"} 974.5
+envoy_cluster_swagger_io_80_upstream_cx_connect_ms_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 13
+# TYPE envoy_cluster_swagger_io_80_internal_upstream_rq_time histogram
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="0.5"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="25"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="50"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="100"} 0
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="250"} 6
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="500"} 467
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1000"} 479
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="2500"} 479
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="5000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="10000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="30000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="60000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="300000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="600000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="1800000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="3600000"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_bucket{envoy_cluster_name="gw_openapi-upstream-petstore",le="+Inf"} 481
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_sum{envoy_cluster_name="gw_openapi-upstream-petstore"} 172975
+envoy_cluster_swagger_io_80_internal_upstream_rq_time_count{envoy_cluster_name="gw_openapi-upstream-petstore"} 481
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="0.5"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="1"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="5"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="10"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="25"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="50"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="100"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="250"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="500"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="1000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="2500"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="5000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="10000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="30000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="60000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="300000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="600000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="1800000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="3600000"} 0
+envoy_listener_downstream_cx_length_ms_bucket{envoy_listener_address="0.0.0.0_8002",le="+Inf"} 0
+envoy_listener_downstream_cx_length_ms_sum{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_listener_downstream_cx_length_ms_count{envoy_listener_address="0.0.0.0_8002"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="0.5"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="1"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="5"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="10"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="25"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="50"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="100"} 0
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="250"} 6
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="500"} 468
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="1000"} 480
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="2500"} 480
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="5000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="10000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="30000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="60000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="300000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="600000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="1800000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="3600000"} 482
+envoy_http_downstream_cx_length_ms_bucket{envoy_http_conn_manager_prefix="ingress_http",le="+Inf"} 482
+envoy_http_downstream_cx_length_ms_sum{envoy_http_conn_manager_prefix="ingress_http"} 173480
+envoy_http_downstream_cx_length_ms_count{envoy_http_conn_manager_prefix="ingress_http"} 482
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="0.5"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="1"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="5"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="10"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="25"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="50"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="100"} 0
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="250"} 6
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="500"} 467
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="1000"} 479
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="2500"} 479
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="5000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="10000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="30000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="60000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="300000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="600000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="1800000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="3600000"} 481
+envoy_http_downstream_rq_time_bucket{envoy_http_conn_manager_prefix="ingress_http",le="+Inf"} 481
+envoy_http_downstream_rq_time_sum{envoy_http_conn_manager_prefix="ingress_http"} 173055
+envoy_http_downstream_rq_time_count{envoy_http_conn_manager_prefix="ingress_http"} 481
+

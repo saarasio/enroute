@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,17 +35,17 @@ const (
 	// set docs/annotations.md for details of how these annotations
 	// are applied by Contour.
 
-	annotationRequestTimeout     = "contour.heptio.com/request-timeout"
-	annotationResponseTimeout    = "contour.heptio.com/response-timeout"
-	annotationWebsocketRoutes    = "contour.heptio.com/websocket-routes"
-	annotationUpstreamProtocol   = "contour.heptio.com/upstream-protocol"
-	annotationMaxConnections     = "contour.heptio.com/max-connections"
-	annotationMaxPendingRequests = "contour.heptio.com/max-pending-requests"
-	annotationMaxRequests        = "contour.heptio.com/max-requests"
-	annotationMaxRetries         = "contour.heptio.com/max-retries"
-	annotationRetryOn            = "contour.heptio.com/retry-on"
-	annotationNumRetries         = "contour.heptio.com/num-retries"
-	annotationPerTryTimeout      = "contour.heptio.com/per-try-timeout"
+	annotationRequestTimeout     = "enroute.saaras.io/request-timeout"
+	annotationResponseTimeout    = "enroute.saaras.io/response-timeout"
+	annotationWebsocketRoutes    = "enroute.saaras.io/websocket-routes"
+	annotationUpstreamProtocol   = "enroute.saaras.io/upstream-protocol"
+	annotationMaxConnections     = "enroute.saaras.io/max-connections"
+	annotationMaxPendingRequests = "enroute.saaras.io/max-pending-requests"
+	annotationMaxRequests        = "enroute.saaras.io/max-requests"
+	annotationMaxRetries         = "enroute.saaras.io/max-retries"
+	annotationRetryOn            = "enroute.saaras.io/retry-on"
+	annotationNumRetries         = "enroute.saaras.io/num-retries"
+	annotationPerTryTimeout      = "enroute.saaras.io/per-try-timeout"
 )
 
 // '0' is returned if the annotation is absent or unparseable.
@@ -68,7 +68,7 @@ func maxRetries(o Object) uint32 {
 func compatAnnotation(o Object, key string) string {
 	a := o.GetObjectMeta().GetAnnotations()
 
-	return a["contour.heptio.com/"+key]
+	return a["enroute.saaras.io/"+key]
 }
 
 // parseUInt32 parses the supplied string as if it were a uint32.
@@ -91,7 +91,7 @@ func parseAnnotation(annotations map[string]string, annotation string) uint32 {
 	return uint32(v)
 }
 
-// parseUpstreamProtocols parses the annotations map for a contour.heptio.com/upstream-protocol.{protocol}
+// parseUpstreamProtocols parses the annotations map for a enroute.saaras.io/upstream-protocol.{protocol}
 // where 'protocol' identifies which protocol must be used in the upstream.
 // If the value is not present, or malformed, then an empty map is returned.
 func parseUpstreamProtocols(annotations map[string]string, annotation string, protocols ...string) map[string]string {
@@ -150,7 +150,7 @@ func perTryTimeout(i *v1beta1.Ingress) time.Duration {
 	return parseTimeout(compatAnnotation(i, "per-try-timeout"))
 }
 
-// numRetries returns the number of retries specified by the "contour.heptio.com/num-retries"
+// numRetries returns the number of retries specified by the "enroute.saaras.io/num-retries"
 func numRetries(i *v1beta1.Ingress) uint32 {
 	return parseUInt32(compatAnnotation(i, "num-retries"))
 }

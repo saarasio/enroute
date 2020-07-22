@@ -1,0 +1,2496 @@
+---
+swagger: "2.0"
+info:
+  description: "<span></span>\n##### **NaaS API Version:** 2.3.0\n##### **mobileAccess service version:** 1.2.1\n## OVERVIEW\nTMF 640 - Activation and Configuration API.\nThis is a strategic mobileAccess service aiming to provide network capabilities to products. \n\n**Note: Enum values are case insensitive, <a style='color:red !important' href=''  target='_blank'> more details here </a>**"
+  version: "2.3.0"
+  title: CSM TMF640 
+  contact:
+    name: '# PET - Mobile Enablers - Service Exposure'
+    email: D1701045@team.telstra.com
+  x-service-version: v1.2.1
+host: naas-model.ohub.corp.telstra.com
+basePath: /naas
+tags:
+- name: CSM 
+  description: API to activate a service in Domain
+- name: Listener
+  description: API exposed by NaaS so that Domains can send events and notifications to consumer asynchronously.
+- name: Task
+  description: As per TMF, If during service design, it is difficult to map a use case to proper REST verb, it is allowable to define a resource for the operation and POST to that operation to execute. TASK creation may result in the creation of a number of related resources or other tasks. E.g. migrate, connect, heal, clear, close, transfer etc
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /token:
+    post:
+      tags:
+      - OAuth
+      summary: Authentication
+      description: OAuth 2.0 is the industry-standard protocol for authorization
+      operationId: Authentication
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Authentication
+        required: true
+        schema:
+          $ref: '#/definitions/oauthRequest'
+      - name: Authorization
+        in: header
+        description: A header in naas API calls to provide token details. Authorization header will not be forwarded to the domains. Format - Bearer {access_token}
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/oauthResponse'
+        "400":
+          description: "BAD request \n- bad json format / syntax"
+        "401":
+          description: Unauthorised
+        "403":
+          description: Forbidden. Provided login credentials are invalid.
+        "404":
+          description: "Not Found. Service does not exist in \ncatalog."
+        "500":
+          description: "Internal \nServer Error"
+  /activationAndConfiguration/v2/service/listener:
+    post:
+      tags:
+      - Listener
+      summary: Events Publication primary mobileAccess creation
+      operationId: listener primary mobileAccess
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: service_type
+        in: path
+        description: Unique name of the Service. Also known as 'Service Mnemonic' or 'Service Specification Name'
+        required: true
+        type: string
+      - in: body
+        name: listener
+        description: |
+          Notification Resource Models.
+          pub/sub paradigm using callback (received as part of /hub subscriptions to deliver Events to subscribers.
+        required: true
+        schema:
+          $ref: '#/definitions/listenerPrimary'
+      responses:
+        "201":
+          description: Created
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/listener/:
+    post:
+      tags:
+      - Listener
+      summary: Events Publication secondary mobileAccess creation
+      operationId: listener secondary mobileAccess
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: service_type
+        in: path
+        description: Unique name of the Service. Also known as 'Service Mnemonic' or 'Service Specification Name'
+        required: true
+        type: string
+      - in: body
+        name: listener
+        description: |
+          Notification Resource Models.
+          pub/sub paradigm using callback (received as part of /hub subscriptions to deliver Events to subscribers.
+        required: true
+        schema:
+          $ref: '#/definitions/listenerSecondary'
+      responses:
+        "201":
+          description: Created
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}:
+    post:
+      tags:
+      - CSM
+      summary: Create primary mobileAccess and create new supporting services
+      description: "This method is used to create **mobileAccess** top-level service AND create a  set of supporting services as a result of a single API call. supportingService object must have state, seriviceSpecification and serviceCharacteristics for each of the supporting services, which needs to be created as a part of the same POST request. \n\nRelatedParty must be provided at **mobileAccess** level. RelatedParty does not have to be provided at supportingService level; if RelatedParty is not provided at supportingService level, RelatedParty of mobileAccess will be applied to each of the supporting services.\n"
+      operationId: primaryServiceCreate
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message e.g. LockService, UnlockService'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - in: body
+        name: service
+        required: true
+        schema:
+          $ref: '#/definitions/mobileAccessPostRequest'
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/ServiceAcknowledgement'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/:
+    post:
+      tags:
+      - CSM
+      summary: Create secondary mobileAccess, create one new and re-use one existing supporting service
+      description: "This method is used \n - to create **mobileAccess** top-level service AND \n - create new supporting services AND\n - establish relationship with existing supporting services\n all as a result of a single API call. \n \nsupportingService object must have state, seriviceSpecification and serviceCharacteristics for each of the supporting services, which needs to be created as a part of the same POST request. \n\nsupportingService object must have id and href of an existing supporting service instance to establish relationship.\n"
+      operationId: secondaryServiceCreate
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - in: body
+        name: service
+        required: true
+        schema:
+          $ref: '#/definitions/mobileAccessSecondaryPostRequest'
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/ServiceAcknowledgementSecondary'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/{Id}&serviceDepth=1:
+    get:
+      tags:
+      - CSM
+      summary: Get mobileAccess service
+      description: "This operation is used to retrieve a Service Instance's Physical Network resource based on service ID/UUID. \nSuccessful GET response will return \n 1) Specification of mobileAccess physical service instance, \n 2) Specification of network physical for calling service\n \nNote: GET operation is supported only for mobileAccess endpoint and mobileAccess UUID. Direct GET on a supporting service is NOT supported as supporting services are not exposed via NaaS. \n\nSynchronous operation.\n"
+      operationId: serviceDepthGet
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - name: Id
+        in: path
+        description: Identifier of a Service Instance in uuid format.
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/serviceDepth'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+    patch:
+      tags:
+      - CSM
+      summary: Patch mobileAccess service
+      description: |
+        Example in this section shows how to construct patch query to add features/attributes into top-level mobileAccess service. Please refer to the contract document for more examples.
+
+        Asynchronous operation.
+      operationId: ServiceDepthPatchAssurance
+      consumes:
+      - application/json-patch+query
+      produces:
+      - application/json
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: Content-Type
+        in: header
+        description: The content type that the request is using. Supported types are  <a target='_blank' href='https://tools.ietf.org/html/rfc6902'>application/json-patch+json</a> and json-patch+query
+        required: false
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - name: Id
+        in: path
+        description: Identifier of a Service Instance in uuid format.
+        required: true
+        type: string
+      - in: body
+        name: ServicePatchRequest
+        required: true
+        schema:
+          $ref: '#/definitions/serviceDepthPatch'
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/ServiceAcknowledgement'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/{id}/reset:
+    post:
+      tags:
+      - Task
+      summary: task for "Change of ownership" scenario
+      operationId: chown
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Identifier of a Service Instance.
+        required: true
+        type: string
+      - name: task_type
+        in: path
+        description: Unique name of the Task Resource. E.g migrate, connect, heal, clear, close, transfer etc
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/taskRequest'
+      responses:
+        "204":
+          description: No Content
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/{id}/subBarPwdReset:
+    post:
+      tags:
+      - Task
+      summary: task for "Subscriber Barring Password reset" scenario
+      operationId: subPwdReset
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Identifier of a Service Instance.
+        required: true
+        type: string
+      - name: task_type
+        in: path
+        description: Unique name of the Task Resource. E.g migrate, connect, heal, clear, close, transfer etc
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/taskRequest'
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/taskResponseSubBar'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/{id}/vmPinReset:
+    post:
+      tags:
+      - Task
+      summary: task for "Voicemail PIN reset" scenario
+      operationId: vmPinReset
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - name: id
+        in: path
+        description: Identifier of a Service Instance.
+        required: true
+        type: string
+      - name: task_type
+        in: path
+        description: Unique name of the Task Resource. E.g migrate, connect, heal, clear, close, transfer etc
+        required: true
+        type: string
+      - in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/taskRequest'
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/taskResponseVM'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/{id}/authorize:
+   post:
+      tags:
+        - Task
+      summary: task for "Check Instance Authorisation" scenario
+      operationId: authorize
+      parameters:
+        - type: string
+          name: X-Correlation-ID
+          in: header
+          description: UUID. Used for business transaction correlation in the Logs.
+        - type: string
+          name: X-LatestVersion
+          in: header
+          description: 'NaaS TMF API Version <a href=''https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version''>Learn more about versions</a>'
+        - type: string
+          name: X-Group-ID
+          in: header
+          required: true
+          description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        - name: X-Service-Action
+          in: header
+          description: 'Message header outlining the action of the asynchronous message'
+          required: true
+          type: string
+        - name: X-Camunda-Process-Id
+          in: header
+          description: 'Process instance provided to the workflow in Camunda.'
+          required: true
+          type: string
+        - name: type
+          in: path
+          description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+          required: true
+          type: string
+        - type: string
+          name: id
+          in: path
+          required: true
+          description: Identifier of a Service Instance.
+        - type: string
+          name: task_type
+          in: path
+          required: true
+          description: 'Unique name of the Task Resource. E.g migrate, connect, heal, clear, close, transfer etc'
+        - name: task
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/taskRequestAuth'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorised
+        '404':
+          description: |-
+            Not Found. Service does not exist in 
+            catalog.
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes       
+  
+  /activationAndConfiguration/v2/hub:
+    get:
+      tags:
+      - Hub
+      summary: Get all subscriptions
+      description: |
+        Hub is the repository of subscribers with their respective callback URLs. Response should include all the subscriptions made by that client Doesnot support Query or Field parameter for now.
+      operationId: hubFind
+      parameters:
+      - name: Authorization
+        in: header
+        description: A header in naas API calls to provide token details. Format - **Bearer {access_token}**
+        required: true
+        type: string
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Total-Count
+        in: header
+        description: NaaS is expected to provide this as part of response which specify total number of matching resources to the Get Hub Call
+        required: false
+        type: string
+      responses:
+        "200":
+          description: List of Hub
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResponseHub'
+        "400":
+          description: BAD request - X-Group-ID header value missing
+        "401":
+          description: Unauthorised <br/>
+        "403":
+          description: Forbidden. Provided login credentials are invalid.
+        "500":
+          description: Internal Server Error
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+    post:
+      tags:
+      - Hub
+      summary: Create a subscriptionhubCreate
+      description: Hub is the repository of subscribers with their respective callback URLs.
+      operationId: hub
+      parameters:
+      - name: Authorization
+        in: header
+        description: A header in NaaS API calls to provide token details. Format - **Bearer {access_token}**
+        required: true
+        type: string
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - in: body
+        name: hub
+        required: false
+        schema:
+          $ref: '#/definitions/HubCreate'
+      responses:
+        "201":
+          description: Hub
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResponseHub'
+        "400":
+          description: BAD request <br/>
+        "401":
+          description: Unauthorised <br/>
+        "403":
+          description: Forbidden. Provided login credentials are invalid.
+        "500":
+          description: Internal Server Error
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/service/{type}/{Id}:
+    get:
+      tags:
+      - CSM
+      summary: Get mobileAccess service
+      description: "This operation is used to retrieve a Service Instance item based on service ID/UUID. \nSuccessful GET response will return \n 1) full specification of mobileAccess service instance, \n 2) full specification of all of its supporting services\n \nNote: GET operation is supported only for mobileAccess endpoint and mobileAccess UUID. Direct GET on a supporting service is NOT supported as supporting services are not exposed via NaaS. \n\nSynchronous operation.\n"
+      operationId: serviceGetPrimary
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: Id
+        in: path
+        description: Identifier of a Service Instance in uuid format.
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/servicePrimary'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+    delete:
+      tags:
+      - CSM
+      summary: serviceDelete
+      description: "Delete mobileAccess instance. \nAsynchronous operation."
+      operationId: serviceDelete
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - name: Id
+        in: path
+        description: Identifier of a Service Instance in uuid format.
+        required: true
+        type: string
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/ServiceAcknowledgement'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+    patch:
+      tags:
+      - CSM
+      summary: Patch mobileAccess service
+      description: |
+        Example in this section shows how to construct patch query to add features/attributes into top-level mobileAccess service. Please refer to the contract document for more examples.
+
+        Asynchronous operation.
+      operationId: ServicePatch
+      consumes:
+      - application/json-patch+json
+      produces:
+      - application/json
+      parameters:
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: true
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: X-Group-ID
+        in: header
+        description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+        required: true
+        type: string
+      - name: Content-Type
+        in: header
+        description: The content type that the request is using. Supported types are  <a target='_blank' href='https://tools.ietf.org/html/rfc6902'>application/json-patch+json</a> and json-patch+query
+        required: false
+        type: string
+      - name: X-Service-Action
+        in: header
+        description: 'Message header outlining the action of the asynchronous message'
+        required: true
+        type: string
+      - name: X-Camunda-Process-Id
+        in: header
+        description: 'Process instance provided to the workflow in Camunda.'
+        required: true
+        type: string
+      - name: Id
+        in: path
+        description: Identifier of a Service Instance in uuid format.
+        required: true
+        type: string
+      - name: type
+        in: path
+        description: 'Type of experience layer e.g. MobileAccess, Calling Voicemail etc'
+        required: true
+        type: string
+      - in: body
+        name: ServicePatchRequest
+        required: true
+        schema:
+          $ref: '#/definitions/servicePatch'
+      responses:
+        "202":
+          description: Accepted
+          headers:
+            X-Group-ID:
+              type: string
+              description: Unique String (or mnemonic) representing the group to which a consumer belongs.
+            X-Correlation-ID:
+              type: string
+              description: UUID. Used for business transaction correlation in the Logs.
+          schema:
+            $ref: '#/definitions/ServiceAcknowledgement'
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+          
+          
+      
+  /activationAndConfiguration/v2/hub/{service_type}:
+    post:
+      tags:
+      - Hub
+      summary: Create a subscription for a specific service
+      description: Hub is the repository of subscribers with their respective callback URLs.
+      operationId: hubCreate
+      parameters:
+      - name: Authorization
+        in: header
+        description: A header in naas API calls to provide token details. Format - **Bearer {access_token}**
+        required: true
+        type: string
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: service_type
+        in: path
+        description: Unique name of the Service. Also known as 'Service Mnemonic' or 'Service Specification Name'
+        required: true
+        type: string
+      - in: body
+        name: hub
+        required: false
+        schema:
+          $ref: '#/definitions/HubCreate'
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResponseHubServiceType'
+        "400":
+          description: BAD request <br/>
+        "401":
+          description: Unauthorised <br/>
+        "403":
+          description: Forbidden. Provided login credentials are invalid.
+        "500":
+          description: Internal Server Error
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /activationAndConfiguration/v2/hub/{id}/:
+    get:
+      tags:
+      - Hub
+      summary: Get a subscription by id
+      description: Hub is the repository of subscribers with their respective callback URLs.
+      operationId: hubGet
+      parameters:
+      - name: Authorization
+        in: header
+        description: A header in naas API calls to provide token details. Format - **Bearer {access_token}**
+        required: true
+        type: string
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: id
+        in: path
+        description: Hub ID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Hub
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ResponseHubServiceType'
+        "400":
+          description: BAD request - X-Group-ID header value missing
+        "401":
+          description: Unauthorised <br/>
+        "403":
+          description: Forbidden. Provided login credentials are invalid.
+        "404":
+          description: The specified service could not be found
+        "500":
+          description: Internal Server Error
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+    delete:
+      tags:
+      - Hub
+      summary: Delete a subscription
+      description: Hub is the repository of subscribers with their respective callback URLs.
+      operationId: hubDelete
+      parameters:
+      - name: Authorization
+        in: header
+        description: A header in NaaS API calls to provide token details. Format - **Bearer {access_token}**
+        required: true
+        type: string
+      - name: X-Correlation-ID
+        in: header
+        description: UUID. Used for business transaction correlation in the Logs.
+        required: false
+        type: string
+      - name: X-LatestVersion
+        in: header
+        description: NaaS TMF API Version <a href='https://wiki.proteuscd.corp.telstra.com/display/NIIM/TMF+OpenAPI+Version+vs+Network+Service+Specification+Version'>Learn more about versions</a>
+        required: false
+        type: string
+      - name: id
+        in: path
+        description: Hub ID
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Success
+        "400":
+          description: BAD request - X-Group-ID header value missing
+        "401":
+          description: Unauthorised <br/>
+        "403":
+          description: Forbidden. Provided login credentials are invalid.
+        "404":
+          description: The specified service could not be found
+        "500":
+          description: Internal Server Error
+        x-csm-error-codes:
+          description: <a href ='https://wiki.ae.sda.corp.telstra.com/pages/viewpage.action?pageId=486050460' target = '_blank' > Click here </a> for more information on CSM error codes
+  /serviceCatalogManagement/v2/serviceSpecification/mobileAccess/85518678-6dd9-4d11-a9b5-5e6fb000fe3f/v1.2.0:
+    get:
+      tags:
+      - Service Specification
+      summary: Get service specification details
+      description: Click <a target='_blank' href='/specificationViewer/mobileAccess/v1.2.0'>here</a> to see service specification json
+      operationId: getServiceSpecification
+      parameters:
+      - name: Authorization
+        in: header
+        description: A header in naas API calls to provide token details. Authorization header will not be forwarded to the domains. Format - Bearer {access_token}
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Service specification response body
+definitions:
+  any: {}
+  mobileAccessPostRequest:
+    type: object
+    required:
+    - relatedParty
+    - serviceCharacteristic
+    - serviceSpecification
+    - state
+    properties:
+      name:
+        type: string
+        description: Friendly Name of the Service Instance.
+      description:
+        type: string
+        description: A free-text description of the service (what it provides).
+      state:
+        type: string
+        description: The lifecycle state of the service.
+        enum:
+        - active
+        - suspended
+      serviceSpecification:
+        $ref: '#/definitions/ServiceSpecification'
+      serviceCharacteristic:
+        type: array
+        description: A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+        items:
+          $ref: '#/definitions/ServiceCharacteristic'
+      serviceRelationship:
+        type: array
+        description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain).
+        items:
+          $ref: '#/definitions/ServiceRelationship'
+      relatedParty:
+        type: array
+        description: Party linked at the service level (e.g. a User).
+        items:
+          $ref: '#/definitions/RelatedParty'
+      supportingService:
+        type: array
+        description: SupportingService is a collection of child Service Instances. Must contain full specification of a supporting service.
+        items:
+          $ref: '#/definitions/SupportingServiceCreatePostRequest'
+    example:
+      name: mobileAccess
+      description: This is Mobile Access Service
+      state: active
+      serviceSpecification:
+        href: serviceCatalogManagement/v2/serviceSpecification/mobileAccess/ed7ce908-9e89-11e8-98d0-529269fb1459
+      relatedParty:
+      - role: InstanceConsumerGroup
+        id: B2CConsumerAndSmallBusiness
+      - role: PairingId
+        id: B2CFORCE
+      serviceCharacteristic:
+      - name: privateId
+        value:
+          imsi: "505013486018302"
+      - name: publicId
+        value:
+          serviceNumber: "61417123456"
+      - name: serviceProviderId
+        value: "0002"
+      - name: accessType
+        value: standard
+      - name: internationalRoaming
+        value:
+          enabled: "true"
+          accessRestriction: realTimeOnly
+      supportingService:
+      - name: calling
+        state: active
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/calling/29e86538-e7d5-44b2-b086-e53071f277e7
+        serviceCharacteristic:
+        - name: callingServiceProfile
+          value: standardMobile
+        - name: ratingContext
+          value: realTime
+        - name: callRestriction
+          value:
+          - barIdd
+          - barPremium
+        - name: iddDiversionAllowed
+          value: "false"
+      - name: voicemail
+        state: active
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/voicemail/a485ffb5-a39d-4836-b079-373995324167
+        serviceCharacteristic:
+        - name: type
+          value: deviceDetected
+        - name: serviceStateLocation
+          value: NSW
+      - name: messaging
+        state: active
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/messaging/1fc01607-edc0-4d20-a231-8548b94dce61
+        serviceCharacteristic:
+        - name: ratingContext
+          value: realTime
+        - name: mmsEnabled
+          value: "true"
+        - name: rcs
+          value:
+            enabled: "true"
+            rcsProfile: default
+      - name: data
+        state: active
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/data/ad184bbb-0a64-4b4a-b2a3-4d8bb986d7f3
+        serviceCharacteristic:
+        - name: ratingContext
+          value: realTime
+        - name: dataName
+          value: publicInternet
+        - name: gradeOfService
+          value: standard
+        - name: dataBandwidth
+          value:
+            speedTier: standard
+  mobileAccessSecondaryPostRequest:
+    type: object
+    required:
+    - relatedParty
+    - serviceSpecification
+    - state
+    properties:
+      name:
+        type: string
+        description: Friendly Name of the Service Instance.
+      description:
+        type: string
+        description: A free-text description of the service (what it provides).
+      state:
+        type: string
+        description: The lifecycle state of the service.
+        enum:
+        - active
+        - suspended
+      serviceSpecification:
+        $ref: '#/definitions/ServiceSpecification'
+      serviceCharacteristic:
+        type: array
+        description: A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+        items:
+          $ref: '#/definitions/ServiceCharacteristic'
+      serviceRelationship:
+        type: array
+        description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain). In case of secondary mobileAccess activation serviceRelationship must specify dependencyOn relationship with the primary mobileAccess.
+        items:
+          $ref: '#/definitions/ServiceRelationship'
+      relatedParty:
+        type: array
+        description: Party linked at the service level (e.g. a User).
+        items:
+          $ref: '#/definitions/RelatedParty'
+      supportingService:
+        type: array
+        description: |-
+          SupportingService is a collection of child Service Instances.
+
+          Supporting Service must have full service specification, if the intention is to create a new supporting service instance. (This is not captured in this model. Please refer to 'Create mobileAccess and create new supporting services')
+
+          Alternatively, Supporting Service must have id and href of an existing supporting service instance, if the intention is to establish relationship to the supporting service instance. The case is captured in this model.
+        items:
+          $ref: '#/definitions/SupportingServiceRefRequest'
+    example:
+      name: mobileAccess
+      description: This is secondary Mobile Access Service
+      state: active
+      serviceSpecification:
+        href: serviceCatalogManagement/v2/serviceSpecification/mobileAccess/ed7ce908-9e89-11e8-98d0-529269fb1459
+      relatedParty:
+      - role: InstanceConsumerGroup
+        id: B2CConsumerAndSmallBusiness
+      - role: PairingId
+        id: B2CFORCE
+      serviceCharacteristic:
+      - name: type
+        value: secondary
+      - name: privateId
+        value:
+          imsi: "505013486018399"
+      - name: publicId
+        value:
+          serviceNumber: "61417123499"
+      - name: serviceProviderId
+        value: "0002"
+      - name: accessType
+        value: standard
+      - name: internationalRoaming
+        value:
+          enabled: "true"
+          accessRestriction: realTimeOnly
+      serviceRelationship:
+      - type: DependencyOn
+        service:
+          id: e26205f4-e144-4ded-9e64-82ede0b26e33
+          href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      supportingService:
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1411
+        href: activationAndConfiguration/v2/service/calling/ed7ce908-9e89-11e8-98d0-529269fb1411
+      - name: data
+        state: active
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/data/ad184bbb-0a64-4b4a-b2a3-4d8bb986d7f3
+        serviceCharacteristic:
+        - name: ratingContext
+          value: realTime
+        - name: dataName
+          value: publicInternet
+        - name: gradeOfService
+          value: standard
+        - name: dataBandwidth
+          value:
+            speedTier: standard
+  servicePrimary:
+    type: object
+    required:
+    - href
+    - id
+    - operatingState
+    - relatedParty
+    - serviceDate
+    - serviceSpecification
+    - state
+    properties:
+      id:
+        type: string
+        description: Created by Domain. Identifier of a Service Instance. Required to be unique. Used in URIs as the identifier of the service (for modify or delete use cases). This should be in UUID format.
+      href:
+        type: string
+        description: Created by Domain. Complete URI Reference to the Service (useful for delete or modify command)
+      name:
+        type: string
+        description: Name of the service.
+      description:
+        type: string
+        description: A free-text description of the service (what it provides).
+      state:
+        type: string
+        description: The lifecycle state of the service.
+        enum:
+        - active
+        - suspended
+      serviceDate:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Date when the service was created (whatever its status). This parameter is not required during POST Call, but should be provided in response (by Domain) to service creation and retrieval call.
+        default: Today
+      operatingState:
+        type: string
+        description: Telstra Extension to TMF. The operating state provides information on how a service is currently performing (e.g. working, failed) and if the service is being modified from one state to another.
+        default: Unknown
+        enum:
+        - Unknown
+      processStatus:
+        type: array
+        description: Telstra Extension to TMF. Process Status provides additional details on services being transitioned to a new state.  It also provides information on failed transactions. processStatus will be an array.
+        items:
+          $ref: '#/definitions/processStatus'
+      serviceSpecification:
+        $ref: '#/definitions/ServiceSpecification'
+      serviceCharacteristic:
+        type: array
+        description: A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+        items:
+          $ref: '#/definitions/ServiceCharacteristic'
+      serviceRelationship:
+        type: array
+        description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain).
+        items:
+          $ref: '#/definitions/ServiceRelationship'
+      relatedParty:
+        type: array
+        description: Party linked at the service level (e.g. a User).
+        items:
+          $ref: '#/definitions/RelatedParty'
+      supportingService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/SupportingService'
+    example:
+      id: e26205f4-e144-4ded-9e64-82ede0b26e33
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      name: mobileAccess
+      description: mobileAccess Service
+      state: active
+      operatingState: Unknown
+      serviceDate: 2019-07-01T14:20:54.123Z
+      serviceSpecification:
+        href: serviceCatalogManagement/v2/serviceSpecification/mobileAccess/ed7ce908-9e89-11e8-98d0-529269fb1459
+      relatedParty:
+      - role: InstanceConsumerGroup
+        id: B2CConsumerAndSmallBusiness
+      - role: PairingId
+        id: B2CFORCE
+      serviceCharacteristic:
+      - name: type
+        value: primary
+      - name: privateId
+        value:
+          imsi: "505013486018300"
+      - name: publicId
+        value:
+          serviceNumber: "61417123456"
+      - name: serviceProviderId
+        value: "0002"
+      - name: accessType
+        value: standard
+      - name: internationalRoaming
+        value:
+          enabled: "true"
+          accessRestriction: realTimeOnly
+      supportingService:
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1411
+        href: activationAndConfiguration/v2/service/calling/ed7ce908-9e89-11e8-98d0-529269fb1411
+        name: calling
+        state: active
+        operatingState: Unknown
+        serviceDate: 2019-07-01T14:20:54.123Z
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/calling/29e86538-e7d5-44b2-b086-e53071f277e7
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: privateIdNetworkAlias
+          value:
+          - uri: sip:505013489012345@connect.telstra.com
+            type: primary
+        - name: publicIdNetworkAlias
+          value:
+          - uri: sip:61417123456@connect.telstra.com;user=phone
+            type: primary
+        - name: callingServiceProfile
+          value: standardMobile
+        - name: ratingContext
+          value: realTime
+        - name: callRestriction
+          value:
+          - barIdd
+          - barPremium
+        - name: iddDiversionAllowed
+          value: "false"
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e33
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1422
+        href: activationAndConfiguration/v2/service/voicemail/ed7ce908-9e89-11e8-98d0-529269fb1422
+        name: voicemail
+        state: active
+        serviceDate: 2019-07-01T14:20:54.123Z
+        operatingState: Unknown
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/voicemail/a485ffb5-a39d-4836-b079-373995324167
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: type
+          value: deviceDetected
+        - name: serviceStateLocation
+          value: NSW
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e33
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1433
+        href: activationAndConfiguration/v2/service/messaging/ed7ce908-9e89-11e8-98d0-529269fb1433
+        name: messaging
+        state: active
+        serviceDate: 2019-07-01T14:20:54.123Z
+        operatingState: Unknown
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/messaging/1fc01607-edc0-4d20-a231-8548b94dce61
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: privateIdNetworkAlias
+          value:
+          - uri: sip:505013489012345@connect.telstra.com
+            type: primary
+        - name: publicIdNetworkAlias
+          value:
+          - uri: sip:61417123456@connect.telstra.com;user=phone
+            type: primary
+        - name: ratingContext
+          value: realTime
+        - name: mmsEnabled
+          value: "true"
+        - name: rcs
+          value:
+            enabled: "true"
+            rcsProfile: standard
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e33
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1433
+        href: activationAndConfiguration/v2/service/data/ed7ce908-9e89-11e8-98d0-529269fb1433
+        name: data
+        state: active
+        serviceDate: 2019-07-01T14:20:54.123Z
+        operatingState: Unknown
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/data/ad184bbb-0a64-4b4a-b2a3-4d8bb986d7f3
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: ratingContext
+          value: realTime
+        - name: dataName
+          value: publicInternet
+        - name: gradeOfService
+          value: standard
+        - name: dataBandwidth
+          value:
+            speedTier: standard
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e33
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+  serviceSecondary:
+    type: object
+    required:
+    - href
+    - id
+    - operatingState
+    - relatedParty
+    - serviceSpecification
+    - state
+    properties:
+      id:
+        type: string
+        description: Created by Domain. Identifier of a Service Instance. Required to be unique. Used in URIs as the identifier of the service (for modify or delete use cases). This should be in UUID format.
+      href:
+        type: string
+        description: Created by Domain. Complete URI Reference to the Service (useful for delete or modify command)
+      name:
+        type: string
+        description: Name of the service.
+      description:
+        type: string
+        description: A free-text description of the service (what it provides).
+      state:
+        type: string
+        description: The lifecycle state of the service.
+        enum:
+        - active
+        - suspended
+      serviceDate:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Date when the service was created (whatever its status). This parameter is not required during POST Call, but should be provided in response (by Domain) to service creation and retrieval call.
+        default: Today
+      operatingState:
+        type: string
+        description: Telstra Extension to TMF. The operating state provides information on how a service is currently performing (e.g. working, failed) and if the service is being modified from one state to another.
+        default: Unknown
+        enum:
+        - Unknown
+      processStatus:
+        type: array
+        description: Telstra Extension to TMF. Process Status provides additional details on services being transitioned to a new state.  It also provides information on failed transactions. processStatus will be an array.
+        items:
+          $ref: '#/definitions/processStatus'
+      serviceSpecification:
+        $ref: '#/definitions/ServiceSpecification'
+      serviceCharacteristic:
+        type: array
+        description: A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+        items:
+          $ref: '#/definitions/ServiceCharacteristic'
+      serviceRelationship:
+        type: array
+        description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain).
+        items:
+          $ref: '#/definitions/ServiceRelationship'
+      relatedParty:
+        type: array
+        description: Party linked at the service level (e.g. a User).
+        items:
+          $ref: '#/definitions/RelatedParty'
+      supportingService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/SupportingService'
+    example:
+      id: e26205f4-e144-4ded-9e64-82ede0b26e99
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e99
+      name: mobileAccess secondary
+      description: mobileAccess secondary Service
+      state: active
+      operatingState: Unknown
+      serviceDate: 2019-07-01T14:20:54.123Z
+      serviceSpecification:
+        href: serviceCatalogManagement/v2/serviceSpecification/mobileAccess/ed7ce908-9e89-11e8-98d0-529269fb1459
+      relatedParty:
+      - role: InstanceConsumerGroup
+        id: B2CConsumerAndSmallBusiness
+      - role: PairingId
+        id: B2CFORCE
+      serviceCharacteristic:
+      - name: type
+        value: secondary
+      - name: privateId
+        value:
+          imsi: "505013486018399"
+      - name: publicId
+        value:
+          serviceNumber: "61417123499"
+      - name: serviceProviderId
+        value: "0002"
+      - name: accessType
+        value: standard
+      - name: internationalRoaming
+        value:
+          enabled: "true"
+          accessRestriction: realTimeOnly
+      serviceRelationship:
+      - type: DependencyOn
+        service:
+          id: e26205f4-e144-4ded-9e64-82ede0b26e33
+          href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      supportingService:
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1411
+        href: activationAndConfiguration/v2/service/calling/ed7ce908-9e89-11e8-98d0-529269fb1411
+        name: calling
+        state: active
+        operatingState: Unknown
+        serviceDate: 2019-07-01T14:20:54.123Z
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/calling/29e86538-e7d5-44b2-b086-e53071f277e7
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: privateIdNetworkAlias
+          value:
+          - uri: sip:505013489012345@connect.telstra.com
+            type: primary
+          - uri: sip:505013489012678@connect.telstra.com
+            type: secondary
+        - name: publicIdNetworkAlias
+          value:
+          - uri: sip:61417123456@connect.telstra.com;user=phone
+            type: primary
+          - uri: sip:61417123478@connect.telstra.com;user=phone
+            type: secondary
+        - name: callingServiceProfile
+          value: standardMobile
+        - name: ratingContext
+          value: realTime
+        - name: callRestriction
+          value:
+          - barIdd
+          - barPremium
+        - name: iddDiversionAllowed
+          value: "false"
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e99
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e99
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e33
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1433
+        href: activationAndConfiguration/v2/service/data/ed7ce908-9e89-11e8-98d0-529269fb1433
+        name: data
+        state: active
+        serviceDate: 2019-07-01T14:20:54.123Z
+        operatingState: Unknown
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/data/ad184bbb-0a64-4b4a-b2a3-4d8bb986d7f3
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: ratingContext
+          value: realTime
+        - name: dataName
+          value: publicInternet
+        - name: gradeOfService
+          value: standard
+        - name: dataBandwidth
+          value:
+            speedTier: standard
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e99
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e99
+  serviceDepth:
+    type: object
+    required:
+    - href
+    - id
+    - operatingState
+    - relatedParty
+    - serviceDate
+    - serviceSpecification
+    - state
+    properties:
+      id:
+        type: string
+        description: Created by Domain. Identifier of a Service Instance. Required to be unique. Used in URIs as the identifier of the service (for modify or delete use cases). This should be in UUID format.
+      href:
+        type: string
+        description: Created by Domain. Complete URI Reference to the Service (useful for delete or modify command)
+      name:
+        type: string
+        description: Name of the service.
+      description:
+        type: string
+        description: A free-text description of the service (what it provides).
+      state:
+        type: string
+        description: The lifecycle state of the service.
+        enum:
+        - active
+        - suspended
+      serviceDate:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Date when the service was created (whatever its status). This parameter is not required during POST Call, but should be provided in response (by Domain) to service creation and retrieval call.
+        default: Today
+      operatingState:
+        type: string
+        description: Telstra Extension to TMF. The operating state provides information on how a service is currently performing (e.g. working, failed) and if the service is being modified from one state to another.
+        default: Unknown
+        enum:
+        - Unknown
+      processStatus:
+        type: array
+        description: Telstra Extension to TMF. Process Status provides additional details on services being transitioned to a new state.  It also provides information on failed transactions. processStatus will be an array.
+        items:
+          $ref: '#/definitions/processStatus'
+      serviceSpecification:
+        $ref: '#/definitions/ServiceSpecification'
+      serviceCharacteristic:
+        type: array
+        description: A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+        items:
+          $ref: '#/definitions/ServiceCharacteristic'
+      serviceRelationship:
+        type: array
+        description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain).
+        items:
+          $ref: '#/definitions/ServiceRelationship'
+      relatedParty:
+        type: array
+        description: Party linked at the service level (e.g. a User).
+        items:
+          $ref: '#/definitions/RelatedParty'
+      supportingService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/SupportingService'
+    example:
+      id: e26205f4-e144-4ded-9e64-82ede0b26e33
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      name: mobileAccess
+      description: mobileAccess Service
+      state: active
+      operatingState: Unknown
+      serviceDate: 2019-07-01T14:20:54.123Z
+      serviceSpecification:
+        href: serviceCatalogManagement/v2/serviceSpecification/mobileAccess/ed7ce908-9e89-11e8-98d0-529269fb1459
+      relatedParty:
+      - role: InstanceConsumerGroup
+        id: B2CConsumerAndSmallBusiness
+      - role: PairingId
+        id: B2CFORCE
+      serviceCharacteristic:
+      - name: device
+        value:
+        - deviceId: "358054080000340"
+          firstUseDate: 2018-09-20Z
+          recentChangeDate: 2018-09-20Z
+          inUseFlag: "true"
+          handsetType: Apple iPhone 8
+          imeiBlocked: "no"
+          tacBlocked: "no"
+        - deviceId: "356503072359470"
+          firstUseDate: 2018-09-20Z
+          recentChangeDate: 2018-09-20Z
+          inUseFlag: "false"
+          handsetType: Samsung Galaxy 8
+          imeiBlocked: "no"
+          tacBlocked: "no"
+      - name: carrier
+        value: Telstra
+      - name: country
+        value: Australia
+      supportingService:
+      - id: ed7ce908-9e89-11e8-98d0-529269fb1411
+        href: activationAndConfiguration/v2/service/calling/ed7ce908-9e89-11e8-98d0-529269fb1411
+        name: calling
+        state: active
+        operatingState: Unknown
+        serviceDate: 2019-07-01T14:20:54.123Z
+        serviceSpecification:
+          href: serviceCatalogManagement/v2/serviceSpecification/calling/29e86538-e7d5-44b2-b086-e53071f277e7
+        relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness
+        - role: PairingId
+          id: B2CFORCE
+        serviceCharacteristic:
+        - name: voiceCallForwarding
+          value:
+          - type: default
+            number: "61411111111"
+            timer: "15"
+          - type: unconditional
+            number: "61411111111"
+          - type: noAnswer
+            number: "61411111111"
+            timer: "15"
+          - type: busy
+            number: "61411111111"
+          - type: unreachable
+            number: "61433333333"
+        - name: videoCallForwarding
+          value:
+          - type: default
+            number: "61411111111"
+            timer: "15"
+          - type: unconditional
+            number: "61411111111"
+          - type: noAnswer
+            number: "61411111111"
+            timer: "15"
+          - type: busy
+            number: "61411111111"
+          - type: unreachable
+            number: "61433333333"
+        - name: userControlledBarring
+          value:
+          - type: outgoingInternationalExceptHome
+            status: active
+          - type: outgoingInternationalCalls
+            status: active
+          - type: incomingCallsWhenRoamingOverseas
+            status: disabled
+          - type: outgoingCalls
+            status: disabled
+          - type: incomingCalls
+            status: disabled
+        serviceRelationship:
+        - type: providedTo
+          service:
+            id: e26205f4-e144-4ded-9e64-82ede0b26e33
+            href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+  servicePatch:
+    type: object
+    required:
+    - op
+    - path
+    properties:
+      op:
+        type: string
+        description: action to take
+        enum:
+        - add
+        - remove
+        - replace
+      path:
+        type: string
+        description: a pointer/reference to the field to change
+      value:
+        type: object
+        description: value to use, this is optional depending on the value of op
+        properties: {}
+    example:
+    - op: add
+      path: /serviceCharacteristic/-
+      value:
+        name: suspensionReason
+        value:
+        - lostStolen
+  serviceDepthPatch:
+    type: object
+    required:
+    - op
+    - path
+    properties:
+      op:
+        type: string
+        description: action to take
+        enum:
+        - add
+        - remove
+        - replace
+      path:
+        type: string
+        description: a pointer/reference to the field to change
+      value:
+        type: object
+        description: value to use, this is optional depending on the value of op
+        properties: {}
+    example:
+      op: replace
+      path: /supportingService/serviceCharacteristic/value/number?supportingService.id=ed7ce908-9e89-11e8-98d0-529269fb1411&supportingService.serviceCharacteristic.name=voiceCallForwarding&supportingService.serviceCharacteristic.value.type=unconditional
+      value: "619999999"
+      
+  ServiceAcknowledgement:
+    type: object
+    required:
+    - href
+    - id
+    properties:
+      id:
+        type: string
+        description: This should be a UUID created by Domain. Identifier of a Service Instance. Required to be unique. Used in URIs as the identifier of the Service Instance (for modify or delete use cases).
+      href:
+        type: string
+        description: Created by Domain. Reference to the Service Instance (useful for delete or modify methods)
+    description: Model to capture the sample response for http 202 response.
+    example:
+      id: e26205f4-e144-4ded-9e64-82ede0b26e33
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+  
+  ServiceAcknowledgementSecondary:
+    type: object
+    required:
+    - href
+    - id
+    properties:
+      id:
+        type: string
+        description: This should be a UUID created by Domain. Identifier of a Service Instance. Required to be unique. Used in URIs as the identifier of the Service Instance (for modify or delete use cases).
+      href:
+        type: string
+        description: Created by Domain. Reference to the Service Instance (useful for delete or modify methods)
+    description: Model to capture the sample response for http 202 response.
+    example:
+      id: e26205f4-e144-4ded-9e64-82ede0b26e99
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e99
+  
+  processStatus:
+    type: object
+    required:
+    - code
+    - message
+    - severity
+    properties:
+      severity:
+        type: string
+        description: Indicates if message is informational or indicates an error.
+        enum:
+        - INFO
+        - WARN
+        - ERROR
+        - CRITICAL
+      message:
+        type: string
+        description: Message string.
+      parameterizedMessage:
+        type: string
+        description: Array of Parameterized values from message (text).
+      timeStamp:
+        type: string
+        description: Timestamp of the message generated and populated by domain.
+      code:
+        type: string
+        description: Unique identification of the message (or error) across all domains. [ Recommendation - include service type also in the code].
+    description: Telstra Extension to TMF. Process Status provides additional details on services being transitioned to a new state.  It also provides information on failed transactions. processStatus will be an array.
+    example:
+      code: code
+      severity: INFO
+      message: message. For example "Service being created"
+  ServiceSpecification:
+    type: object
+    properties:
+      href:
+        type: string
+        description: Pointer to definition of the Service Specification in NaaS Catalog.
+      version:
+        type: string
+        description: Version of the service specification.
+      name:
+        type: string
+        description: Name of the service specification.
+    description: The service specification (default values, etc. are fetched from the catalogue). href is recommended to be used as ONLY identifier while creating the Service Instance. name and version are required in case a consumer is not able to use href or a domain is unable to support href
+  SupportingServiceCreatePostRequest:
+    type: object
+    required:
+    - serviceSpecification
+    - state
+    properties:
+      name:
+        type: string
+        description: Friendly Name of the Service Instance.
+      description:
+        type: string
+        description: A free-text description of the service (what it provides).
+      state:
+        type: string
+        description: The lifecycle state of the service.
+        enum:
+        - active
+        - suspended
+      serviceSpecification:
+        $ref: '#/definitions/ServiceSpecification'
+      serviceCharacteristic:
+        type: array
+        description: A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+        items:
+          $ref: '#/definitions/ServiceCharacteristic'
+      serviceRelationship:
+        type: array
+        description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain).
+        items:
+          $ref: '#/definitions/ServiceRelationship'
+      relatedParty:
+        type: array
+        description: Party linked at the service level (e.g. a User).
+        items:
+          $ref: '#/definitions/RelatedParty'
+    description: SupportingServiceCreatePostRequest must be used to provide full specification of a Supporting Service in a POST request if the intention is to create a new supporting service instance.
+  SupportingService:
+    description: "SupportingService is a collection of child Service Instances. \nContains full specification of supporting services.\n$ref: '#/definitions/servicePrimary'"
+  SupportingServiceRefRequest:
+    type: object
+    required:
+    - href
+    - id
+    properties:
+      id:
+        type: string
+        description: UUID. Unique Id of the Service Instance.
+      href:
+        type: string
+        description: URI Reference to the Service (useful for delete or modify command).
+    description: SupportingServiceRefRequest is used provide reference to an existing Supporting Service in a POST request.
+  ServiceRelationship:
+    type: object
+    required:
+    - service
+    - type
+    properties:
+      type:
+        type: string
+        description: Describes links with services of the same category (useful for bundled services, e.g. to describe relies on relationship between services).
+      service:
+        $ref: '#/definitions/ServiceRef'
+    description: A list of service relationships (ServiceRelationship [*]). Describes links with other service(s) in the inventory (useful for describing relies-on, relies-from between CFS for example). This is an optional Reference to related services (e.g. components of a service chain).
+  ServiceRef:
+    type: object
+    required:
+    - href
+    - id
+    properties:
+      id:
+        type: string
+        description: UUID. Unique ID of Service Instance.
+      href:
+        type: string
+        description: reference of the Service Instance.
+    description: A service reference (ServiceRef). Useful to link services of the same category.
+  ServiceCharacteristic:
+    type: object
+    required:
+    - name
+    - value
+    properties:
+      name:
+        type: string
+        description: The name of the ServiceCharacteristic.
+      value:
+        $ref: '#/definitions/any'
+    description: The value of the ServiceCharacteristic. Optional parameter. A list of service characteristics (ServiceCharacteristic [*]) represented as name/value pairs. Used to store instance specific values of attributes.
+  RelatedParty:
+    type: object
+    required:
+    - role
+    properties:
+      id:
+        type: string
+        description: Placeholder for Group ID. Consumer needs to populate this detail during POST. Can be modified as part of PATCH and should be part of instance data so that the same can be included in GET response and should be included in header of Listener API by Domain. ID is conditional mandatory under the role type = InstanceConsumerGroup
+      role:
+        type: string
+        description: Role of the related party eg. "InstanceConsumerGroup" or "PairingId"
+      name:
+        type: string
+        description: Name of the related party.
+    description: Party linked at the service level (it may be a User for example).
+    example:
+      role: InstanceConsumerGroup
+      id: 1f00df64-8497-11e8-adc0-fa7ae01bbebc
+  relatedService:
+    type: object
+    required:
+    - href
+    properties:
+      '@referredType':
+        type: string
+        description: '@type of the referred object (E.g., "service", "serviceProblem", etc.). If any of the referred object is extended to a new schema, the name of the new schema must be used (E.g., Domain has extended the "service" to "ucNumbers"). This attribute is mandatory when the @referredType is not the @type as service, ServiceProblem, serviceSpecification"'
+      href:
+        type: string
+        description: href of the included resource instance
+    description: Details of the related Object on which "task" is executed.
+  listenerPrimary:
+    type: object
+    required:
+    - event
+    - eventId
+    - eventTime
+    - eventType
+    properties:
+      eventId:
+        type: string
+        description: This is a Domain generated attribute and should be UUID. Unique identifier for the event message
+      eventTime:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Creation date of the event. Format should be ISO-8601 (e.g. 2018-03-19T08:20:00.123Z)
+      eventType:
+        type: string
+        description: Type of event from below enum (specific to business function area).
+        enum:
+        - serviceCreationNotification
+        - serviceValueChangeNotification
+        - serviceStateChangeNotification
+        - serviceDeletionNotification
+        - serviceProcessStatusChangeNotification
+      event:
+        $ref: '#/definitions/listenerPrimary_event'
+    description: Listener notification is sent to each listener who has subscribed to receive it. Domains can include additional routing information as header parameters, such as Domain and Service mnemonic.
+  listenerSecondary:
+    type: object
+    required:
+    - event
+    - eventId
+    - eventTime
+    - eventType
+    properties:
+      eventId:
+        type: string
+        description: This is a Domain generated attribute and should be UUID. Unique identifier for the event message
+      eventTime:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Creation date of the event. Format should be ISO-8601 (e.g. 2018-03-19T08:20:00.123Z)
+      eventType:
+        type: string
+        description: Type of event from below enum (specific to business function area).
+        enum:
+        - serviceCreationNotification
+        - serviceValueChangeNotification
+        - serviceStateChangeNotification
+        - serviceDeletionNotification
+        - serviceProcessStatusChangeNotification
+      event:
+        $ref: '#/definitions/listenerSecondary_event'
+    description: Listener notification is sent to each listener who has subscribed to receive it. Domains can include additional routing information as header parameters, such as Domain and Service mnemonic.
+  listenerServiceDepth:
+    type: object
+    required:
+    - event
+    - eventId
+    - eventTime
+    - eventType
+    properties:
+      eventId:
+        type: string
+        description: This is a Domain generated attribute and should be UUID. Unique identifier for the event message
+      eventTime:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Creation date of the event. Format should be ISO-8601 (e.g. 2018-03-19T08:20:00.123Z)
+      eventType:
+        type: string
+        description: Type of event from below enum (specific to business function area).
+        enum:
+        - serviceConfigValueChangeNotification
+      event:
+        $ref: '#/definitions/listenerPrimary_event'
+    description: Listener notification is sent to each listener who has subscribed to receive it. Domains can include additional routing information as header parameters, such as Domain and Service mnemonic.
+  oauthRequest:
+    type: object
+    required:
+    - client_id
+    - client_secret
+    - grant_type
+    properties:
+      client_id:
+        type: string
+        description: "Also known as CONSUMER_KEY. The client identifier issued to the \nclient during the registration process.\n"
+      client_secret:
+        type: string
+        description: |
+          Also kown as CONSUMER_SECRET  or CLIENT_SECRET. The client secret issued to the client during the registration process
+      grant_type:
+        type: string
+        example: client_credentials
+        description: "Value MUST be set to \"client_credentials\" for fetching \" \ntoken. The same field will be later used for Refresh token\n"
+        default: client_credentials
+  oauthResponse:
+    type: object
+    required:
+    - access_token
+    - expires_in
+    - token_type
+    properties:
+      access_token:
+        type: string
+        description: "Token used \nto make make a call API\n"
+      token_type:
+        type: string
+        description: "The type of token issued. In this case, it \nwill always be the value \"Bearer\".\n"
+      expires_in:
+        type: integer
+        format: int64
+        description: "Time for the token to expire in \nseconds."
+    example:
+      access_token: access_token
+      token_type: token_type
+      expires_in: "0"
+  taskRequest:
+    type: object
+    required:
+    - relatedService
+    properties:
+      relatedService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/relatedService'
+    example:
+      relatedService:
+        - href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      
+  taskRequestAuth:
+    type: object
+    required:
+    - relatedService
+    properties:
+      relatedService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/relatedService'
+      relatedParty:
+        type: array
+        description: Consumer group that creates the task instance. Must be provided by consumer so that domain can store this information. This is part of Group ID implementation which will be used by Domain to send asynchronous events and notifications back to consumer.
+        items:
+          $ref: '#/definitions/RelatedParty'
+    example:
+      relatedService:
+        - href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      relatedParty:
+        - role: InstanceConsumerGroup
+          id: B2CConsumerAndSmallBusiness  
+      taskCharacteristic:
+        - name: method
+          value: 'CREATE'          
+          
+  taskResponseVM:
+    type: object
+    required:
+    - href
+    - id
+    - relatedService
+    - state
+    - taskCreationDate
+    properties:
+      id:
+        type: string
+        description: Created by Domain. Identifier of task resource. Required to be unique. This should be in UUID format
+      href:
+        type: string
+        description: Complete URI Reference to the task resource (useful for delete or modify command)
+      state:
+        type: string
+        description: state of the task.
+        enum:
+        - Initial
+        - Rejected
+        - Cancelled
+        - Done
+        - Final
+        - Terminated with Error
+        - In Progress
+      taskCreationDate:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Task creation date. Format ISO-8601 (e.g. 2018-03-19T08:20:00.123Z)
+        default: Today
+      relatedService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/relatedService'
+      taskCharacteristic:
+        type: array
+        description: A list of task characteristics represented as name/value pairs
+        items:
+          $ref: '#/definitions/taskCharacteristic'
+    example:
+      id: 35b5fca6-354d-4d90-bf59-30950d8dce19
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33/vmPinReset/35b5fca6-354d-4d90-bf59-30950d8dce19
+      state: Final
+      taskCreationDate: 2018-03-19T08:20:00.123Z
+      relatedService:
+       - href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      taskCharacteristic:
+       - name: vmPin
+         value: "56380"
+  taskResponseSubBar:
+    type: object
+    required:
+    - href
+    - id
+    - relatedService
+    - state
+    - taskCreationDate
+    properties:
+      id:
+        type: string
+        description: Created by Domain. Identifier of task resource. Required to be unique. This should be in UUID format
+      href:
+        type: string
+        description: Complete URI Reference to the task resource (useful for delete or modify command)
+      state:
+        type: string
+        description: state of the task.
+        enum:
+        - Initial
+        - Rejected
+        - Cancelled
+        - Done
+        - Final
+        - Terminated with Error
+        - In Progress
+      taskCreationDate:
+        type: string
+        format: 'Date-time [ex: 2016-07-02T14:20:54.123Z]'
+        description: Task creation date. Format ISO-8601 (e.g. 2018-03-19T08:20:00.123Z)
+        default: Today
+      relatedService:
+        type: array
+        description: SupportingService is a collection of child Service Instances.
+        items:
+          $ref: '#/definitions/relatedService'
+      taskCharacteristic:
+        type: array
+        description: A list of task characteristics represented as name/value pairs
+        items:
+          $ref: '#/definitions/taskCharacteristic'
+    example:
+      id: 9ab52bc9-9dab-4346-b409-62e4fb9100cf
+      href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33/subBarPwdReset/9ab52bc9-9dab-4346-b409-62e4fb9100cf
+      state: Final
+      taskCreationDate: 2018-03-19T08:20:00.123Z
+      relatedService:
+        - href: activationAndConfiguration/v2/service/mobileAccess/e26205f4-e144-4ded-9e64-82ede0b26e33
+      taskCharacteristic:
+        - name: subBarPin
+          value: "4867"
+  taskCharacteristic:
+    type: object
+    required:
+    - name
+    - value
+    properties:
+      name:
+        type: string
+        description: name of the task characteristic.
+      value:
+        type: string
+        description: value of task characteristic.
+      '@baseType':
+        type: string
+        description: When sub-classing, this defines the super-class
+      '@schemaLocation':
+        type: string
+        format: uri
+        description: A URI to a JSON-Schema file that defines additional attributes and relationships
+      '@type':
+        type: string
+        description: When sub-classing, this defines the sub-class entity name
+    description: ' A list of task characteristics represented as name/value pairs.'
+  HubCreate:
+    type: object
+    required:
+    - callback
+    - eventType
+    properties:
+      callback:
+        type: string
+        description: communication endpoint address provided by consumer who is subscribing to recieve events or notifications.
+      eventType:
+        type: string
+        description: Event type to which a consumer wants to subscribe
+        enum:
+        - '*'
+        - serviceCreationNotification
+        - serviceValueChangeNotification
+        - serviceStateChangeNotification
+        - serviceDeletionNotification
+    description: The registration of a listener is done by creating a HUB resource unique to the listener (equivalent of a subscription). When a consumer wants to subscribe to all the types of entType, then need to include ''*'' as the value in hub request
+    example:
+      eventType: serviceCreationNotification
+      callback: http://bsstool.telstra.com.au
+  ResponseHubServiceType:
+    type: object
+    required:
+    - callback
+    - createdTime
+    - eventType
+    - id
+    - serviceType
+    properties:
+      id:
+        type: string
+        description: Unique ID generated by NaaS as part of hub creation. NaaS generated attribute.
+      callback:
+        type: string
+        description: communication endpoint address provided by consumer who is subscribing to recieve events or notifications.
+      eventType:
+        type: string
+        description: Event to which a consumer wants to subscribe
+      createdTime:
+        type: string
+        description: Date when the subscription was created. DateTime Format should be ISO-8601 (e.g. 2018-06-21T04:17:48+00:00)
+      serviceType:
+        type: string
+        description: serviceType for which the subscription is made
+    description: The registration of a listener is done by creating a HUB resource unique to the listener (equivalent of a subscription).
+    example:
+      id: d84be864-9c76-11e8-98d0-529269fb1459
+      callback: http://bsstool.telstra.com.au
+      eventType: serviceCreationNotification
+      serviceType: '{service_type}'
+      createdTime: 2018-06-21T04:17:48.000Z
+  ResponseHub:
+    type: object
+    required:
+    - callback
+    - createdTime
+    - eventType
+    - id
+    - serviceType
+    properties:
+      id:
+        type: string
+        description: Unique ID generated by NaaS as part of hub creation. NaaS generated attribute.
+      callback:
+        type: string
+        description: communication endpoint address provided by consumer who is subscribing to recieve events or notifications. Required only in POST.
+      eventType:
+        type: string
+        description: Event to which a consumer wants to subscribe
+      createdTime:
+        type: string
+        description: Date when the subscription was created. DateTime Format should be ISO-8601 (e.g. 2018-06-21T04:17:48+00:00)
+      serviceType:
+        type: string
+        description: serviceType for which the subscription is made
+    description: The registration of a listener is done by creating a HUB resource unique to the listener (equivalent of a subscription).
+    example:
+      eventType: serviceCreationNotification
+      callback: http://bsstool.telstra.com.au
+      id: ffc91270-6d39-11e8-adc0-fa7ae01bbebc
+      date: 2018-06-21T04:17:48.000Z
+      serviceType: '*'
+  listenerPrimary_event:
+    type: object
+    required:
+    - service
+    properties:
+      service:
+        $ref: '#/definitions/servicePrimary'
+  listenerSecondary_event:
+    type: object
+    required:
+    - service
+    properties:
+      service:
+        $ref: '#/definitions/serviceSecondary'

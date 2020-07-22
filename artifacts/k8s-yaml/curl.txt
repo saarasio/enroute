@@ -1,1 +1,0 @@
-curl -vvv --resolve kuard.local:80:10.108.88.235 http://kuard.local/

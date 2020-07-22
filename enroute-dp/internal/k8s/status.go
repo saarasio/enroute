@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,29 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package k8s contains helpers for setting the IngressRoute status
+// Package k8s contains helpers for setting the GatewayHost status
 package k8s
 
 import (
 	"encoding/json"
 
 	jsonpatch "github.com/evanphx/json-patch"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
 	"k8s.io/apimachinery/pkg/types"
 )
 
-// IngressRouteStatus allows for updating the object's Status field
-type IngressRouteStatus struct {
+// GatewayHostStatus allows for updating the object's Status field
+type GatewayHostStatus struct {
 	Client clientset.Interface
 }
 
-// SetStatus sets the IngressRoute status field to an Valid or Invalid status
-func (irs *IngressRouteStatus) SetStatus(status, desc string, existing *ingressroutev1.IngressRoute) error {
+// SetStatus sets the GatewayHost status field to an Valid or Invalid status
+func (irs *GatewayHostStatus) SetStatus(status, desc string, existing *gatewayhostv1.GatewayHost) error {
 	// Check if update needed by comparing status & desc
 	if existing.CurrentStatus != status || existing.Description != desc {
 		updated := existing.DeepCopy()
-		updated.Status = ingressroutev1.Status{
+		updated.Status = gatewayhostv1.Status{
 			CurrentStatus: status,
 			Description:   desc,
 		}
@@ -45,7 +45,7 @@ func (irs *IngressRouteStatus) SetStatus(status, desc string, existing *ingressr
 	return nil
 }
 
-func (irs *IngressRouteStatus) setStatus(existing, updated *ingressroutev1.IngressRoute) error {
+func (irs *GatewayHostStatus) setStatus(existing, updated *gatewayhostv1.GatewayHost) error {
 	existingBytes, err := json.Marshal(existing)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (irs *IngressRouteStatus) setStatus(existing, updated *ingressroutev1.Ingre
 	}
 
 	if irs != nil && irs.Client != nil && irs.Client.EnrouteV1beta1() != nil && existing != nil {
-		_, err = irs.Client.EnrouteV1beta1().IngressRoutes(existing.GetNamespace()).Patch(existing.GetName(), types.MergePatchType, patchBytes)
+		_, err = irs.Client.EnrouteV1beta1().GatewayHosts(existing.GetNamespace()).Patch(existing.GetName(), types.MergePatchType, patchBytes)
 	}
 	return err
 }

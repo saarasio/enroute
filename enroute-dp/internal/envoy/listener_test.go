@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -249,30 +249,30 @@ func TestHTTPConnectionManager(t *testing.T) {
 						}, {
 							Name:       wellknown.GRPCWeb,
 							ConfigType: nil,
-						}, 
-                        
-                    //    {
-					//		Name: wellknown.HTTPRateLimit,
-					//		ConfigType: &http.HttpFilter_TypedConfig{
-					//			TypedConfig: toAny(&httprl.RateLimit{
-					//				Domain: "enroute",
-					//				RateLimitService: &envoy_config_ratelimit_v2.RateLimitServiceConfig{
-					//					GrpcService: &envoy_api_v2_core.GrpcService{
-					//						TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-					//							EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
-					//								ClusterName: "enroute_ratelimit",
-					//							},
-					//						},
-					//					},
-					//				},
-					//			}),
-					//		},
-					//	}, 
-                        
-                        {
-							Name:       wellknown.Router,
-							ConfigType: nil,
-						}},
+						},
+
+							//    {
+							//		Name: wellknown.HTTPRateLimit,
+							//		ConfigType: &http.HttpFilter_TypedConfig{
+							//			TypedConfig: toAny(&httprl.RateLimit{
+							//				Domain: "enroute",
+							//				RateLimitService: &envoy_config_ratelimit_v2.RateLimitServiceConfig{
+							//					GrpcService: &envoy_api_v2_core.GrpcService{
+							//						TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
+							//							EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+							//								ClusterName: "enroute_ratelimit",
+							//							},
+							//						},
+							//					},
+							//				},
+							//			}),
+							//		},
+							//	},
+
+							{
+								Name:       wellknown.Router,
+								ConfigType: nil,
+							}},
 						HttpProtocolOptions: &envoy_api_v2_core.Http1ProtocolOptions{
 							// Enable support for HTTP/1.0 requests that carry
 							// a Host: header. See #537.

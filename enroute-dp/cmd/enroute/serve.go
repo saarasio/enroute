@@ -102,7 +102,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 	serve.Flag("contour-cert-file", "Contour certificate file name for serving gRPC over TLS").Envar("CONTOUR_CERT_FILE").StringVar(&ctx.contourCert)
 	serve.Flag("contour-key-file", "Contour key file name for serving gRPC over TLS").Envar("CONTOUR_KEY_FILE").StringVar(&ctx.contourKey)
 
-	serve.Flag("ingressroute-root-namespaces", "Restrict contour to searching these namespaces for root ingress routes").StringVar(&ctx.rootNamespaces)
+	serve.Flag("gatewayhost-root-namespaces", "Restrict contour to searching these namespaces for root gateway hosts").StringVar(&ctx.rootNamespaces)
 
 	serve.Flag("ingress-class-name", "Contour IngressClass name").StringVar(&ctx.ingressClass)
 
@@ -147,7 +147,7 @@ type serveContext struct {
 	metricsAddr string
 	metricsPort int
 
-	// ingressroute root namespaces
+	// gatewayhost root namespaces
 	rootNamespaces string
 
 	// ingress class
@@ -205,9 +205,9 @@ func (ctx *serveContext) tlsconfig() *tls.Config {
 	}
 }
 
-// ingressRouteRootNamespaces returns a slice of namespaces restricting where
-// contour should look for ingressroute roots.
-func (ctx *serveContext) ingressRouteRootNamespaces() []string {
+// gatewayHostRootNamespaces returns a slice of namespaces restricting where
+// contour should look for gatewayhost roots.
+func (ctx *serveContext) gatewayHostRootNamespaces() []string {
 	if strings.TrimSpace(ctx.rootNamespaces) == "" {
 		return nil
 	}
@@ -252,9 +252,9 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	c := make(chan string)
 
-	// Create a set of SharedInformerFactories for each root-ingressroute namespace (if defined)
+	// Create a set of SharedInformerFactories for each root-gatewayhost namespace (if defined)
 	var namespacedInformers []coreinformers.SharedInformerFactory
-	for _, namespace := range ctx.ingressRouteRootNamespaces() {
+	for _, namespace := range ctx.gatewayHostRootNamespaces() {
 		inf := coreinformers.NewSharedInformerFactoryWithOptions(client, 0, coreinformers.WithNamespace(namespace))
 		namespacedInformers = append(namespacedInformers, inf)
 	}
@@ -270,9 +270,9 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 			HTTPSPort:      ctx.httpsPort,
 			HTTPSAccessLog: ctx.httpsAccessLog,
 		},
-		ListenerCache:      contour.NewListenerCache(ctx.statsAddr, ctx.statsPort),
-		FieldLogger:        log.WithField("context", "CacheHandler"),
-		IngressRouteStatus: &k8s.IngressRouteStatus{},
+		ListenerCache:     contour.NewListenerCache(ctx.statsAddr, ctx.statsPort),
+		FieldLogger:       log.WithField("context", "CacheHandler"),
+		GatewayHostStatus: &k8s.GatewayHostStatus{},
 	}
 
 	// step 4. wrap the gRPC cache handler in a k8s resource event handler.
@@ -282,7 +282,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 			FieldLogger: log.WithField("context", "HoldoffNotifier"),
 		},
 		KubernetesCache: dag.KubernetesCache{
-			IngressRouteRootNamespaces: ctx.ingressRouteRootNamespaces(),
+			GatewayHostRootNamespaces: ctx.gatewayHostRootNamespaces(),
 		},
 		IngressClass: ctx.ingressClass,
 		FieldLogger:  log.WithField("context", "resourceEventHandler"),
@@ -293,13 +293,13 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
 		coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
 		coreInformers.Networking().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1beta1().IngressRoutes().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1beta1().GatewayHosts().Informer().AddEventHandler(&reh)
 
-		// Add informers for each root-ingressroute namespaces
+		// Add informers for each root-gatewayhost namespaces
 		for _, inf := range namespacedInformers {
 			inf.Core().V1().Secrets().Informer().AddEventHandler(&reh)
 		}
-		// If root-ingressroutes are not defined, then add the informer for all namespaces
+		// If root-gatewayhosts are not defined, then add the informer for all namespaces
 		if len(namespacedInformers) == 0 {
 			coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
 		}
@@ -416,7 +416,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	if !mode_ingress {
 		wl := log.WithField("context", "saaras")
 		saarasCloudCache := saaras.SaarasCloudCache{}
-		saaras.WatchCloudIngressRoute(&g, wl, &reh, et, pct, &saarasCloudCache)
+		saaras.WatchCloudGatewayHost(&g, wl, &reh, et, pct, &saarasCloudCache)
 	}
 
 	// step 13. GO!

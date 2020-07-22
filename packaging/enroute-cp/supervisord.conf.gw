@@ -46,6 +46,22 @@ autorestart=false
 nodaemon=false
 priority=935
 
+; 3.3 run prom
+[program:run-prom]
+command=/prom/prometheus-2.19.0.linux-amd64/prometheus --config.file /prom/prometheus-2.19.0.linux-amd64/prometheus.yml --web.listen-address=0.0.0.0:9090 --storage.tsdb.path /prom/prometheus-2.19.0.linux-amd64/data
+user=postgres
+autorestart=false
+nodaemon=false
+priority=936
+
+; 3.3 run graf
+[program:run-graf]
+command=/graf/grafana-7.0.3/bin/grafana-server -homepath /graf/grafana-7.0.3
+user=postgres
+autorestart=false
+nodaemon=false
+priority=937
+
 [program:run-enroute-envoy]
 command=/bin/run_enroute_envoy.sh
 user=postgres

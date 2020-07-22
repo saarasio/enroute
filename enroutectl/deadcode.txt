@@ -1,0 +1,1644 @@
+//(*spec.Swagger)(0xc0000ca300)({
+// VendorExtensible: (spec.VendorExtensible) {
+//  Extensions: (spec.Extensions) <nil>
+// },
+// SwaggerProps: (spec.SwaggerProps) {
+//  ID: (string) "",
+//  Consumes: ([]string) (len=1 cap=4) {
+//   (string) (len=16) "application/json"
+//  },
+//  Produces: ([]string) (len=1 cap=4) {
+//   (string) (len=16) "application/json"
+//  },
+//  Schemes: ([]string) (len=1 cap=4) {
+//   (string) (len=4) "http"
+//  },
+//  Swagger: (string) (len=3) "2.0",
+//  Info: (*spec.Info)(0xc0000709c0)({
+//   VendorExtensible: (spec.VendorExtensible) {
+//    Extensions: (spec.Extensions) <nil>
+//   },
+//   InfoProps: (spec.InfoProps) {
+//    Description: (string) "",
+//    Title: (string) (len=16) "Swagger Petstore",
+//    TermsOfService: (string) "",
+//    Contact: (*spec.ContactInfo)(<nil>),
+//    License: (*spec.License)(0xc0003bc330)({
+//     LicenseProps: (spec.LicenseProps) {
+//      Name: (string) (len=3) "MIT",
+//      URL: (string) ""
+//     },
+//     VendorExtensible: (spec.VendorExtensible) {
+//      Extensions: (spec.Extensions) <nil>
+//     }
+//    }),
+//    Version: (string) (len=5) "1.0.0"
+//   }
+//  }),
+//  Host: (string) (len=19) "petstore.swagger.io",
+//  BasePath: (string) (len=3) "/v1",
+//  Paths: (*spec.Paths)(0xc0002bc590)({
+//   VendorExtensible: (spec.VendorExtensible) {
+//    Extensions: (spec.Extensions) <nil>
+//   },
+//   Paths: (map[string]spec.PathItem) (len=2) {
+//    (string) (len=5) "/pets": (spec.PathItem) {
+//     Refable: (spec.Refable) {
+//      Ref: (spec.Ref)
+//     },
+//     VendorExtensible: (spec.VendorExtensible) {
+//      Extensions: (spec.Extensions) <nil>
+//     },
+//     PathItemProps: (spec.PathItemProps) {
+//      Get: (*spec.Operation)(0xc0000dc1c0)({
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       OperationProps: (spec.OperationProps) {
+//        Description: (string) "",
+//        Consumes: ([]string) <nil>,
+//        Produces: ([]string) <nil>,
+//        Schemes: ([]string) <nil>,
+//        Tags: ([]string) (len=1 cap=4) {
+//         (string) (len=4) "pets"
+//        },
+//        Summary: (string) (len=13) "List all pets",
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        ID: (string) (len=8) "listPets",
+//        Deprecated: (bool) false,
+//        Security: ([]map[string][]string) <nil>,
+//        Parameters: ([]spec.Parameter) (len=1 cap=4) {
+//         (spec.Parameter) {
+//          Refable: (spec.Refable) {
+//           Ref: (spec.Ref)
+//          },
+//          CommonValidations: (spec.CommonValidations) {
+//           Maximum: (*float64)(<nil>),
+//           ExclusiveMaximum: (bool) false,
+//           Minimum: (*float64)(<nil>),
+//           ExclusiveMinimum: (bool) false,
+//           MaxLength: (*int64)(<nil>),
+//           MinLength: (*int64)(<nil>),
+//           Pattern: (string) "",
+//           MaxItems: (*int64)(<nil>),
+//           MinItems: (*int64)(<nil>),
+//           UniqueItems: (bool) false,
+//           MultipleOf: (*float64)(<nil>),
+//           Enum: ([]interface {}) <nil>
+//          },
+//          SimpleSchema: (spec.SimpleSchema) {
+//           Type: (string) (len=7) "integer",
+//           Nullable: (bool) false,
+//           Format: (string) (len=5) "int32",
+//           Items: (*spec.Items)(<nil>),
+//           CollectionFormat: (string) "",
+//           Default: (interface {}) <nil>,
+//           Example: (interface {}) <nil>
+//          },
+//          VendorExtensible: (spec.VendorExtensible) {
+//           Extensions: (spec.Extensions) <nil>
+//          },
+//          ParamProps: (spec.ParamProps) {
+//           Description: (string) (len=46) "How many items to return at one time (max 100)",
+//           Name: (string) (len=5) "limit",
+//           In: (string) (len=5) "query",
+//           Required: (bool) false,
+//           Schema: (*spec.Schema)(<nil>),
+//           AllowEmptyValue: (bool) false
+//          }
+//         }
+//        },
+//        Responses: (*spec.Responses)(0xc00042cf80)({
+//         VendorExtensible: (spec.VendorExtensible) {
+//          Extensions: (spec.Extensions) <nil>
+//         },
+//         ResponsesProps: (spec.ResponsesProps) {
+//          Default: (*spec.Response)(0xc000070b40)({
+//           Refable: (spec.Refable) {
+//            Ref: (spec.Ref)
+//           },
+//           ResponseProps: (spec.ResponseProps) {
+//            Description: (string) (len=16) "unexpected error",
+//            Schema: (*spec.Schema)(0xc00049a240)({
+//             VendorExtensible: (spec.VendorExtensible) {
+//              Extensions: (spec.Extensions) <nil>
+//             },
+//             SchemaProps: (spec.SchemaProps) {
+//              ID: (string) "",
+//              Ref: (spec.Ref) #/definitions/Error,
+//              Schema: (spec.SchemaURL) "",
+//              Description: (string) "",
+//              Type: (spec.StringOrArray) <nil>,
+//              Nullable: (bool) false,
+//              Format: (string) "",
+//              Title: (string) "",
+//              Default: (interface {}) <nil>,
+//              Maximum: (*float64)(<nil>),
+//              ExclusiveMaximum: (bool) false,
+//              Minimum: (*float64)(<nil>),
+//              ExclusiveMinimum: (bool) false,
+//              MaxLength: (*int64)(<nil>),
+//              MinLength: (*int64)(<nil>),
+//              Pattern: (string) "",
+//              MaxItems: (*int64)(<nil>),
+//              MinItems: (*int64)(<nil>),
+//              UniqueItems: (bool) false,
+//              MultipleOf: (*float64)(<nil>),
+//              Enum: ([]interface {}) <nil>,
+//              MaxProperties: (*int64)(<nil>),
+//              MinProperties: (*int64)(<nil>),
+//              Required: ([]string) <nil>,
+//              Items: (*spec.SchemaOrArray)(<nil>),
+//              AllOf: ([]spec.Schema) <nil>,
+//              OneOf: ([]spec.Schema) <nil>,
+//              AnyOf: ([]spec.Schema) <nil>,
+//              Not: (*spec.Schema)(<nil>),
+//              Properties: (map[string]spec.Schema) <nil>,
+//              AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//              PatternProperties: (map[string]spec.Schema) <nil>,
+//              Dependencies: (spec.Dependencies) <nil>,
+//              AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//              Definitions: (spec.Definitions) <nil>
+//             },
+//             SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//              Discriminator: (string) "",
+//              ReadOnly: (bool) false,
+//              XML: (*spec.XMLObject)(<nil>),
+//              ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//              Example: (interface {}) <nil>
+//             },
+//             ExtraProps: (map[string]interface {}) <nil>
+//            }),
+//            Headers: (map[string]spec.Header) <nil>,
+//            Examples: (map[string]interface {}) <nil>
+//           },
+//           VendorExtensible: (spec.VendorExtensible) {
+//            Extensions: (spec.Extensions) <nil>
+//           }
+//          }),
+//          StatusCodeResponses: (map[int]spec.Response) (len=1) {
+//           (int) 200: (spec.Response) {
+//            Refable: (spec.Refable) {
+//             Ref: (spec.Ref)
+//            },
+//            ResponseProps: (spec.ResponseProps) {
+//             Description: (string) (len=22) "An paged array of pets",
+//             Schema: (*spec.Schema)(0xc0004a7b00)({
+//              VendorExtensible: (spec.VendorExtensible) {
+//               Extensions: (spec.Extensions) <nil>
+//              },
+//              SchemaProps: (spec.SchemaProps) {
+//               ID: (string) "",
+//               Ref: (spec.Ref) #/definitions/Pets,
+//               Schema: (spec.SchemaURL) "",
+//               Description: (string) "",
+//               Type: (spec.StringOrArray) <nil>,
+//               Nullable: (bool) false,
+//               Format: (string) "",
+//               Title: (string) "",
+//               Default: (interface {}) <nil>,
+//               Maximum: (*float64)(<nil>),
+//               ExclusiveMaximum: (bool) false,
+//               Minimum: (*float64)(<nil>),
+//               ExclusiveMinimum: (bool) false,
+//               MaxLength: (*int64)(<nil>),
+//               MinLength: (*int64)(<nil>),
+//               Pattern: (string) "",
+//               MaxItems: (*int64)(<nil>),
+//               MinItems: (*int64)(<nil>),
+//               UniqueItems: (bool) false,
+//               MultipleOf: (*float64)(<nil>),
+//               Enum: ([]interface {}) <nil>,
+//               MaxProperties: (*int64)(<nil>),
+//               MinProperties: (*int64)(<nil>),
+//               Required: ([]string) <nil>,
+//               Items: (*spec.SchemaOrArray)(<nil>),
+//               AllOf: ([]spec.Schema) <nil>,
+//               OneOf: ([]spec.Schema) <nil>,
+//               AnyOf: ([]spec.Schema) <nil>,
+//               Not: (*spec.Schema)(<nil>),
+//               Properties: (map[string]spec.Schema) <nil>,
+//               AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//               PatternProperties: (map[string]spec.Schema) <nil>,
+//               Dependencies: (spec.Dependencies) <nil>,
+//               AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//               Definitions: (spec.Definitions) <nil>
+//              },
+//              SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//               Discriminator: (string) "",
+//               ReadOnly: (bool) false,
+//               XML: (*spec.XMLObject)(<nil>),
+//               ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//               Example: (interface {}) <nil>
+//              },
+//              ExtraProps: (map[string]interface {}) <nil>
+//             }),
+//             Headers: (map[string]spec.Header) (len=1) {
+//              (string) (len=6) "x-next": (spec.Header) {
+//               CommonValidations: (spec.CommonValidations) {
+//                Maximum: (*float64)(<nil>),
+//                ExclusiveMaximum: (bool) false,
+//                Minimum: (*float64)(<nil>),
+//                ExclusiveMinimum: (bool) false,
+//                MaxLength: (*int64)(<nil>),
+//                MinLength: (*int64)(<nil>),
+//                Pattern: (string) "",
+//                MaxItems: (*int64)(<nil>),
+//                MinItems: (*int64)(<nil>),
+//                UniqueItems: (bool) false,
+//                MultipleOf: (*float64)(<nil>),
+//                Enum: ([]interface {}) <nil>
+//               },
+//               SimpleSchema: (spec.SimpleSchema) {
+//                Type: (string) (len=6) "string",
+//                Nullable: (bool) false,
+//                Format: (string) "",
+//                Items: (*spec.Items)(<nil>),
+//                CollectionFormat: (string) "",
+//                Default: (interface {}) <nil>,
+//                Example: (interface {}) <nil>
+//               },
+//               VendorExtensible: (spec.VendorExtensible) {
+//                Extensions: (spec.Extensions) <nil>
+//               },
+//               HeaderProps: (spec.HeaderProps) {
+//                Description: (string) (len=36) "A link to the next page of responses"
+//               }
+//              }
+//             },
+//             Examples: (map[string]interface {}) <nil>
+//            },
+//            VendorExtensible: (spec.VendorExtensible) {
+//             Extensions: (spec.Extensions) <nil>
+//            }
+//           }
+//          }
+//         }
+//        })
+//       }
+//      }),
+//      Put: (*spec.Operation)(<nil>),
+//      Post: (*spec.Operation)(0xc0000dc2a0)({
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       OperationProps: (spec.OperationProps) {
+//        Description: (string) "",
+//        Consumes: ([]string) <nil>,
+//        Produces: ([]string) <nil>,
+//        Schemes: ([]string) <nil>,
+//        Tags: ([]string) (len=1 cap=4) {
+//         (string) (len=4) "pets"
+//        },
+//        Summary: (string) (len=12) "Create a pet",
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        ID: (string) (len=10) "createPets",
+//        Deprecated: (bool) false,
+//        Security: ([]map[string][]string) <nil>,
+//        Parameters: ([]spec.Parameter) <nil>,
+//        Responses: (*spec.Responses)(0xc00042d660)({
+//         VendorExtensible: (spec.VendorExtensible) {
+//          Extensions: (spec.Extensions) <nil>
+//         },
+//         ResponsesProps: (spec.ResponsesProps) {
+//          Default: (*spec.Response)(0xc000070c60)({
+//           Refable: (spec.Refable) {
+//            Ref: (spec.Ref)
+//           },
+//           ResponseProps: (spec.ResponseProps) {
+//            Description: (string) (len=16) "unexpected error",
+//            Schema: (*spec.Schema)(0xc00049a900)({
+//             VendorExtensible: (spec.VendorExtensible) {
+//              Extensions: (spec.Extensions) <nil>
+//             },
+//             SchemaProps: (spec.SchemaProps) {
+//              ID: (string) "",
+//              Ref: (spec.Ref) #/definitions/Error,
+//              Schema: (spec.SchemaURL) "",
+//              Description: (string) "",
+//              Type: (spec.StringOrArray) <nil>,
+//              Nullable: (bool) false,
+//              Format: (string) "",
+//              Title: (string) "",
+//              Default: (interface {}) <nil>,
+//              Maximum: (*float64)(<nil>),
+//              ExclusiveMaximum: (bool) false,
+//              Minimum: (*float64)(<nil>),
+//              ExclusiveMinimum: (bool) false,
+//              MaxLength: (*int64)(<nil>),
+//              MinLength: (*int64)(<nil>),
+//              Pattern: (string) "",
+//              MaxItems: (*int64)(<nil>),
+//              MinItems: (*int64)(<nil>),
+//              UniqueItems: (bool) false,
+//              MultipleOf: (*float64)(<nil>),
+//              Enum: ([]interface {}) <nil>,
+//              MaxProperties: (*int64)(<nil>),
+//              MinProperties: (*int64)(<nil>),
+//              Required: ([]string) <nil>,
+//              Items: (*spec.SchemaOrArray)(<nil>),
+//              AllOf: ([]spec.Schema) <nil>,
+//              OneOf: ([]spec.Schema) <nil>,
+//              AnyOf: ([]spec.Schema) <nil>,
+//              Not: (*spec.Schema)(<nil>),
+//              Properties: (map[string]spec.Schema) <nil>,
+//              AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//              PatternProperties: (map[string]spec.Schema) <nil>,
+//              Dependencies: (spec.Dependencies) <nil>,
+//              AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//              Definitions: (spec.Definitions) <nil>
+//             },
+//             SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//              Discriminator: (string) "",
+//              ReadOnly: (bool) false,
+//              XML: (*spec.XMLObject)(<nil>),
+//              ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//              Example: (interface {}) <nil>
+//             },
+//             ExtraProps: (map[string]interface {}) <nil>
+//            }),
+//            Headers: (map[string]spec.Header) <nil>,
+//            Examples: (map[string]interface {}) <nil>
+//           },
+//           VendorExtensible: (spec.VendorExtensible) {
+//            Extensions: (spec.Extensions) <nil>
+//           }
+//          }),
+//          StatusCodeResponses: (map[int]spec.Response) (len=1) {
+//           (int) 201: (spec.Response) {
+//            Refable: (spec.Refable) {
+//             Ref: (spec.Ref)
+//            },
+//            ResponseProps: (spec.ResponseProps) {
+//             Description: (string) (len=13) "Null response",
+//             Schema: (*spec.Schema)(<nil>),
+//             Headers: (map[string]spec.Header) <nil>,
+//             Examples: (map[string]interface {}) <nil>
+//            },
+//            VendorExtensible: (spec.VendorExtensible) {
+//             Extensions: (spec.Extensions) <nil>
+//            }
+//           }
+//          }
+//         }
+//        })
+//       }
+//      }),
+//      Delete: (*spec.Operation)(<nil>),
+//      Options: (*spec.Operation)(<nil>),
+//      Head: (*spec.Operation)(<nil>),
+//      Patch: (*spec.Operation)(<nil>),
+//      Parameters: ([]spec.Parameter) <nil>
+//     }
+//    },
+//    (string) (len=41) "/pets/{petId}/abcd/{petId2}/efgh/{petId3}": (spec.PathItem) {
+//     Refable: (spec.Refable) {
+//      Ref: (spec.Ref)
+//     },
+//     VendorExtensible: (spec.VendorExtensible) {
+//      Extensions: (spec.Extensions) <nil>
+//     },
+//     PathItemProps: (spec.PathItemProps) {
+//      Get: (*spec.Operation)(0xc0000dc380)({
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       OperationProps: (spec.OperationProps) {
+//        Description: (string) "",
+//        Consumes: ([]string) <nil>,
+//        Produces: ([]string) <nil>,
+//        Schemes: ([]string) <nil>,
+//        Tags: ([]string) (len=1 cap=4) {
+//         (string) (len=4) "pets"
+//        },
+//        Summary: (string) (len=23) "Info for a specific pet",
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        ID: (string) (len=11) "showPetById",
+//        Deprecated: (bool) false,
+//        Security: ([]map[string][]string) <nil>,
+//        Parameters: ([]spec.Parameter) (len=1 cap=4) {
+//         (spec.Parameter) {
+//          Refable: (spec.Refable) {
+//           Ref: (spec.Ref)
+//          },
+//          CommonValidations: (spec.CommonValidations) {
+//           Maximum: (*float64)(<nil>),
+//           ExclusiveMaximum: (bool) false,
+//           Minimum: (*float64)(<nil>),
+//           ExclusiveMinimum: (bool) false,
+//           MaxLength: (*int64)(<nil>),
+//           MinLength: (*int64)(<nil>),
+//           Pattern: (string) "",
+//           MaxItems: (*int64)(<nil>),
+//           MinItems: (*int64)(<nil>),
+//           UniqueItems: (bool) false,
+//           MultipleOf: (*float64)(<nil>),
+//           Enum: ([]interface {}) <nil>
+//          },
+//          SimpleSchema: (spec.SimpleSchema) {
+//           Type: (string) (len=6) "string",
+//           Nullable: (bool) false,
+//           Format: (string) "",
+//           Items: (*spec.Items)(<nil>),
+//           CollectionFormat: (string) "",
+//           Default: (interface {}) <nil>,
+//           Example: (interface {}) <nil>
+//          },
+//          VendorExtensible: (spec.VendorExtensible) {
+//           Extensions: (spec.Extensions) <nil>
+//          },
+//          ParamProps: (spec.ParamProps) {
+//           Description: (string) (len=29) "The id of the pet to retrieve",
+//           Name: (string) (len=5) "petId",
+//           In: (string) (len=4) "path",
+//           Required: (bool) true,
+//           Schema: (*spec.Schema)(<nil>),
+//           AllowEmptyValue: (bool) false
+//          }
+//         }
+//        },
+//        Responses: (*spec.Responses)(0xc00042dc60)({
+//         VendorExtensible: (spec.VendorExtensible) {
+//          Extensions: (spec.Extensions) <nil>
+//         },
+//         ResponsesProps: (spec.ResponsesProps) {
+//          Default: (*spec.Response)(0xc000070d80)({
+//           Refable: (spec.Refable) {
+//            Ref: (spec.Ref)
+//           },
+//           ResponseProps: (spec.ResponseProps) {
+//            Description: (string) (len=16) "unexpected error",
+//            Schema: (*spec.Schema)(0xc00049b680)({
+//             VendorExtensible: (spec.VendorExtensible) {
+//              Extensions: (spec.Extensions) <nil>
+//             },
+//             SchemaProps: (spec.SchemaProps) {
+//              ID: (string) "",
+//              Ref: (spec.Ref) #/definitions/Error,
+//              Schema: (spec.SchemaURL) "",
+//              Description: (string) "",
+//              Type: (spec.StringOrArray) <nil>,
+//              Nullable: (bool) false,
+//              Format: (string) "",
+//              Title: (string) "",
+//              Default: (interface {}) <nil>,
+//              Maximum: (*float64)(<nil>),
+//              ExclusiveMaximum: (bool) false,
+//              Minimum: (*float64)(<nil>),
+//              ExclusiveMinimum: (bool) false,
+//              MaxLength: (*int64)(<nil>),
+//              MinLength: (*int64)(<nil>),
+//              Pattern: (string) "",
+//              MaxItems: (*int64)(<nil>),
+//              MinItems: (*int64)(<nil>),
+//              UniqueItems: (bool) false,
+//              MultipleOf: (*float64)(<nil>),
+//              Enum: ([]interface {}) <nil>,
+//              MaxProperties: (*int64)(<nil>),
+//              MinProperties: (*int64)(<nil>),
+//              Required: ([]string) <nil>,
+//              Items: (*spec.SchemaOrArray)(<nil>),
+//              AllOf: ([]spec.Schema) <nil>,
+//              OneOf: ([]spec.Schema) <nil>,
+//              AnyOf: ([]spec.Schema) <nil>,
+//              Not: (*spec.Schema)(<nil>),
+//              Properties: (map[string]spec.Schema) <nil>,
+//              AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//              PatternProperties: (map[string]spec.Schema) <nil>,
+//              Dependencies: (spec.Dependencies) <nil>,
+//              AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//              Definitions: (spec.Definitions) <nil>
+//             },
+//             SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//              Discriminator: (string) "",
+//              ReadOnly: (bool) false,
+//              XML: (*spec.XMLObject)(<nil>),
+//              ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//              Example: (interface {}) <nil>
+//             },
+//             ExtraProps: (map[string]interface {}) <nil>
+//            }),
+//            Headers: (map[string]spec.Header) <nil>,
+//            Examples: (map[string]interface {}) <nil>
+//           },
+//           VendorExtensible: (spec.VendorExtensible) {
+//            Extensions: (spec.Extensions) <nil>
+//           }
+//          }),
+//          StatusCodeResponses: (map[int]spec.Response) (len=1) {
+//           (int) 200: (spec.Response) {
+//            Refable: (spec.Refable) {
+//             Ref: (spec.Ref)
+//            },
+//            ResponseProps: (spec.ResponseProps) {
+//             Description: (string) (len=36) "Expected response to a valid request",
+//             Schema: (*spec.Schema)(0xc00049afc0)({
+//              VendorExtensible: (spec.VendorExtensible) {
+//               Extensions: (spec.Extensions) <nil>
+//              },
+//              SchemaProps: (spec.SchemaProps) {
+//               ID: (string) "",
+//               Ref: (spec.Ref) #/definitions/Pets,
+//               Schema: (spec.SchemaURL) "",
+//               Description: (string) "",
+//               Type: (spec.StringOrArray) <nil>,
+//               Nullable: (bool) false,
+//               Format: (string) "",
+//               Title: (string) "",
+//               Default: (interface {}) <nil>,
+//               Maximum: (*float64)(<nil>),
+//               ExclusiveMaximum: (bool) false,
+//               Minimum: (*float64)(<nil>),
+//               ExclusiveMinimum: (bool) false,
+//               MaxLength: (*int64)(<nil>),
+//               MinLength: (*int64)(<nil>),
+//               Pattern: (string) "",
+//               MaxItems: (*int64)(<nil>),
+//               MinItems: (*int64)(<nil>),
+//               UniqueItems: (bool) false,
+//               MultipleOf: (*float64)(<nil>),
+//               Enum: ([]interface {}) <nil>,
+//               MaxProperties: (*int64)(<nil>),
+//               MinProperties: (*int64)(<nil>),
+//               Required: ([]string) <nil>,
+//               Items: (*spec.SchemaOrArray)(<nil>),
+//               AllOf: ([]spec.Schema) <nil>,
+//               OneOf: ([]spec.Schema) <nil>,
+//               AnyOf: ([]spec.Schema) <nil>,
+//               Not: (*spec.Schema)(<nil>),
+//               Properties: (map[string]spec.Schema) <nil>,
+//               AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//               PatternProperties: (map[string]spec.Schema) <nil>,
+//               Dependencies: (spec.Dependencies) <nil>,
+//               AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//               Definitions: (spec.Definitions) <nil>
+//              },
+//              SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//               Discriminator: (string) "",
+//               ReadOnly: (bool) false,
+//               XML: (*spec.XMLObject)(<nil>),
+//               ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//               Example: (interface {}) <nil>
+//              },
+//              ExtraProps: (map[string]interface {}) <nil>
+//             }),
+//             Headers: (map[string]spec.Header) <nil>,
+//             Examples: (map[string]interface {}) <nil>
+//            },
+//            VendorExtensible: (spec.VendorExtensible) {
+//             Extensions: (spec.Extensions) <nil>
+//            }
+//           }
+//          }
+//         }
+//        })
+//       }
+//      }),
+//      Put: (*spec.Operation)(<nil>),
+//      Post: (*spec.Operation)(<nil>),
+//      Delete: (*spec.Operation)(<nil>),
+//      Options: (*spec.Operation)(<nil>),
+//      Head: (*spec.Operation)(<nil>),
+//      Patch: (*spec.Operation)(<nil>),
+//      Parameters: ([]spec.Parameter) <nil>
+//     }
+//    }
+//   }
+//  }),
+//  Definitions: (spec.Definitions) (len=3) {
+//   (string) (len=3) "Pet": (spec.Schema) {
+//    VendorExtensible: (spec.VendorExtensible) {
+//     Extensions: (spec.Extensions) <nil>
+//    },
+//    SchemaProps: (spec.SchemaProps) {
+//     ID: (string) "",
+//     Ref: (spec.Ref) ,
+//     Schema: (spec.SchemaURL) "",
+//     Description: (string) "",
+//     Type: (spec.StringOrArray) <nil>,
+//     Nullable: (bool) false,
+//     Format: (string) "",
+//     Title: (string) "",
+//     Default: (interface {}) <nil>,
+//     Maximum: (*float64)(<nil>),
+//     ExclusiveMaximum: (bool) false,
+//     Minimum: (*float64)(<nil>),
+//     ExclusiveMinimum: (bool) false,
+//     MaxLength: (*int64)(<nil>),
+//     MinLength: (*int64)(<nil>),
+//     Pattern: (string) "",
+//     MaxItems: (*int64)(<nil>),
+//     MinItems: (*int64)(<nil>),
+//     UniqueItems: (bool) false,
+//     MultipleOf: (*float64)(<nil>),
+//     Enum: ([]interface {}) <nil>,
+//     MaxProperties: (*int64)(<nil>),
+//     MinProperties: (*int64)(<nil>),
+//     Required: ([]string) (len=2 cap=4) {
+//      (string) (len=2) "id",
+//      (string) (len=4) "name"
+//     },
+//     Items: (*spec.SchemaOrArray)(<nil>),
+//     AllOf: ([]spec.Schema) <nil>,
+//     OneOf: ([]spec.Schema) <nil>,
+//     AnyOf: ([]spec.Schema) <nil>,
+//     Not: (*spec.Schema)(<nil>),
+//     Properties: (map[string]spec.Schema) (len=3) {
+//      (string) (len=2) "id": (spec.Schema) {
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) ,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) (len=1 cap=1) {
+//         (string) (len=7) "integer"
+//        },
+//        Nullable: (bool) false,
+//        Format: (string) (len=5) "int64",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      },
+//      (string) (len=4) "name": (spec.Schema) {
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) ,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) (len=1 cap=1) {
+//         (string) (len=6) "string"
+//        },
+//        Nullable: (bool) false,
+//        Format: (string) "",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      },
+//      (string) (len=3) "tag": (spec.Schema) {
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) ,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) (len=1 cap=1) {
+//         (string) (len=6) "string"
+//        },
+//        Nullable: (bool) false,
+//        Format: (string) "",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      }
+//     },
+//     AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//     PatternProperties: (map[string]spec.Schema) <nil>,
+//     Dependencies: (spec.Dependencies) <nil>,
+//     AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//     Definitions: (spec.Definitions) <nil>
+//    },
+//    SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//     Discriminator: (string) "",
+//     ReadOnly: (bool) false,
+//     XML: (*spec.XMLObject)(<nil>),
+//     ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//     Example: (interface {}) <nil>
+//    },
+//    ExtraProps: (map[string]interface {}) <nil>
+//   },
+//   (string) (len=4) "Pets": (spec.Schema) {
+//    VendorExtensible: (spec.VendorExtensible) {
+//     Extensions: (spec.Extensions) <nil>
+//    },
+//    SchemaProps: (spec.SchemaProps) {
+//     ID: (string) "",
+//     Ref: (spec.Ref) ,
+//     Schema: (spec.SchemaURL) "",
+//     Description: (string) "",
+//     Type: (spec.StringOrArray) (len=1 cap=1) {
+//      (string) (len=5) "array"
+//     },
+//     Nullable: (bool) false,
+//     Format: (string) "",
+//     Title: (string) "",
+//     Default: (interface {}) <nil>,
+//     Maximum: (*float64)(<nil>),
+//     ExclusiveMaximum: (bool) false,
+//     Minimum: (*float64)(<nil>),
+//     ExclusiveMinimum: (bool) false,
+//     MaxLength: (*int64)(<nil>),
+//     MinLength: (*int64)(<nil>),
+//     Pattern: (string) "",
+//     MaxItems: (*int64)(<nil>),
+//     MinItems: (*int64)(<nil>),
+//     UniqueItems: (bool) false,
+//     MultipleOf: (*float64)(<nil>),
+//     Enum: ([]interface {}) <nil>,
+//     MaxProperties: (*int64)(<nil>),
+//     MinProperties: (*int64)(<nil>),
+//     Required: ([]string) <nil>,
+//     Items: (*spec.SchemaOrArray)(0xc0002501e0)({
+//      Schema: (*spec.Schema)(0xc000453200)({
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) #/definitions/Pet,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) <nil>,
+//        Nullable: (bool) false,
+//        Format: (string) "",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      }),
+//      Schemas: ([]spec.Schema) <nil>
+//     }),
+//     AllOf: ([]spec.Schema) <nil>,
+//     OneOf: ([]spec.Schema) <nil>,
+//     AnyOf: ([]spec.Schema) <nil>,
+//     Not: (*spec.Schema)(<nil>),
+//     Properties: (map[string]spec.Schema) <nil>,
+//     AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//     PatternProperties: (map[string]spec.Schema) <nil>,
+//     Dependencies: (spec.Dependencies) <nil>,
+//     AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//     Definitions: (spec.Definitions) <nil>
+//    },
+//    SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//     Discriminator: (string) "",
+//     ReadOnly: (bool) false,
+//     XML: (*spec.XMLObject)(<nil>),
+//     ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//     Example: (interface {}) <nil>
+//    },
+//    ExtraProps: (map[string]interface {}) <nil>
+//   },
+//   (string) (len=5) "Error": (spec.Schema) {
+//    VendorExtensible: (spec.VendorExtensible) {
+//     Extensions: (spec.Extensions) <nil>
+//    },
+//    SchemaProps: (spec.SchemaProps) {
+//     ID: (string) "",
+//     Ref: (spec.Ref) ,
+//     Schema: (spec.SchemaURL) "",
+//     Description: (string) "",
+//     Type: (spec.StringOrArray) <nil>,
+//     Nullable: (bool) false,
+//     Format: (string) "",
+//     Title: (string) "",
+//     Default: (interface {}) <nil>,
+//     Maximum: (*float64)(<nil>),
+//     ExclusiveMaximum: (bool) false,
+//     Minimum: (*float64)(<nil>),
+//     ExclusiveMinimum: (bool) false,
+//     MaxLength: (*int64)(<nil>),
+//     MinLength: (*int64)(<nil>),
+//     Pattern: (string) "",
+//     MaxItems: (*int64)(<nil>),
+//     MinItems: (*int64)(<nil>),
+//     UniqueItems: (bool) false,
+//     MultipleOf: (*float64)(<nil>),
+//     Enum: ([]interface {}) <nil>,
+//     MaxProperties: (*int64)(<nil>),
+//     MinProperties: (*int64)(<nil>),
+//     Required: ([]string) (len=2 cap=4) {
+//      (string) (len=4) "code",
+//      (string) (len=7) "message"
+//     },
+//     Items: (*spec.SchemaOrArray)(<nil>),
+//     AllOf: ([]spec.Schema) <nil>,
+//     OneOf: ([]spec.Schema) <nil>,
+//     AnyOf: ([]spec.Schema) <nil>,
+//     Not: (*spec.Schema)(<nil>),
+//     Properties: (map[string]spec.Schema) (len=2) {
+//      (string) (len=4) "code": (spec.Schema) {
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) ,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) (len=1 cap=1) {
+//         (string) (len=7) "integer"
+//        },
+//        Nullable: (bool) false,
+//        Format: (string) (len=5) "int32",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      },
+//      (string) (len=7) "message": (spec.Schema) {
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) ,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) (len=1 cap=1) {
+//         (string) (len=6) "string"
+//        },
+//        Nullable: (bool) false,
+//        Format: (string) "",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      }
+//     },
+//     AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//     PatternProperties: (map[string]spec.Schema) <nil>,
+//     Dependencies: (spec.Dependencies) <nil>,
+//     AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//     Definitions: (spec.Definitions) <nil>
+//    },
+//    SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//     Discriminator: (string) "",
+//     ReadOnly: (bool) false,
+//     XML: (*spec.XMLObject)(<nil>),
+//     ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//     Example: (interface {}) <nil>
+//    },
+//    ExtraProps: (map[string]interface {}) <nil>
+//   }
+//  },
+//  Parameters: (map[string]spec.Parameter) <nil>,
+//  Responses: (map[string]spec.Response) <nil>,
+//  SecurityDefinitions: (spec.SecurityDefinitions) <nil>,
+//  Security: ([]map[string][]string) <nil>,
+//  Tags: ([]spec.Tag) <nil>,
+//  ExternalDocs: (*spec.ExternalDocumentation)(<nil>)
+// }
+//})
+//
+
+//PathPrefix [/pets/{petId}]
+//WalkSpec() op
+//(*spec.Operation)(0xc000478460)({
+// VendorExtensible: (spec.VendorExtensible) {
+//  Extensions: (spec.Extensions) <nil>
+// },
+// OperationProps: (spec.OperationProps) {
+//  Description: (string) "",
+//  Consumes: ([]string) <nil>,
+//  Produces: ([]string) <nil>,
+//  Schemes: ([]string) <nil>,
+//  Tags: ([]string) (len=1 cap=4) {
+//   (string) (len=4) "pets"
+//  },
+//  Summary: (string) (len=23) "Info for a specific pet",
+//  ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//  ID: (string) (len=11) "showPetById",
+//  Deprecated: (bool) false,
+//  Security: ([]map[string][]string) <nil>,
+//  Parameters: ([]spec.Parameter) (len=1 cap=4) {
+//   (spec.Parameter) {
+//    Refable: (spec.Refable) {
+//     Ref: (spec.Ref)
+//    },
+//    CommonValidations: (spec.CommonValidations) {
+//     Maximum: (*float64)(<nil>),
+//     ExclusiveMaximum: (bool) false,
+//     Minimum: (*float64)(<nil>),
+//     ExclusiveMinimum: (bool) false,
+//     MaxLength: (*int64)(<nil>),
+//     MinLength: (*int64)(<nil>),
+//     Pattern: (string) "",
+//     MaxItems: (*int64)(<nil>),
+//     MinItems: (*int64)(<nil>),
+//     UniqueItems: (bool) false,
+//     MultipleOf: (*float64)(<nil>),
+//     Enum: ([]interface {}) <nil>
+//    },
+//    SimpleSchema: (spec.SimpleSchema) {
+//     Type: (string) (len=6) "string",
+//     Nullable: (bool) false,
+//     Format: (string) "",
+//     Items: (*spec.Items)(<nil>),
+//     CollectionFormat: (string) "",
+//     Default: (interface {}) <nil>,
+//     Example: (interface {}) <nil>
+//    },
+//    VendorExtensible: (spec.VendorExtensible) {
+//     Extensions: (spec.Extensions) <nil>
+//    },
+//    ParamProps: (spec.ParamProps) {
+//     Description: (string) (len=29) "The id of the pet to retrieve",
+//     Name: (string) (len=5) "petId",
+//     In: (string) (len=4) "path",
+//     Required: (bool) true,
+//     Schema: (*spec.Schema)(<nil>),
+//     AllowEmptyValue: (bool) false
+//    }
+//   }
+//  },
+//  Responses: (*spec.Responses)(0xc000251a00)({
+//   VendorExtensible: (spec.VendorExtensible) {
+//    Extensions: (spec.Extensions) <nil>
+//   },
+//   ResponsesProps: (spec.ResponsesProps) {
+//    Default: (*spec.Response)(0xc000070de0)({
+//     Refable: (spec.Refable) {
+//      Ref: (spec.Ref)
+//     },
+//     ResponseProps: (spec.ResponseProps) {
+//      Description: (string) (len=16) "unexpected error",
+//      Schema: (*spec.Schema)(0xc000487440)({
+//       VendorExtensible: (spec.VendorExtensible) {
+//        Extensions: (spec.Extensions) <nil>
+//       },
+//       SchemaProps: (spec.SchemaProps) {
+//        ID: (string) "",
+//        Ref: (spec.Ref) #/definitions/Error,
+//        Schema: (spec.SchemaURL) "",
+//        Description: (string) "",
+//        Type: (spec.StringOrArray) <nil>,
+//        Nullable: (bool) false,
+//        Format: (string) "",
+//        Title: (string) "",
+//        Default: (interface {}) <nil>,
+//        Maximum: (*float64)(<nil>),
+//        ExclusiveMaximum: (bool) false,
+//        Minimum: (*float64)(<nil>),
+//        ExclusiveMinimum: (bool) false,
+//        MaxLength: (*int64)(<nil>),
+//        MinLength: (*int64)(<nil>),
+//        Pattern: (string) "",
+//        MaxItems: (*int64)(<nil>),
+//        MinItems: (*int64)(<nil>),
+//        UniqueItems: (bool) false,
+//        MultipleOf: (*float64)(<nil>),
+//        Enum: ([]interface {}) <nil>,
+//        MaxProperties: (*int64)(<nil>),
+//        MinProperties: (*int64)(<nil>),
+//        Required: ([]string) <nil>,
+//        Items: (*spec.SchemaOrArray)(<nil>),
+//        AllOf: ([]spec.Schema) <nil>,
+//        OneOf: ([]spec.Schema) <nil>,
+//        AnyOf: ([]spec.Schema) <nil>,
+//        Not: (*spec.Schema)(<nil>),
+//        Properties: (map[string]spec.Schema) <nil>,
+//        AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//        PatternProperties: (map[string]spec.Schema) <nil>,
+//        Dependencies: (spec.Dependencies) <nil>,
+//        AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//        Definitions: (spec.Definitions) <nil>
+//       },
+//       SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//        Discriminator: (string) "",
+//        ReadOnly: (bool) false,
+//        XML: (*spec.XMLObject)(<nil>),
+//        ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//        Example: (interface {}) <nil>
+//       },
+//       ExtraProps: (map[string]interface {}) <nil>
+//      }),
+//      Headers: (map[string]spec.Header) <nil>,
+//      Examples: (map[string]interface {}) <nil>
+//     },
+//     VendorExtensible: (spec.VendorExtensible) {
+//      Extensions: (spec.Extensions) <nil>
+//     }
+//    }),
+//    StatusCodeResponses: (map[int]spec.Response) (len=1) {
+//     (int) 200: (spec.Response) {
+//      Refable: (spec.Refable) {
+//       Ref: (spec.Ref)
+//      },
+//      ResponseProps: (spec.ResponseProps) {
+//       Description: (string) (len=36) "Expected response to a valid request",
+//       Schema: (*spec.Schema)(0xc000486d80)({
+//        VendorExtensible: (spec.VendorExtensible) {
+//         Extensions: (spec.Extensions) <nil>
+//        },
+//        SchemaProps: (spec.SchemaProps) {
+//         ID: (string) "",
+//         Ref: (spec.Ref) #/definitions/Pets,
+//         Schema: (spec.SchemaURL) "",
+//         Description: (string) "",
+//         Type: (spec.StringOrArray) <nil>,
+//         Nullable: (bool) false,
+//         Format: (string) "",
+//         Title: (string) "",
+//         Default: (interface {}) <nil>,
+//         Maximum: (*float64)(<nil>),
+//         ExclusiveMaximum: (bool) false,
+//         Minimum: (*float64)(<nil>),
+//         ExclusiveMinimum: (bool) false,
+//         MaxLength: (*int64)(<nil>),
+//         MinLength: (*int64)(<nil>),
+//         Pattern: (string) "",
+//         MaxItems: (*int64)(<nil>),
+//         MinItems: (*int64)(<nil>),
+//         UniqueItems: (bool) false,
+//         MultipleOf: (*float64)(<nil>),
+//         Enum: ([]interface {}) <nil>,
+//         MaxProperties: (*int64)(<nil>),
+//         MinProperties: (*int64)(<nil>),
+//         Required: ([]string) <nil>,
+//         Items: (*spec.SchemaOrArray)(<nil>),
+//         AllOf: ([]spec.Schema) <nil>,
+//         OneOf: ([]spec.Schema) <nil>,
+//         AnyOf: ([]spec.Schema) <nil>,
+//         Not: (*spec.Schema)(<nil>),
+//         Properties: (map[string]spec.Schema) <nil>,
+//         AdditionalProperties: (*spec.SchemaOrBool)(<nil>),
+//         PatternProperties: (map[string]spec.Schema) <nil>,
+//         Dependencies: (spec.Dependencies) <nil>,
+//         AdditionalItems: (*spec.SchemaOrBool)(<nil>),
+//         Definitions: (spec.Definitions) <nil>
+//        },
+//        SwaggerSchemaProps: (spec.SwaggerSchemaProps) {
+//         Discriminator: (string) "",
+//         ReadOnly: (bool) false,
+//         XML: (*spec.XMLObject)(<nil>),
+//         ExternalDocs: (*spec.ExternalDocumentation)(<nil>),
+//         Example: (interface {}) <nil>
+//        },
+//        ExtraProps: (map[string]interface {}) <nil>
+//       }),
+//       Headers: (map[string]spec.Header) <nil>,
+//       Examples: (map[string]interface {}) <nil>
+//      },
+//      VendorExtensible: (spec.VendorExtensible) {
+//       Extensions: (spec.Extensions) <nil>
+//      }
+//     }
+//    }
+//   }
+//  })
+// }
+//})
+
+
+func processOnePathOp(op *spec.Operation) {
+	// If path has a parameter, determine type and corresponding regex for it
+
+	// https://github.com/OAI/OpenAPI-Specification/blob/master/schemas/v2.0/schema.json
+
+	// "pathParameterSubSchema": {
+	//    "additionalProperties": false,
+	//    "patternProperties": {
+	//      "^x-": {
+	//        "$ref": "#/definitions/vendorExtension"
+	//      }in
+	//    },
+	//    "required": [
+	//      "required"
+	//    ],
+	//    "properties": {
+	//      "required": {
+	//        "type": "boolean",
+	//        "enum": [
+	//          true
+	//        ],
+	//        "description": "Determines whether or not this parameter is required or optional."
+	//      },
+	//      "in": {
+	//        "type": "string",
+	//        "description": "Determines the location of the parameter.",
+	//        "enum": [
+	//          "path"
+	//        ]
+	//      },
+	//      "description": {
+	//        "type": "string",
+	//        "description": "A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."
+	//      },
+	//      "name": {
+	//        "type": "string",
+	//        "description": "The name of the parameter."
+	//      },
+	//      "type": {
+	//        "type": "string",
+	//        "enum": [
+	//          "string",
+	//          "number",
+	//          "boolean",
+	//          "integer",
+	//          "array"
+	//        ]
+	//      },
+	//      "format": {
+	//        "type": "string"
+	//      },
+
+	// (?<petId3>\\S+)
+
+	for _, param := range op.OperationProps.Parameters {
+		fmt.Printf(" WalkSpec() Param Prop Name %s\n", param.ParamProps.Name)
+		fmt.Printf(" WalkSpec() Param Prop In %s\n", param.ParamProps.In)
+		fmt.Printf(" WalkSpec() SimpleSchema Type %s\n", param.SimpleSchema.Type)
+	}
+
+	spew.Dump(op)
+}
+
+
+var petstore200 = `
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Swagger Petstore",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "host": "petstore.swagger.io",
+  "basePath": "/v1",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/pets": {
+      "get": {
+        "summary": "List all pets",
+        "operationId": "listPets",
+        "tags": [
+          "pets"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many items to return at one time (max 100)",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An paged array of pets",
+            "headers": {
+              "x-next": {
+                "type": "string",
+                "description": "A link to the next page of responses"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/Pets"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a pet",
+        "operationId": "createPets",
+        "tags": [
+          "pets"
+        ],
+        "responses": {
+          "201": {
+            "description": "Null response"
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/pets/{petId}/abcd/{petId2}/efgh/{petId3}": {
+      "get": {
+        "summary": "Info for a specific pet",
+        "operationId": "showPetById",
+        "tags": [
+          "pets"
+        ],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "description": "The id of the pet to retrieve",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expected response to a valid request",
+            "schema": {
+              "$ref": "#/definitions/Pets"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pet": {
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        }
+      }
+    },
+    "Pets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Pet"
+      }
+    },
+    "Error": {
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+`
+
+var petstore = `
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+  license:
+    name: MIT
+servers:
+  - url: http://petstore.swagger.io/v1
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A paged array of pets
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Pets"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a pet
+      operationId: createPets
+      tags:
+        - pets
+      responses:
+        '201':
+          description: Null response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /pets/{petId}/abcd/{petId2}/efgh/{petId3}:
+    get:
+      summary: Info for a specific pet
+      operationId: showPetById
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: The id of the pet to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        tag:
+          type: string
+    Pets:
+      type: array
+      items:
+        $ref: "#/components/schemas/Pet"
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+`
+
+//func TestSwaggerSpecWalk(t *testing.T) {
+func TestSwaggerSpecWalk(t *testing.T) {
+	var petstoreSpec loads.Document
+	tests := map[string]struct {
+		spec_in string
+		want    loads.Document
+	}{
+
+		"Petstore Spec Walk": {
+			spec_in: petstore200,
+			want:    petstoreSpec,
+		},
+	}
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			got, _ := JSONSpec(tc.spec_in, true)
+			Equal(t, tc.want, got)
+		})
+	}
+}

@@ -6,7 +6,6 @@ package contour
 import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
-
 	// "fmt"
 	// cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )

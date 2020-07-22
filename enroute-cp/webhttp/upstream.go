@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
-
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package webhttp
 
@@ -15,8 +14,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"net"
 )
-
 
 // Upstream CRUD queries
 
@@ -301,12 +300,11 @@ func db_insert_upstream(u *Upstream, log *logrus.Entry) (int, string) {
 	args["upstream_port"] = u.Upstream_port
 	args["upstream_weight"] = u.Upstream_weight
 
-
-    if len(u.Upstream_protocol) > 0 {
-        if u.Upstream_protocol == "grpc" {
-            args["upstream_protocol"] = "grpc"
-        }
-    }
+	if len(u.Upstream_protocol) > 0 {
+		if u.Upstream_protocol == "grpc" {
+			args["upstream_protocol"] = "grpc"
+		}
+	}
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 
@@ -328,7 +326,7 @@ func validate_upstream(u *Upstream) (int, string) {
 	}
 
 	if len(u.Upstream_ip) == 0 {
-		return http.StatusBadRequest, "Please provide Ip using Ip field"
+		return http.StatusBadRequest, "Please provide Ip/host using Ip field"
 	}
 
 	if len(u.Upstream_port) == 0 {
@@ -349,9 +347,18 @@ func validate_upstream(u *Upstream) (int, string) {
 
 	// TODO: Should we make health check path mandatory? Without the path, the health checker is
 	// is not programmed and it is not getting programmed on envoy through CDS/EDS
-	if len(u.Upstream_hc_path) > 0 {
-	} else {
-		return http.StatusBadRequest, "{ \"Error\" : \"Please provide a value for upstream_hc_path\" }"
+
+	// Health Checker is not required when using STRICT_DNS non EDS clusters
+	// We use STRICT_DNS when we have a domain name (instead of an IP)
+
+	// Let's try and parse the IP, if parsing fails, its a domain
+	// Since this upstream will be a part of EDS served cluster, we'll need health checks
+	// Ensure that health check path is provided
+	if net.ParseIP(u.Upstream_ip) != nil {
+		// Alternatively, we could just use "/" default for healthchecks
+		if len(u.Upstream_hc_path) <= 0 {
+			return http.StatusBadRequest, "{ \"Error\" : \"Please provide a value for upstream_hc_path\" }"
+		}
 	}
 
 	//if len(u.Upstream_hc_host) > 0 {

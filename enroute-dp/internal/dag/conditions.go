@@ -18,14 +18,14 @@ import (
 	"regexp"
 	"strings"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 )
 
 // mergePathConditions merges the given slice of prefix Conditions into a single
 // prefix Condition.
 // pathConditionsValid guarantees that if a prefix is present, it will start with a
 // / character, so we can simply concatenate.
-func mergePathConditions(conds []ingressroutev1.Condition) Condition {
+func mergePathConditions(conds []gatewayhostv1.Condition) Condition {
 
 	prefix := ""
 	for _, cond := range conds {
@@ -61,7 +61,7 @@ func mergePathConditions(conds []ingressroutev1.Condition) Condition {
 
 // pathConditionsValid validates a slice of Conditions can be correctly merged.
 // It encodes the business rules about what is allowed for prefix Conditions.
-func pathConditionsValid(conds []ingressroutev1.Condition, conditionsContext string) (bool, string) {
+func pathConditionsValid(conds []gatewayhostv1.Condition, conditionsContext string) (bool, string) {
 	prefixCount := 0
 	for _, cond := range conds {
 		if cond.Prefix != "" {
@@ -79,7 +79,7 @@ func pathConditionsValid(conds []ingressroutev1.Condition, conditionsContext str
 	return true, ""
 }
 
-func mergeHeaderConditions(conds []ingressroutev1.Condition) []HeaderCondition {
+func mergeHeaderConditions(conds []gatewayhostv1.Condition) []HeaderCondition {
 	var hc []HeaderCondition
 	for _, cond := range conds {
 		switch {
@@ -121,7 +121,7 @@ func mergeHeaderConditions(conds []ingressroutev1.Condition) []HeaderCondition {
 	return hc
 }
 
-func headerConditionsAreValid(conditions []ingressroutev1.Condition) bool {
+func headerConditionsAreValid(conditions []gatewayhostv1.Condition) bool {
 	// Look for duplicate "exact match" headers on conditions
 	// if found, set error condition on HTTPProxy
 	encountered := map[string]bool{}

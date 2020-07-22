@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package contour
 
@@ -12,7 +12,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/prometheus/client_golang/prometheus"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	v1 "k8s.io/api/core/v1"
@@ -220,22 +220,22 @@ func TestSecretVisit(t *testing.T) {
 				secret("default/secret-b/0a068be4ba", "cert-b", "key-b"),
 			),
 		},
-		"simple ingressroute with secret": {
+		"simple gatewayhost with secret": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
-							TLS: &ingressroutev1.TLS{
+							TLS: &gatewayhostv1.TLS{
 								SecretName: "secret",
 							},
 						},
-						Routes: []ingressroutev1.Route{{
-							Services: []ingressroutev1.Service{
+						Routes: []gatewayhostv1.Route{{
+							Services: []gatewayhostv1.Service{
 								{
 									Name: "backend",
 									Port: 80,
@@ -250,23 +250,23 @@ func TestSecretVisit(t *testing.T) {
 				secret("default/secret/cd1b506996", "cert", "key"),
 			),
 		},
-		"multiple ingressroutes with shared secret": {
+		"multiple gatewayhosts with shared secret": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-a",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
-							TLS: &ingressroutev1.TLS{
+							TLS: &gatewayhostv1.TLS{
 								SecretName: "secret",
 							},
 						},
-						Routes: []ingressroutev1.Route{
+						Routes: []gatewayhostv1.Route{
 							{
-								Services: []ingressroutev1.Service{
+								Services: []gatewayhostv1.Service{
 									{
 										Name: "backend",
 										Port: 80,
@@ -276,21 +276,21 @@ func TestSecretVisit(t *testing.T) {
 						},
 					},
 				},
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-b",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.other.com",
-							TLS: &ingressroutev1.TLS{
+							TLS: &gatewayhostv1.TLS{
 								SecretName: "secret",
 							},
 						},
-						Routes: []ingressroutev1.Route{
+						Routes: []gatewayhostv1.Route{
 							{
-								Services: []ingressroutev1.Service{
+								Services: []gatewayhostv1.Service{
 									{
 										Name: "backend",
 										Port: 80,
@@ -306,23 +306,23 @@ func TestSecretVisit(t *testing.T) {
 				secret("default/secret/cd1b506996", "cert", "key"),
 			),
 		},
-		"multiple ingressroutes with different secret": {
+		"multiple gatewayhosts with different secret": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-a",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.example.com",
-							TLS: &ingressroutev1.TLS{
+							TLS: &gatewayhostv1.TLS{
 								SecretName: "secret-a",
 							},
 						},
-						Routes: []ingressroutev1.Route{
+						Routes: []gatewayhostv1.Route{
 							{
-								Services: []ingressroutev1.Service{
+								Services: []gatewayhostv1.Service{
 									{
 										Name: "backend",
 										Port: 80,
@@ -332,21 +332,21 @@ func TestSecretVisit(t *testing.T) {
 						},
 					},
 				},
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-b",
 						Namespace: "default",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "www.other.com",
-							TLS: &ingressroutev1.TLS{
+							TLS: &gatewayhostv1.TLS{
 								SecretName: "secret-b",
 							},
 						},
-						Routes: []ingressroutev1.Route{
+						Routes: []gatewayhostv1.Route{
 							{
-								Services: []ingressroutev1.Service{
+								Services: []gatewayhostv1.Service{
 									{
 										Name: "backend",
 										Port: 80,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ import (
 
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -572,7 +572,7 @@ func TestRequestTimeout(t *testing.T) {
 	i2 := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/request-timeout": "600", // not valid
+				"enroute.saaras.io/request-timeout": "600", // not valid
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -594,7 +594,7 @@ func TestRequestTimeout(t *testing.T) {
 	i3 := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/request-timeout": "600s", // 10 * time.Minute
+				"enroute.saaras.io/request-timeout": "600s", // 10 * time.Minute
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -616,7 +616,7 @@ func TestRequestTimeout(t *testing.T) {
 	i4 := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/request-timeout": "infinity",
+				"enroute.saaras.io/request-timeout": "infinity",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -1150,7 +1150,7 @@ func TestWebsocketIngress(t *testing.T) {
 			Name:      "ws",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/websocket-routes": "/",
+				"enroute.saaras.io/websocket-routes": "/",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -1182,7 +1182,7 @@ func TestWebsocketIngress(t *testing.T) {
 	}}, nil)
 }
 
-func TestWebsocketIngressRoute(t *testing.T) {
+func TestWebsocketGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
@@ -1200,36 +1200,36 @@ func TestWebsocketIngressRoute(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&ingressroutev1.IngressRoute{
+	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "websocket.hello.world"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "websocket.hello.world"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/ws-1",
 				}},
 				EnableWebsockets: true,
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/ws-2",
 				}},
 				EnableWebsockets: true,
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
@@ -1255,7 +1255,7 @@ func TestWebsocketIngressRoute(t *testing.T) {
 		}},
 	}}, nil)
 }
-func TestPrefixRewriteIngressRoute(t *testing.T) {
+func TestPrefixRewriteGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
@@ -1273,36 +1273,36 @@ func TestPrefixRewriteIngressRoute(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&ingressroutev1.IngressRoute{
+	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "prefixrewrite.hello.world"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "prefixrewrite.hello.world"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/ws-1",
 				}},
 				PrefixRewrite: "/",
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/ws-2",
 				}},
 				PrefixRewrite: "/",
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "ws",
 					Port: 80,
 				}},
@@ -1442,10 +1442,10 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 	}, streamRDS(t, cc, "ingress_http"))
 }
 
-func TestRDSIngressRouteInsideRootNamespaces(t *testing.T) {
+func TestRDSGatewayHostInsideRootNamespaces(t *testing.T) {
 	rh, cc, done := setup(t, func(reh *contour.ResourceEventHandler) {
-		reh.IngressRouteRootNamespaces = []string{"roots"}
-		reh.Notifier.(*contour.CacheHandler).IngressRouteStatus = &k8s.IngressRouteStatus{
+		reh.GatewayHostRootNamespaces = []string{"roots"}
+		reh.Notifier.(*contour.CacheHandler).GatewayHostStatus = &k8s.GatewayHostStatus{
 			Client: fake.NewSimpleClientset(),
 		}
 	})
@@ -1465,19 +1465,19 @@ func TestRDSIngressRouteInsideRootNamespaces(t *testing.T) {
 		},
 	})
 
-	// ir1 is an ingressroute that is in the root namespaces
-	ir1 := &ingressroutev1.IngressRoute{
+	// ir1 is an gatewayhost that is in the root namespaces
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "roots",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1485,7 +1485,7 @@ func TestRDSIngressRouteInsideRootNamespaces(t *testing.T) {
 		},
 	}
 
-	// add ingressroute
+	// add gatewayhost
 	rh.OnAdd(ir1)
 
 	assertEqual(t, &v2.DiscoveryResponse{
@@ -1509,10 +1509,10 @@ func TestRDSIngressRouteInsideRootNamespaces(t *testing.T) {
 	}, streamRDS(t, cc, "ingress_http"))
 }
 
-func TestRDSIngressRouteOutsideRootNamespaces(t *testing.T) {
+func TestRDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 	rh, cc, done := setup(t, func(reh *contour.ResourceEventHandler) {
-		reh.IngressRouteRootNamespaces = []string{"roots"}
-		reh.Notifier.(*contour.CacheHandler).IngressRouteStatus = &k8s.IngressRouteStatus{
+		reh.GatewayHostRootNamespaces = []string{"roots"}
+		reh.Notifier.(*contour.CacheHandler).GatewayHostStatus = &k8s.GatewayHostStatus{
 			Client: fake.NewSimpleClientset(),
 		}
 	})
@@ -1532,19 +1532,19 @@ func TestRDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 		},
 	})
 
-	// ir1 is an ingressroute that is not in the root namespaces
-	ir1 := &ingressroutev1.IngressRoute{
+	// ir1 is an gatewayhost that is not in the root namespaces
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1552,7 +1552,7 @@ func TestRDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 		},
 	}
 
-	// add ingressroute
+	// add gatewayhost
 	rh.OnAdd(ir1)
 
 	assertEqual(t, &v2.DiscoveryResponse{
@@ -1569,7 +1569,7 @@ func TestRDSIngressRouteOutsideRootNamespaces(t *testing.T) {
 // Test DAGAdapter.IngressClass setting works, this could be done
 // in LDS or RDS, or even CDS, but this test mirrors the place it's
 // tested in internal/contour/route_test.go
-func TestRDSIngressRouteClassAnnotation(t *testing.T) {
+func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 	rh, cc, done := setup(t, func(reh *contour.ResourceEventHandler) {
 		reh.IngressClass = "linkerd"
 	})
@@ -1589,20 +1589,20 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 		},
 	})
 
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard ",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "www.example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{
+				Services: []gatewayhostv1.Service{
 					{
 						Name: "kuard",
 						Port: 8080,
@@ -1623,7 +1623,7 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 		}},
 	}}, nil)
 
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard ",
 			Namespace: "default",
@@ -1631,15 +1631,15 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				"kubernetes.io/ingress.class": "contour",
 			},
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "www.example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{
+				Services: []gatewayhostv1.Service{
 					{
 						Name: "kuard",
 						Port: 8080,
@@ -1651,23 +1651,23 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 	rh.OnUpdate(ir1, ir2)
 	assertRDS(t, cc, "3", nil, nil)
 
-	ir3 := &ingressroutev1.IngressRoute{
+	ir3 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard ",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/ingress.class": "contour",
+				"enroute.saaras.io/ingress.class": "contour",
 			},
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "www.example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{
+				Services: []gatewayhostv1.Service{
 					{
 						Name: "kuard",
 						Port: 8080,
@@ -1679,23 +1679,23 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 	rh.OnUpdate(ir2, ir3)
 	assertRDS(t, cc, "3", nil, nil)
 
-	ir4 := &ingressroutev1.IngressRoute{
+	ir4 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard ",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/ingress.class": "linkerd",
+				"enroute.saaras.io/ingress.class": "linkerd",
 			},
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "www.example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{
+				Services: []gatewayhostv1.Service{
 					{
 						Name: "kuard",
 						Port: 8080,
@@ -1715,7 +1715,7 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 		}},
 	}}, nil)
 
-	ir5 := &ingressroutev1.IngressRoute{
+	ir5 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard ",
 			Namespace: "default",
@@ -1723,15 +1723,15 @@ func TestRDSIngressRouteClassAnnotation(t *testing.T) {
 				"kubernetes.io/ingress.class": "linkerd",
 			},
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "www.example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{
+				Services: []gatewayhostv1.Service{
 					{
 						Name: "kuard",
 						Port: 8080,
@@ -1825,7 +1825,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 			Name:      "kuard-ing",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/ingress.class": "contour",
+				"enroute.saaras.io/ingress.class": "contour",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -1869,7 +1869,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 			Name:      "kuard-ing",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/ingress.class": "linkerd",
+				"enroute.saaras.io/ingress.class": "linkerd",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -1920,18 +1920,18 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 
 	go func() {
 		for i := 0; i < 100; i++ {
-			rh.OnAdd(&ingressroutev1.IngressRoute{
+			rh.OnAdd(&gatewayhostv1.GatewayHost{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      fmt.Sprintf("simple-%d", i),
 					Namespace: "default",
 				},
-				Spec: ingressroutev1.IngressRouteSpec{
-					VirtualHost: &ingressroutev1.VirtualHost{Fqdn: fmt.Sprintf("example-%d.com", i)},
-					Routes: []ingressroutev1.Route{{
-						Conditions: []ingressroutev1.Condition{{
+				Spec: gatewayhostv1.GatewayHostSpec{
+					VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: fmt.Sprintf("example-%d.com", i)},
+					Routes: []gatewayhostv1.Route{{
+						Conditions: []gatewayhostv1.Condition{{
 							Prefix: "/",
 						}},
-						Services: []ingressroutev1.Service{{
+						Services: []gatewayhostv1.Service{{
 							Name: "kuard",
 							Port: 80,
 						}},
@@ -2045,18 +2045,18 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 		},
 	})
 
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 90, // ignored
@@ -2076,18 +2076,18 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 		}},
 	}}, nil)
 
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   80,
 					Weight: 90,
@@ -2145,23 +2145,23 @@ func TestRouteWithTLS(t *testing.T) {
 		},
 	})
 
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "test2.test.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "example-tls",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 80,
 				}},
@@ -2245,31 +2245,31 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 		},
 	})
 
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "test2.test.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "example-tls",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/insecure",
 				}},
 				PermitInsecure: true,
-				Services: []ingressroutev1.Service{{Name: "kuard",
+				Services: []gatewayhostv1.Service{{Name: "kuard",
 					Port: 80,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/secure",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "svc2",
 					Port: 80,
 				}},
@@ -2346,9 +2346,9 @@ func TestRouteRetryAnnotations(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/retry-on":        "5xx,gateway-error",
-				"contour.heptio.com/num-retries":     "7",
-				"contour.heptio.com/per-try-timeout": "120ms",
+				"enroute.saaras.io/retry-on":        "5xx,gateway-error",
+				"enroute.saaras.io/num-retries":     "7",
+				"enroute.saaras.io/per-try-timeout": "120ms",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -2367,8 +2367,8 @@ func TestRouteRetryAnnotations(t *testing.T) {
 	}}, nil)
 }
 
-// issue 815, support for retry-on, num-retries, and per-try-timeout in IngressRoute
-func TestRouteRetryIngressRoute(t *testing.T) {
+// issue 815, support for retry-on, num-retries, and per-try-timeout in GatewayHost
+func TestRouteRetryGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
@@ -2387,22 +2387,22 @@ func TestRouteRetryIngressRoute(t *testing.T) {
 	}
 	rh.OnAdd(s1)
 
-	i1 := &ingressroutev1.IngressRoute{
+	i1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				RetryPolicy: &ingressroutev1.RetryPolicy{
+				RetryPolicy: &gatewayhostv1.RetryPolicy{
 					NumRetries:    7,
 					PerTryTimeout: "120ms",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -2422,8 +2422,8 @@ func TestRouteRetryIngressRoute(t *testing.T) {
 	}}, nil)
 }
 
-// issue 815, support for timeoutpolicy in IngressRoute
-func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
+// issue 815, support for timeoutpolicy in GatewayHost
+func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 	const (
 		durationInfinite  = time.Duration(0)
 		duration10Minutes = 10 * time.Minute
@@ -2448,18 +2448,18 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// i1 is an _invalid_ timeout, which we interpret as _infinite_.
-	i1 := &ingressroutev1.IngressRoute{
+	i1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -2478,21 +2478,21 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 	}}, nil)
 
 	// i2 adds an _invalid_ timeout, which we interpret as _infinite_.
-	i2 := &ingressroutev1.IngressRoute{
+	i2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
+				TimeoutPolicy: &gatewayhostv1.TimeoutPolicy{
 					Request: "600",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -2510,21 +2510,21 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 		}},
 	}}, nil)
 	// i3 corrects i2 to use a proper duration
-	i3 := &ingressroutev1.IngressRoute{
+	i3 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
+				TimeoutPolicy: &gatewayhostv1.TimeoutPolicy{
 					Request: "600s", // 10 * time.Minute
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -2542,21 +2542,21 @@ func TestRouteTimeoutPolicyIngressRoute(t *testing.T) {
 		}},
 	}}, nil)
 	// i4 updates i3 to explicitly request infinite timeout
-	i4 := &ingressroutev1.IngressRoute{
+	i4 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
+				TimeoutPolicy: &gatewayhostv1.TimeoutPolicy{
 					Request: "infinity",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "backend",
 					Port: 80,
 				}},
@@ -2598,18 +2598,18 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 	})
 
 	// simple single service
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/cart",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:     "app",
 					Port:     80,
 					Strategy: "Cookie",
@@ -2630,18 +2630,18 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 	}}, nil)
 
 	// two backends
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/cart",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:     "app",
 					Port:     80,
 					Strategy: "Cookie",
@@ -2670,18 +2670,18 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 	}}, nil)
 
 	// two mixed backends
-	ir3 := &ingressroutev1.IngressRoute{
+	ir3 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "www.example.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "www.example.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/cart",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:     "app",
 					Port:     80,
 					Strategy: "Cookie",
@@ -2690,10 +2690,10 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 					Port: 8080,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "app",
 					Port: 80,
 				}},
@@ -2752,13 +2752,13 @@ func TestLoadBalancingStrategies(t *testing.T) {
 		{"s5", "58d888c08a", "Random", "Random lb algorithm"},
 		{"s6", "da39a3ee5e", "", "Default lb algorithm"},
 	}
-	ss := make([]ingressroutev1.Service, len(services))
+	ss := make([]gatewayhostv1.Service, len(services))
 	wc := make([]weightedcluster, len(services))
 	for i, x := range services {
 		s := st
 		s.ObjectMeta.Name = x.name
 		rh.OnAdd(&s)
-		ss[i] = ingressroutev1.Service{
+		ss[i] = gatewayhostv1.Service{
 			Name:     x.name,
 			Port:     80,
 			Strategy: x.lbStrategy,
@@ -2766,15 +2766,15 @@ func TestLoadBalancingStrategies(t *testing.T) {
 		wc[i] = weightedcluster{fmt.Sprintf("default/%s/80/%s", x.name, x.lbHash), 1}
 	}
 
-	ir := &ingressroutev1.IngressRoute{
+	ir := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{Fqdn: "test2.test.com"},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{Fqdn: "test2.test.com"},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
 				Services: ss,

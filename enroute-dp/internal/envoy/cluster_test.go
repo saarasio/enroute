@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,7 @@ import (
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/google/go-cmp/cmp"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	v1 "k8s.io/api/core/v1"
@@ -210,7 +210,7 @@ func TestCluster(t *testing.T) {
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
 		},
-		"contour.heptio.com/max-connections": {
+		"enroute.saaras.io/max-connections": {
 			cluster: &dag.Cluster{
 				Upstream: &dag.HTTPService{
 					TCPService: dag.TCPService{
@@ -238,7 +238,7 @@ func TestCluster(t *testing.T) {
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
 		},
-		"contour.heptio.com/max-pending-requests": {
+		"enroute.saaras.io/max-pending-requests": {
 			cluster: &dag.Cluster{
 				Upstream: &dag.HTTPService{
 					TCPService: dag.TCPService{
@@ -266,7 +266,7 @@ func TestCluster(t *testing.T) {
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
 		},
-		"contour.heptio.com/max-requests": {
+		"enroute.saaras.io/max-requests": {
 			cluster: &dag.Cluster{
 				Upstream: &dag.HTTPService{
 					TCPService: dag.TCPService{
@@ -294,7 +294,7 @@ func TestCluster(t *testing.T) {
 				CommonLbConfig: ClusterCommonLBConfig(),
 			},
 		},
-		"contour.heptio.com/max-retries": {
+		"enroute.saaras.io/max-retries": {
 			cluster: &dag.Cluster{
 				Upstream: &dag.HTTPService{
 					TCPService: dag.TCPService{
@@ -389,7 +389,7 @@ func TestCluster(t *testing.T) {
 					Name: s1.Name, Namespace: s1.Namespace,
 					ServicePort: &s1.Spec.Ports[0],
 				},
-				HealthCheck: &ingressroutev1.HealthCheck{
+				HealthCheck: &gatewayhostv1.HealthCheck{
 					Path: "/healthz",
 				},
 			},
@@ -479,7 +479,7 @@ func TestClustername(t *testing.T) {
 					},
 				},
 				LoadBalancerStrategy: "Random",
-				HealthCheck: &ingressroutev1.HealthCheck{
+				HealthCheck: &gatewayhostv1.HealthCheck{
 					Path:                    "/healthz",
 					IntervalSeconds:         5,
 					TimeoutSeconds:          30,

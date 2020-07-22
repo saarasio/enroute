@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2017 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
 	"github.com/google/go-cmp/cmp"
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -367,7 +367,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "two-rules",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/tls-minimum-protocol-version": "1.3",
+				"enroute.saaras.io/tls-minimum-protocol-version": "1.3",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -397,7 +397,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "websocket",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/websocket-routes": "/ws1 , /ws2",
+				"enroute.saaras.io/websocket-routes": "/ws1 , /ws2",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -428,7 +428,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "timeout",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/request-timeout": "peanut",
+				"enroute.saaras.io/request-timeout": "peanut",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -454,7 +454,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "timeout",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/request-timeout": "1m30s", // 90 seconds y'all
+				"enroute.saaras.io/request-timeout": "1m30s", // 90 seconds y'all
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -480,7 +480,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "timeout",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/request-timeout": "infinite",
+				"enroute.saaras.io/request-timeout": "infinite",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -562,9 +562,9 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "timeout",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/retry-on":        "gateway-error",
-				"contour.heptio.com/num-retries":     "6",
-				"contour.heptio.com/per-try-timeout": "10s",
+				"enroute.saaras.io/retry-on":        "gateway-error",
+				"enroute.saaras.io/num-retries":     "6",
+				"enroute.saaras.io/per-try-timeout": "10s",
 			},
 		},
 		Spec: v1beta1.IngressSpec{
@@ -590,7 +590,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "kuard",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/upstream-protocol.h2c": "80,http",
+				"enroute.saaras.io/upstream-protocol.h2c": "80,http",
 			},
 		},
 		Spec: v1.ServiceSpec{
@@ -608,7 +608,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      s3a.Name,
 			Namespace: s3a.Namespace,
 			Annotations: map[string]string{
-				"contour.heptio.com/upstream-protocol.h2": "80,http",
+				"enroute.saaras.io/upstream-protocol.h2": "80,http",
 			},
 		},
 		Spec: s3a.Spec,
@@ -619,7 +619,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      s3b.Name,
 			Namespace: s3b.Namespace,
 			Annotations: map[string]string{
-				"contour.heptio.com/upstream-protocol.tls": "80,http",
+				"enroute.saaras.io/upstream-protocol.tls": "80,http",
 			},
 		},
 		Spec: v1.ServiceSpec{
@@ -674,20 +674,20 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -697,29 +697,29 @@ func TestDAGInsert(t *testing.T) {
 
 	// ir1a tcp forwards traffic to default/kuard:8080 by TLS terminating it
 	// first.
-	ir1a := &ingressroutev1.IngressRoute{
+	ir1a := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-tcp",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: sec1.Name,
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
 			}},
-			TCPProxy: &ingressroutev1.TCPProxy{
-				Services: []ingressroutev1.Service{{
+			TCPProxy: &gatewayhostv1.TCPProxy{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -729,20 +729,20 @@ func TestDAGInsert(t *testing.T) {
 
 	// ir1b tcp forwards traffic to default/kuard:8080 by TLS pass-throughing
 	// it.
-	ir1b := &ingressroutev1.IngressRoute{
+	ir1b := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-tcp",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					Passthrough: true,
 				},
 			},
-			TCPProxy: &ingressroutev1.TCPProxy{
-				Services: []ingressroutev1.Service{{
+			TCPProxy: &gatewayhostv1.TCPProxy{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -752,20 +752,20 @@ func TestDAGInsert(t *testing.T) {
 
 	// ir1c tcp delegates to another ingress route, concretely to
 	// marketing/kuard-tcp. it.
-	ir1c := &ingressroutev1.IngressRoute{
+	ir1c := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-tcp",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "kuard.example.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					Passthrough: true,
 				},
 			},
-			TCPProxy: &ingressroutev1.TCPProxy{
-				Delegate: &ingressroutev1.Delegate{
+			TCPProxy: &gatewayhostv1.TCPProxy{
+				Delegate: &gatewayhostv1.Delegate{
 					Name:      "kuard-tcp",
 					Namespace: "marketing",
 				},
@@ -775,14 +775,14 @@ func TestDAGInsert(t *testing.T) {
 
 	// ir1d tcp forwards traffic to default/kuard:8080 by TLS pass-throughing
 	// it.
-	ir1d := &ingressroutev1.IngressRoute{
+	ir1d := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-tcp",
 			Namespace: "marketing",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			TCPProxy: &ingressroutev1.TCPProxy{
-				Services: []ingressroutev1.Service{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			TCPProxy: &gatewayhostv1.TCPProxy{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -790,23 +790,23 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir1e := &ingressroutev1.IngressRoute{
+	ir1e := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
-					HealthCheck: &ingressroutev1.HealthCheck{
+					HealthCheck: &gatewayhostv1.HealthCheck{
 						Path: "/healthz",
 					},
 				}},
@@ -815,20 +815,20 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir2 is like ir1 but refers to two backend services
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}, {
@@ -840,20 +840,20 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir3 delegates a route to ir4
-	ir3 := &ingressroutev1.IngressRoute{
+	ir3 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/blog",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name:      "blog",
 					Namespace: "marketing",
 				},
@@ -861,26 +861,26 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	// ir4 is a delegate ingressroute, and itself delegates to another one.
-	ir4 := &ingressroutev1.IngressRoute{
+	// ir4 is a delegate gatewayhost, and itself delegates to another one.
+	ir4 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "blog",
 			Namespace: "marketing",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/blog",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "blog",
 					Port: 8080,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/blog/admin",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name:      "marketing-admin",
 					Namespace: "operations",
 				},
@@ -888,18 +888,18 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	// ir5 is a delegate ingressroute
-	ir5 := &ingressroutev1.IngressRoute{
+	// ir5 is a delegate gatewayhost
+	ir5 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "marketing-admin",
 			Namespace: "operations",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/blog/admin",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "blog-admin",
 					Port: 8080,
 				}},
@@ -908,23 +908,23 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir6 has TLS and does not specify min tls version
-	ir6 := &ingressroutev1.IngressRoute{
+	ir6 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "foo.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "secret",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -933,24 +933,24 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir7 has TLS and specifies min tls version of 1.2
-	ir7 := &ingressroutev1.IngressRoute{
+	ir7 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "foo.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName:             "secret",
 					MinimumProtocolVersion: "1.2",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -959,24 +959,24 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir8 has TLS and specifies min tls version of 1.3
-	ir8 := &ingressroutev1.IngressRoute{
+	ir8 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "foo.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName:             "secret",
 					MinimumProtocolVersion: "1.3",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -985,24 +985,24 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir9 has TLS and specifies an invalid min tls version of 0.9999
-	ir9 := &ingressroutev1.IngressRoute{
+	ir9 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "foo.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName:             "secret",
 					MinimumProtocolVersion: "0.9999",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1011,29 +1011,29 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir10 has a websocket route
-	ir10 := &ingressroutev1.IngressRoute{
+	ir10 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/websocket",
 				}},
 				EnableWebsockets: true,
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1042,29 +1042,29 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir11 has a prefix-rewrite route
-	ir11 := &ingressroutev1.IngressRoute{
+	ir11 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/websocket",
 				}},
 				PrefixRewrite: "/",
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1074,29 +1074,29 @@ func TestDAGInsert(t *testing.T) {
 
 	// ir13 has two routes to the same service with different
 	// weights
-	ir13 := &ingressroutev1.IngressRoute{
+	ir13 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   8080,
 					Weight: 90,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/b",
 				}},
-				Services: []ingressroutev1.Service{{Name: "kuard",
+				Services: []gatewayhostv1.Service{{Name: "kuard",
 					Port:   8080,
 					Weight: 60,
 				}},
@@ -1104,20 +1104,20 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 	// ir13a has one route to the same service with two different weights
-	ir13a := &ingressroutev1.IngressRoute{
+	ir13a := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/a",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name:   "kuard",
 					Port:   8080,
 					Weight: 90,
@@ -1131,24 +1131,24 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// ir14 has TLS and allows insecure
-	ir14 := &ingressroutev1.IngressRoute{
+	ir14 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "foo.com",
-				TLS: &ingressroutev1.TLS{
+				TLS: &gatewayhostv1.TLS{
 					SecretName: "secret",
 				},
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
 				PermitInsecure: true,
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1156,24 +1156,24 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir15 := &ingressroutev1.IngressRoute{
+	ir15 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "bar.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				RetryPolicy: &ingressroutev1.RetryPolicy{
+				RetryPolicy: &gatewayhostv1.RetryPolicy{
 					NumRetries:    6,
 					PerTryTimeout: "10s",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1181,24 +1181,24 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir15a := &ingressroutev1.IngressRoute{
+	ir15a := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "bar.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				RetryPolicy: &ingressroutev1.RetryPolicy{
+				RetryPolicy: &gatewayhostv1.RetryPolicy{
 					NumRetries:    6,
 					PerTryTimeout: "please",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1206,24 +1206,24 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir15b := &ingressroutev1.IngressRoute{
+	ir15b := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "bar.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				RetryPolicy: &ingressroutev1.RetryPolicy{
+				RetryPolicy: &gatewayhostv1.RetryPolicy{
 					NumRetries:    0,
 					PerTryTimeout: "10s",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1231,23 +1231,23 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir16a := &ingressroutev1.IngressRoute{
+	ir16a := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "bar.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
+				TimeoutPolicy: &gatewayhostv1.TimeoutPolicy{
 					Request: "peanut",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1255,23 +1255,23 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir16b := &ingressroutev1.IngressRoute{
+	ir16b := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "bar.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
+				TimeoutPolicy: &gatewayhostv1.TimeoutPolicy{
 					Request: "1m30s", // 90 seconds y'all
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1279,23 +1279,23 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir16c := &ingressroutev1.IngressRoute{
+	ir16c := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "bar.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				TimeoutPolicy: &ingressroutev1.TimeoutPolicy{
+				TimeoutPolicy: &gatewayhostv1.TimeoutPolicy{
 					Request: "infinite",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -1303,23 +1303,23 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ir17 := &ingressroutev1.IngressRoute{
+	ir17 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
-					UpstreamValidation: &ingressroutev1.UpstreamValidation{
+					UpstreamValidation: &gatewayhostv1.UpstreamValidation{
 						CACertificate: "ca",
 						SubjectName:   "example.com",
 					},
@@ -1364,7 +1364,7 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "kuard",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/upstream-protocol.tls": "8080",
+				"enroute.saaras.io/upstream-protocol.tls": "8080",
 			},
 		},
 		Spec: v1.ServiceSpec{
@@ -1383,10 +1383,10 @@ func TestDAGInsert(t *testing.T) {
 			Name:      "kuard",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"contour.heptio.com/max-connections":      "9000",
-				"contour.heptio.com/max-pending-requests": "4096",
-				"contour.heptio.com/max-requests":         "404",
-				"contour.heptio.com/max-retries":          "7",
+				"enroute.saaras.io/max-connections":      "9000",
+				"enroute.saaras.io/max-pending-requests": "4096",
+				"enroute.saaras.io/max-requests":         "404",
+				"enroute.saaras.io/max-retries":          "7",
 			},
 		},
 		Spec: v1.ServiceSpec{
@@ -1568,29 +1568,29 @@ func TestDAGInsert(t *testing.T) {
 	// ir18 tcp forwards traffic to by TLS pass-throughing
 	// it. It also exposes non HTTP traffic to the the non secure port of the
 	// application so it can give an informational message
-	//ir18 := &ingressroutev1.IngressRoute{
+	//ir18 := &gatewayhostv1.GatewayHost{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "kuard-tcp",
 	//		Namespace: s10.Namespace,
 	//	},
-	//	Spec: ingressroutev1.IngressRouteSpec{
-	//		VirtualHost: &ingressroutev1.VirtualHost{
+	//	Spec: gatewayhostv1.GatewayHostSpec{
+	//		VirtualHost: &gatewayhostv1.VirtualHost{
 	//			Fqdn: "kuard.example.com",
-	//			TLS: &ingressroutev1.TLS{
+	//			TLS: &gatewayhostv1.TLS{
 	//				Passthrough: true,
 	//			},
 	//		},
-	//		Routes: []ingressroutev1.Route{{
-	//          Conditions: []ingressroutev1.Condition{{
+	//		Routes: []gatewayhostv1.Route{{
+	//          Conditions: []gatewayhostv1.Condition{{
 	//              Prefix: "/",
 	//          }},
-	//			Services: []ingressroutev1.Service{{
+	//			Services: []gatewayhostv1.Service{{
 	//				Name: s10.Name,
 	//				Port: 80, // proxy non secure traffic to port 80
 	//			}},
 	//		}},
-	//		TCPProxy: &ingressroutev1.TCPProxy{
-	//			Services: []ingressroutev1.Service{{
+	//		TCPProxy: &gatewayhostv1.TCPProxy{
+	//			Services: []gatewayhostv1.Service{{
 	//				Name: s10.Name,
 	//				Port: 443, // ssl passthrough to secure port
 	//			}},
@@ -1598,23 +1598,23 @@ func TestDAGInsert(t *testing.T) {
 	//	},
 	//}
 
-	//ir19 := &ingressroutev1.IngressRoute{
+	//ir19 := &gatewayhostv1.GatewayHost{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "app-with-tls-delegation",
 	//		Namespace: s10.Namespace,
 	//	},
-	//	Spec: ingressroutev1.IngressRouteSpec{
-	//		VirtualHost: &ingressroutev1.VirtualHost{
+	//	Spec: gatewayhostv1.GatewayHostSpec{
+	//		VirtualHost: &gatewayhostv1.VirtualHost{
 	//			Fqdn: "app-with-tls-delegation.127.0.0.1.nip.io",
-	//			TLS: &ingressroutev1.TLS{
+	//			TLS: &gatewayhostv1.TLS{
 	//				SecretName: "heptio-contour/ssl-cert", // not delegated
 	//			},
 	//		},
-	//		Routes: []ingressroutev1.Route{{
-	//          Conditions: []ingressroutev1.Condition{{
+	//		Routes: []gatewayhostv1.Route{{
+	//          Conditions: []gatewayhostv1.Condition{{
 	//              Prefix: "/",
 	//          }},
-	//			Services: []ingressroutev1.Service{{
+	//			Services: []gatewayhostv1.Service{{
 	//				Name: s10.Name,
 	//				Port: 80,
 	//			}},
@@ -2126,7 +2126,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute": {
+		"insert gatewayhost": {
 			objs: []interface{}{
 				ir1, s1,
 			},
@@ -2139,7 +2139,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute w/ healthcheck": {
+		"insert gatewayhost w/ healthcheck": {
 			objs: []interface{}{
 				ir1e, s1,
 			},
@@ -2150,7 +2150,7 @@ func TestDAGInsert(t *testing.T) {
 						virtualhost("example.com",
 							routeCluster("/", &Cluster{
 								Upstream: httpService(s1),
-								HealthCheck: &ingressroutev1.HealthCheck{
+								HealthCheck: &gatewayhostv1.HealthCheck{
 									Path: "/healthz",
 								},
 							}),
@@ -2160,7 +2160,7 @@ func TestDAGInsert(t *testing.T) {
 			),
 		},
 
-		"insert ingressroute with websocket route": {
+		"insert gatewayhost with websocket route": {
 			objs: []interface{}{
 				ir11, s1,
 			},
@@ -2176,7 +2176,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with tcp forward with TLS termination": {
+		"insert gatewayhost with tcp forward with TLS termination": {
 			objs: []interface{}{
 				ir1a, s1, sec1,
 			},
@@ -2200,7 +2200,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with tcp forward without TLS termination w/ passthrough": {
+		"insert gatewayhost with tcp forward without TLS termination w/ passthrough": {
 			objs: []interface{}{
 				ir1b, s1,
 			},
@@ -2245,7 +2245,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with prefix rewrite route": {
+		"insert gatewayhost with prefix rewrite route": {
 			objs: []interface{}{
 				ir10, s1,
 			},
@@ -2261,7 +2261,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute and service": {
+		"insert gatewayhost and service": {
 			objs: []interface{}{
 				ir1, s1,
 			},
@@ -2274,7 +2274,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute without tls version": {
+		"insert gatewayhost without tls version": {
 			objs: []interface{}{
 				ir6, s1, sec1,
 			},
@@ -2292,7 +2292,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with TLS one insecure": {
+		"insert gatewayhost with TLS one insecure": {
 			objs: []interface{}{
 				ir14, s1, sec1,
 			},
@@ -2310,7 +2310,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with tls version 1.2": {
+		"insert gatewayhost with tls version 1.2": {
 			objs: []interface{}{
 				ir7, s1, sec1,
 			},
@@ -2337,7 +2337,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with tls version 1.3": {
+		"insert gatewayhost with tls version 1.3": {
 			objs: []interface{}{
 				ir8, s1, sec1,
 			},
@@ -2364,7 +2364,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with invalid tls version": {
+		"insert gatewayhost with invalid tls version": {
 			objs: []interface{}{
 				ir9, s1, sec1,
 			},
@@ -2382,13 +2382,13 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute referencing two backends, one missing": {
+		"insert gatewayhost referencing two backends, one missing": {
 			objs: []interface{}{
 				ir2, s2,
 			},
 			want: listeners(),
 		},
-		"insert ingressroute referencing two backends": {
+		"insert gatewayhost referencing two backends": {
 			objs: []interface{}{
 				ir2, s1, s2,
 			},
@@ -2467,7 +2467,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute w/ invalid timeoutpolicy": {
+		"insert gatewayhost w/ invalid timeoutpolicy": {
 			objs: []interface{}{
 				ir16a,
 				s1,
@@ -2507,7 +2507,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute w/ valid timeoutpolicy": {
+		"insert gatewayhost w/ valid timeoutpolicy": {
 			objs: []interface{}{
 				ir16b,
 				s1,
@@ -2547,7 +2547,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute w/ infinite timeoutpolicy": {
+		"insert gatewayhost w/ infinite timeoutpolicy": {
 			objs: []interface{}{
 				ir16c,
 				s1,
@@ -2567,7 +2567,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute w/ missing tls annotation": {
+		"insert gatewayhost w/ missing tls annotation": {
 			objs: []interface{}{
 				cert1, ir17, s1,
 			},
@@ -2582,13 +2582,13 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute w/ missing certificate": {
+		"insert gatewayhost w/ missing certificate": {
 			objs: []interface{}{
 				ir17, s1a,
 			},
 			want: listeners(), // no listeners, missing certificates for upstream validation
 		},
-		"insert ingressroute expecting verification": {
+		"insert gatewayhost expecting verification": {
 			objs: []interface{}{
 				cert1, ir17, s1a,
 			},
@@ -2618,8 +2618,8 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		// 6-3-2020 TODO: Revisit ingressroute delegtion, tls delegation
-		//"insert ingressroute with missing tls delegation should not present port 80": {
+		// 6-3-2020 TODO: Revisit gatewayhost delegtion, tls delegation
+		//"insert gatewayhost with missing tls delegation should not present port 80": {
 		//	objs: []interface{}{
 		//		s10, ir19,
 		//	},
@@ -2708,7 +2708,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with retrypolicy": {
+		"insert gatewayhost with retrypolicy": {
 			objs: []interface{}{
 				i14,
 				s1,
@@ -2846,7 +2846,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with two routes to the same service": {
+		"insert gatewayhost with two routes to the same service": {
 			objs: []interface{}{
 				ir13, s1,
 			},
@@ -2880,7 +2880,7 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"insert ingressroute with one routes to the same service with two different weights": {
+		"insert gatewayhost with one routes to the same service with two different weights": {
 			objs: []interface{}{
 				ir13a, s1,
 			},
@@ -2915,22 +2915,22 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"ingressroute delegated to non existent object": {
+		"gatewayhost delegated to non existent object": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "default",
 						Name:      "example-com",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/finance",
 							}},
-							Delegate: &ingressroutev1.Delegate{
+							Delegate: &gatewayhostv1.Delegate{
 								Name:      "non-existent",
 								Namespace: "non-existent",
 							},
@@ -2940,22 +2940,22 @@ func TestDAGInsert(t *testing.T) {
 			},
 			want: nil, // no listener created
 		},
-		"ingressroute delegates to itself": {
+		"gatewayhost delegates to itself": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "default",
 						Name:      "example-com",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/finance",
 							}},
-							Delegate: &ingressroutev1.Delegate{
+							Delegate: &gatewayhostv1.Delegate{
 								Name:      "example-com",
 								Namespace: "default",
 							},
@@ -2965,39 +2965,39 @@ func TestDAGInsert(t *testing.T) {
 			},
 			want: nil, // no listener created
 		},
-		"ingressroute delegates to incorrect prefix": {
+		"gatewayhost delegates to incorrect prefix": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "default",
 						Name:      "example-com",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/finance",
 							}},
-							Delegate: &ingressroutev1.Delegate{
+							Delegate: &gatewayhostv1.Delegate{
 								Name:      "finance-root",
 								Namespace: "finance",
 							},
 						}},
 					},
 				},
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "finance",
 						Name:      "finance-root",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/prefixDoesntMatch",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "home",
 							}},
 						}},
@@ -3006,46 +3006,46 @@ func TestDAGInsert(t *testing.T) {
 			},
 			want: nil, // no listener created
 		},
-		"ingressroute delegate to prefix, but no matching path in delegate": {
+		"gatewayhost delegate to prefix, but no matching path in delegate": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "default",
 						Name:      "example-com",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/foo",
 							}},
-							Delegate: &ingressroutev1.Delegate{
+							Delegate: &gatewayhostv1.Delegate{
 								Name:      "finance-root",
 								Namespace: "finance",
 							},
 						}},
 					},
 				},
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "finance",
 						Name:      "finance-root",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/foobar",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "home",
 							}},
 						}, {
-							Conditions: []ingressroutev1.Condition{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/foo/bar",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "home",
 							}},
 						}},
@@ -3054,47 +3054,47 @@ func TestDAGInsert(t *testing.T) {
 			},
 			want: nil, // no listener created
 		},
-		"ingressroute cycle": {
+		"gatewayhost cycle": {
 			objs: []interface{}{
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "default",
 						Name:      "example-com",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						VirtualHost: &ingressroutev1.VirtualHost{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						VirtualHost: &gatewayhostv1.VirtualHost{
 							Fqdn: "example.com",
 						},
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/finance",
 							}},
-							Delegate: &ingressroutev1.Delegate{
+							Delegate: &gatewayhostv1.Delegate{
 								Name:      "finance-root",
 								Namespace: "finance",
 							},
 						}},
 					},
 				},
-				&ingressroutev1.IngressRoute{
+				&gatewayhostv1.GatewayHost{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: "finance",
 						Name:      "finance-root",
 					},
-					Spec: ingressroutev1.IngressRouteSpec{
-						Routes: []ingressroutev1.Route{{
-							Conditions: []ingressroutev1.Condition{{
+					Spec: gatewayhostv1.GatewayHostSpec{
+						Routes: []gatewayhostv1.Route{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/finance",
 							}},
-							Services: []ingressroutev1.Service{{
+							Services: []gatewayhostv1.Service{{
 								Name: "home",
 								Port: 8080,
 							}},
 						}, {
-							Conditions: []ingressroutev1.Condition{{
+							Conditions: []gatewayhostv1.Condition{{
 								Prefix: "/finance/stocks",
 							}},
-							Delegate: &ingressroutev1.Delegate{
+							Delegate: &gatewayhostv1.Delegate{
 								Name:      "example-com",
 								Namespace: "default",
 							},
@@ -3112,43 +3112,43 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		// 6-3-2020 TODO: IngressRoute delegation
-		//"ingressroute root delegates to another ingressroute root": {
+		// 6-3-2020 TODO: GatewayHost delegation
+		//"gatewayhost root delegates to another ingressroute root": {
 		//	objs: []interface{}{
-		//		&ingressroutev1.IngressRoute{
+		//		&gatewayhostv1.GatewayHost{
 		//			ObjectMeta: metav1.ObjectMeta{
 		//				Name:      "root-blog",
 		//				Namespace: "roots",
 		//			},
-		//			Spec: ingressroutev1.IngressRouteSpec{
-		//				VirtualHost: &ingressroutev1.VirtualHost{
+		//			Spec: gatewayhostv1.GatewayHostSpec{
+		//				VirtualHost: &gatewayhostv1.VirtualHost{
 		//					Fqdn: "blog.containersteve.com",
 		//				},
-		//				Routes: []ingressroutev1.Route{{
-		//                  Conditions: []ingressroutev1.Condition{{
+		//				Routes: []gatewayhostv1.Route{{
+		//                  Conditions: []gatewayhostv1.Condition{{
 		//                      Prefix: "/",
 		//                  }},
-		//					Delegate: &ingressroutev1.Delegate{
+		//					Delegate: &gatewayhostv1.Delegate{
 		//						Name:      "blog",
 		//						Namespace: "marketing",
 		//					},
 		//				}},
 		//			},
 		//		},
-		//		&ingressroutev1.IngressRoute{
+		//		&gatewayhostv1.GatewayHost{
 		//			ObjectMeta: metav1.ObjectMeta{
 		//				Name:      "blog",
 		//				Namespace: "marketing",
 		//			},
-		//			Spec: ingressroutev1.IngressRouteSpec{
-		//				VirtualHost: &ingressroutev1.VirtualHost{
+		//			Spec: gatewayhostv1.GatewayHostSpec{
+		//				VirtualHost: &gatewayhostv1.VirtualHost{
 		//					Fqdn: "www.containersteve.com",
 		//				},
-		//				Routes: []ingressroutev1.Route{{
-		//                  Conditions: []ingressroutev1.Condition{{
+		//				Routes: []gatewayhostv1.Route{{
+		//                  Conditions: []gatewayhostv1.Condition{{
 		//                      Prefix: "/",
 		//                  }},
-		//					Services: []ingressroutev1.Service{{
+		//					Services: []gatewayhostv1.Service{{
 		//						Name: "green",
 		//						Port: 80,
 		//					}},
@@ -3167,7 +3167,7 @@ func TestDAGInsert(t *testing.T) {
 		//	),
 		//},
 		// issue 1399
-		//		"service shared across ingress and ingressroute tcpproxy": {
+		//		"service shared across ingress and gatewayhost tcpproxy": {
 		//			objs: []interface{}{
 		//				sec1,
 		//				s9,
@@ -3187,20 +3187,20 @@ func TestDAGInsert(t *testing.T) {
 		//						}},
 		//					},
 		//				},
-		//				&ingressroutev1.IngressRoute{
+		//				&gatewayhostv1.GatewayHost{
 		//					ObjectMeta: metav1.ObjectMeta{
 		//						Name:      "nginx",
 		//						Namespace: "default",
 		//					},
-		//					Spec: ingressroutev1.IngressRouteSpec{
+		//					Spec: gatewayhostv1.GatewayHostSpec{
 		//						VirtualHost: &projcontour.VirtualHost{
 		//							Fqdn: "example.com",
 		//							TLS: &projcontour.TLS{
 		//								SecretName: sec1.Name,
 		//							},
 		//						},
-		//						TCPProxy: &ingressroutev1.TCPProxy{
-		//							Services: []ingressroutev1.Service{{
+		//						TCPProxy: &gatewayhostv1.TCPProxy{
+		//							Services: []gatewayhostv1.Service{{
 		//								Name: s9.Name,
 		//								Port: 80,
 		//							}},
@@ -3350,20 +3350,20 @@ func TestBuilderLookupHTTPService(t *testing.T) {
 }
 
 func TestDAGRootNamespaces(t *testing.T) {
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "allowed1",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -3372,20 +3372,20 @@ func TestDAGRootNamespaces(t *testing.T) {
 	}
 
 	// ir2 is like ir1, but in a different namespace
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "allowed2",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example2.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -3434,32 +3434,32 @@ func TestDAGRootNamespaces(t *testing.T) {
 			objs: []interface{}{ir1, s2},
 			want: 1,
 		},
-		"single root namespace with root ingressroute": {
+		"single root namespace with root gatewayhost": {
 			rootNamespaces: []string{"allowed1"},
 			objs:           []interface{}{ir1, s2},
 			want:           1,
 		},
-		"multiple root namespaces, one with a root ingressroute": {
+		"multiple root namespaces, one with a root gatewayhost": {
 			rootNamespaces: []string{"foo", "allowed1", "bar"},
 			objs:           []interface{}{ir1, s2},
 			want:           1,
 		},
-		"multiple root namespaces, each with a root ingressroute": {
+		"multiple root namespaces, each with a root gatewayhost": {
 			rootNamespaces: []string{"foo", "allowed1", "allowed2"},
 			objs:           []interface{}{ir1, ir2, s2, s3},
 			want:           2,
 		},
-		"root ingressroute defined outside single root namespaces": {
+		"root gatewayhost defined outside single root namespaces": {
 			rootNamespaces: []string{"foo"},
 			objs:           []interface{}{ir1},
 			want:           0,
 		},
-		"root ingressroute defined outside multiple root namespaces": {
+		"root gatewayhost defined outside multiple root namespaces": {
 			rootNamespaces: []string{"foo", "bar"},
 			objs:           []interface{}{ir1},
 			want:           0,
 		},
-		"two root ingressroutes, one inside root namespace, one outside": {
+		"two root gatewayhosts, one inside root namespace, one outside": {
 			rootNamespaces: []string{"foo", "allowed2"},
 			objs:           []interface{}{ir1, ir2, s3},
 			want:           1,
@@ -3469,7 +3469,7 @@ func TestDAGRootNamespaces(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			kc := &KubernetesCache{
-				IngressRouteRootNamespaces: tc.rootNamespaces,
+				GatewayHostRootNamespaces: tc.rootNamespaces,
 			}
 			for _, o := range tc.objs {
 				kc.Insert(o)
@@ -3581,30 +3581,30 @@ func TestMatchesPathPrefix(t *testing.T) {
 	}
 }
 
-func TestDAGIngressRouteStatus(t *testing.T) {
-	// ir1 is a valid ingressroute
-	ir1 := &ingressroutev1.IngressRoute{
+func TestDAGGatewayHostStatus(t *testing.T) {
+	// ir1 is a valid gatewayhost
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "example",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/prefix",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "delegated",
 				}},
 			},
@@ -3612,20 +3612,20 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir2 is invalid because it contains a service with negative port
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "example",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "home",
 					Port: -80,
 				}},
@@ -3634,20 +3634,20 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir3 is invalid because it lives outside the roots namespace
-	ir3 := &ingressroutev1.IngressRoute{
+	ir3 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "finance",
 			Name:      "example",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foobar",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
@@ -3658,17 +3658,17 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	// 6-4-2020 We have removed this validation from builder.go where
 	// we used to check delegate's prefix is child of parent's prefix
 	// ir4 is invalid because its match prefix does not match its parent's (ir1)
-	//ir4 := &ingressroutev1.IngressRoute{
+	//ir4 := &gatewayhostv1.GatewayHost{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Namespace: "roots",
 	//		Name:      "delegated",
 	//	},
-	//	Spec: ingressroutev1.IngressRouteSpec{
-	//		Routes: []ingressroutev1.Route{{
-	//                        Conditions: []ingressroutev1.Condition{{
+	//	Spec: gatewayhostv1.GatewayHostSpec{
+	//		Routes: []gatewayhostv1.Route{{
+	//                        Conditions: []gatewayhostv1.Condition{{
 	//		                   Prefix: "/doesnotmatch",
 	//		                }},
-	//			Services: []ingressroutev1.Service{{
+	//			Services: []gatewayhostv1.Service{{
 	//				Name: "home",
 	//				Port: 8080,
 	//			}},
@@ -3677,20 +3677,20 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	//}
 
 	// ir6 is invalid because it delegates to itself, producing a cycle
-	ir6 := &ingressroutev1.IngressRoute{
+	ir6 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "self",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "self",
 				},
 			}},
@@ -3698,37 +3698,37 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir7 delegates to ir8, which is invalid because it delegates back to ir7
-	ir7 := &ingressroutev1.IngressRoute{
+	ir7 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "child",
 				},
 			}},
 		},
 	}
 
-	ir8 := &ingressroutev1.IngressRoute{
+	ir8 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "child",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "parent",
 				},
 			}},
@@ -3736,23 +3736,23 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir9 is invalid because it has a route that both delegates and has a list of services
-	ir9 := &ingressroutev1.IngressRoute{
+	ir9 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "child",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -3761,44 +3761,44 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir10 delegates to ir11 and ir 12.
-	ir10 := &ingressroutev1.IngressRoute{
+	ir10 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "validChild",
 				},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/bar",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "invalidChild",
 				},
 			}},
 		},
 	}
 
-	ir11 := &ingressroutev1.IngressRoute{
+	ir11 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "validChild",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "foo2",
 					Port: 8080,
 				}},
@@ -3807,17 +3807,17 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir12 is invalid because it contains an invalid port
-	ir12 := &ingressroutev1.IngressRoute{
+	ir12 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "invalidChild",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/bar",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "foo3",
 					Port: 12345678,
 				}},
@@ -3826,18 +3826,18 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir13 is invalid because it does not specify and FQDN
-	ir13 := &ingressroutev1.IngressRoute{
+	ir13 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "foo",
 					Port: 8080,
 				}},
@@ -3846,18 +3846,18 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir14 delegates tp ir15 but it is invalid because it is missing fqdn
-	ir14 := &ingressroutev1.IngressRoute{
+	ir14 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "invalidParent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "validChild",
 				},
 			}},
@@ -3865,42 +3865,42 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 
 	// ir15 is invalid because it contains a wildcarded fqdn
-	ir15 := &ingressroutev1.IngressRoute{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "roots",
-			Name:      "example",
-		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
-				Fqdn: "example.*.com",
-			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
-					Prefix: "/foo",
-				}},
-				Services: []ingressroutev1.Service{{
-					Name: "home",
-					Port: 8080,
-				}},
-			}},
-		},
-	}
+	//	ir15 := &gatewayhostv1.GatewayHost{
+	//		ObjectMeta: metav1.ObjectMeta{
+	//			Namespace: "roots",
+	//			Name:      "example",
+	//		},
+	//		Spec: gatewayhostv1.GatewayHostSpec{
+	//			VirtualHost: &gatewayhostv1.VirtualHost{
+	//				Fqdn: "example.*.com",
+	//			},
+	//			Routes: []gatewayhostv1.Route{{
+	//				Conditions: []gatewayhostv1.Condition{{
+	//					Prefix: "/foo",
+	//				}},
+	//				Services: []gatewayhostv1.Service{{
+	//					Name: "home",
+	//					Port: 8080,
+	//				}},
+	//			}},
+	//		},
+	//	}
 
 	// ir16 is invalid because it references an invalid service
-	ir16 := &ingressroutev1.IngressRoute{
+	ir16 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "invalidir",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "invalid",
 					Port: 8080,
 				}},
@@ -3968,26 +3968,26 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		objs []interface{}
 		want []Status
 	}{
-		"valid ingressroute": {
+		"valid gatewayhost": {
 			objs: []interface{}{ir1, s4},
-			want: []Status{{Object: ir1, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"}},
+			want: []Status{{Object: ir1, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"}},
 		},
 		"invalid port in service": {
 			objs: []interface{}{ir2},
 			want: []Status{{Object: ir2, Status: "invalid", Description: `service "home": port must be in the range 1-65535`, Vhost: "example.com"}},
 		},
-		"root ingressroute outside of roots namespace": {
+		"root gatewayhost outside of roots namespace": {
 			objs: []interface{}{ir3},
-			want: []Status{{Object: ir3, Status: "invalid", Description: "root IngressRoute cannot be defined in this namespace"}},
+			want: []Status{{Object: ir3, Status: "invalid", Description: "root GatewayHost cannot be defined in this namespace"}},
 		},
 		//"delegated route's match prefix does not match parent's prefix": {
 		//	objs: []interface{}{ir1, ir4, s4},
 		//	want: []Status{
-		//		{Object: ir1, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
+		//		{Object: ir1, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"},
 		//		{Object: ir4, Status: "invalid", Description: `the path prefix "/doesnotmatch" does not match the parent's path prefix "/prefix"`, Vhost: "example.com"},
 		//	},
 		//},
-		"root ingressroute does not specify FQDN": {
+		"root gatewayhost does not specify FQDN": {
 			objs: []interface{}{ir13},
 			want: []Status{{Object: ir13, Status: "invalid", Description: "Spec.VirtualHost.Fqdn must be specified"}},
 		},
@@ -3998,7 +3998,7 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 		"child delegates to parent, producing a cycle": {
 			objs: []interface{}{ir7, ir8},
 			want: []Status{
-				{Object: ir7, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
+				{Object: ir7, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"},
 				{Object: ir8, Status: "invalid", Description: "route creates a delegation cycle: roots/parent -> roots/child -> roots/parent", Vhost: "example.com"},
 			},
 		},
@@ -4006,37 +4006,37 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 			objs: []interface{}{ir9},
 			want: []Status{{Object: ir9, Status: "invalid", Description: `cannot specify services and delegate in the same route`, Vhost: "example.com"}},
 		},
-		"ingressroute is an orphaned route": {
+		"gatewayhost is an orphaned route": {
 			objs: []interface{}{ir8},
-			want: []Status{{Object: ir8, Status: "orphaned", Description: "this IngressRoute is not part of a delegation chain from a root IngressRoute"}},
+			want: []Status{{Object: ir8, Status: "orphaned", Description: "this GatewayHost is not part of a delegation chain from a root GatewayHost"}},
 		},
-		"ingressroute delegates to multiple ingressroutes, one is invalid": {
+		"gatewayhost delegates to multiple ingressroutes, one is invalid": {
 			objs: []interface{}{ir10, ir11, ir12, s6, s7},
 			want: []Status{
-				{Object: ir11, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
+				{Object: ir11, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"},
 				{Object: ir12, Status: "invalid", Description: `service "foo3": port must be in the range 1-65535`, Vhost: "example.com"},
-				{Object: ir10, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
+				{Object: ir10, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"},
 			},
 		},
 		"invalid parent orphans children": {
 			objs: []interface{}{ir14, ir11},
 			want: []Status{
 				{Object: ir14, Status: "invalid", Description: "Spec.VirtualHost.Fqdn must be specified"},
-				{Object: ir11, Status: "orphaned", Description: "this IngressRoute is not part of a delegation chain from a root IngressRoute"},
+				{Object: ir11, Status: "orphaned", Description: "this GatewayHost is not part of a delegation chain from a root GatewayHost"},
 			},
 		},
 		"multi-parent children is not orphaned when one of the parents is invalid": {
 			objs: []interface{}{ir14, ir11, ir10, s5, s6},
 			want: []Status{
 				{Object: ir14, Status: "invalid", Description: "Spec.VirtualHost.Fqdn must be specified"},
-				{Object: ir11, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
-				{Object: ir10, Status: "valid", Description: "valid IngressRoute", Vhost: "example.com"},
+				{Object: ir11, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"},
+				{Object: ir10, Status: "valid", Description: "valid GatewayHost", Vhost: "example.com"},
 			},
 		},
-		"invalid FQDN contains wildcard": {
-			objs: []interface{}{ir15},
-			want: []Status{{Object: ir15, Status: "invalid", Description: `Spec.VirtualHost.Fqdn "example.*.com" cannot use wildcards`, Vhost: "example.*.com"}},
-		},
+		//"invalid FQDN contains wildcard": {
+		//	objs: []interface{}{ir15},
+		//	want: []Status{{Object: ir15, Status: "invalid", Description: `Spec.VirtualHost.Fqdn "example.*.com" cannot use wildcards`, Vhost: "example.*.com"}},
+		//},
 		"missing service shows invalid status": {
 			objs: []interface{}{ir16},
 			want: []Status{{Object: ir16, Status: "invalid", Description: `Service [invalid:8080] is invalid or missing`, Vhost: ""}},
@@ -4046,7 +4046,7 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			kc := &KubernetesCache{
-				IngressRouteRootNamespaces: []string{"roots"},
+				GatewayHostRootNamespaces: []string{"roots"},
 			}
 			for _, o := range tc.objs {
 				kc.Insert(o)
@@ -4074,21 +4074,21 @@ func TestDAGIngressRouteStatus(t *testing.T) {
 	}
 }
 
-func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
-	ir1 := &ingressroutev1.IngressRoute{
+func TestDAGGatewayHostUniqueFQDNs(t *testing.T) {
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-com",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -4097,20 +4097,20 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 	}
 
 	// ir2 reuses the fqdn used in ir1
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "other-example",
 			Namespace: "default",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -4138,7 +4138,7 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 		want       []Vertex
 		wantStatus map[Meta]Status
 	}{
-		"insert ingressroute": {
+		"insert gatewayhost": {
 			objs: []interface{}{
 				s1, ir1,
 			},
@@ -4159,12 +4159,12 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 				{name: ir1.Name, namespace: ir1.Namespace}: {
 					Object:      ir1,
 					Status:      StatusValid,
-					Description: "valid IngressRoute",
+					Description: "valid GatewayHost",
 					Vhost:       "example.com",
 				},
 			},
 		},
-		"insert conflicting ingressroutes due to fqdn reuse": {
+		"insert conflicting gatewayhosts due to fqdn reuse": {
 			objs: []interface{}{
 				ir1, ir2,
 			},
@@ -4173,13 +4173,13 @@ func TestDAGIngressRouteUniqueFQDNs(t *testing.T) {
 				{name: ir1.Name, namespace: ir1.Namespace}: {
 					Object:      ir1,
 					Status:      StatusInvalid,
-					Description: `fqdn "example.com" is used in multiple IngressRoutes: default/example-com, default/other-example`,
+					Description: `fqdn "example.com" is used in multiple GatewayHosts: default/example-com, default/other-example`,
 					Vhost:       "example.com",
 				},
 				{name: ir2.Name, namespace: ir2.Namespace}: {
 					Object:      ir2,
 					Status:      StatusInvalid,
-					Description: `fqdn "example.com" is used in multiple IngressRoutes: default/example-com, default/other-example`,
+					Description: `fqdn "example.com" is used in multiple GatewayHosts: default/example-com, default/other-example`,
 					Vhost:       "example.com",
 				},
 			},

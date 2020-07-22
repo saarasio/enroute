@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 package saaras
 
@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/config"
@@ -18,7 +18,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/diff"
 	"net"
-	"os"
+	//"os"
 	"reflect"
 	"strconv"
 	"sync"
@@ -32,7 +32,7 @@ type SaarasCloudCache struct {
 	sdbpg      map[string]*cfg.SaarasProxyGroupConfig
 	sdbsecrets map[string]*v1.Secret
 
-	ir  map[string]*v1beta1.IngressRoute
+	ir  map[string]*v1beta1.GatewayHost
 	svc map[string]*v1.Service
 	ep  map[string]*v1.Endpoints
 	sec map[string]*v1.Secret
@@ -49,7 +49,7 @@ type CloudEventHandler interface {
 }
 
 func (sac *SaarasCloudCache) update__v1b1_ir__cache(
-	saaras_ir_cloud_map *map[string]*v1beta1.IngressRoute,
+	saaras_ir_cloud_map *map[string]*v1beta1.GatewayHost,
 	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
 
 	for cloud_ir_id, cloud_ir := range *saaras_ir_cloud_map {
@@ -73,9 +73,10 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 				fmt.Printf("update__v1b1_ir__cache() -> IR [%s, %s] - not in cache - OnAdd()\n",
 					cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
 				if sac.ir == nil {
-					sac.ir = make(map[string]*v1beta1.IngressRoute)
+					sac.ir = make(map[string]*v1beta1.GatewayHost)
 				}
 				sac.ir[cache_key] = cloud_ir
+				//spew.Dump(cloud_ir)
 				reh.OnAdd(cloud_ir)
 			}
 		}
@@ -83,12 +84,11 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 
 	for cache_ir_id, cached_ir := range sac.ir {
 		if len(cache_ir_id) > 0 {
-			cache_key := cached_ir.Spec.VirtualHost.Fqdn
 			if _, ok := (*saaras_ir_cloud_map)[cache_ir_id]; !ok {
 				log.Infof("update__v1b1_ir__cache() - IR [%s, %s] - removed from cloud - OnDelete()\n",
 					cache_ir_id, sac.ir[cache_ir_id].Spec.VirtualHost.Fqdn)
 				// Not found on cloud, remove
-				reh.OnDelete(cache_key)
+				reh.OnDelete(cached_ir)
 				delete(sac.ir, cache_ir_id)
 			}
 		}
@@ -120,11 +120,11 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 	}
 
 	// TODO: Generate OnDelete
-	for cache_svc_id := range sac.svc {
+	for cache_svc_id, cached_svc := range sac.svc {
 		if len(cache_svc_id) > 0 {
 			if _, ok := (*v1b1_service_map)[cache_svc_id]; !ok {
 				log.Infof("update__v1b1_service__cache() - SVC [%s] removed from cloud- OnDelete()\n", cache_svc_id)
-				reh.OnDelete(cache_svc_id)
+				reh.OnDelete(cached_svc)
 				delete(sac.svc, cache_svc_id)
 			}
 		}
@@ -132,7 +132,7 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 }
 
 func saaras_ir_slice__to__v1b1_routefilter_map(
-	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.RouteFilter {
+	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1beta1.RouteFilter {
 	rf := make(map[string]*v1beta1.RouteFilter, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneRoute := range oneSaarasIRService.Service.Routes {
@@ -160,7 +160,7 @@ func saaras_ir_slice__to__v1b1_routefilter_map(
 	return &rf
 }
 
-func saaras_ir_slice__to__v1b1__pc_map(s *[]SaarasIngressRouteService,
+func saaras_ir_slice__to__v1b1__pc_map(s *[]SaarasGatewayHostService,
 	log logrus.FieldLogger) *map[string]*v1beta1.GlobalConfig {
 
 	pc := make(map[string]*v1beta1.GlobalConfig, 0)
@@ -187,7 +187,7 @@ func saaras_ir_slice__to__v1b1__pc_map(s *[]SaarasIngressRouteService,
 }
 
 func saaras_ir_slice__to__v1b1_httpfilter_map(
-	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1beta1.HttpFilter {
+	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1beta1.HttpFilter {
 	vf := make(map[string]*v1beta1.HttpFilter, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneServiceFilter := range oneSaarasIRService.Service.Service_filters {
@@ -214,46 +214,46 @@ func saaras_ir_slice__to__v1b1_httpfilter_map(
 }
 
 func saaras_ir_slice__to__v1b1_service_map(
-	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Service {
+	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1.Service {
 	svc := make(map[string]*v1.Service, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneRoute := range oneSaarasIRService.Service.Routes {
-            for _, oneService := range oneRoute.Route_upstreams {
-                sp := make([]v1.ServicePort, 0)
-                one_service_port := v1.ServicePort{
-                    Port: oneService.Upstream.Upstream_port,
-                }
-                sp = append(sp, one_service_port)
-                one_service := &v1.Service{
-                    ObjectMeta: metav1.ObjectMeta{
-                        Name:      oneService.Upstream.Upstream_name,
-                        Namespace: ENROUTE_NAME,
-                    },
-                    Spec: v1.ServiceSpec{
-                        Ports: sp,
-                    },
-                }
+			for _, oneService := range oneRoute.Route_upstreams {
+				sp := make([]v1.ServicePort, 0)
+				one_service_port := v1.ServicePort{
+					Port: oneService.Upstream.Upstream_port,
+				}
+				sp = append(sp, one_service_port)
+				one_service := &v1.Service{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      oneService.Upstream.Upstream_name,
+						Namespace: ENROUTE_NAME,
+					},
+					Spec: v1.ServiceSpec{
+						Ports: sp,
+					},
+				}
 
-                // tell contour that this upstream is gRPC
-                if oneService.Upstream.Upstream_protocol == "grpc" {
-                    annotate := make(map[string]string)
-                    annotate["contour.heptio.com/upstream-protocol.h2c"] =
-                    strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
-                    one_service.Annotations = annotate
-                }
+				// tell contour that this upstream is gRPC
+				if oneService.Upstream.Upstream_protocol == "grpc" {
+					annotate := make(map[string]string)
+					annotate["enroute.saaras.io/upstream-protocol.h2c"] =
+						strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
+					one_service.Annotations = annotate
+				}
 
-                // If oneService Upstream_ip is a DNS name, make an external service
-                // This will create a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS without using EDS
-                ip := net.ParseIP(oneService.Upstream.Upstream_ip)
-                if ip == nil {
-                    // Couldn't parse IP, assume it's a domain name
-                    // Set service external name to indicate STRICT_DNS
-                    one_service.Spec.ExternalName = oneService.Upstream.Upstream_ip
-                    one_service.Spec.Type = v1.ServiceTypeExternalName
-                }
+				// If oneService Upstream_ip is a DNS name, make an external service
+				// This will create a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS without using EDS
+				ip := net.ParseIP(oneService.Upstream.Upstream_ip)
+				if ip == nil {
+					// Couldn't parse IP, assume it's a domain name
+					// Set service external name to indicate STRICT_DNS
+					one_service.Spec.ExternalName = oneService.Upstream.Upstream_ip
+					one_service.Spec.Type = v1.ServiceTypeExternalName
+				}
 
-                svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
-            }
+				svc[one_service.ObjectMeta.Namespace+one_service.ObjectMeta.Name] = one_service
+			}
 		}
 	}
 	return &svc
@@ -270,21 +270,29 @@ func saaras_upstream__to__v1_ep(mss *SaarasMicroService2) *v1.Endpoints {
 	}
 	ep_subsets_ports = append(ep_subsets_ports, ep_subsets_port)
 
+    // We don't create endpoints if the upstream IP is not a valid IP address
+    // This is OK.
+    // The way this works is -
+    // If we can parse a valid IP, we create an endpoint and hand it to EDS. The cluster gets an endpoint
+    // If we cannot parse an IP, we don't create an endpoint. EDS does not provide it to cluster. In such a case,
+    //   the cluster creation logic checks and programs external name for that cluster with with the endpoint with STRICT_DNS
+    //   Hence it an endpoint is not required in such cases. Function saaras_ir_slice__to__v1b1_service_map incorporates this logic
 	if net.ParseIP(mss.Upstream.Upstream_ip) == nil {
 		ips, err := net.LookupIP(mss.Upstream.Upstream_ip)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not get IPs: %v\n", err)
+            // TODO: Add log here
+			//log.Debugf(" Upstream [%s] not parsed as IP", mss.Upstream.Upstream_ip)
 		}
 		for _, ip := range ips {
 			if ip.To4() != nil {
-                // TODO: We need a knob for this behavior:
-                // If we get DNS in a service IP, should we create -
-                // (1) v2.Cluster_STRICT_DNS and let Envoy handle resolution?
-                // (1) Create EDS where Enroute does the resolution
+				// TODO: We need a knob for this behavior:
+				// If we get DNS in a service IP, should we create -
+				// (1) v2.Cluster_STRICT_DNS and let Envoy handle resolution?
+				// (1) Create EDS where Enroute does the resolution
 
-                // Not a valid IP, won't use EDS, Don't create an Endpoint
-                // use hard coded service name. We'll set external name on service
-                // which will result in a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS
+				// Not a valid IP, won't use EDS, Don't create an Endpoint
+				// use hard coded service name. We'll set external name on service
+				// which will result in a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS
 				// fmt.Printf("Resolved [%s] -> [%s]\n", mss.Upstream.Upstream_ip, ip.String())
 				// ep_subset_address = v1.EndpointAddress{
 				// 	IP:       ip.String(),
@@ -317,7 +325,7 @@ func saaras_upstream__to__v1_ep(mss *SaarasMicroService2) *v1.Endpoints {
 }
 
 func saaras_ir_slice__to__v1b1_endpoint_map(
-	s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Endpoints {
+	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1.Endpoints {
 	eps := make(map[string]*v1.Endpoints, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneRoute := range oneSaarasIRService.Service.Routes {
@@ -624,7 +632,7 @@ func v1_secret(saaras_secret *SaarasSecret) *v1.Secret {
 	return &v1secret
 }
 
-func saaras_ir_slice__to__v1_secret(s *[]SaarasIngressRouteService, log logrus.FieldLogger) *map[string]*v1.Secret {
+func saaras_ir_slice__to__v1_secret(s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1.Secret {
 	secrets := make(map[string]*v1.Secret, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneSecret := range oneSaarasIRService.Service.Service_secrets {
@@ -638,7 +646,7 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 	sac.mu.Lock()
 	defer sac.mu.Unlock()
 	switch obj := obj.(type) {
-	case []SaarasIngressRouteService:
+	case []SaarasGatewayHostService:
 		log.Infof("-- SaarasCloudCache.OnFetch() --\n")
 
 		v1b1_ir_map := saaras_ir_slice__to__v1b1_ir_map(&obj, log)
@@ -678,7 +686,7 @@ func (sac *SaarasCloudCache) OnFetch(obj interface{}, reh *contour.ResourceEvent
 	}
 }
 
-func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsTranslator, pct *contour.GlobalConfigTranslator, scc *SaarasCloudCache, log logrus.FieldLogger) {
+func FetchGatewayHost(reh *contour.ResourceEventHandler, et *contour.EndpointsTranslator, pct *contour.GlobalConfigTranslator, scc *SaarasCloudCache, log logrus.FieldLogger) {
 	var buf bytes.Buffer
 	var args map[string]string
 	args = make(map[string]string)
@@ -686,9 +694,9 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 	args["proxy_name"] = ENROUTE_NAME
 
 	// Fetch Application
-	if err := FetchConfig(QIngressRoute, &buf, args, log); err != nil {
+	if err := FetchConfig(QGatewayHost, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
-		// If we failed reaching the route, an empty IngressRoute is received.
+		// If we failed reaching the route, an empty GatewayHost is received.
 		// Bail here or it'll clear the cache
 		return
 	}
@@ -698,6 +706,6 @@ func FetchIngressRoute(reh *contour.ResourceEventHandler, et *contour.EndpointsT
 		errors.Wrap(err, "decoding response")
 		log.Errorf("Error when decoding json [%v]\n", err)
 	}
-	spew.Dump(gr)
+	//spew.Dump(gr)
 	scc.OnFetch(gr.Data.Saaras_db_proxy_service, reh, et, pct, log)
 }

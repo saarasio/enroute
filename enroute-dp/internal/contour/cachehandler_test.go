@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2019 Saaras Inc.
+// Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2018 Heptio
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,37 +20,37 @@ import (
 	"reflect"
 	"testing"
 
-	ingressroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestIngressRouteMetrics(t *testing.T) {
+func TestGatewayHostMetrics(t *testing.T) {
 	// ir1 is a valid ingressroute
-	ir1 := &ingressroutev1.IngressRoute{
+	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "example",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/prefix",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "delegated",
 				}},
 			},
@@ -58,20 +58,20 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir2 is invalid because it contains a service with negative port
-	ir2 := &ingressroutev1.IngressRoute{
+	ir2 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "example",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "home",
 					Port: -80,
 				}},
@@ -80,20 +80,20 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir3 is invalid because it lives outside the roots namespace
-	ir3 := &ingressroutev1.IngressRoute{
+	ir3 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "finance",
 			Name:      "example",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foobar",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "home",
 					Port: 8080,
 				}},
@@ -102,15 +102,15 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir4 is invalid because its match prefix does not match its parent's (ir1)
-	//ir4 := &ingressroutev1.IngressRoute{
+	//ir4 := &gatewayhostv1.GatewayHost{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Namespace: "roots",
 	//		Name:      "delegated",
 	//	},
-	//	Spec: ingressroutev1.IngressRouteSpec{
-	//		Routes: []ingressroutev1.Route{{
+	//	Spec: gatewayhostv1.GatewayHostSpec{
+	//		Routes: []gatewayhostv1.Route{{
 	//			Match: "/doesnotmatch",
-	//			Services: []ingressroutev1.Service{{
+	//			Services: []gatewayhostv1.Service{{
 	//				Name: "home",
 	//				Port: 8080,
 	//			}},
@@ -119,20 +119,20 @@ func TestIngressRouteMetrics(t *testing.T) {
 	//}
 
 	// ir6 is invalid because it delegates to itself, producing a cycle
-	ir6 := &ingressroutev1.IngressRoute{
+	ir6 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "self",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "self",
 				},
 			}},
@@ -140,37 +140,37 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir7 delegates to ir8, which is invalid because it delegates back to ir7
-	ir7 := &ingressroutev1.IngressRoute{
+	ir7 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "child",
 				},
 			}},
 		},
 	}
 
-	ir8 := &ingressroutev1.IngressRoute{
+	ir8 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "child",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "parent",
 				},
 			}},
@@ -178,23 +178,23 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir9 is invalid because it has a route that both delegates and has a list of services
-	ir9 := &ingressroutev1.IngressRoute{
+	ir9 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "child",
 				},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "kuard",
 					Port: 8080,
 				}},
@@ -203,44 +203,44 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir10 delegates to ir11 and ir 12.
-	ir10 := &ingressroutev1.IngressRoute{
+	ir10 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
 				Fqdn: "example.com",
 			},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "validChild",
 				},
 			}, {
-				Conditions: []ingressroutev1.Condition{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/bar",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "invalidChild",
 				},
 			}},
 		},
 	}
 
-	ir11 := &ingressroutev1.IngressRoute{
+	ir11 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "validChild",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "foo",
 					Port: 8080,
 				}},
@@ -249,17 +249,17 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir12 is invalid because it contains an invalid port
-	ir12 := &ingressroutev1.IngressRoute{
+	ir12 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "invalidChild",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/bar",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "foo",
 					Port: 12345678,
 				}},
@@ -268,18 +268,18 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir13 is invalid because it does not specify and FQDN
-	ir13 := &ingressroutev1.IngressRoute{
+	ir13 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Services: []ingressroutev1.Service{{
+				Services: []gatewayhostv1.Service{{
 					Name: "foo",
 					Port: 8080,
 				}},
@@ -288,18 +288,18 @@ func TestIngressRouteMetrics(t *testing.T) {
 	}
 
 	// ir14 delegates tp ir15 but it is invalid because it is missing fqdn
-	ir14 := &ingressroutev1.IngressRoute{
+	ir14 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "invalidParent",
 		},
-		Spec: ingressroutev1.IngressRouteSpec{
-			VirtualHost: &ingressroutev1.VirtualHost{},
-			Routes: []ingressroutev1.Route{{
-				Conditions: []ingressroutev1.Condition{{
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/foo",
 				}},
-				Delegate: &ingressroutev1.Delegate{
+				Delegate: &gatewayhostv1.Delegate{
 					Name: "validChild",
 				},
 			}},
@@ -350,12 +350,12 @@ func TestIngressRouteMetrics(t *testing.T) {
 
 	tests := map[string]struct {
 		objs           []interface{}
-		want           metrics.IngressRouteMetric
+		want           metrics.GatewayHostMetric
 		rootNamespaces []string
 	}{
 		"valid ingressroute": {
 			objs: []interface{}{ir1, s3},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{},
 				Valid: map[metrics.Meta]int{
 					{Namespace: "roots", VHost: "example.com"}: 1,
@@ -371,7 +371,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"invalid port in service": {
 			objs: []interface{}{ir2},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots", VHost: "example.com"}: 1,
 				},
@@ -387,7 +387,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"root ingressroute outside of roots namespace": {
 			objs: []interface{}{ir3},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "finance"}: 1,
 				},
@@ -404,7 +404,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		//"delegated route's match prefix does not match parent's prefix": {
 		//	objs: []interface{}{ir1, ir4, s3},
-		//	want: metrics.IngressRouteMetric{
+		//	want: metrics.GatewayHostMetric{
 		//		Invalid: map[metrics.Meta]int{
 		//			{Namespace: "roots", VHost: "example.com"}: 1,
 		//		},
@@ -422,7 +422,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		//},
 		"root ingressroute does not specify FQDN": {
 			objs: []interface{}{ir13},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots"}: 1,
 				},
@@ -438,7 +438,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"self-edge produces a cycle": {
 			objs: []interface{}{ir6},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots", VHost: "example.com"}: 1,
 				},
@@ -454,7 +454,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"child delegates to parent, producing a cycle": {
 			objs: []interface{}{ir7, ir8},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots", VHost: "example.com"}: 1,
 				},
@@ -472,7 +472,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"route has a list of services and also delegates": {
 			objs: []interface{}{ir9},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots", VHost: "example.com"}: 1,
 				},
@@ -488,7 +488,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"ingressroute is an orphaned route": {
 			objs: []interface{}{ir8},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{},
 				Valid:   map[metrics.Meta]int{},
 				Orphaned: map[metrics.Meta]int{
@@ -500,9 +500,9 @@ func TestIngressRouteMetrics(t *testing.T) {
 				},
 			},
 		},
-		"ingressroute delegates to multiple ingressroutes, one is invalid": {
+		"ingressroute delegates to multiple gatewayhosts, one is invalid": {
 			objs: []interface{}{ir10, ir11, ir12, s1, s2},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots", VHost: "example.com"}: 1,
 				},
@@ -520,7 +520,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"invalid parent orphans children": {
 			objs: []interface{}{ir14, ir11},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots"}: 1,
 				},
@@ -538,7 +538,7 @@ func TestIngressRouteMetrics(t *testing.T) {
 		},
 		"multi-parent children is not orphaned when one of the parents is invalid": {
 			objs: []interface{}{ir14, ir11, ir10, s2},
-			want: metrics.IngressRouteMetric{
+			want: metrics.GatewayHostMetric{
 				Invalid: map[metrics.Meta]int{
 					{Namespace: "roots"}: 1,
 				},
@@ -559,13 +559,13 @@ func TestIngressRouteMetrics(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			kc := &dag.KubernetesCache{
-				IngressRouteRootNamespaces: tc.rootNamespaces,
+				GatewayHostRootNamespaces: tc.rootNamespaces,
 			}
 			for _, o := range tc.objs {
 				kc.Insert(o)
 			}
 			dag := dag.BuildDAG(kc)
-			gotMetrics := calculateIngressRouteMetric(dag)
+			gotMetrics := calculateGatewayHostMetric(dag)
 			if !reflect.DeepEqual(tc.want.Root, gotMetrics.Root) {
 				t.Fatalf("(metrics-Root) expected to find: %v but got: %v", tc.want.Root, gotMetrics.Root)
 			}

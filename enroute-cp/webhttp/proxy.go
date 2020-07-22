@@ -31,8 +31,8 @@ type Upstream struct {
 	Upstream_protocol                   string `json:"upstream_protocol" xml:"upstream_protocol" form:"upstream_protocol" query:"upstream_protocol"`
 	Upstream_hc_timeoutseconds          string `json:"upstream_hc_timeoutseconds" xml:"upstream_hc_timeoutseconds" form:"upstream_hc_timeoutseconds" query:"upstream_hc_timeoutseconds"`
 
-    // Upstream_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
-	Upstream_config                     string `json:"upstream_config" xml:"upstream_config" form:"upstream_config" query:"upstream_config"`
+	// Upstream_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
+	Upstream_config string `json:"upstream_config" xml:"upstream_config" form:"upstream_config" query:"upstream_config"`
 }
 
 type Secret struct {
@@ -41,7 +41,7 @@ type Secret struct {
 	Secret_cert string `json:"secret_cert" xml:"secret_cert" form:"secret_cert" query:"secret_cert"`
 	Secret_sni  string `json:"secret_sni" xml:"secret_sni" form:"secret_sni" query:"secret_sni"`
 
-    // Secret_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
+	// Secret_config holds configuration in json. Use this config if present. Else, fallback to individual fields above
 	Secret_config string `json:"secret_config" xml:"secret_config" form:"secret_config" query:"secret_config"`
 }
 
@@ -271,7 +271,8 @@ query get_proxy_detail {
 // Read from DB_HOST and DB_PORT environment variables
 var HOST string
 var PORT string
-
+var ID string
+var USAGE string
 var SECRET string
 
 func isGlobalConfigTypeValid(filter_type string) bool {
@@ -408,6 +409,7 @@ query get_one_proxy_detail($proxy_name:String!) {
         routes {
           route_name
           route_prefix
+          config_json
           route_filters {
             filter {
               filter_name

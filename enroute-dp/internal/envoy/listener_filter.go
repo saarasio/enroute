@@ -97,16 +97,16 @@ func addLuaFilterConfigIfPresent(http_filters *[]*http.HttpFilter, v *dag.Vertex
 }
 
 func routeHasRateLimitFilter(routes map[string]*dag.Route) bool {
-    for _, r := range routes {
-        if r.RouteFilters != nil {
-            for _, rf := range r.RouteFilters.Filters {
-                if rf.Filter_type == cfg.FILTER_TYPE_RT_RATELIMIT {
-                    return true
-                }
-            }
-        }
-    }
-    return false
+	for _, r := range routes {
+		if r.RouteFilters != nil {
+			for _, rf := range r.RouteFilters.Filters {
+				if rf.Filter_type == cfg.FILTER_TYPE_RT_RATELIMIT {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 func addRateLimitFilterConfigIfPresent(http_filters *[]*http.HttpFilter, v dag.Vertex) {
@@ -114,60 +114,59 @@ func addRateLimitFilterConfigIfPresent(http_filters *[]*http.HttpFilter, v dag.V
 		return
 	}
 
-    has := false
+	has := false
 
 	switch vh := v.(type) {
 	case *dag.VirtualHost:
-        routes := vh.GetVirtualHostRoutes()
-        has = routeHasRateLimitFilter(routes)
+		routes := vh.GetVirtualHostRoutes()
+		has = routeHasRateLimitFilter(routes)
 	case *dag.SecureVirtualHost:
-        routes := vh.VirtualHost.GetVirtualHostRoutes()
-        has = routeHasRateLimitFilter(routes)
+		routes := vh.VirtualHost.GetVirtualHostRoutes()
+		has = routeHasRateLimitFilter(routes)
 	default:
 		// not interesting
 	}
 
-
-    if has {
-        *http_filters = append(*http_filters,
-        &http.HttpFilter{
-            Name:       wellknown.HTTPRateLimit,
-            ConfigType: httpRateLimitTypedConfig(v),
-        })
-    }
+	if has {
+		*http_filters = append(*http_filters,
+			&http.HttpFilter{
+				Name:       wellknown.HTTPRateLimit,
+				ConfigType: httpRateLimitTypedConfig(v),
+			})
+	}
 }
 
 func httpFilters(vh *dag.Vertex) []*http.HttpFilter {
 
-    http_filters := make([]*http.HttpFilter, 0)
+	http_filters := make([]*http.HttpFilter, 0)
 
-    if vh != nil {
-        addLuaFilterConfigIfPresent(&http_filters, vh)
-    }
+	if vh != nil {
+		addLuaFilterConfigIfPresent(&http_filters, vh)
+	}
 
-    http_filters = append(http_filters,
-    &http.HttpFilter{
-        Name:       wellknown.Gzip,
-        ConfigType: nil,
-    })
+	http_filters = append(http_filters,
+		&http.HttpFilter{
+			Name:       wellknown.Gzip,
+			ConfigType: nil,
+		})
 
-    http_filters = append(http_filters,
-    &http.HttpFilter{
-        Name:       wellknown.GRPCWeb,
-        ConfigType: nil,
-    })
+	http_filters = append(http_filters,
+		&http.HttpFilter{
+			Name:       wellknown.GRPCWeb,
+			ConfigType: nil,
+		})
 
-    if vh != nil {
-        addRateLimitFilterConfigIfPresent(&http_filters, *vh)
-    }
+	if vh != nil {
+		addRateLimitFilterConfigIfPresent(&http_filters, *vh)
+	}
 
-    http_filters = append(http_filters,
-    &http.HttpFilter{
-        Name:       wellknown.Router,
-        ConfigType: nil,
-    })
+	http_filters = append(http_filters,
+		&http.HttpFilter{
+			Name:       wellknown.Router,
+			ConfigType: nil,
+		})
 
-    return http_filters
+	return http_filters
 }
 
 type ListenerFilterInfo struct {
