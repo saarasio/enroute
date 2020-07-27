@@ -148,6 +148,7 @@ Enroute's powerful API brings automation and enables developer operations to tre
 Blogs, Cookbooks, getting started, examples and additional documentation can be found at
 
 - [getenroute.io](https://getenroute.io)
+- [FAQs](https://getenroute.io/faq/)
 - [Introduction](https://getenroute.io/docs/enroute-universal-api-gateway/)
 - [Getting Started](https://getenroute.io/docs/)
 - [Cookbook](https://getenroute.io/cookbook/)
