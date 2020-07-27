@@ -8,7 +8,7 @@
 Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
 One Control Plane to run Envoy Proxy as
-[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Stateless SideCar Gateway
+[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Fleet of Envoy proxies as Stateless SideCar Gateway
 
 <div class="row">
   <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="300"/></div>
