@@ -3,7 +3,7 @@
 
 ![](enroute.png)
 
-# Universal Gateway with OpenAPI Spec and Advanced Rate-limiting
+# Universal Gateway with OpenAPI Spec and Advanced Rate-limiting built on Envoy Proxy
 
 Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
