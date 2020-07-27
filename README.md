@@ -3,12 +3,13 @@
 
 ![](enroute.png)
 
+
 # Universal Gateway with OpenAPI Spec and Advanced Rate-limiting built on Envoy Proxy
 
 Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
-One Control Plane to run Envoy Proxy as
-[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Fleet of Envoy proxies as Stateless SideCar Gateway
+Universal Control Plane that drives Envoy (or a Fleet of Envoy's). Runs as
+[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Fleet of Stateless SideCar Gateways
 
 <div class="row">
   <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="300"/></div>
