@@ -24,10 +24,110 @@ One Control Plane to run Envoy Proxy as
 
 You can associate additional plugin/filter functionality at global level or route level.
 
-Filters/Plugins are supported for both Kubernetes Ingress Gateway and Standalonge Gateway.
+Filters/Plugins are supported for both Kubernetes Ingress Gateway and Standalone Gateway.
 
 <img src="https://getenroute.io/img/EnrouteConfigModel3.png" alt="Config Model" width="400"/>
 
+### Drive Enroute using REST or GraphQL APIs, Kubernetes CRDs or ```enroutectl``` cli
+
+Enroute provides several options to populate the xDS cache for the underlying Envoy. 
+
+##### It has simple REST APIs and a GraphQL interface.
+
+
+```shell
+    curl -X POST "http://localhost:1323/service"         \
+      -d 'Service_Name=openapi-enroute'                  \
+      -d 'Fqdn=saaras.io'
+    
+    curl -X POST "http://localhost:1323/service/openapi-enroute/route"  \
+      -d 'Route_Name=root-slash'                                        \
+      -d 'Route_prefix=/'
+                             
+    curl -X POST "http://localhost:1323/upstream"     \
+      -d 'Upstream_name=openapi-upstream'             \
+      -d 'Upstream_ip=openapi.example.com'            \
+      -d 'Upstream_port=9001'                         \
+      -d 'Upstream_hc_path=/'                         \
+      -d 'Upstream_weight=100'
+                            
+```
+
+
+##### It can be programmed using the ```enroutectl``` CLI
+
+Program an OpenAPI Spec on Enroute Standalone Gateway or Kubernetes Ingress Gateway
+
+```shell
+enroutectl openapi --openapi-spec petstore.json --to-standalone-url http://localhost:1323/
+```
+
+##### When running at Kubernetes Ingress, CRDs can be used to program it
+
+Creating a ```GatewayHost``` that maps to a VirtualHost
+
+```yaml
+---
+apiVersion: enroute.saaras.io/v1beta1
+
+kind: GatewayHost
+metadata:
+  labels:
+    app: httpbin
+  name: httpbin
+  namespace: enroute-gw-k8s
+spec:
+  virtualhost:
+    fqdn: demo.saaras.io
+    filters:
+      - name: luatestfilter
+        type: http_filter_lua
+  routes:
+    - match: /
+      services:
+        - name: httpbin
+          port: 80
+      filters:
+        - name: rl2
+          type: route_filter_ratelimit
+---
+```
+
+Creating ```GlobalConfig``` to program advanced rate-limit engine config
+
+```yaml
+
+---
+apiVersion: enroute.saaras.io/v1beta1
+
+kind: GlobalConfig
+metadata:
+  labels:
+    app: httpbin
+  name: rl-global-config
+  namespace: enroute-gw-k8s
+spec:
+  name: rl-global-config
+  type: globalconfig_ratelimit
+  config: |
+        {
+
+          "domain": "enroute",
+          "descriptors" :
+          [
+            {
+              "key" : "generic_key",
+              "value" : "default",
+              "rate_limit" :
+              {
+                "unit" : "second",
+                "requests_per_unit" : 10
+              }
+            }
+          ]
+        }
+---
+```
 
 ### Grafana Telemetry for Standalone Gateway
 
