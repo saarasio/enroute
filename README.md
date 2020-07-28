@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://dev.azure.com/saaras-io/Enroute/_apis/build/status/saarasio.enroute?branchName=master)](https://dev.azure.com/saaras-io/Enroute/_build/latest?definitionId=6&branchName=master)[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
 ![](enroute.png)
@@ -8,7 +8,8 @@
 
 Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
-Universal Control Plane that drives Envoy (or a Fleet of Envoy's). Runs as
+Universal Control Plane that drives Envoy (or a Fleet of Envoy's).
+Runs as
 [Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Fleet of Stateless SideCar Gateways
 
 <div class="row">
