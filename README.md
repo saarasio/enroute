@@ -10,7 +10,7 @@ Run Any[**where**] - Any[**Platform | Cloud | Service**]
 
 Universal Control Plane that drives Envoy (or a Fleet of Envoy's).
 Runs as
-[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Fleet of Stateless SideCar Gateways
+[Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Stateless SideCar Gateways
 
 <div class="row">
   <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="300"/></div>
@@ -55,6 +55,61 @@ Enroute provides several options to populate the xDS cache for the underlying En
                             
 ```
 
+Rate Limit ```Filter``` 
+
+```shell
+curl -s localhost:1323/filter/route_rl_1 | jq
+{
+  "data": {
+    "saaras_db_filter": [
+      {
+        "filter_id": 139,
+        "filter_name": "route_rl_1",
+        "filter_type": "route_filter_ratelimit",
+        "filter_config": {
+          "descriptors": [
+            {
+              "generic_key": {
+                "descriptor_value": "default"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+```GlobalConfig``` for Standalone Gateway
+
+```shell
+curl -s localhost:1323/globalconfig/t1 | jq
+{
+  "data": {
+    "saaras_db_globalconfig": [
+      {
+        "globalconfig_id": 237,
+        "globalconfig_name": "gc1",
+        "globalconfig_type": "globalconfig_ratelimit",
+        "config_json": {
+          "domain": "enroute",
+          "descriptors": [
+            {
+              "key": "generic_key",
+              "value": "default",
+              "rate_limit": {
+                "unit": "second",
+                "requests_per_unit": 10
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
 
 ##### It can be programmed using the ```enroutectl``` CLI
 
@@ -92,6 +147,118 @@ spec:
       filters:
         - name: rl2
           type: route_filter_ratelimit
+---
+```
+
+Creating a ```RouteFilter``` that attaches to a ```GatewayHost``` Route
+
+```yaml
+apiVersion: enroute.saaras.io/v1beta1
+kind: RouteFilter
+metadata:
+  labels:
+    app: httpbin
+  name: rl2
+  namespace: enroute-gw-k8s
+spec:
+  name: rl2
+  type: route_filter_ratelimit
+  routeFilterConfig:
+    config: |
+        {
+            "descriptors": [
+              {
+                "request_headers": {
+                  "header_name": "x-app-key",
+                  "descriptor_key": "x-app-key"
+                }
+              },
+              {
+                "remote_address": "{}"
+              }
+            ]
+        }
+---
+```
+
+Creating a ```HttpFilter``` that can be attached to a ```GatewayHost```
+
+```yaml
+apiVersion: enroute.saaras.io/v1beta1
+kind: HttpFilter
+metadata:
+  labels:
+    app: httpbin
+  name: luatestfilter
+  namespace: enroute-gw-k8s
+spec:
+  name: luatestfilter
+  type: http_filter_lua
+  httpFilterConfig:
+    config: |
+        function get_api_key(path, q_param_name)
+            -- path = "/?api-key=valid-key"
+            s, e = string.find(path, "?")
+            if s ~= nil then
+              for pre, q_params in string.gmatch(path, "(%S+)?(%S+)") do
+                -- print(pre, q_params, path, s, e)
+                for k, v in string.gmatch(q_params, "(%S+)=(%S+)") do
+                  print(k, v)
+                  if k == q_param_name then
+                    return v
+                  end
+                end
+              end
+            end
+
+            return nil
+        end
+
+        function envoy_on_request(request_handle)
+           request_handle:logInfo("Begin: envoy_on_request()");
+
+           hdr_x_app_key = "x-app-key"
+           hdr_x_app_not_found = "x-app-notfound"
+           q_param_name = "api-key"
+
+           -- extract API key from header "x-app-key"
+           headers = request_handle:headers()
+           header_value = headers:get(hdr_x_app_key)
+
+           if header_value ~= nil then
+             request_handle:logInfo("envoy_on_request() API Key from header "..header_value);
+           else
+             request_handle:logInfo("envoy_on_request() API Key in header is nil");
+           end
+
+           -- extract API key from query param "api-key"
+           path_in = headers:get(":path")
+           api_key = get_api_key(path_in, q_param_name)
+
+           if api_key ~= nil then
+             request_handle:logInfo("envoy_on_request() API Key from query param "..api_key);
+           else
+             request_handle:logInfo("envoy_on_request() API Key from query param is nil");
+           end
+
+           -- If API key found, do nothing
+           -- else set header x-app-key:x-app-notfound
+           if header_value == nil then
+               if api_key == nil then
+                 headers:add(hdr_x_app_key, hdr_x_app_not_found)
+               else
+                 headers:add(hdr_x_app_key, api_key)
+               end
+           end
+
+           request_handle:logInfo("End: envoy_on_request()");
+
+        end
+
+        function envoy_on_response(response_handle)
+           response_handle:logInfo("Begin: envoy_on_response()");
+           response_handle:logInfo("End: envoy_on_response()");
+        end
 ---
 ```
 
