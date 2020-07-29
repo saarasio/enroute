@@ -13,7 +13,7 @@ Runs as
 [Kubernetes Ingress](https://getenroute.io/docs/getting-started-enroute-ingress-controller/) Gateway | [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/) | Stateless SideCar Gateways
 
 <div class="row">
-  <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="300"/></div>
+  <div class="column"><img src="https://getenroute.io/img/topology-saaras-k8s-ingress.png" alt="Kubernetes Ingress" width="400"/></div>
   <div class="column"><img src="https://getenroute.io/img/topology-saaras-standalone-gw.png" alt="Standalone" width="400"/></div>
 </div>
 
