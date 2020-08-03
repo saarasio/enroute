@@ -44,7 +44,6 @@ type RouteActionDescriptors struct {
 }
 
 func UnmarshalRateLimitRouteFilterConfig(filter_config string) (RouteActionDescriptors, error) {
-
 	var gr RouteActionDescriptors
 	var err error
 

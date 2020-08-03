@@ -399,6 +399,13 @@ query get_one_proxy_detail($proxy_name:String!) {
       service {
         service_name
         fqdn
+        service_filters{
+          filter {
+            filter_name
+            filter_type
+            filter_config
+          }
+        }
         service_secrets {
           secret {
             secret_name
