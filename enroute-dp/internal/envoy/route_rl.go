@@ -17,22 +17,6 @@ func rateLimitActionSpecifierHeaderValueMatch() *envoy_api_v2_route.RateLimit_Ac
 	}
 }
 
-//func rateLimitActionSpecifierRequestHeaders(header_name, descriptor_key string) *envoy_api_v2_route.RateLimit_Action_RequestHeaders_ {
-//	return &envoy_api_v2_route.RateLimit_Action_RequestHeaders_{
-//		RequestHeaders: &envoy_api_v2_route.RateLimit_Action_RequestHeaders{
-//			HeaderName:    "user-agent",
-//			DescriptorKey: "useragent",
-//		},
-//	}
-//}
-//func rateLimitActionSpecifierGenericKey(generic_key string) *envoy_api_v2_route.RateLimit_Action_GenericKey_ {
-//	return &envoy_api_v2_route.RateLimit_Action_GenericKey_{
-//		GenericKey: &envoy_api_v2_route.RateLimit_Action_GenericKey{
-//			DescriptorValue: "default",
-//		},
-//	}
-//}
-
 func rateLimitActionSpecifierRequestHeaders(header_name, descriptor_key string) *envoy_api_v2_route.RateLimit_Action_RequestHeaders_ {
 	return &envoy_api_v2_route.RateLimit_Action_RequestHeaders_{
 		RequestHeaders: &envoy_api_v2_route.RateLimit_Action_RequestHeaders{
@@ -160,24 +144,6 @@ func rateLimits(rl *dag.RouteFilter) []*envoy_api_v2_route.RateLimit {
 	}
 
 	return rrl_slice
-
-	//	return []*envoy_api_v2_route.RateLimit{
-	//		{
-	//			Stage: u32(0),
-	//			Actions: []*envoy_api_v2_route.RateLimit_Action{
-	//				rateLimitAction3(),
-	//				rateLimitAction(),
-	//			},
-	//		},
-	//		{
-	//			Stage: u32(0),
-	//			Actions: []*envoy_api_v2_route.RateLimit_Action{
-	//				rateLimitAction(),
-	//			},
-	//		},
-	//	}
-
-	// return []*envoy_api_v2_route.RateLimit{}
 }
 
 func SetupRouteRateLimits(r *dag.Route, ra *envoy_api_v2_route.RouteAction) {

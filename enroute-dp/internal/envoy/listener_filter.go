@@ -231,7 +231,7 @@ func updateHttpVHFilters(listener_filters *[]*http.HttpFilter,
 	// Correctly order the HttpFilters from the map constructed in previous step
 
 	// Lua
-	if hf, ok := m["envoy.lua"]; ok {
+	if hf, ok := m[wellknown.Lua]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
@@ -246,7 +246,7 @@ func updateHttpVHFilters(listener_filters *[]*http.HttpFilter,
 	}
 
 	// Rate Limit
-	if hf, ok := m["envoy.rate_limit"]; ok {
+	if hf, ok := m[wellknown.HTTPRateLimit]; ok {
 		http_filters = append(http_filters, hf)
 	}
 

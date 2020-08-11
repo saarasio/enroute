@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2020 Saaras Inc.
 
-
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -62,6 +61,22 @@ func NewAPI(log logrus.FieldLogger, resources map[string]Resource) *grpc.Server 
 	envoy_api_v2.RegisterListenerDiscoveryServiceServer(g, s)
 	envoy_api_v2.RegisterRouteDiscoveryServiceServer(g, s)
 	discovery.RegisterSecretDiscoveryServiceServer(g, s)
+	rl.RegisterRateLimitServiceServer(g, rls)
+	return g
+}
+
+func NewAPIRateLimit(log logrus.FieldLogger, c chan string) *grpc.Server {
+	opts := []grpc.ServerOption{
+		// By default the Go grpc library defaults to a value of ~100 streams per
+		// connection. This number is likely derived from the HTTP/2 spec:
+		// https://http2.github.io/http2-spec/#SettingValues
+		// We need to raise this value because Envoy will open one EDS stream per
+		// CDS entry. There doesn't seem to be a penalty for increasing this value,
+		// so set it the limit similar to envoyproxy/go-control-plane#70.
+		grpc.MaxConcurrentStreams(grpcMaxConcurrentStreams),
+	}
+	g := grpc.NewServer(opts...)
+	rls := &ratelimitServer{}
 	rl.RegisterRateLimitServiceServer(g, rls)
 	return g
 }
@@ -148,12 +163,47 @@ func (s *ratelimitServer) rateLimitDescriptor() *rl.RateLimitResponse_Descriptor
 	return &rl.RateLimitResponse_DescriptorStatus{Code: rl.RateLimitResponse_OK, CurrentLimit: l, LimitRemaining: 5}
 }
 
+//func (this *rateLimitServer) DoLimit(
+//    request *rl.RateLimitRequest) []*rl.RateLimitResponse_DescriptorStatus {
+//}
+
+//func (this *service) shouldRateLimitWorker(
+//    ctx context.Context, request *pb.RateLimitRequest) *pb.RateLimitResponse {
+//
+//    checkServiceErr(request.Domain != "", "rate limit domain must not be empty")
+//    checkServiceErr(len(request.Descriptors) != 0, "rate limit descriptor list must not be empty")
+//
+//    snappedConfig := this.GetCurrentConfig()
+//    checkServiceErr(snappedConfig != nil, "no rate limit configuration loaded")
+//
+//    limitsToCheck := make([]*config.RateLimit, len(request.Descriptors))
+//    for i, descriptor := range request.Descriptors {
+//        limitsToCheck[i] = snappedConfig.GetLimit(ctx, request.Domain, descriptor)
+//    }
+//
+//    responseDescriptorStatuses := this.cache.DoLimit(ctx, request, limitsToCheck)
+//    assert.Assert(len(limitsToCheck) == len(responseDescriptorStatuses))
+//
+//    response := &pb.RateLimitResponse{}
+//    response.Statuses = make([]*pb.RateLimitResponse_DescriptorStatus, len(request.Descriptors))
+//    finalCode := pb.RateLimitResponse_OK
+//    for i, descriptorStatus := range responseDescriptorStatuses {
+//        response.Statuses[i] = descriptorStatus
+//        if descriptorStatus.Code == pb.RateLimitResponse_OVER_LIMIT {
+//            finalCode = descriptorStatus.Code
+//        }
+//    }
+//
+//    response.OverallCode = finalCode
+//    return response
+//}
+
 func (s *ratelimitServer) ShouldRateLimit(c context.Context, req *rl.RateLimitRequest) (*rl.RateLimitResponse, error) {
 	fmt.Printf("Received rate limit request +[%v]\n", req)
 	response := &rl.RateLimitResponse{}
 	response.Statuses = make([]*rl.RateLimitResponse_DescriptorStatus, len(req.Descriptors))
 	finalCode := rl.RateLimitResponse_OK
-	for i, _ := range req.Descriptors {
+	for i := range req.Descriptors {
 		descriptorStatus := s.rateLimitDescriptor()
 		response.Statuses[i] = descriptorStatus
 		if descriptorStatus.Code == rl.RateLimitResponse_OVER_LIMIT {
@@ -163,8 +213,4 @@ func (s *ratelimitServer) ShouldRateLimit(c context.Context, req *rl.RateLimitRe
 
 	response.OverallCode = finalCode
 	return response, nil
-}
-
-func NewAPIRateLimit(log logrus.FieldLogger, c chan string) *grpc.Server {
-    return nil
 }

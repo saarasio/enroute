@@ -270,17 +270,17 @@ func saaras_upstream__to__v1_ep(mss *SaarasMicroService2) *v1.Endpoints {
 	}
 	ep_subsets_ports = append(ep_subsets_ports, ep_subsets_port)
 
-    // We don't create endpoints if the upstream IP is not a valid IP address
-    // This is OK.
-    // The way this works is -
-    // If we can parse a valid IP, we create an endpoint and hand it to EDS. The cluster gets an endpoint
-    // If we cannot parse an IP, we don't create an endpoint. EDS does not provide it to cluster. In such a case,
-    //   the cluster creation logic checks and programs external name for that cluster with with the endpoint with STRICT_DNS
-    //   Hence it an endpoint is not required in such cases. Function saaras_ir_slice__to__v1b1_service_map incorporates this logic
+	// We don't create endpoints if the upstream IP is not a valid IP address
+	// This is OK.
+	// The way this works is -
+	// If we can parse a valid IP, we create an endpoint and hand it to EDS. The cluster gets an endpoint
+	// If we cannot parse an IP, we don't create an endpoint. EDS does not provide it to cluster. In such a case,
+	//   the cluster creation logic checks and programs external name for that cluster with with the endpoint with STRICT_DNS
+	//   Hence it an endpoint is not required in such cases. Function saaras_ir_slice__to__v1b1_service_map incorporates this logic
 	if net.ParseIP(mss.Upstream.Upstream_ip) == nil {
 		ips, err := net.LookupIP(mss.Upstream.Upstream_ip)
 		if err != nil {
-            // TODO: Add log here
+			// TODO: Add log here
 			//log.Debugf(" Upstream [%s] not parsed as IP", mss.Upstream.Upstream_ip)
 		}
 		for _, ip := range ips {
@@ -537,9 +537,9 @@ func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*v1bet
 	for _, cloud_vf := range *v1b1_vf_map {
 		if cached_vf, ok := sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type]; ok {
 			if apiequality.Semantic.DeepEqual(cached_vf, cloud_vf) {
-				log.Infof("update__v1__vf_cache() - RF [%s] on saaras cloud same as cache\n", cloud_vf.ObjectMeta.Name)
+				log.Infof("update__v1__vf_cache() - HTTPFilter [%s] on saaras cloud same as cache\n", cloud_vf.ObjectMeta.Name)
 			} else {
-				log.Infof("update__v1__vf_cache() - RF [%s] on saaras cloud different from cache - OnUpdate()\n", cloud_vf.ObjectMeta.Name)
+				log.Infof("update__v1__vf_cache() - HTTPFilter [%s] on saaras cloud different from cache - OnUpdate()\n", cloud_vf.ObjectMeta.Name)
 				sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type] = cloud_vf
 				reh.OnUpdate(cached_vf, cloud_vf)
 			}
@@ -548,7 +548,7 @@ func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*v1bet
 				sac.vf = make(map[string]*v1beta1.HttpFilter, 0)
 			}
 			sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type] = cloud_vf
-			log.Infof("update__v1__vf_cache() - RF [%s] on saaras cloud not in cache - OnAdd()\n", cloud_vf.ObjectMeta.Name)
+			log.Infof("update__v1__vf_cache() - HTTPFilter [%s] on saaras cloud not in cache - OnAdd()\n", cloud_vf.ObjectMeta.Name)
 			reh.OnAdd(cloud_vf)
 		}
 	}
