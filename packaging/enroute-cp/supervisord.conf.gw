@@ -40,7 +40,7 @@ priority=930
 
 ; 3.3 run redis server
 [program:run-redis-server]
-command=/bin/redis-server --port 6379 --loglevel verbose
+command=/bin/redis-server --port 6379 --loglevel notice
 user=postgres
 autorestart=false
 nodaemon=false
@@ -48,7 +48,7 @@ priority=935
 
 ; 3.3 run prom
 [program:run-prom]
-command=/prom/prometheus-2.19.0.linux-amd64/prometheus --config.file /prom/prometheus-2.19.0.linux-amd64/prometheus.yml --web.listen-address=0.0.0.0:9090 --storage.tsdb.path /prom/prometheus-2.19.0.linux-amd64/data
+command=/prom/prometheus-2.19.0.linux-amd64/prometheus --log.level=error --config.file /prom/prometheus-2.19.0.linux-amd64/prometheus.yml --web.listen-address=0.0.0.0:9090 --storage.tsdb.path /prom/prometheus-2.19.0.linux-amd64/data
 user=postgres
 autorestart=false
 nodaemon=false
