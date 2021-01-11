@@ -234,13 +234,21 @@ func saaras_ir_slice__to__v1b1_service_map(
 					},
 				}
 
-				// tell contour that this upstream is gRPC
+                // set annotation for gRPC upstream
 				if oneService.Upstream.Upstream_protocol == "grpc" {
 					annotate := make(map[string]string)
 					annotate["enroute.saaras.io/upstream-protocol.h2c"] =
 						strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
 					one_service.Annotations = annotate
 				}
+
+                // set annotation for TLS upstream
+                if oneService.Upstream.Upstream_protocol == "tls" {
+                        annotate := make(map[string]string)
+                        annotate["enroute.saaras.io/upstream-protocol.tls"] =
+                                strconv.FormatInt(int64(oneService.Upstream.Upstream_port), 10)
+                        one_service.Annotations = annotate
+                }
 
 				// If oneService Upstream_ip is a DNS name, make an external service
 				// This will create a StaticClusterLoadAssignment with v2.Cluster_STRICT_DNS without using EDS
