@@ -23,6 +23,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 type Assert struct {
@@ -44,7 +45,9 @@ func (a Assert) Equal(want, got interface{}) {
 		cmp.Comparer(func(x, y error) bool {
 			return (x == nil) == (y == nil)
 		}),
+		protocmp.Transform(),
 	}
+
 	diff := cmp.Diff(want, got, opts...)
 	if diff != "" {
 		a.t.Fatal(diff)

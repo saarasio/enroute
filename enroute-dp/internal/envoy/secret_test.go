@@ -10,6 +10,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"google.golang.org/protobuf/testing/protocmp"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -55,7 +56,7 @@ func TestSecret(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := Secret(tc.secret)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -102,7 +103,7 @@ func TestSecretname(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := Secretname(tc.secret)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})

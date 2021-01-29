@@ -24,6 +24,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
+	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -55,7 +56,7 @@ func TestEndpointsTranslatorContents(t *testing.T) {
 			var et EndpointsTranslator
 			et.entries = tc.contents
 			got := et.Contents()
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -113,7 +114,7 @@ func TestEndpointCacheQuery(t *testing.T) {
 			var et EndpointsTranslator
 			et.entries = tc.contents
 			got := et.Query(tc.query)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -248,7 +249,7 @@ func TestEndpointsTranslatorRemoveEndpoints(t *testing.T) {
 			tc.setup(et)
 			et.OnDelete(tc.ep)
 			got := et.Contents()
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -312,7 +313,7 @@ func TestEndpointsTranslatorRecomputeClusterLoadAssignment(t *testing.T) {
 			var et EndpointsTranslator
 			et.recomputeClusterLoadAssignment(tc.oldep, tc.newep)
 			got := et.Contents()
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -334,7 +335,7 @@ func TestEndpointsTranslatorScaleToZeroEndpoints(t *testing.T) {
 	}
 	got := et.Contents()
 
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 
@@ -346,7 +347,7 @@ func TestEndpointsTranslatorScaleToZeroEndpoints(t *testing.T) {
 	want = nil
 	got = et.Contents()
 
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }

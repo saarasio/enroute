@@ -28,6 +28,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -83,7 +84,7 @@ func TestVisitClusters(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := visitClusters(tc.root)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -153,7 +154,7 @@ func TestVisitListeners(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := visitListeners(tc.root, new(ListenerVisitorConfig))
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -221,7 +222,7 @@ func TestVisitSecrets(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := visitSecrets(tc.root)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})

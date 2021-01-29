@@ -22,6 +22,7 @@ import (
 	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	envoy_api_v2_endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
 	"github.com/google/go-cmp/cmp"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 func TestLBEndpoint(t *testing.T) {
@@ -33,7 +34,7 @@ func TestLBEndpoint(t *testing.T) {
 			},
 		},
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }
@@ -58,7 +59,7 @@ func TestEndpoints(t *testing.T) {
 			},
 		}},
 	}}
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }
@@ -69,7 +70,7 @@ func TestClusterLoadAssignment(t *testing.T) {
 		ClusterName: "empty",
 	}
 
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 
@@ -79,7 +80,7 @@ func TestClusterLoadAssignment(t *testing.T) {
 		Endpoints:   Endpoints(SocketAddress("microsoft.com", 81)),
 	}
 
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 
@@ -95,7 +96,7 @@ func TestClusterLoadAssignment(t *testing.T) {
 		),
 	}
 
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }

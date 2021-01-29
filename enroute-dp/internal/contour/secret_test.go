@@ -15,6 +15,7 @@ import (
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
+	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,7 +46,7 @@ func TestSecretCacheContents(t *testing.T) {
 			var sc SecretCache
 			sc.Update(tc.contents)
 			got := sc.Contents()
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -91,7 +92,7 @@ func TestSecretCacheQuery(t *testing.T) {
 			var sc SecretCache
 			sc.Update(tc.contents)
 			got := sc.Query(tc.query)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})

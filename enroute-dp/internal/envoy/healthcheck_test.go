@@ -25,6 +25,7 @@ import (
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 func TestHealthCheck(t *testing.T) {
@@ -99,7 +100,7 @@ func TestHealthCheck(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := healthCheck(tc.cluster)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 

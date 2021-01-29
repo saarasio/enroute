@@ -33,6 +33,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -118,7 +119,7 @@ func TestListener(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := Listener(tc.name, tc.address, tc.port, tc.lf, tc.f...)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -143,7 +144,7 @@ func TestSocketAddress(t *testing.T) {
 			},
 		},
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 
@@ -160,7 +161,7 @@ func TestSocketAddress(t *testing.T) {
 			},
 		},
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }
@@ -205,7 +206,7 @@ func TestDownstreamTLSContext(t *testing.T) {
 			AlpnProtocols: []string{"h2", "http/1.1"},
 		},
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }
@@ -381,7 +382,7 @@ func TestTCPProxy(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := TCPProxy(statPrefix, tc.proxy, accessLogPath)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})

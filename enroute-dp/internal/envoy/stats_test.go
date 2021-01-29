@@ -26,6 +26,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	"google.golang.org/protobuf/testing/protocmp"
 )
 
 func TestStatsListener(t *testing.T) {
@@ -96,7 +97,7 @@ func TestStatsListener(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := StatsListener(tc.address, tc.port)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})

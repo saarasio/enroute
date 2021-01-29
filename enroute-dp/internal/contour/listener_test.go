@@ -31,6 +31,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
+	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -743,7 +744,7 @@ func TestListenerVisit(t *testing.T) {
 			}
 			root := dag.BuildDAG(&reh.KubernetesCache)
 			got := visitListeners(root, &tc.ListenerVisitorConfig)
-			if !cmp.Equal(tc.want, got) {
+			if !cmp.Equal(tc.want, got, protocmp.Transform()) {
 				t.Fatalf("expected:\n%+v\ngot:\n%+v", tc.want, got)
 			}
 		})

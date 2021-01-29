@@ -29,6 +29,7 @@ import (
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -424,7 +425,7 @@ func TestCluster(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := Cluster(tc.cluster)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -524,7 +525,7 @@ func TestClustername(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := Clustername(tc.cluster)
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -548,7 +549,7 @@ func TestLBPolicy(t *testing.T) {
 	for strategy, want := range tests {
 		t.Run(strategy, func(t *testing.T) {
 			got := lbPolicy(strategy)
-			if diff := cmp.Diff(want, got); diff != "" {
+			if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
 		})
@@ -627,7 +628,7 @@ func TestAnyPositive(t *testing.T) {
 func TestU32nil(t *testing.T) {
 	assert := func(want, got *wrappers.UInt32Value) {
 		t.Helper()
-		if diff := cmp.Diff(want, got); diff != "" {
+		if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 			t.Fatal(diff)
 		}
 	}
@@ -643,7 +644,7 @@ func TestClusterCommonLBConfig(t *testing.T) {
 			Value: 0,
 		},
 	}
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(want, got, protocmp.Transform()); diff != "" {
 		t.Fatal(diff)
 	}
 }
