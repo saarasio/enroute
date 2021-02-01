@@ -20,8 +20,8 @@ import (
 	"sort"
 	"sync"
 
-	envoy_api_v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -30,7 +30,7 @@ import (
 // ClusterCache manages the contents of the gRPC CDS cache.
 type ClusterCache struct {
 	mu      sync.Mutex
-	values  map[string]*envoy_api_v2.Cluster
+	values  map[string]*envoy_config_cluster_v3.Cluster
 	waiters []chan int
 	last    int
 }
@@ -56,7 +56,7 @@ func (c *ClusterCache) Register(ch chan int, last int) {
 }
 
 // Update replaces the contents of the cache with the supplied map.
-func (c *ClusterCache) Update(v map[string]*envoy_api_v2.Cluster) {
+func (c *ClusterCache) Update(v map[string]*envoy_config_cluster_v3.Cluster) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -109,19 +109,19 @@ type clusterByName []proto.Message
 func (c clusterByName) Len() int      { return len(c) }
 func (c clusterByName) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 func (c clusterByName) Less(i, j int) bool {
-	return c[i].(*envoy_api_v2.Cluster).Name < c[j].(*envoy_api_v2.Cluster).Name
+	return c[i].(*envoy_config_cluster_v3.Cluster).Name < c[j].(*envoy_config_cluster_v3.Cluster).Name
 }
 
 func (*ClusterCache) TypeURL() string { return resource.ClusterType }
 
 type clusterVisitor struct {
-	clusters map[string]*envoy_api_v2.Cluster
+	clusters map[string]*envoy_config_cluster_v3.Cluster
 }
 
-// visitCluster produces a map of *envoy_api_v2.Clusters.
-func visitClusters(root dag.Vertex) map[string]*envoy_api_v2.Cluster {
+// visitCluster produces a map of *envoy_config_cluster_v3.Clusters.
+func visitClusters(root dag.Vertex) map[string]*envoy_config_cluster_v3.Cluster {
 	cv := clusterVisitor{
-		clusters: make(map[string]*envoy_api_v2.Cluster),
+		clusters: make(map[string]*envoy_config_cluster_v3.Cluster),
 	}
 	cv.visit(root)
 	return cv.clusters

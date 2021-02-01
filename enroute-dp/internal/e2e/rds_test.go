@@ -23,8 +23,10 @@ import (
 	"testing"
 	"time"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
+	"github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
@@ -100,22 +102,22 @@ func TestEditIngress(t *testing.T) {
 	rh.OnAdd(old)
 
 	// check that it's been translated correctly.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "*",
 					Domains: []string{"*"},
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/"),
 						Action:              routecluster("default/kuard/80/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
 			},
 		),
@@ -144,22 +146,22 @@ func TestEditIngress(t *testing.T) {
 	})
 
 	// check that ingress_http has been updated.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "*",
 					Domains: []string{"*"},
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/testing"),
 						Action:              routecluster("default/kuard/80/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
 			},
 		),
@@ -224,22 +226,22 @@ func TestIngressPathRouteWithoutHost(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// check that it's been translated correctly.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "*",
 					Domains: []string{"*"},
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/hello"),
 						Action:              routecluster("default/hello/80/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
 			},
 		),
@@ -305,22 +307,22 @@ func TestEditIngressInPlace(t *testing.T) {
 	}
 	rh.OnAdd(s2)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "hello.example.com",
 					Domains: domains("hello.example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/"),
 						Action:              routecluster("default/wowie/80/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
 			},
 		),
@@ -355,15 +357,15 @@ func TestEditIngressInPlace(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i1, i2)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "4",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "hello.example.com",
 					Domains: domains("hello.example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/whoop"),
 						Action:              routecluster("default/kerpow/9000/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -374,7 +376,7 @@ func TestEditIngressInPlace(t *testing.T) {
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
 			},
 		),
@@ -414,15 +416,15 @@ func TestEditIngressInPlace(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i2, i3)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "5",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "hello.example.com",
 					Domains: domains("hello.example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:  envoy.RouteMatch("/whoop"),
 						Action: envoy.UpgradeHTTPS(),
 					}, {
@@ -431,7 +433,7 @@ func TestEditIngressInPlace(t *testing.T) {
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{Name: "ingress_https"},
+			&envoy_config_route_v3.RouteConfiguration{Name: "ingress_https"},
 		),
 		TypeUrl: routeType,
 		Nonce:   "5",
@@ -486,15 +488,15 @@ func TestEditIngressInPlace(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i3, i4)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "7",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "hello.example.com",
 					Domains: domains("hello.example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:  envoy.RouteMatch("/whoop"),
 						Action: envoy.UpgradeHTTPS(),
 					}, {
@@ -503,12 +505,12 @@ func TestEditIngressInPlace(t *testing.T) {
 					}},
 				}},
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "hello.example.com",
 					Domains: domains("hello.example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/whoop"),
 						Action:              routecluster("default/kerpow/9000/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -558,10 +560,10 @@ func TestRequestTimeout(t *testing.T) {
 		},
 	}
 	rh.OnAdd(i1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routecluster("default/backend/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -580,10 +582,10 @@ func TestRequestTimeout(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i1, i2)
-	assertRDS(t, cc, "3", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              clustertimeout("default/backend/80/da39a3ee5e", durationInfinite),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -602,10 +604,10 @@ func TestRequestTimeout(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i2, i3)
-	assertRDS(t, cc, "4", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "4", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              clustertimeout("default/backend/80/da39a3ee5e", duration10Minutes),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -624,10 +626,10 @@ func TestRequestTimeout(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i3, i4)
-	assertRDS(t, cc, "5", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "5", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              clustertimeout("default/backend/80/da39a3ee5e", durationInfinite),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -737,10 +739,10 @@ func TestSSLRedirectOverlay(t *testing.T) {
 		},
 	})
 
-	assertRDS(t, cc, "5", []*envoy_api_v2_route.VirtualHost{{ // ingress_http
+	assertRDS(t, cc, "5", []*envoy_config_route_v3.VirtualHost{{ // ingress_http
 		Name:    "example.com",
 		Domains: domains("example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk"),
 			Action:              routecluster("nginx-ingress/challenge-service/8009/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -748,10 +750,10 @@ func TestSSLRedirectOverlay(t *testing.T) {
 			Match:  envoy.RouteMatch("/"), // match all
 			Action: envoy.UpgradeHTTPS(),
 		}},
-	}}, []*envoy_api_v2_route.VirtualHost{{ // ingress_https
+	}}, []*envoy_config_route_v3.VirtualHost{{ // ingress_https
 		Name:    "example.com",
 		Domains: domains("example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk"),
 			Action:              routecluster("nginx-ingress/challenge-service/8009/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -820,10 +822,10 @@ func TestInvalidCertInIngress(t *testing.T) {
 		},
 	})
 
-	assertRDS(t, cc, "3", []*envoy_api_v2_route.VirtualHost{{ // ingress_http
+	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{ // ingress_http
 		Name:    "kuard.io",
 		Domains: domains("kuard.io"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -843,18 +845,18 @@ func TestInvalidCertInIngress(t *testing.T) {
 		},
 	})
 
-	assertRDS(t, cc, "4", []*envoy_api_v2_route.VirtualHost{{ // ingress_http
+	assertRDS(t, cc, "4", []*envoy_config_route_v3.VirtualHost{{ // ingress_http
 		Name:    "kuard.io",
 		Domains: domains("kuard.io"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
 		}},
-	}}, []*envoy_api_v2_route.VirtualHost{{ // ingress_https
+	}}, []*envoy_config_route_v3.VirtualHost{{ // ingress_https
 		Name:    "kuard.io",
 		Domains: domains("kuard.io"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -912,10 +914,10 @@ func TestIssue257(t *testing.T) {
 	}
 	rh.OnAdd(s1)
 
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routecluster("default/kuard/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -966,10 +968,10 @@ func TestIssue257(t *testing.T) {
 	}
 	rh.OnUpdate(i1, i2)
 
-	assertRDS(t, cc, "3", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "kuard.db.gd-ms.com",
 		Domains: domains("kuard.db.gd-ms.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routecluster("default/kuard/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1079,15 +1081,15 @@ func TestRDSFilter(t *testing.T) {
 	}
 	rh.OnAdd(s2)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "5",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{ // ingress_http
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{ // ingress_http
 					Name:    "example.com",
 					Domains: domains("example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk"),
 						Action:              routecluster("nginx-ingress/challenge-service/8009/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1102,15 +1104,15 @@ func TestRDSFilter(t *testing.T) {
 		Nonce:   "5",
 	}, streamRDS(t, cc, "ingress_http"))
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "5",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{ // ingress_https
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{ // ingress_https
 					Name:    "example.com",
 					Domains: domains("example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk"),
 						Action:              routecluster("nginx-ingress/challenge-service/8009/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1171,10 +1173,10 @@ func TestWebsocketIngress(t *testing.T) {
 		},
 	})
 
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "websocket.hello.world",
 		Domains: domains("websocket.hello.world"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              websocketroute("default/ws/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1237,10 +1239,10 @@ func TestWebsocketGatewayHost(t *testing.T) {
 		},
 	})
 
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "websocket.hello.world",
 		Domains: domains("websocket.hello.world"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/ws-2"),
 			Action:              websocketroute("default/ws/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1310,10 +1312,10 @@ func TestPrefixRewriteGatewayHost(t *testing.T) {
 		},
 	})
 
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "prefixrewrite.hello.world",
 		Domains: domains("prefixrewrite.hello.world"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/ws-2"),
 			Action:              prefixrewriteroute("default/ws/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1409,15 +1411,15 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 		},
 	})
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "*",
 					Domains: []string{"*"},
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/kuard"),
 						Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1429,7 +1431,7 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 				}, {
 					Name:    "test-gui",
 					Domains: domains("test-gui"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/"),
 						Action:              routecluster("default/test-gui/80/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1488,15 +1490,15 @@ func TestRDSGatewayHostInsideRootNamespaces(t *testing.T) {
 	// add gatewayhost
 	rh.OnAdd(ir1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "example.com",
 					Domains: domains("example.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/"),
 						Action:              routecluster("roots/kuard/8080/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1555,10 +1557,10 @@ func TestRDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 	// add gatewayhost
 	rh.OnAdd(ir1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
 			}),
 		TypeUrl: routeType,
@@ -1613,10 +1615,10 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 	}
 
 	rh.OnAdd(ir1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1705,10 +1707,10 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(ir3, ir4)
-	assertRDS(t, cc, "4", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "4", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1742,10 +1744,10 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 	}
 	rh.OnUpdate(ir4, ir5)
 
-	assertRDS(t, cc, "5", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "5", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1792,10 +1794,10 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 		},
 	}
 	rh.OnAdd(i1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1854,10 +1856,10 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i3, i4)
-	assertRDS(t, cc, "4", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "4", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -1880,10 +1882,10 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i4, i5)
-	assertRDS(t, cc, "5", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "5", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"),
 			Action:              routecluster("default/kuard/8080/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2016,10 +2018,10 @@ func TestRDSIngressSpecMissingHTTPKey(t *testing.T) {
 	}
 	rh.OnAdd(s1)
 
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routecluster("default/network-test/9001/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2066,10 +2068,10 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 	}
 
 	rh.OnAdd(ir1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/a"), // match all
 			Action:              routecluster("default/kuard/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2101,10 +2103,10 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 	}
 
 	rh.OnUpdate(ir1, ir2)
-	assertRDS(t, cc, "3", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match: envoy.RouteMatch("/a"), // match all
 			Action: routeweightedcluster(
 				weightedcluster{"default/kuard/80/da39a3ee5e", 60},
@@ -2172,25 +2174,25 @@ func TestRouteWithTLS(t *testing.T) {
 	rh.OnAdd(ir1)
 
 	// check that ingress_http has been updated.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "test2.test.com",
 					Domains: domains("test2.test.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:  envoy.RouteMatch("/a"),
 						Action: envoy.UpgradeHTTPS(),
 					}},
 				}}},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "test2.test.com",
 					Domains: domains("test2.test.com"),
-					Routes: []*envoy_api_v2_route.Route{{
+					Routes: []*envoy_config_route_v3.Route{{
 						Match:               envoy.RouteMatch("/a"),
 						Action:              routecluster("default/kuard/80/da39a3ee5e"),
 						RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2280,15 +2282,15 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 	rh.OnAdd(ir1)
 
 	// check that ingress_http has been updated.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "4",
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_http",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "test2.test.com",
 					Domains: domains("test2.test.com"),
-					Routes: []*envoy_api_v2_route.Route{
+					Routes: []*envoy_config_route_v3.Route{
 						{
 							Match:  envoy.RouteMatch("/secure"),
 							Action: envoy.UpgradeHTTPS(),
@@ -2299,12 +2301,12 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 						},
 					},
 				}}},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name: "ingress_https",
-				VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+				VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 					Name:    "test2.test.com",
 					Domains: domains("test2.test.com"),
-					Routes: []*envoy_api_v2_route.Route{
+					Routes: []*envoy_config_route_v3.Route{
 						{
 							Match:               envoy.RouteMatch("/secure"),
 							Action:              routecluster("default/svc2/80/da39a3ee5e"),
@@ -2356,10 +2358,10 @@ func TestRouteRetryAnnotations(t *testing.T) {
 		},
 	}
 	rh.OnAdd(i1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routeretry("default/backend/80/da39a3ee5e", "5xx,gateway-error", 7, 120*time.Millisecond),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2411,10 +2413,10 @@ func TestRouteRetryGatewayHost(t *testing.T) {
 	}
 
 	rh.OnAdd(i1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routeretry("default/backend/80/da39a3ee5e", "5xx", 7, 120*time.Millisecond),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2467,10 +2469,10 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 		},
 	}
 	rh.OnAdd(i1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              routecluster("default/backend/80/da39a3ee5e"),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2500,10 +2502,10 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i1, i2)
-	assertRDS(t, cc, "3", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              clustertimeout("default/backend/80/da39a3ee5e", durationInfinite),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2532,10 +2534,10 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i2, i3)
-	assertRDS(t, cc, "4", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "4", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              clustertimeout("default/backend/80/da39a3ee5e", duration10Minutes),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2564,10 +2566,10 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(i3, i4)
-	assertRDS(t, cc, "5", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "5", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/"), // match all
 			Action:              clustertimeout("default/backend/80/da39a3ee5e", durationInfinite),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2619,10 +2621,10 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 	}
 
 	rh.OnAdd(ir1)
-	assertRDS(t, cc, "2", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match:               envoy.RouteMatch("/cart"),
 			Action:              withSessionAffinity(routecluster("default/app/80/e4f81994fe")),
 			RequestHeadersToAdd: envoy.RouteHeaders(),
@@ -2654,10 +2656,10 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(ir1, ir2)
-	assertRDS(t, cc, "3", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match: envoy.RouteMatch("/cart"),
 			Action: withSessionAffinity(
 				routeweightedcluster(
@@ -2701,10 +2703,10 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 		},
 	}
 	rh.OnUpdate(ir2, ir3)
-	assertRDS(t, cc, "4", []*envoy_api_v2_route.VirtualHost{{
+	assertRDS(t, cc, "4", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
-		Routes: []*envoy_api_v2_route.Route{{
+		Routes: []*envoy_config_route_v3.Route{{
 			Match: envoy.RouteMatch("/cart"),
 			Action: withSessionAffinity(
 				routeweightedcluster(
@@ -2783,10 +2785,10 @@ func TestLoadBalancingStrategies(t *testing.T) {
 	}
 
 	rh.OnAdd(ir)
-	want := []*envoy_api_v2_route.VirtualHost{{
+	want := []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
-		Routes: []*envoy_api_v2_route.Route{
+		Routes: []*envoy_config_route_v3.Route{
 			{
 				Match:               envoy.RouteMatch("/a"),
 				Action:              routeweightedcluster(wc...),
@@ -2797,16 +2799,16 @@ func TestLoadBalancingStrategies(t *testing.T) {
 	assertRDS(t, cc, "5", want, nil)
 }
 
-func assertRDS(t *testing.T, cc *grpc.ClientConn, versioninfo string, ingress_http, ingress_https []*envoy_api_v2_route.VirtualHost) {
+func assertRDS(t *testing.T, cc *grpc.ClientConn, versioninfo string, ingress_http, ingress_https []*envoy_config_route_v3.VirtualHost) {
 	t.Helper()
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: versioninfo,
 		Resources: resources(t,
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name:         "ingress_http",
 				VirtualHosts: ingress_http,
 			},
-			&v2.RouteConfiguration{
+			&envoy_config_route_v3.RouteConfiguration{
 				Name:         "ingress_https",
 				VirtualHosts: ingress_https,
 			},
@@ -2823,12 +2825,12 @@ func domains(hostname string) []string {
 	return []string{hostname, hostname + ":*"}
 }
 
-func streamRDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *v2.DiscoveryResponse {
+func streamRDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *envoy_service_discovery_v3.DiscoveryResponse {
 	t.Helper()
-	rds := v2.NewRouteDiscoveryServiceClient(cc)
+	rds := envoy_service_route_v3.NewRouteDiscoveryServiceClient(cc)
 	st, err := rds.StreamRoutes(context.TODO())
 	check(t, err)
-	return stream(t, st, &v2.DiscoveryRequest{
+	return stream(t, st, &envoy_service_discovery_v3.DiscoveryRequest{
 		TypeUrl:       routeType,
 		ResourceNames: rn,
 	})
@@ -2839,10 +2841,10 @@ type weightedcluster struct {
 	weight uint32
 }
 
-func withSessionAffinity(r *envoy_api_v2_route.Route_Route) *envoy_api_v2_route.Route_Route {
-	r.Route.HashPolicy = append(r.Route.HashPolicy, &envoy_api_v2_route.RouteAction_HashPolicy{
-		PolicySpecifier: &envoy_api_v2_route.RouteAction_HashPolicy_Cookie_{
-			Cookie: &envoy_api_v2_route.RouteAction_HashPolicy_Cookie{
+func withSessionAffinity(r *envoy_config_route_v3.Route_Route) *envoy_config_route_v3.Route_Route {
+	r.Route.HashPolicy = append(r.Route.HashPolicy, &envoy_config_route_v3.RouteAction_HashPolicy{
+		PolicySpecifier: &envoy_config_route_v3.RouteAction_HashPolicy_Cookie_{
+			Cookie: &envoy_config_route_v3.RouteAction_HashPolicy_Cookie{
 				Name: "X-Contour-Session-Affinity",
 				Ttl:  protobuf.Duration(0),
 				Path: "/",
@@ -2852,32 +2854,32 @@ func withSessionAffinity(r *envoy_api_v2_route.Route_Route) *envoy_api_v2_route.
 	return r
 }
 
-func routecluster(cluster string) *envoy_api_v2_route.Route_Route {
-	return &envoy_api_v2_route.Route_Route{
-		Route: &envoy_api_v2_route.RouteAction{
-			ClusterSpecifier: &envoy_api_v2_route.RouteAction_Cluster{
+func routecluster(cluster string) *envoy_config_route_v3.Route_Route {
+	return &envoy_config_route_v3.Route_Route{
+		Route: &envoy_config_route_v3.RouteAction{
+			ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
 				Cluster: cluster,
 			},
 		},
 	}
 }
 
-func routeweightedcluster(clusters ...weightedcluster) *envoy_api_v2_route.Route_Route {
-	return &envoy_api_v2_route.Route_Route{
-		Route: &envoy_api_v2_route.RouteAction{
-			ClusterSpecifier: &envoy_api_v2_route.RouteAction_WeightedClusters{
+func routeweightedcluster(clusters ...weightedcluster) *envoy_config_route_v3.Route_Route {
+	return &envoy_config_route_v3.Route_Route{
+		Route: &envoy_config_route_v3.RouteAction{
+			ClusterSpecifier: &envoy_config_route_v3.RouteAction_WeightedClusters{
 				WeightedClusters: weightedclusters(clusters),
 			},
 		},
 	}
 }
 
-func weightedclusters(clusters []weightedcluster) *envoy_api_v2_route.WeightedCluster {
-	var wc envoy_api_v2_route.WeightedCluster
+func weightedclusters(clusters []weightedcluster) *envoy_config_route_v3.WeightedCluster {
+	var wc envoy_config_route_v3.WeightedCluster
 	var total uint32
 	for _, c := range clusters {
 		total += c.weight
-		wc.Clusters = append(wc.Clusters, &envoy_api_v2_route.WeightedCluster_ClusterWeight{
+		wc.Clusters = append(wc.Clusters, &envoy_config_route_v3.WeightedCluster_ClusterWeight{
 			Name:   c.name,
 			Weight: protobuf.UInt32(c.weight),
 		})
@@ -2886,23 +2888,23 @@ func weightedclusters(clusters []weightedcluster) *envoy_api_v2_route.WeightedCl
 	return &wc
 }
 
-func websocketroute(c string) *envoy_api_v2_route.Route_Route {
+func websocketroute(c string) *envoy_config_route_v3.Route_Route {
 	cl := routecluster(c)
 	cl.Route.UpgradeConfigs = append(cl.Route.UpgradeConfigs,
-		&envoy_api_v2_route.RouteAction_UpgradeConfig{
+		&envoy_config_route_v3.RouteAction_UpgradeConfig{
 			UpgradeType: "websocket",
 		},
 	)
 	return cl
 }
 
-func prefixrewriteroute(c string) *envoy_api_v2_route.Route_Route {
+func prefixrewriteroute(c string) *envoy_config_route_v3.Route_Route {
 	cl := routecluster(c)
 	cl.Route.PrefixRewrite = "/"
 	return cl
 }
 
-func clustertimeout(c string, timeout time.Duration) *envoy_api_v2_route.Route_Route {
+func clustertimeout(c string, timeout time.Duration) *envoy_config_route_v3.Route_Route {
 	cl := routecluster(c)
 	cl.Route.Timeout = protobuf.Duration(timeout)
 	return cl
@@ -2934,9 +2936,9 @@ func externalnameservice(ns, name, externalname string, ports ...v1.ServicePort)
 	}
 }
 
-func routeretry(cluster string, retryOn string, numRetries uint32, perTryTimeout time.Duration) *envoy_api_v2_route.Route_Route {
+func routeretry(cluster string, retryOn string, numRetries uint32, perTryTimeout time.Duration) *envoy_config_route_v3.Route_Route {
 	r := routecluster(cluster)
-	r.Route.RetryPolicy = &envoy_api_v2_route.RetryPolicy{
+	r.Route.RetryPolicy = &envoy_config_route_v3.RetryPolicy{
 		RetryOn: retryOn,
 	}
 	if numRetries > 0 {

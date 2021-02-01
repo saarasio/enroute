@@ -6,6 +6,7 @@ require (
 	github.com/3rf/codecoroner v0.0.0-20190711181142-77c68ba76a4c // indirect
 	github.com/apache/thrift v0.12.0 // indirect
 	github.com/client9/misspell v0.3.4
+	github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/envoyproxy/go-control-plane v0.9.6
 	github.com/evanphx/json-patch v4.5.0+incompatible

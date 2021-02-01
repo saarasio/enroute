@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/google/go-cmp/cmp"
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/api/core/v1"
@@ -2194,7 +2194,7 @@ func TestDAGInsert(t *testing.T) {
 								},
 							},
 							Secret:          secret(sec1),
-							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
+							MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1,
 						},
 					),
 				},
@@ -2330,7 +2330,7 @@ func TestDAGInsert(t *testing.T) {
 									routeUpgrade("/", httpService(s1)),
 								),
 							},
-							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_2,
+							MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_2,
 							Secret:          secret(sec1),
 						},
 					),
@@ -2357,7 +2357,7 @@ func TestDAGInsert(t *testing.T) {
 									routeUpgrade("/", httpService(s1)),
 								),
 							},
-							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_3,
+							MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_3,
 							Secret:          secret(sec1),
 						},
 					),
@@ -2423,7 +2423,7 @@ func TestDAGInsert(t *testing.T) {
 									prefixroute("/", httpService(s1)),
 								),
 							},
-							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_3,
+							MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_3,
 							Secret:          secret(sec1),
 						},
 					),
@@ -3222,7 +3222,7 @@ func TestDAGInsert(t *testing.T) {
 		//							VirtualHost: VirtualHost{
 		//								Name: "example.com",
 		//							},
-		//							MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
+		//							MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1,
 		//							Secret:          secret(sec1),
 		//							TCPProxy: &TCPProxy{
 		//								Clusters: clusters(service(s9)),
@@ -4488,7 +4488,7 @@ func securevirtualhost(name string, sec *v1.Secret, routes ...*Route) *SecureVir
 			Name:   name,
 			routes: routemap(routes...),
 		},
-		MinProtoVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
+		MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1,
 		Secret:          secret(sec),
 	}
 }

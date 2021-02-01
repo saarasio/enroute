@@ -21,9 +21,8 @@ import (
 	"strings"
 	"sync"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/sirupsen/logrus"
@@ -87,7 +86,7 @@ func (e *EndpointsTranslator) Query(names []string) []proto.Message {
 	for _, n := range names {
 		v, ok := e.entries[n]
 		if !ok {
-			v = &v2.ClusterLoadAssignment{
+			v = &envoy_config_endpoint_v3.ClusterLoadAssignment{
 				ClusterName: n,
 			}
 		}
@@ -102,7 +101,7 @@ type clusterLoadAssignmentsByName []proto.Message
 func (c clusterLoadAssignmentsByName) Len() int      { return len(c) }
 func (c clusterLoadAssignmentsByName) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 func (c clusterLoadAssignmentsByName) Less(i, j int) bool {
-	return c[i].(*v2.ClusterLoadAssignment).ClusterName < c[j].(*v2.ClusterLoadAssignment).ClusterName
+	return c[i].(*envoy_config_endpoint_v3.ClusterLoadAssignment).ClusterName < c[j].(*envoy_config_endpoint_v3.ClusterLoadAssignment).ClusterName
 }
 
 func (*EndpointsTranslator) TypeURL() string { return resource.EndpointType }
@@ -146,7 +145,7 @@ func (e *EndpointsTranslator) recomputeClusterLoadAssignment(oldep, newep *v1.En
 		}
 	}
 
-	clas := make(map[string]*v2.ClusterLoadAssignment)
+	clas := make(map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment)
 	// add or update endpoints
 	for _, s := range newep.Subsets {
 		// skip any subsets that don't have ready addresses
@@ -162,10 +161,10 @@ func (e *EndpointsTranslator) recomputeClusterLoadAssignment(oldep, newep *v1.En
 			portname := p.Name
 			cla, ok := clas[portname]
 			if !ok {
-				cla = &v2.ClusterLoadAssignment{
+				cla = &envoy_config_endpoint_v3.ClusterLoadAssignment{
 					ClusterName: servicename(newep.ObjectMeta, portname),
-					Endpoints: []*envoy_api_v2_endpoint.LocalityLbEndpoints{{
-						LbEndpoints: make([]*envoy_api_v2_endpoint.LbEndpoint, 0, 1),
+					Endpoints: []*envoy_config_endpoint_v3.LocalityLbEndpoints{{
+						LbEndpoints: make([]*envoy_config_endpoint_v3.LbEndpoint, 0, 1),
 					}},
 				}
 				clas[portname] = cla
@@ -202,16 +201,16 @@ func (e *EndpointsTranslator) recomputeClusterLoadAssignment(oldep, newep *v1.En
 
 type clusterLoadAssignmentCache struct {
 	mu      sync.Mutex
-	entries map[string]*v2.ClusterLoadAssignment
+	entries map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment
 }
 
 // Add adds an entry to the cache. If a ClusterLoadAssignment with the same
 // name exists, it is replaced.
-func (c *clusterLoadAssignmentCache) Add(a *v2.ClusterLoadAssignment) {
+func (c *clusterLoadAssignmentCache) Add(a *envoy_config_endpoint_v3.ClusterLoadAssignment) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.entries == nil {
-		c.entries = make(map[string]*v2.ClusterLoadAssignment)
+		c.entries = make(map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment)
 	}
 	c.entries[a.ClusterName] = a
 }

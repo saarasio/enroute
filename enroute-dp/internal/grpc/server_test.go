@@ -23,9 +23,14 @@ import (
 	"testing"
 	"time"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
@@ -63,7 +68,7 @@ func TestGRPC(t *testing.T) {
 				},
 			})
 
-			sds := v2.NewClusterDiscoveryServiceClient(cc)
+			sds := envoy_service_cluster_v3.NewClusterDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 			defer cancel()
 			stream, err := sds.StreamClusters(ctx)
@@ -90,7 +95,7 @@ func TestGRPC(t *testing.T) {
 				}},
 			})
 
-			eds := v2.NewEndpointDiscoveryServiceClient(cc)
+			eds := envoy_service_endpoint_v3.NewEndpointDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 			defer cancel()
 			stream, err := eds.StreamEndpoints(ctx)
@@ -123,7 +128,7 @@ func TestGRPC(t *testing.T) {
 				},
 			})
 
-			lds := v2.NewListenerDiscoveryServiceClient(cc)
+			lds := envoy_service_listener_v3.NewListenerDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 			defer cancel()
 			stream, err := lds.StreamListeners(ctx)
@@ -155,7 +160,7 @@ func TestGRPC(t *testing.T) {
 				},
 			})
 
-			rds := v2.NewRouteDiscoveryServiceClient(cc)
+			rds := envoy_service_route_v3.NewRouteDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 			defer cancel()
 			stream, err := rds.StreamRoutes(ctx)
@@ -176,7 +181,7 @@ func TestGRPC(t *testing.T) {
 				},
 			})
 
-			sds := discovery.NewSecretDiscoveryServiceClient(cc)
+			sds := envoy_service_secret_v3.NewSecretDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 			defer cancel()
 			stream, err := sds.StreamSecrets(ctx)
@@ -235,17 +240,17 @@ func check(t *testing.T, err error) {
 }
 
 func sendreq(t *testing.T, stream interface {
-	Send(*v2.DiscoveryRequest) error
+	Send(*envoy_service_discovery_v3.DiscoveryRequest) error
 }, typeurl string) {
 	t.Helper()
-	err := stream.Send(&v2.DiscoveryRequest{
+	err := stream.Send(&envoy_service_discovery_v3.DiscoveryRequest{
 		TypeUrl: typeurl,
 	})
 	check(t, err)
 }
 
 func checkrecv(t *testing.T, stream interface {
-	Recv() (*v2.DiscoveryResponse, error)
+	Recv() (*envoy_service_discovery_v3.DiscoveryResponse, error)
 }) {
 	t.Helper()
 	_, err := stream.Recv()
@@ -253,7 +258,7 @@ func checkrecv(t *testing.T, stream interface {
 }
 
 func checktimeout(t *testing.T, stream interface {
-	Recv() (*v2.DiscoveryResponse, error)
+	Recv() (*envoy_service_discovery_v3.DiscoveryResponse, error)
 }) {
 	t.Helper()
 	_, err := stream.Recv()

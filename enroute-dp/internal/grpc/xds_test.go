@@ -23,7 +23,8 @@ import (
 	"io/ioutil"
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
 )
@@ -40,7 +41,7 @@ func TestXDSHandlerStream(t *testing.T) {
 			xh: xdsHandler{FieldLogger: log},
 			stream: &mockStream{
 				context: context.Background,
-				recv: func() (*v2.DiscoveryRequest, error) {
+				recv: func() (*envoy_service_discovery_v3.DiscoveryRequest, error) {
 					return nil, io.EOF
 				},
 			},
@@ -50,8 +51,8 @@ func TestXDSHandlerStream(t *testing.T) {
 			xh: xdsHandler{FieldLogger: log},
 			stream: &mockStream{
 				context: context.Background,
-				recv: func() (*v2.DiscoveryRequest, error) {
-					return &v2.DiscoveryRequest{
+				recv: func() (*envoy_service_discovery_v3.DiscoveryRequest, error) {
+					return &envoy_service_discovery_v3.DiscoveryRequest{
 						TypeUrl: "com.heptio.potato",
 					}, nil
 				},
@@ -75,8 +76,8 @@ func TestXDSHandlerStream(t *testing.T) {
 			},
 			stream: &mockStream{
 				context: context.Background,
-				recv: func() (*v2.DiscoveryRequest, error) {
-					return &v2.DiscoveryRequest{
+				recv: func() (*envoy_service_discovery_v3.DiscoveryRequest, error) {
+					return &envoy_service_discovery_v3.DiscoveryRequest{
 						TypeUrl: "com.heptio.potato",
 					}, nil
 				},
@@ -92,7 +93,7 @@ func TestXDSHandlerStream(t *testing.T) {
 							ch <- i + 1
 						},
 						contents: func() []proto.Message {
-							return []proto.Message{new(v2.ClusterLoadAssignment)}
+							return []proto.Message{new(envoy_config_endpoint_v3.ClusterLoadAssignment)}
 						},
 						typeurl: func() string { return "com.heptio.potato" },
 					},
@@ -100,12 +101,12 @@ func TestXDSHandlerStream(t *testing.T) {
 			},
 			stream: &mockStream{
 				context: context.Background,
-				recv: func() (*v2.DiscoveryRequest, error) {
-					return &v2.DiscoveryRequest{
+				recv: func() (*envoy_service_discovery_v3.DiscoveryRequest, error) {
+					return &envoy_service_discovery_v3.DiscoveryRequest{
 						TypeUrl: "com.heptio.potato",
 					}, nil
 				},
-				send: func(resp *v2.DiscoveryResponse) error {
+				send: func(resp *envoy_service_discovery_v3.DiscoveryResponse) error {
 					return io.EOF
 				},
 			},
@@ -130,12 +131,12 @@ func TestXDSHandlerStream(t *testing.T) {
 					cancel()
 					return ctx
 				},
-				recv: func() (*v2.DiscoveryRequest, error) {
-					return &v2.DiscoveryRequest{
+				recv: func() (*envoy_service_discovery_v3.DiscoveryRequest, error) {
+					return &envoy_service_discovery_v3.DiscoveryRequest{
 						TypeUrl: "com.heptio.potato",
 					}, nil
 				},
-				send: func(resp *v2.DiscoveryResponse) error {
+				send: func(resp *envoy_service_discovery_v3.DiscoveryResponse) error {
 					return io.EOF
 				},
 			},
@@ -155,13 +156,15 @@ func TestXDSHandlerStream(t *testing.T) {
 
 type mockStream struct {
 	context func() context.Context
-	send    func(*v2.DiscoveryResponse) error
-	recv    func() (*v2.DiscoveryRequest, error)
+	send    func(*envoy_service_discovery_v3.DiscoveryResponse) error
+	recv    func() (*envoy_service_discovery_v3.DiscoveryRequest, error)
 }
 
-func (m *mockStream) Context() context.Context              { return m.context() }
-func (m *mockStream) Send(resp *v2.DiscoveryResponse) error { return m.send(resp) }
-func (m *mockStream) Recv() (*v2.DiscoveryRequest, error)   { return m.recv() }
+func (m *mockStream) Context() context.Context { return m.context() }
+func (m *mockStream) Send(resp *envoy_service_discovery_v3.DiscoveryResponse) error {
+	return m.send(resp)
+}
+func (m *mockStream) Recv() (*envoy_service_discovery_v3.DiscoveryRequest, error) { return m.recv() }
 
 type mockResource struct {
 	contents func() []proto.Message

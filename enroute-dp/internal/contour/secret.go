@@ -20,8 +20,8 @@ import (
 	"sort"
 	"sync"
 
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -30,7 +30,7 @@ import (
 // SecretCache manages the contents of the gRPC SDS cache.
 type SecretCache struct {
 	mu      sync.Mutex
-	values  map[string]*envoy_api_v2_auth.Secret
+	values  map[string]*envoy_extensions_transport_sockets_tls_v3.Secret
 	waiters []chan int
 	last    int
 }
@@ -56,7 +56,7 @@ func (c *SecretCache) Register(ch chan int, last int) {
 }
 
 // Update replaces the contents of the cache with the supplied map.
-func (c *SecretCache) Update(v map[string]*envoy_api_v2_auth.Secret) {
+func (c *SecretCache) Update(v map[string]*envoy_extensions_transport_sockets_tls_v3.Secret) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -107,19 +107,19 @@ type secretsByName []proto.Message
 func (s secretsByName) Len() int      { return len(s) }
 func (s secretsByName) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 func (s secretsByName) Less(i, j int) bool {
-	return s[i].(*envoy_api_v2_auth.Secret).Name < s[j].(*envoy_api_v2_auth.Secret).Name
+	return s[i].(*envoy_extensions_transport_sockets_tls_v3.Secret).Name < s[j].(*envoy_extensions_transport_sockets_tls_v3.Secret).Name
 }
 
 func (*SecretCache) TypeURL() string { return resource.SecretType }
 
 type secretVisitor struct {
-	secrets map[string]*envoy_api_v2_auth.Secret
+	secrets map[string]*envoy_extensions_transport_sockets_tls_v3.Secret
 }
 
-// visitSecrets produces a map of *envoy_api_v2_auth.Secret
-func visitSecrets(root dag.Vertex) map[string]*envoy_api_v2_auth.Secret {
+// visitSecrets produces a map of *envoy_extensions_transport_sockets_tls_v3.Secret
+func visitSecrets(root dag.Vertex) map[string]*envoy_extensions_transport_sockets_tls_v3.Secret {
 	sv := secretVisitor{
-		secrets: make(map[string]*envoy_api_v2_auth.Secret),
+		secrets: make(map[string]*envoy_extensions_transport_sockets_tls_v3.Secret),
 	}
 	sv.visit(root)
 	return sv.secrets

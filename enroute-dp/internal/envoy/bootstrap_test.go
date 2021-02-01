@@ -19,7 +19,7 @@ package envoy
 import (
 	"testing"
 
-	bootstrap "github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/bootstrap/v3"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
@@ -158,8 +158,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     },
     "cds_config": {
       "api_config_source": {
@@ -170,8 +172,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     }
   },
   "admin": {
@@ -317,8 +321,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     },
     "cds_config": {
       "api_config_source": {
@@ -329,8 +335,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     }
   },
   "admin": {
@@ -477,8 +485,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     },
     "cds_config": {
       "api_config_source": {
@@ -489,8 +499,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     }
   },
   "admin": {
@@ -639,8 +651,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     },
     "cds_config": {
       "api_config_source": {
@@ -651,8 +665,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     }
   },
   "admin": {
@@ -799,8 +815,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     },
     "cds_config": {
       "api_config_source": {
@@ -811,8 +829,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     }
   },
   "admin": {
@@ -881,7 +901,7 @@ func TestBootstrap(t *testing.T) {
         "transport_socket": {
           "name":"tls",
           "typed_config": {
-            "@type":"type.googleapis.com/envoy.api.v2.auth.UpstreamTlsContext",
+            "@type":"type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext",
             "common_tls_context": {
               "tls_certificates": [
                 {
@@ -897,8 +917,8 @@ func TestBootstrap(t *testing.T) {
                 "trusted_ca": {
                   "filename": "CA.cert"
                 },
-                "verify_subject_alt_name": [
-                  "enroute"
+                "match_subject_alt_names": [
+                   { "exact" : "enroute" }
                 ]
               }
             }
@@ -986,8 +1006,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     },
     "cds_config": {
       "api_config_source": {
@@ -998,8 +1020,10 @@ func TestBootstrap(t *testing.T) {
               "cluster_name": "enroute"
             }
           }
-        ]
-      }
+        ],
+        "transport_api_version": "V3"
+      },
+      "resource_api_version": "V3"
     }
   },
   "admin": {
@@ -1017,7 +1041,7 @@ func TestBootstrap(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			got := Bootstrap(&tc.config)
-			want := new(bootstrap.Bootstrap)
+			want := new(envoy_config_bootstrap_v3.Bootstrap)
 			unmarshal(t, tc.want, want)
 			assert.Equal(t, want, got)
 		})

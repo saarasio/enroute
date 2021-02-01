@@ -20,7 +20,8 @@ import (
 	"reflect"
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -30,7 +31,7 @@ import (
 
 func TestEndpointsTranslatorContents(t *testing.T) {
 	tests := map[string]struct {
-		contents map[string]*v2.ClusterLoadAssignment
+		contents map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment
 		want     []proto.Message
 	}{
 		"empty": {
@@ -65,7 +66,7 @@ func TestEndpointsTranslatorContents(t *testing.T) {
 
 func TestEndpointCacheQuery(t *testing.T) {
 	tests := map[string]struct {
-		contents map[string]*v2.ClusterLoadAssignment
+		contents map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment
 		query    []string
 		want     []proto.Message
 	}{
@@ -352,8 +353,8 @@ func TestEndpointsTranslatorScaleToZeroEndpoints(t *testing.T) {
 	}
 }
 
-func clusterloadassignments(clas ...*v2.ClusterLoadAssignment) map[string]*v2.ClusterLoadAssignment {
-	m := make(map[string]*v2.ClusterLoadAssignment)
+func clusterloadassignments(clas ...*envoy_config_endpoint_v3.ClusterLoadAssignment) map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment {
+	m := make(map[string]*envoy_config_endpoint_v3.ClusterLoadAssignment)
 	for _, cla := range clas {
 		m[cla.ClusterName] = cla
 	}

@@ -20,12 +20,9 @@ import (
 	"sort"
 	"sync"
 
-	//envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	//envoy_api_v2_accesslog "github.com/envoyproxy/go-control-plane/envoy/config/filter/accesslog/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -131,8 +128,8 @@ func (lvc *ListenerVisitorConfig) httpsAccessLog() string {
 // ListenerCache manages the contents of the gRPC LDS cache.
 type ListenerCache struct {
 	mu           sync.Mutex
-	values       map[string]*v2.Listener
-	staticValues map[string]*v2.Listener
+	values       map[string]*envoy_config_listener_v3.Listener
+	staticValues map[string]*envoy_config_listener_v3.Listener
 	waiters      []chan int
 	last         int
 }
@@ -141,7 +138,7 @@ type ListenerCache struct {
 func NewListenerCache(address string, port int) ListenerCache {
 	stats := envoy.StatsListener(address, port)
 	return ListenerCache{
-		staticValues: map[string]*v2.Listener{
+		staticValues: map[string]*envoy_config_listener_v3.Listener{
 			stats.Name: stats,
 		},
 	}
@@ -168,7 +165,7 @@ func (c *ListenerCache) Register(ch chan int, last int) {
 }
 
 // Update replaces the contents of the cache with the supplied map.
-func (c *ListenerCache) Update(v map[string]*v2.Listener) {
+func (c *ListenerCache) Update(v map[string]*envoy_config_listener_v3.Listener) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -229,7 +226,7 @@ type listenersByName []proto.Message
 func (l listenersByName) Len() int      { return len(l) }
 func (l listenersByName) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
 func (l listenersByName) Less(i, j int) bool {
-	return l[i].(*v2.Listener).Name < l[j].(*v2.Listener).Name
+	return l[i].(*envoy_config_listener_v3.Listener).Name < l[j].(*envoy_config_listener_v3.Listener).Name
 }
 
 func (*ListenerCache) TypeURL() string { return resource.ListenerType }
@@ -237,7 +234,7 @@ func (*ListenerCache) TypeURL() string { return resource.ListenerType }
 type listenerVisitor struct {
 	*ListenerVisitorConfig
 
-	listeners map[string]*v2.Listener
+	listeners map[string]*envoy_config_listener_v3.Listener
 	// 6-5-2020 - If we find a dag.VirtualHost, we add the listener
 	// in visit() just like dag.SecureVirtualHost
 	// This simplifies switch/case here and elsewhere
@@ -245,10 +242,10 @@ type listenerVisitor struct {
 }
 
 // Entry-point from builder
-func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.Listener {
+func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*envoy_config_listener_v3.Listener {
 	lv := listenerVisitor{
 		ListenerVisitorConfig: lvc,
-		listeners: map[string]*v2.Listener{
+		listeners: map[string]*envoy_config_listener_v3.Listener{
 			ENVOY_HTTPS_LISTENER: envoy.Listener(
 				ENVOY_HTTPS_LISTENER,
 				lvc.httpsAddress(), lvc.httpsPort(),
@@ -280,7 +277,7 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*v2.
 	return lv.listeners
 }
 
-func proxyProtocol(useProxy bool) []*envoy_api_v2_listener.ListenerFilter {
+func proxyProtocol(useProxy bool) []*envoy_config_listener_v3.ListenerFilter {
 	if useProxy {
 		return envoy.ListenerFilters(
 			envoy.ProxyProtocol(),
@@ -289,7 +286,7 @@ func proxyProtocol(useProxy bool) []*envoy_api_v2_listener.ListenerFilter {
 	return nil
 }
 
-func secureProxyProtocol(useProxy bool) []*envoy_api_v2_listener.ListenerFilter {
+func secureProxyProtocol(useProxy bool) []*envoy_config_listener_v3.ListenerFilter {
 	return append(proxyProtocol(useProxy), envoy.TLSInspector())
 }
 

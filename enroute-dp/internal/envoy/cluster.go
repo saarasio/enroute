@@ -24,10 +24,10 @@ import (
 	"strings"
 	"time"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type"
+	"github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
+	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type/v3"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
@@ -36,8 +36,8 @@ import (
 // CACertificateKey stores the key for the TLS validation secret cert
 const CACertificateKey = "ca.crt"
 
-// Cluster creates new v2.Cluster from dag.Cluster.
-func Cluster(c *dag.Cluster) *v2.Cluster {
+// Cluster creates new envoy_config_cluster_v3.Cluster from dag.Cluster.
+func Cluster(c *dag.Cluster) *envoy_config_cluster_v3.Cluster {
 	switch upstream := c.Upstream.(type) {
 	case *dag.HTTPService:
 		cl := cluster(c, &upstream.TCPService)
@@ -58,7 +58,7 @@ func Cluster(c *dag.Cluster) *v2.Cluster {
 			)
 			fallthrough
 		case "h2c":
-			cl.Http2ProtocolOptions = &envoy_api_v2_core.Http2ProtocolOptions{}
+			cl.Http2ProtocolOptions = &envoy_config_core_v3.Http2ProtocolOptions{}
 		}
 		return cl
 	case *dag.TCPService:
@@ -84,8 +84,8 @@ func upstreamValidationSubjectAltName(c *dag.Cluster) string {
 	return c.UpstreamValidation.SubjectName
 }
 
-func cluster(cluster *dag.Cluster, service *dag.TCPService) *v2.Cluster {
-	c := &v2.Cluster{
+func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluster_v3.Cluster {
+	c := &envoy_config_cluster_v3.Cluster{
 		Name:           Clustername(cluster),
 		AltStatName:    altStatName(service),
 		ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
@@ -97,22 +97,22 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *v2.Cluster {
 	switch len(service.ExternalName) {
 	case 0:
 		// external name not set, cluster will be discovered via EDS
-		c.ClusterDiscoveryType = ClusterDiscoveryType(v2.Cluster_EDS)
+		c.ClusterDiscoveryType = ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS)
 		c.EdsClusterConfig = edsconfig("enroute", service)
 	default:
 		// external name set, use hard coded DNS name
-		c.ClusterDiscoveryType = ClusterDiscoveryType(v2.Cluster_STRICT_DNS)
+		c.ClusterDiscoveryType = ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_STRICT_DNS)
 		c.LoadAssignment = StaticClusterLoadAssignment(service)
 	}
 
 	// Drain connections immediately if using healthchecks and the endpoint is known to be removed
 	if cluster.HealthCheck != nil {
-		c.DrainConnectionsOnHostRemoval = true
+		c.CloseConnectionsOnHostHealthFailure = true
 	}
 
 	if anyPositive(service.MaxConnections, service.MaxPendingRequests, service.MaxRequests, service.MaxRetries) {
-		c.CircuitBreakers = &envoy_cluster.CircuitBreakers{
-			Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
+		c.CircuitBreakers = &envoy_config_cluster_v3.CircuitBreakers{
+			Thresholds: []*envoy_config_cluster_v3.CircuitBreakers_Thresholds{{
 				MaxConnections:     u32nil(service.MaxConnections),
 				MaxPendingRequests: u32nil(service.MaxPendingRequests),
 				MaxRequests:        u32nil(service.MaxRequests),
@@ -123,8 +123,8 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *v2.Cluster {
 	return c
 }
 
-// StaticClusterLoadAssignment creates a *v2.ClusterLoadAssignment pointing to the external DNS address of the service
-func StaticClusterLoadAssignment(service *dag.TCPService) *v2.ClusterLoadAssignment {
+// StaticClusterLoadAssignment creates a *envoy_config_endpoint_v3.ClusterLoadAssignment pointing to the external DNS address of the service
+func StaticClusterLoadAssignment(service *dag.TCPService) *envoy_config_endpoint_v3.ClusterLoadAssignment {
 	name := []string{
 		service.Namespace,
 		service.Name,
@@ -132,13 +132,13 @@ func StaticClusterLoadAssignment(service *dag.TCPService) *v2.ClusterLoadAssignm
 	}
 
 	addr := SocketAddress(service.ExternalName, int(service.ServicePort.Port))
-	return &v2.ClusterLoadAssignment{
+	return &envoy_config_endpoint_v3.ClusterLoadAssignment{
 		ClusterName: strings.Join(name, "/"),
 		Endpoints:   Endpoints(addr),
 	}
 }
 
-func edsconfig(cluster string, service *dag.TCPService) *v2.Cluster_EdsClusterConfig {
+func edsconfig(cluster string, service *dag.TCPService) *envoy_config_cluster_v3.Cluster_EdsClusterConfig {
 	name := []string{
 		service.Namespace,
 		service.Name,
@@ -147,30 +147,30 @@ func edsconfig(cluster string, service *dag.TCPService) *v2.Cluster_EdsClusterCo
 	if name[2] == "" {
 		name = name[:2]
 	}
-	return &v2.Cluster_EdsClusterConfig{
+	return &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
 		EdsConfig:   ConfigSource(cluster),
 		ServiceName: strings.Join(name, "/"),
 	}
 }
 
-func lbPolicy(strategy string) v2.Cluster_LbPolicy {
+func lbPolicy(strategy string) envoy_config_cluster_v3.Cluster_LbPolicy {
 	switch strategy {
 	case "WeightedLeastRequest":
-		return v2.Cluster_LEAST_REQUEST
+		return envoy_config_cluster_v3.Cluster_LEAST_REQUEST
 	case "Random":
-		return v2.Cluster_RANDOM
+		return envoy_config_cluster_v3.Cluster_RANDOM
 	case "Cookie":
-		return v2.Cluster_RING_HASH
+		return envoy_config_cluster_v3.Cluster_RING_HASH
 	default:
-		return v2.Cluster_ROUND_ROBIN
+		return envoy_config_cluster_v3.Cluster_ROUND_ROBIN
 	}
 }
 
-func edshealthcheck(c *dag.Cluster) []*envoy_api_v2_core.HealthCheck {
+func edshealthcheck(c *dag.Cluster) []*envoy_config_core_v3.HealthCheck {
 	if c.HealthCheck == nil {
 		return nil
 	}
-	return []*envoy_api_v2_core.HealthCheck{
+	return []*envoy_config_core_v3.HealthCheck{
 		healthCheck(c),
 	}
 }
@@ -291,34 +291,36 @@ func u32nil(val uint32) *wrappers.UInt32Value {
 	}
 }
 
-// ClusterCommonLBConfig creates a *v2.Cluster_CommonLbConfig with HealthyPanicThreshold disabled.
-func ClusterCommonLBConfig() *v2.Cluster_CommonLbConfig {
-	return &v2.Cluster_CommonLbConfig{
+// ClusterCommonLBConfig creates a *envoy_config_cluster_v3.Cluster_CommonLbConfig with HealthyPanicThreshold disabled.
+func ClusterCommonLBConfig() *envoy_config_cluster_v3.Cluster_CommonLbConfig {
+	return &envoy_config_cluster_v3.Cluster_CommonLbConfig{
 		HealthyPanicThreshold: &envoy_type.Percent{ // Disable HealthyPanicThreshold
 			Value: 0,
 		},
 	}
 }
 
-// ConfigSource returns a *envoy_api_v2_core.ConfigSource for cluster.
-func ConfigSource(cluster string) *envoy_api_v2_core.ConfigSource {
-	return &envoy_api_v2_core.ConfigSource{
-		ConfigSourceSpecifier: &envoy_api_v2_core.ConfigSource_ApiConfigSource{
-			ApiConfigSource: &envoy_api_v2_core.ApiConfigSource{
-				ApiType: envoy_api_v2_core.ApiConfigSource_GRPC,
-				GrpcServices: []*envoy_api_v2_core.GrpcService{{
-					TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-						EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+// ConfigSource returns a *envoy_config_core_v3.ConfigSource for cluster.
+func ConfigSource(cluster string) *envoy_config_core_v3.ConfigSource {
+	return &envoy_config_core_v3.ConfigSource{
+		ConfigSourceSpecifier: &envoy_config_core_v3.ConfigSource_ApiConfigSource{
+			ApiConfigSource: &envoy_config_core_v3.ApiConfigSource{
+				ApiType: envoy_config_core_v3.ApiConfigSource_GRPC,
+				GrpcServices: []*envoy_config_core_v3.GrpcService{{
+					TargetSpecifier: &envoy_config_core_v3.GrpcService_EnvoyGrpc_{
+						EnvoyGrpc: &envoy_config_core_v3.GrpcService_EnvoyGrpc{
 							ClusterName: cluster,
 						},
 					},
 				}},
+				TransportApiVersion: envoy_config_core_v3.ApiVersion_V3,
 			},
 		},
+		ResourceApiVersion: envoy_config_core_v3.ApiVersion_V3,
 	}
 }
 
 // ClusterDiscoveryType returns the type of a ClusterDiscovery as a Cluster_type.
-func ClusterDiscoveryType(t v2.Cluster_DiscoveryType) *v2.Cluster_Type {
-	return &v2.Cluster_Type{Type: t}
+func ClusterDiscoveryType(t envoy_config_cluster_v3.Cluster_DiscoveryType) *envoy_config_cluster_v3.Cluster_Type {
+	return &envoy_config_cluster_v3.Cluster_Type{Type: t}
 }

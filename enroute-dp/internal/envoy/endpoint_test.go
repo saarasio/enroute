@@ -19,17 +19,17 @@ package envoy
 import (
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/protobuf/testing/protocmp"
 )
 
 func TestLBEndpoint(t *testing.T) {
 	got := LBEndpoint(SocketAddress("microsoft.com", 81))
-	want := &envoy_api_v2_endpoint.LbEndpoint{
-		HostIdentifier: &envoy_api_v2_endpoint.LbEndpoint_Endpoint{
-			Endpoint: &envoy_api_v2_endpoint.Endpoint{
+	want := &envoy_config_endpoint_v3.LbEndpoint{
+		HostIdentifier: &envoy_config_endpoint_v3.LbEndpoint_Endpoint{
+			Endpoint: &envoy_config_endpoint_v3.Endpoint{
 				Address: SocketAddress("microsoft.com", 81),
 			},
 		},
@@ -44,16 +44,16 @@ func TestEndpoints(t *testing.T) {
 		SocketAddress("github.com", 443),
 		SocketAddress("microsoft.com", 80),
 	)
-	want := []*envoy_api_v2_endpoint.LocalityLbEndpoints{{
-		LbEndpoints: []*envoy_api_v2_endpoint.LbEndpoint{{
-			HostIdentifier: &envoy_api_v2_endpoint.LbEndpoint_Endpoint{
-				Endpoint: &envoy_api_v2_endpoint.Endpoint{
+	want := []*envoy_config_endpoint_v3.LocalityLbEndpoints{{
+		LbEndpoints: []*envoy_config_endpoint_v3.LbEndpoint{{
+			HostIdentifier: &envoy_config_endpoint_v3.LbEndpoint_Endpoint{
+				Endpoint: &envoy_config_endpoint_v3.Endpoint{
 					Address: SocketAddress("github.com", 443),
 				},
 			},
 		}, {
-			HostIdentifier: &envoy_api_v2_endpoint.LbEndpoint_Endpoint{
-				Endpoint: &envoy_api_v2_endpoint.Endpoint{
+			HostIdentifier: &envoy_config_endpoint_v3.LbEndpoint_Endpoint{
+				Endpoint: &envoy_config_endpoint_v3.Endpoint{
 					Address: SocketAddress("microsoft.com", 80),
 				},
 			},
@@ -66,7 +66,7 @@ func TestEndpoints(t *testing.T) {
 
 func TestClusterLoadAssignment(t *testing.T) {
 	got := ClusterLoadAssignment("empty")
-	want := &v2.ClusterLoadAssignment{
+	want := &envoy_config_endpoint_v3.ClusterLoadAssignment{
 		ClusterName: "empty",
 	}
 
@@ -75,7 +75,7 @@ func TestClusterLoadAssignment(t *testing.T) {
 	}
 
 	got = ClusterLoadAssignment("one addr", SocketAddress("microsoft.com", 81))
-	want = &v2.ClusterLoadAssignment{
+	want = &envoy_config_endpoint_v3.ClusterLoadAssignment{
 		ClusterName: "one addr",
 		Endpoints:   Endpoints(SocketAddress("microsoft.com", 81)),
 	}
@@ -88,7 +88,7 @@ func TestClusterLoadAssignment(t *testing.T) {
 		SocketAddress("microsoft.com", 81),
 		SocketAddress("github.com", 443),
 	)
-	want = &v2.ClusterLoadAssignment{
+	want = &envoy_config_endpoint_v3.ClusterLoadAssignment{
 		ClusterName: "two addrs",
 		Endpoints: Endpoints(
 			SocketAddress("microsoft.com", 81),

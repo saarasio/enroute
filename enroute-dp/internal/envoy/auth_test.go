@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-1.0
 // Copyright(c) 2018-2020 Saaras Inc.
 
 // Copyright © 2019 Heptio
@@ -17,12 +17,11 @@
 package envoy
 
 import (
-	"testing"
-
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/protobuf/testing/protocmp"
+	"testing"
 )
 
 func TestUpstreamTLSContext(t *testing.T) {
@@ -30,46 +29,46 @@ func TestUpstreamTLSContext(t *testing.T) {
 		ca            []byte
 		subjectName   string
 		alpnProtocols []string
-		want          *envoy_api_v2_auth.UpstreamTlsContext
+		want          *envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext
 	}{
 		"no alpn, no validation": {
-			want: &envoy_api_v2_auth.UpstreamTlsContext{
-				CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{},
+			want: &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+				CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{},
 			},
 		},
 		"h2, no validation": {
 			alpnProtocols: []string{"h2c"},
-			want: &envoy_api_v2_auth.UpstreamTlsContext{
-				CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{
+			want: &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+				CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
 					AlpnProtocols: []string{"h2c"},
 				},
 			},
 		},
 		"no alpn, missing altname": {
 			ca: []byte("ca"),
-			want: &envoy_api_v2_auth.UpstreamTlsContext{
-				CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{},
+			want: &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+				CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{},
 			},
 		},
 		"no alpn, missing ca": {
 			subjectName: "www.example.com",
-			want: &envoy_api_v2_auth.UpstreamTlsContext{
-				CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{},
+			want: &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+				CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{},
 			},
 		},
 		"no alpn, ca and altname": {
 			ca:          []byte("ca"),
 			subjectName: "www.example.com",
-			want: &envoy_api_v2_auth.UpstreamTlsContext{
-				CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{
-					ValidationContextType: &envoy_api_v2_auth.CommonTlsContext_ValidationContext{
-						ValidationContext: &envoy_api_v2_auth.CertificateValidationContext{
-							TrustedCa: &envoy_api_v2_core.DataSource{
-								Specifier: &envoy_api_v2_core.DataSource_InlineBytes{
+			want: &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+				CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
+					ValidationContextType: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext{
+						ValidationContext: &envoy_extensions_transport_sockets_tls_v3.CertificateValidationContext{
+							TrustedCa: &envoy_config_core_v3.DataSource{
+								Specifier: &envoy_config_core_v3.DataSource_InlineBytes{
 									InlineBytes: []byte("ca"),
 								},
 							},
-							VerifySubjectAltName: []string{"www.example.com"},
+							MatchSubjectAltNames: StringToExactMatch([]string{"www.example.com"}),
 						},
 					},
 				},

@@ -3,10 +3,10 @@ package envoy
 import (
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	httplua "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/lua/v2"
-	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/lua/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	_ "github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
@@ -25,11 +25,11 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
     end
     `
 
-	filter_in := &envoy_api_v2_listener.Filter{
+	filter_in := &envoy_config_listener_v3.Filter{
 		Name: wellknown.HTTPConnectionManager,
-		ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-			TypedConfig: toAny(&http.HttpConnectionManager{
-				HttpFilters: []*http.HttpFilter{
+		ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+			TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
+				HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
 					{
 						Name:       wellknown.Gzip,
 						ConfigType: nil,
@@ -55,15 +55,15 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 		},
 	}
 
-	filter_out := &envoy_api_v2_listener.Filter{
+	filter_out := &envoy_config_listener_v3.Filter{
 		Name: wellknown.HTTPConnectionManager,
-		ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-			TypedConfig: toAny(&http.HttpConnectionManager{
-				HttpFilters: []*http.HttpFilter{
+		ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+			TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
+				HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
 					{
 						Name: wellknown.Lua,
-						ConfigType: &http.HttpFilter_TypedConfig{
-							TypedConfig: toAny(&httplua.Lua{
+						ConfigType: &envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter_TypedConfig{
+							TypedConfig: toAny(&envoy_extensions_filters_http_lua_v3.Lua{
 								InlineCode: luaCode,
 							}),
 						},
@@ -88,26 +88,26 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 	}
 
 	tests := map[string]struct {
-		l           v2.Listener
+		l           envoy_config_listener_v3.Listener
 		dag_filters dag.HttpFilter
 		name        string
-		want        v2.Listener
+		want        envoy_config_listener_v3.Listener
 	}{
 		"No listener No filter": {
-			l:           v2.Listener{},
+			l:           envoy_config_listener_v3.Listener{},
 			dag_filters: dag.HttpFilter{},
-			want:        v2.Listener{},
+			want:        envoy_config_listener_v3.Listener{},
 		},
 
 		"Lua filter in DAG Filters": {
-			l: v2.Listener{
+			l: envoy_config_listener_v3.Listener{
 				FilterChains: FilterChains(filter_in),
 			},
 			dag_filters: dag.HttpFilter{
 				Filters: dag_filters_in,
 			},
 			name: "",
-			want: v2.Listener{
+			want: envoy_config_listener_v3.Listener{
 				FilterChains: FilterChains(filter_out),
 			},
 		},

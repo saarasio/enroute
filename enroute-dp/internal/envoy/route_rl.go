@@ -2,94 +2,94 @@ package envoy
 
 import (
 	// "fmt"
-	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
+	"github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	//ratelimithttp "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
 )
 
-func rateLimitActionSpecifierHeaderValueMatch() *envoy_api_v2_route.RateLimit_Action_HeaderValueMatch_ {
-	return &envoy_api_v2_route.RateLimit_Action_HeaderValueMatch_{
-		HeaderValueMatch: &envoy_api_v2_route.RateLimit_Action_HeaderValueMatch{
+func rateLimitActionSpecifierHeaderValueMatch() *envoy_config_route_v3.RateLimit_Action_HeaderValueMatch_ {
+	return &envoy_config_route_v3.RateLimit_Action_HeaderValueMatch_{
+		HeaderValueMatch: &envoy_config_route_v3.RateLimit_Action_HeaderValueMatch{
 			DescriptorValue: "x",
 			Headers:         nil,
 		},
 	}
 }
 
-func rateLimitActionSpecifierRequestHeaders(header_name, descriptor_key string) *envoy_api_v2_route.RateLimit_Action_RequestHeaders_ {
-	return &envoy_api_v2_route.RateLimit_Action_RequestHeaders_{
-		RequestHeaders: &envoy_api_v2_route.RateLimit_Action_RequestHeaders{
+func rateLimitActionSpecifierRequestHeaders(header_name, descriptor_key string) *envoy_config_route_v3.RateLimit_Action_RequestHeaders_ {
+	return &envoy_config_route_v3.RateLimit_Action_RequestHeaders_{
+		RequestHeaders: &envoy_config_route_v3.RateLimit_Action_RequestHeaders{
 			HeaderName:    header_name,
 			DescriptorKey: descriptor_key,
 		},
 	}
 }
 
-func rateLimitActionRequestHeaders(header_name, descriptor_key string) *envoy_api_v2_route.RateLimit_Action {
-	return &envoy_api_v2_route.RateLimit_Action{
+func rateLimitActionRequestHeaders(header_name, descriptor_key string) *envoy_config_route_v3.RateLimit_Action {
+	return &envoy_config_route_v3.RateLimit_Action{
 		ActionSpecifier: rateLimitActionSpecifierRequestHeaders(header_name, descriptor_key),
 	}
 }
 
-func rateLimitActionSpecifierRemoteAddress() *envoy_api_v2_route.RateLimit_Action_RemoteAddress_ {
-	return &envoy_api_v2_route.RateLimit_Action_RemoteAddress_{
-		RemoteAddress: &envoy_api_v2_route.RateLimit_Action_RemoteAddress{},
+func rateLimitActionSpecifierRemoteAddress() *envoy_config_route_v3.RateLimit_Action_RemoteAddress_ {
+	return &envoy_config_route_v3.RateLimit_Action_RemoteAddress_{
+		RemoteAddress: &envoy_config_route_v3.RateLimit_Action_RemoteAddress{},
 	}
 }
 
-func rateLimitActionRemoteAddress() *envoy_api_v2_route.RateLimit_Action {
-	return &envoy_api_v2_route.RateLimit_Action{
+func rateLimitActionRemoteAddress() *envoy_config_route_v3.RateLimit_Action {
+	return &envoy_config_route_v3.RateLimit_Action{
 		ActionSpecifier: rateLimitActionSpecifierRemoteAddress(),
 	}
 }
 
-func rateLimitActionSpecifierSourceCluster() *envoy_api_v2_route.RateLimit_Action_SourceCluster_ {
-	return &envoy_api_v2_route.RateLimit_Action_SourceCluster_{
-		SourceCluster: &envoy_api_v2_route.RateLimit_Action_SourceCluster{},
+func rateLimitActionSpecifierSourceCluster() *envoy_config_route_v3.RateLimit_Action_SourceCluster_ {
+	return &envoy_config_route_v3.RateLimit_Action_SourceCluster_{
+		SourceCluster: &envoy_config_route_v3.RateLimit_Action_SourceCluster{},
 	}
 }
 
-func rateLimitActionSourceCluster() *envoy_api_v2_route.RateLimit_Action {
-	return &envoy_api_v2_route.RateLimit_Action{
+func rateLimitActionSourceCluster() *envoy_config_route_v3.RateLimit_Action {
+	return &envoy_config_route_v3.RateLimit_Action{
 		ActionSpecifier: rateLimitActionSpecifierSourceCluster(),
 	}
 }
 
-func rateLimitActionSpecifierDestinationCluster() *envoy_api_v2_route.RateLimit_Action_DestinationCluster_ {
-	return &envoy_api_v2_route.RateLimit_Action_DestinationCluster_{
-		DestinationCluster: &envoy_api_v2_route.RateLimit_Action_DestinationCluster{},
+func rateLimitActionSpecifierDestinationCluster() *envoy_config_route_v3.RateLimit_Action_DestinationCluster_ {
+	return &envoy_config_route_v3.RateLimit_Action_DestinationCluster_{
+		DestinationCluster: &envoy_config_route_v3.RateLimit_Action_DestinationCluster{},
 	}
 }
 
-func rateLimitActionDestinationCluster() *envoy_api_v2_route.RateLimit_Action {
-	return &envoy_api_v2_route.RateLimit_Action{
+func rateLimitActionDestinationCluster() *envoy_config_route_v3.RateLimit_Action {
+	return &envoy_config_route_v3.RateLimit_Action{
 		ActionSpecifier: rateLimitActionSpecifierDestinationCluster(),
 	}
 }
 
-func rateLimitActionSpecifierGenericKey(descriptor_value string) *envoy_api_v2_route.RateLimit_Action_GenericKey_ {
-	return &envoy_api_v2_route.RateLimit_Action_GenericKey_{
-		GenericKey: &envoy_api_v2_route.RateLimit_Action_GenericKey{
+func rateLimitActionSpecifierGenericKey(descriptor_value string) *envoy_config_route_v3.RateLimit_Action_GenericKey_ {
+	return &envoy_config_route_v3.RateLimit_Action_GenericKey_{
+		GenericKey: &envoy_config_route_v3.RateLimit_Action_GenericKey{
 			DescriptorValue: descriptor_value,
 		},
 	}
 }
 
-func rateLimitActionGenericKey(descriptor_value string) *envoy_api_v2_route.RateLimit_Action {
-	return &envoy_api_v2_route.RateLimit_Action{
+func rateLimitActionGenericKey(descriptor_value string) *envoy_config_route_v3.RateLimit_Action {
+	return &envoy_config_route_v3.RateLimit_Action{
 		ActionSpecifier: rateLimitActionSpecifierGenericKey(descriptor_value),
 	}
 }
 
-func rateLimits(rl *dag.RouteFilter) []*envoy_api_v2_route.RateLimit {
+func rateLimits(rl *dag.RouteFilter) []*envoy_config_route_v3.RateLimit {
 
 	var rad saarasconfig.RouteActionDescriptors
 	var err error
-	var rla []*envoy_api_v2_route.RateLimit_Action
-	var rrl_slice []*envoy_api_v2_route.RateLimit
+	var rla []*envoy_config_route_v3.RateLimit_Action
+	var rrl_slice []*envoy_config_route_v3.RateLimit
 
-	rrl_slice = make([]*envoy_api_v2_route.RateLimit, 0)
+	rrl_slice = make([]*envoy_config_route_v3.RateLimit, 0)
 	// fmt.Printf("rateLimits(): RouteFilter [%+v]\n", rl)
 
 	for _, f := range rl.Filters {
@@ -133,7 +133,7 @@ func rateLimits(rl *dag.RouteFilter) []*envoy_api_v2_route.RateLimit {
 				}
 			}
 
-			rrl := envoy_api_v2_route.RateLimit{
+			rrl := envoy_config_route_v3.RateLimit{
 				Stage:   u32nil(0),
 				Actions: rla,
 			}
@@ -146,7 +146,7 @@ func rateLimits(rl *dag.RouteFilter) []*envoy_api_v2_route.RateLimit {
 	return rrl_slice
 }
 
-func SetupRouteRateLimits(r *dag.Route, ra *envoy_api_v2_route.RouteAction) {
+func SetupRouteRateLimits(r *dag.Route, ra *envoy_config_route_v3.RouteAction) {
 	// fmt.Printf("SetupRouteRateLimits() DAG Route [%+v]\n", r)
 	// fmt.Printf("SetupRouteRateLimits() DAG Route filters [%+v]\n", r.RouteFilters)
 	if r.RouteFilters != nil {

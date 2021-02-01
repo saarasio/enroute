@@ -28,7 +28,7 @@ import (
 	"k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"github.com/sirupsen/logrus"
@@ -319,15 +319,15 @@ func isBlank(s string) bool {
 
 // minProtoVersion returns the TLS protocol version specified by an ingress annotation
 // or default if non present.
-func minProtoVersion(version string) envoy_api_v2_auth.TlsParameters_TlsProtocol {
+func minProtoVersion(version string) envoy_extensions_transport_sockets_tls_v3.TlsParameters_TlsProtocol {
 	switch version {
 	case "1.3":
-		return envoy_api_v2_auth.TlsParameters_TLSv1_3
+		return envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_3
 	case "1.2":
-		return envoy_api_v2_auth.TlsParameters_TLSv1_2
+		return envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_2
 	default:
 		// any other value is interpreted as TLS/1.1
-		return envoy_api_v2_auth.TlsParameters_TLSv1_1
+		return envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1
 	}
 }
 

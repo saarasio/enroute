@@ -17,8 +17,9 @@
 package envoy
 
 import (
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
+	matcher "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 )
 
 var (
@@ -47,12 +48,12 @@ var (
 	}
 )
 
-// UpstreamTLSContext creates an envoy_api_v2_auth.UpstreamTlsContext. By default
+// UpstreamTLSContext creates an envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext. By default
 // UpstreamTLSContext returns a HTTP/1.1 TLS enabled context. A list of
 // additional ALPN protocols can be provided.
-func UpstreamTLSContext(ca []byte, subjectName string, alpnProtocols ...string) *envoy_api_v2_auth.UpstreamTlsContext {
-	context := &envoy_api_v2_auth.UpstreamTlsContext{
-		CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{
+func UpstreamTLSContext(ca []byte, subjectName string, alpnProtocols ...string) *envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext {
+	context := &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
 			AlpnProtocols: alpnProtocols,
 		},
 	}
@@ -70,7 +71,20 @@ func UpstreamTLSContext(ca []byte, subjectName string, alpnProtocols ...string) 
 	return context
 }
 
-func validationContext(ca []byte, subjectName string) *envoy_api_v2_auth.CommonTlsContext_ValidationContext {
+func StringToExactMatch(in []string) []*matcher.StringMatcher {
+	if len(in) == 0 {
+		return nil
+	}
+	res := make([]*matcher.StringMatcher, 0, len(in))
+	for _, s := range in {
+		res = append(res, &matcher.StringMatcher{
+			MatchPattern: &matcher.StringMatcher_Exact{Exact: s},
+		})
+	}
+	return res
+}
+
+func validationContext(ca []byte, subjectName string) *envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext {
 	if len(ca) < 1 {
 		// no ca provided, nothing to do
 		return nil
@@ -81,29 +95,29 @@ func validationContext(ca []byte, subjectName string) *envoy_api_v2_auth.CommonT
 		return nil
 	}
 
-	return &envoy_api_v2_auth.CommonTlsContext_ValidationContext{
-		ValidationContext: &envoy_api_v2_auth.CertificateValidationContext{
-			TrustedCa: &envoy_api_v2_core.DataSource{
+	return &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext{
+		ValidationContext: &envoy_extensions_transport_sockets_tls_v3.CertificateValidationContext{
+			TrustedCa: &envoy_config_core_v3.DataSource{
 				// TODO(dfc) update this for SDS
-				Specifier: &envoy_api_v2_core.DataSource_InlineBytes{
+				Specifier: &envoy_config_core_v3.DataSource_InlineBytes{
 					InlineBytes: ca,
 				},
 			},
-			VerifySubjectAltName: []string{subjectName},
+			MatchSubjectAltNames: StringToExactMatch([]string{subjectName}),
 		},
 	}
 }
 
 // DownstreamTLSContext creates a new DownstreamTlsContext.
-func DownstreamTLSContext(secretName string, tlsMinProtoVersion envoy_api_v2_auth.TlsParameters_TlsProtocol, alpnProtos ...string) *envoy_api_v2_auth.DownstreamTlsContext {
-	return &envoy_api_v2_auth.DownstreamTlsContext{
-		CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{
-			TlsParams: &envoy_api_v2_auth.TlsParameters{
+func DownstreamTLSContext(secretName string, tlsMinProtoVersion envoy_extensions_transport_sockets_tls_v3.TlsParameters_TlsProtocol, alpnProtos ...string) *envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext {
+	return &envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext{
+		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
+			TlsParams: &envoy_extensions_transport_sockets_tls_v3.TlsParameters{
 				TlsMinimumProtocolVersion: tlsMinProtoVersion,
-				TlsMaximumProtocolVersion: envoy_api_v2_auth.TlsParameters_TLSv1_3,
+				TlsMaximumProtocolVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_3,
 				CipherSuites:              ciphers,
 			},
-			TlsCertificateSdsSecretConfigs: []*envoy_api_v2_auth.SdsSecretConfig{{
+			TlsCertificateSdsSecretConfigs: []*envoy_extensions_transport_sockets_tls_v3.SdsSecretConfig{{
 				Name:      secretName,
 				SdsConfig: ConfigSource("enroute"),
 			}},

@@ -6,8 +6,8 @@ package envoy
 import (
 	"testing"
 
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -18,7 +18,7 @@ import (
 func TestSecret(t *testing.T) {
 	tests := map[string]struct {
 		secret *dag.Secret
-		want   *envoy_api_v2_auth.Secret
+		want   *envoy_extensions_transport_sockets_tls_v3.Secret
 	}{
 		"simple secret": {
 			secret: &dag.Secret{
@@ -33,17 +33,17 @@ func TestSecret(t *testing.T) {
 					},
 				},
 			},
-			want: &envoy_api_v2_auth.Secret{
+			want: &envoy_extensions_transport_sockets_tls_v3.Secret{
 				Name: "default/simple/cd1b506996",
-				Type: &envoy_api_v2_auth.Secret_TlsCertificate{
-					TlsCertificate: &envoy_api_v2_auth.TlsCertificate{
-						PrivateKey: &envoy_api_v2_core.DataSource{
-							Specifier: &envoy_api_v2_core.DataSource_InlineBytes{
+				Type: &envoy_extensions_transport_sockets_tls_v3.Secret_TlsCertificate{
+					TlsCertificate: &envoy_extensions_transport_sockets_tls_v3.TlsCertificate{
+						PrivateKey: &envoy_config_core_v3.DataSource{
+							Specifier: &envoy_config_core_v3.DataSource_InlineBytes{
 								InlineBytes: []byte("key"),
 							},
 						},
-						CertificateChain: &envoy_api_v2_core.DataSource{
-							Specifier: &envoy_api_v2_core.DataSource_InlineBytes{
+						CertificateChain: &envoy_config_core_v3.DataSource{
+							Specifier: &envoy_config_core_v3.DataSource_InlineBytes{
 								InlineBytes: []byte("cert"),
 							},
 						},

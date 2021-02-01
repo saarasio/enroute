@@ -19,8 +19,9 @@ package e2e
 import (
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	v1 "k8s.io/api/core/v1"
@@ -55,7 +56,7 @@ func TestSDSVisibility(t *testing.T) {
 
 	// assert that the secret is _not_ visible as it is
 	// not referenced by any ingress/gatewayhost
-	c.Request(secretType).Equals(&v2.DiscoveryResponse{
+	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
 		Resources:   resources(t),
 		TypeUrl:     secretType,
@@ -81,7 +82,7 @@ func TestSDSVisibility(t *testing.T) {
 	// TODO(dfc) #1165: secret should not be present if the ingress does not
 	// have any valid routes.
 	// i1 has a default route to backend:80, but there is no matching service.
-	c.Request(secretType).Equals(&v2.DiscoveryResponse{
+	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
@@ -131,7 +132,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 	}
 	rh.OnAdd(i1)
 
-	c.Request(secretType).Equals(&v2.DiscoveryResponse{
+	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
@@ -143,7 +144,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 	// verify that requesting the same resource without change
 	// does not bump the current version_info.
 
-	c.Request(secretType).Equals(&v2.DiscoveryResponse{
+	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
@@ -170,7 +171,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 
 	// TODO(dfc) 1166: currently Contour will rebuild all the xDS tables
 	// when an unrelated secret changes.
-	c.Request(secretType).Equals(&v2.DiscoveryResponse{
+	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			secret(s1),
@@ -222,7 +223,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	rh.OnAdd(i1)
 
 	// SDS should be empty
-	c.Request(secretType).Equals(&v2.DiscoveryResponse{
+	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources:   resources(t),
 		TypeUrl:     secretType,
@@ -230,7 +231,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	})
 }
 
-func secret(sec *v1.Secret) *envoy_api_v2_auth.Secret {
+func secret(sec *v1.Secret) *envoy_extensions_transport_sockets_tls_v3.Secret {
 	return envoy.Secret(&dag.Secret{
 		Object: sec,
 	})

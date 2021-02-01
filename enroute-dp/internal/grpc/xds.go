@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	envoy_api_v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/sirupsen/logrus"
@@ -53,8 +53,8 @@ type xdsHandler struct {
 
 type grpcStream interface {
 	Context() context.Context
-	Send(*envoy_api_v2.DiscoveryResponse) error
-	Recv() (*envoy_api_v2.DiscoveryRequest, error)
+	Send(*envoy_service_discovery_v3.DiscoveryResponse) error
+	Recv() (*envoy_service_discovery_v3.DiscoveryRequest, error)
 }
 
 // stream processes a stream of DiscoveryRequests.
@@ -129,7 +129,7 @@ func (xh *xdsHandler) stream(st grpcStream) (err error) {
 				return err
 			}
 
-			resp := &envoy_api_v2.DiscoveryResponse{
+			resp := &envoy_service_discovery_v3.DiscoveryResponse{
 				VersionInfo: strconv.Itoa(last),
 				Resources:   any,
 				TypeUrl:     r.TypeURL(),

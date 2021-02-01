@@ -20,14 +20,12 @@ import (
 	"testing"
 	"time"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	//httprl "github.com/envoyproxy/go-control-plane/envoy/config/filter/http/rate_limit/v2"
-	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
-	envoy_config_v2_tcpproxy "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
-	//envoy_config_ratelimit_v2 "github.com/envoyproxy/go-control-plane/envoy/config/ratelimit/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
+
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
@@ -42,18 +40,18 @@ func TestListener(t *testing.T) {
 	tests := map[string]struct {
 		name, address string
 		port          int
-		lf            []*envoy_api_v2_listener.ListenerFilter
-		f             []*envoy_api_v2_listener.Filter
-		want          *v2.Listener
+		lf            []*envoy_config_listener_v3.ListenerFilter
+		f             []*envoy_config_listener_v3.Filter
+		want          *envoy_config_listener_v3.Listener
 	}{
 		"insecure listener": {
 			name:    "http",
 			address: "0.0.0.0",
 			port:    9000,
-			f: []*envoy_api_v2_listener.Filter{
+			f: []*envoy_config_listener_v3.Filter{
 				HTTPConnectionManager("http", "/dev/null", nil),
 			},
-			want: &v2.Listener{
+			want: &envoy_config_listener_v3.Listener{
 				Name:    "http",
 				Address: SocketAddress("0.0.0.0", 9000),
 				FilterChains: FilterChains(
@@ -65,13 +63,13 @@ func TestListener(t *testing.T) {
 			name:    "http-proxy",
 			address: "0.0.0.0",
 			port:    9000,
-			lf: []*envoy_api_v2_listener.ListenerFilter{
+			lf: []*envoy_config_listener_v3.ListenerFilter{
 				ProxyProtocol(),
 			},
-			f: []*envoy_api_v2_listener.Filter{
+			f: []*envoy_config_listener_v3.Filter{
 				HTTPConnectionManager("http-proxy", "/dev/null", nil),
 			},
-			want: &v2.Listener{
+			want: &envoy_config_listener_v3.Listener{
 				Name:    "http-proxy",
 				Address: SocketAddress("0.0.0.0", 9000),
 				ListenerFilters: ListenerFilters(
@@ -86,10 +84,10 @@ func TestListener(t *testing.T) {
 			name:    "https",
 			address: "0.0.0.0",
 			port:    9000,
-			lf: []*envoy_api_v2_listener.ListenerFilter{
+			lf: []*envoy_config_listener_v3.ListenerFilter{
 				TLSInspector(),
 			},
-			want: &v2.Listener{
+			want: &envoy_config_listener_v3.Listener{
 				Name:    "https",
 				Address: SocketAddress("0.0.0.0", 9000),
 				ListenerFilters: ListenerFilters(
@@ -101,11 +99,11 @@ func TestListener(t *testing.T) {
 			name:    "https-proxy",
 			address: "0.0.0.0",
 			port:    9000,
-			lf: []*envoy_api_v2_listener.ListenerFilter{
+			lf: []*envoy_config_listener_v3.ListenerFilter{
 				ProxyProtocol(),
 				TLSInspector(),
 			},
-			want: &v2.Listener{
+			want: &envoy_config_listener_v3.Listener{
 				Name:    "https-proxy",
 				Address: SocketAddress("0.0.0.0", 9000),
 				ListenerFilters: ListenerFilters(
@@ -133,12 +131,12 @@ func TestSocketAddress(t *testing.T) {
 	)
 
 	got := SocketAddress(addr, port)
-	want := &envoy_api_v2_core.Address{
-		Address: &envoy_api_v2_core.Address_SocketAddress{
-			SocketAddress: &envoy_api_v2_core.SocketAddress{
-				Protocol: envoy_api_v2_core.SocketAddress_TCP,
+	want := &envoy_config_core_v3.Address{
+		Address: &envoy_config_core_v3.Address_SocketAddress{
+			SocketAddress: &envoy_config_core_v3.SocketAddress{
+				Protocol: envoy_config_core_v3.SocketAddress_TCP,
 				Address:  addr,
-				PortSpecifier: &envoy_api_v2_core.SocketAddress_PortValue{
+				PortSpecifier: &envoy_config_core_v3.SocketAddress_PortValue{
 					PortValue: port,
 				},
 			},
@@ -149,13 +147,13 @@ func TestSocketAddress(t *testing.T) {
 	}
 
 	got = SocketAddress("::", port)
-	want = &envoy_api_v2_core.Address{
-		Address: &envoy_api_v2_core.Address_SocketAddress{
-			SocketAddress: &envoy_api_v2_core.SocketAddress{
-				Protocol:   envoy_api_v2_core.SocketAddress_TCP,
+	want = &envoy_config_core_v3.Address{
+		Address: &envoy_config_core_v3.Address_SocketAddress{
+			SocketAddress: &envoy_config_core_v3.SocketAddress{
+				Protocol:   envoy_config_core_v3.SocketAddress_TCP,
 				Address:    "::",
 				Ipv4Compat: true, // Set only for ipv6-any "::"
-				PortSpecifier: &envoy_api_v2_core.SocketAddress_PortValue{
+				PortSpecifier: &envoy_config_core_v3.SocketAddress_PortValue{
 					PortValue: port,
 				},
 			},
@@ -169,12 +167,12 @@ func TestSocketAddress(t *testing.T) {
 func TestDownstreamTLSContext(t *testing.T) {
 	const secretName = "default/tls-cert"
 
-	got := DownstreamTLSContext(secretName, envoy_api_v2_auth.TlsParameters_TLSv1_1, "h2", "http/1.1")
-	want := &envoy_api_v2_auth.DownstreamTlsContext{
-		CommonTlsContext: &envoy_api_v2_auth.CommonTlsContext{
-			TlsParams: &envoy_api_v2_auth.TlsParameters{
-				TlsMinimumProtocolVersion: envoy_api_v2_auth.TlsParameters_TLSv1_1,
-				TlsMaximumProtocolVersion: envoy_api_v2_auth.TlsParameters_TLSv1_3,
+	got := DownstreamTLSContext(secretName, envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1, "h2", "http/1.1")
+	want := &envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext{
+		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
+			TlsParams: &envoy_extensions_transport_sockets_tls_v3.TlsParameters{
+				TlsMinimumProtocolVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1,
+				TlsMaximumProtocolVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_3,
 				CipherSuites: []string{
 					"[ECDHE-ECDSA-AES128-GCM-SHA256|ECDHE-ECDSA-CHACHA20-POLY1305]",
 					"[ECDHE-RSA-AES128-GCM-SHA256|ECDHE-RSA-CHACHA20-POLY1305]",
@@ -186,21 +184,23 @@ func TestDownstreamTLSContext(t *testing.T) {
 					"ECDHE-RSA-AES256-SHA",
 				},
 			},
-			TlsCertificateSdsSecretConfigs: []*envoy_api_v2_auth.SdsSecretConfig{{
+			TlsCertificateSdsSecretConfigs: []*envoy_extensions_transport_sockets_tls_v3.SdsSecretConfig{{
 				Name: secretName,
-				SdsConfig: &envoy_api_v2_core.ConfigSource{
-					ConfigSourceSpecifier: &envoy_api_v2_core.ConfigSource_ApiConfigSource{
-						ApiConfigSource: &envoy_api_v2_core.ApiConfigSource{
-							ApiType: envoy_api_v2_core.ApiConfigSource_GRPC,
-							GrpcServices: []*envoy_api_v2_core.GrpcService{{
-								TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-									EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+				SdsConfig: &envoy_config_core_v3.ConfigSource{
+					ConfigSourceSpecifier: &envoy_config_core_v3.ConfigSource_ApiConfigSource{
+						ApiConfigSource: &envoy_config_core_v3.ApiConfigSource{
+							ApiType: envoy_config_core_v3.ApiConfigSource_GRPC,
+							GrpcServices: []*envoy_config_core_v3.GrpcService{{
+								TargetSpecifier: &envoy_config_core_v3.GrpcService_EnvoyGrpc_{
+									EnvoyGrpc: &envoy_config_core_v3.GrpcService_EnvoyGrpc{
 										ClusterName: "enroute",
 									},
 								},
 							}},
+							TransportApiVersion: envoy_config_core_v3.ApiVersion_V3,
 						},
 					},
+					ResourceApiVersion: envoy_config_core_v3.ApiVersion_V3,
 				},
 			}},
 			AlpnProtocols: []string{"h2", "http/1.1"},
@@ -215,36 +215,38 @@ func TestHTTPConnectionManager(t *testing.T) {
 	tests := map[string]struct {
 		routename string
 		accesslog string
-		want      *envoy_api_v2_listener.Filter
+		want      *envoy_config_listener_v3.Filter
 	}{
 		"default": {
 			routename: "default/kuard",
 			accesslog: "/dev/stdout",
-			want: &envoy_api_v2_listener.Filter{
+			want: &envoy_config_listener_v3.Filter{
 				Name: wellknown.HTTPConnectionManager,
-				ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-					TypedConfig: toAny(&http.HttpConnectionManager{
+				ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+					TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
 						StatPrefix: "default/kuard",
-						RouteSpecifier: &http.HttpConnectionManager_Rds{
-							Rds: &http.Rds{
+						RouteSpecifier: &envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager_Rds{
+							Rds: &envoy_extensions_filters_network_http_connection_manager_v3.Rds{
 								RouteConfigName: "default/kuard",
-								ConfigSource: &envoy_api_v2_core.ConfigSource{
-									ConfigSourceSpecifier: &envoy_api_v2_core.ConfigSource_ApiConfigSource{
-										ApiConfigSource: &envoy_api_v2_core.ApiConfigSource{
-											ApiType: envoy_api_v2_core.ApiConfigSource_GRPC,
-											GrpcServices: []*envoy_api_v2_core.GrpcService{{
-												TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-													EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+								ConfigSource: &envoy_config_core_v3.ConfigSource{
+									ConfigSourceSpecifier: &envoy_config_core_v3.ConfigSource_ApiConfigSource{
+										ApiConfigSource: &envoy_config_core_v3.ApiConfigSource{
+											ApiType: envoy_config_core_v3.ApiConfigSource_GRPC,
+											GrpcServices: []*envoy_config_core_v3.GrpcService{{
+												TargetSpecifier: &envoy_config_core_v3.GrpcService_EnvoyGrpc_{
+													EnvoyGrpc: &envoy_config_core_v3.GrpcService_EnvoyGrpc{
 														ClusterName: "enroute",
 													},
 												},
 											}},
+											TransportApiVersion: envoy_config_core_v3.ApiVersion_V3,
 										},
 									},
+									ResourceApiVersion: envoy_config_core_v3.ApiVersion_V3,
 								},
 							},
 						},
-						HttpFilters: []*http.HttpFilter{{
+						HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{{
 							Name:       wellknown.Gzip,
 							ConfigType: nil,
 						}, {
@@ -254,13 +256,13 @@ func TestHTTPConnectionManager(t *testing.T) {
 
 							//    {
 							//		Name: wellknown.HTTPRateLimit,
-							//		ConfigType: &http.HttpFilter_TypedConfig{
+							//		ConfigType: &envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter_TypedConfig{
 							//			TypedConfig: toAny(&httprl.RateLimit{
 							//				Domain: "enroute",
 							//				RateLimitService: &envoy_config_ratelimit_v2.RateLimitServiceConfig{
-							//					GrpcService: &envoy_api_v2_core.GrpcService{
-							//						TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-							//							EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+							//					GrpcService: &envoy_config_core_v3.GrpcService{
+							//						TargetSpecifier: &envoy_config_core_v3.GrpcService_EnvoyGrpc_{
+							//							EnvoyGrpc: &envoy_config_core_v3.GrpcService_EnvoyGrpc{
 							//								ClusterName: "enroute_ratelimit",
 							//							},
 							//						},
@@ -274,7 +276,7 @@ func TestHTTPConnectionManager(t *testing.T) {
 								Name:       wellknown.Router,
 								ConfigType: nil,
 							}},
-						HttpProtocolOptions: &envoy_api_v2_core.Http1ProtocolOptions{
+						HttpProtocolOptions: &envoy_config_core_v3.Http1ProtocolOptions{
 							// Enable support for HTTP/1.0 requests that carry
 							// a Host: header. See #537.
 							AcceptHttp_10: true,
@@ -282,7 +284,7 @@ func TestHTTPConnectionManager(t *testing.T) {
 						AccessLog:        FileAccessLog("/dev/stdout"),
 						UseRemoteAddress: protobuf.Bool(true),
 						NormalizePath:    protobuf.Bool(true),
-						CommonHttpProtocolOptions: &envoy_api_v2_core.HttpProtocolOptions{
+						CommonHttpProtocolOptions: &envoy_config_core_v3.HttpProtocolOptions{
 							IdleTimeout: protobuf.Duration(60 * time.Second),
 						},
 						PreserveExternalRequestId: true,
@@ -331,18 +333,18 @@ func TestTCPProxy(t *testing.T) {
 
 	tests := map[string]struct {
 		proxy *dag.TCPProxy
-		want  *envoy_api_v2_listener.Filter
+		want  *envoy_config_listener_v3.Filter
 	}{
 		"single cluster": {
 			proxy: &dag.TCPProxy{
 				Clusters: []*dag.Cluster{c1},
 			},
-			want: &envoy_api_v2_listener.Filter{
+			want: &envoy_config_listener_v3.Filter{
 				Name: wellknown.TCPProxy,
-				ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-					TypedConfig: toAny(&envoy_config_v2_tcpproxy.TcpProxy{
+				ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+					TypedConfig: toAny(&envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy{
 						StatPrefix: statPrefix,
-						ClusterSpecifier: &envoy_config_v2_tcpproxy.TcpProxy_Cluster{
+						ClusterSpecifier: &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_Cluster{
 							Cluster: Clustername(c1),
 						},
 						AccessLog:   FileAccessLog(accessLogPath),
@@ -355,14 +357,14 @@ func TestTCPProxy(t *testing.T) {
 			proxy: &dag.TCPProxy{
 				Clusters: []*dag.Cluster{c2, c1},
 			},
-			want: &envoy_api_v2_listener.Filter{
+			want: &envoy_config_listener_v3.Filter{
 				Name: wellknown.TCPProxy,
-				ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-					TypedConfig: toAny(&envoy_config_v2_tcpproxy.TcpProxy{
+				ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+					TypedConfig: toAny(&envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy{
 						StatPrefix: statPrefix,
-						ClusterSpecifier: &envoy_config_v2_tcpproxy.TcpProxy_WeightedClusters{
-							WeightedClusters: &envoy_config_v2_tcpproxy.TcpProxy_WeightedCluster{
-								Clusters: []*envoy_config_v2_tcpproxy.TcpProxy_WeightedCluster_ClusterWeight{{
+						ClusterSpecifier: &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedClusters{
+							WeightedClusters: &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedCluster{
+								Clusters: []*envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedCluster_ClusterWeight{{
 									Name:   Clustername(c1),
 									Weight: 1,
 								}, {

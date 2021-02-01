@@ -19,8 +19,8 @@ package envoy
 import (
 	"testing"
 
-	accesslog_v2 "github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v2"
-	envoy_accesslog "github.com/envoyproxy/go-control-plane/envoy/config/filter/accesslog/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/access_loggers/file/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/protobuf/testing/protocmp"
@@ -29,14 +29,14 @@ import (
 func TestFileAccessLog(t *testing.T) {
 	tests := map[string]struct {
 		path string
-		want []*envoy_accesslog.AccessLog
+		want []*envoy_config_accesslog_v3.AccessLog
 	}{
 		"stdout": {
 			path: "/dev/stdout",
-			want: []*envoy_accesslog.AccessLog{{
+			want: []*envoy_config_accesslog_v3.AccessLog{{
 				Name: wellknown.FileAccessLog,
-				ConfigType: &envoy_accesslog.AccessLog_TypedConfig{
-					TypedConfig: toAny(&accesslog_v2.FileAccessLog{
+				ConfigType: &envoy_config_accesslog_v3.AccessLog_TypedConfig{
+					TypedConfig: toAny(&envoy_extensions_access_loggers_file_v3.FileAccessLog{
 						Path: "/dev/stdout",
 					}),
 				},

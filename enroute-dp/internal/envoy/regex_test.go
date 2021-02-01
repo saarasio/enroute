@@ -16,7 +16,7 @@ package envoy
 import (
 	"testing"
 
-	matcher "github.com/envoyproxy/go-control-plane/envoy/type/matcher"
+	matcher "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )

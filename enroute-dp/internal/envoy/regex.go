@@ -14,7 +14,7 @@
 package envoy
 
 import (
-	matcher "github.com/envoyproxy/go-control-plane/envoy/type/matcher"
+	"github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )
 
@@ -28,12 +28,12 @@ import (
 // https://github.com/envoyproxy/envoy/pull/9171#discussion_r351974033
 const maxRegexProgramSize = 1000
 
-// SafeRegexMatch retruns a matcher.RegexMatcher for the supplied regex.
+// SafeRegexMatch retruns a envoy_type_matcher_v3.RegexMatcher for the supplied regex.
 // SafeRegexMatch does not escape regex meta characters.
-func SafeRegexMatch(regex string) *matcher.RegexMatcher {
-	return &matcher.RegexMatcher{
-		EngineType: &matcher.RegexMatcher_GoogleRe2{
-			GoogleRe2: &matcher.RegexMatcher_GoogleRE2{
+func SafeRegexMatch(regex string) *envoy_type_matcher_v3.RegexMatcher {
+	return &envoy_type_matcher_v3.RegexMatcher{
+		EngineType: &envoy_type_matcher_v3.RegexMatcher_GoogleRe2{
+			GoogleRe2: &envoy_type_matcher_v3.RegexMatcher_GoogleRE2{
 				MaxProgramSize: protobuf.UInt32(maxRegexProgramSize),
 			},
 		},

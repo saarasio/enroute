@@ -20,7 +20,9 @@ import (
 	"context"
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
@@ -57,7 +59,7 @@ func TestAddRemoveEndpoints(t *testing.T) {
 	rh.OnAdd(e1)
 
 	// check that it's been translated correctly.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
 		Resources: resources(t,
 			envoy.ClusterLoadAssignment(
@@ -78,7 +80,7 @@ func TestAddRemoveEndpoints(t *testing.T) {
 	// remove e1 and check that the EDS cache is now empty.
 	rh.OnDelete(e1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources:   resources(t),
 		TypeUrl:     endpointType,
@@ -139,7 +141,7 @@ func TestAddEndpointComplicated(t *testing.T) {
 
 	rh.OnAdd(e1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
 		Resources: resources(t,
 			envoy.ClusterLoadAssignment(
@@ -199,7 +201,7 @@ func TestEndpointFilter(t *testing.T) {
 
 	rh.OnAdd(e1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
 		Resources: resources(t,
 			envoy.ClusterLoadAssignment(
@@ -212,7 +214,7 @@ func TestEndpointFilter(t *testing.T) {
 		Nonce:   "1",
 	}, streamEDS(t, cc, "default/kuard/foo"))
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
 		TypeUrl:     endpointType,
 		Resources: resources(t,
@@ -241,7 +243,7 @@ func TestIssue602(t *testing.T) {
 	rh.OnAdd(e1)
 
 	// Assert endpoint was added
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
 		Resources: resources(t,
 			envoy.ClusterLoadAssignment("default/simple", envoy.SocketAddress("192.168.183.24", 8080)),
@@ -254,7 +256,7 @@ func TestIssue602(t *testing.T) {
 	e2 := endpoints("default", "simple")
 	rh.OnUpdate(e1, e2)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources:   resources(t),
 		TypeUrl:     endpointType,
@@ -262,12 +264,12 @@ func TestIssue602(t *testing.T) {
 	}, streamEDS(t, cc))
 }
 
-func streamEDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *v2.DiscoveryResponse {
+func streamEDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *envoy_service_discovery_v3.DiscoveryResponse {
 	t.Helper()
-	rds := v2.NewEndpointDiscoveryServiceClient(cc)
+	rds := envoy_service_endpoint_v3.NewEndpointDiscoveryServiceClient(cc)
 	st, err := rds.StreamEndpoints(context.TODO())
 	check(t, err)
-	return stream(t, st, &v2.DiscoveryRequest{
+	return stream(t, st, &envoy_service_discovery_v3.DiscoveryRequest{
 		TypeUrl:       endpointType,
 		ResourceNames: rn,
 	})

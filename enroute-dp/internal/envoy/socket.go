@@ -14,25 +14,25 @@
 package envoy
 
 import (
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 )
 
 // UpstreamTLSTransportSocket returns a custom transport socket using the UpstreamTlsContext provided.
-func UpstreamTLSTransportSocket(tls *envoy_api_v2_auth.UpstreamTlsContext) *envoy_api_v2_core.TransportSocket {
-	return &envoy_api_v2_core.TransportSocket{
+func UpstreamTLSTransportSocket(tls *envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext) *envoy_config_core_v3.TransportSocket {
+	return &envoy_config_core_v3.TransportSocket{
 		Name: "tls",
-		ConfigType: &envoy_api_v2_core.TransportSocket_TypedConfig{
+		ConfigType: &envoy_config_core_v3.TransportSocket_TypedConfig{
 			TypedConfig: toAny(tls),
 		},
 	}
 }
 
 // DownstreamTLSTransportSocket returns a custom transport socket using the DownstreamTlsContext provided.
-func DownstreamTLSTransportSocket(tls *envoy_api_v2_auth.DownstreamTlsContext) *envoy_api_v2_core.TransportSocket {
-	return &envoy_api_v2_core.TransportSocket{
+func DownstreamTLSTransportSocket(tls *envoy_extensions_transport_sockets_tls_v3.DownstreamTlsContext) *envoy_config_core_v3.TransportSocket {
+	return &envoy_config_core_v3.TransportSocket{
 		Name: "tls",
-		ConfigType: &envoy_api_v2_core.TransportSocket_TypedConfig{
+		ConfigType: &envoy_config_core_v3.TransportSocket_TypedConfig{
 			TypedConfig: toAny(tls),
 		},
 	}

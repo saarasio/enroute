@@ -17,7 +17,7 @@ package assert
 import (
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -39,7 +39,7 @@ func Equal(t *testing.T, want, got interface{}) {
 func (a Assert) Equal(want, got interface{}) {
 	a.t.Helper()
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(v2.DiscoveryResponse{}, "VersionInfo", "Nonce"),
+		cmpopts.IgnoreFields(envoy_service_discovery_v3.DiscoveryResponse{}, "VersionInfo", "Nonce"),
 		cmpopts.AcyclicTransformer("UnmarshalAny", unmarshalAny),
 		// errors to be equal only if both are nil or both are non-nil.
 		cmp.Comparer(func(x, y error) bool {

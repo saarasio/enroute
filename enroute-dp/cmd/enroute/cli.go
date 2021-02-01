@@ -22,7 +22,12 @@ import (
 	"log"
 	"os"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -83,36 +88,36 @@ func (c *Client) dial() *grpc.ClientConn {
 }
 
 // ClusterStream returns a stream of Clusters using the config in the Client.
-func (c *Client) ClusterStream() v2.ClusterDiscoveryService_StreamClustersClient {
-	stream, err := v2.NewClusterDiscoveryServiceClient(c.dial()).StreamClusters(context.Background())
+func (c *Client) ClusterStream() envoy_service_cluster_v3.ClusterDiscoveryService_StreamClustersClient {
+	stream, err := envoy_service_cluster_v3.NewClusterDiscoveryServiceClient(c.dial()).StreamClusters(context.Background())
 	check(err)
 	return stream
 }
 
 // EndpointStream returns a stream of Endpoints using the config in the Client.
-func (c *Client) EndpointStream() v2.ClusterDiscoveryService_StreamClustersClient {
-	stream, err := v2.NewEndpointDiscoveryServiceClient(c.dial()).StreamEndpoints(context.Background())
+func (c *Client) EndpointStream() envoy_service_cluster_v3.ClusterDiscoveryService_StreamClustersClient {
+	stream, err := envoy_service_endpoint_v3.NewEndpointDiscoveryServiceClient(c.dial()).StreamEndpoints(context.Background())
 	check(err)
 	return stream
 }
 
 // ListenerStream returns a stream of Listeners using the config in the Client.
-func (c *Client) ListenerStream() v2.ClusterDiscoveryService_StreamClustersClient {
-	stream, err := v2.NewListenerDiscoveryServiceClient(c.dial()).StreamListeners(context.Background())
+func (c *Client) ListenerStream() envoy_service_cluster_v3.ClusterDiscoveryService_StreamClustersClient {
+	stream, err := envoy_service_listener_v3.NewListenerDiscoveryServiceClient(c.dial()).StreamListeners(context.Background())
 	check(err)
 	return stream
 }
 
 // RouteStream returns a stream of Routes using the config in the Client.
-func (c *Client) RouteStream() v2.ClusterDiscoveryService_StreamClustersClient {
-	stream, err := v2.NewRouteDiscoveryServiceClient(c.dial()).StreamRoutes(context.Background())
+func (c *Client) RouteStream() envoy_service_cluster_v3.ClusterDiscoveryService_StreamClustersClient {
+	stream, err := envoy_service_route_v3.NewRouteDiscoveryServiceClient(c.dial()).StreamRoutes(context.Background())
 	check(err)
 	return stream
 }
 
 type stream interface {
-	Send(*v2.DiscoveryRequest) error
-	Recv() (*v2.DiscoveryResponse, error)
+	Send(*envoy_service_discovery_v3.DiscoveryRequest) error
+	Recv() (*envoy_service_discovery_v3.DiscoveryResponse, error)
 }
 
 func watchstream(st stream, typeURL string, resources []string) {
@@ -121,7 +126,7 @@ func watchstream(st stream, typeURL string, resources []string) {
 		ExpandAny: true,
 	}
 	for {
-		req := &v2.DiscoveryRequest{
+		req := &envoy_service_discovery_v3.DiscoveryRequest{
 			TypeUrl:       typeURL,
 			ResourceNames: resources,
 		}

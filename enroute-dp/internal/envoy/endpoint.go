@@ -17,16 +17,15 @@
 package envoy
 
 import (
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	envoy_api_v2_endpoint "github.com/envoyproxy/go-control-plane/envoy/api/v2/endpoint"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
 )
 
 // LBEndpoint creates a new LbEndpoint.
-func LBEndpoint(addr *envoy_api_v2_core.Address) *envoy_api_v2_endpoint.LbEndpoint {
-	return &envoy_api_v2_endpoint.LbEndpoint{
-		HostIdentifier: &envoy_api_v2_endpoint.LbEndpoint_Endpoint{
-			Endpoint: &envoy_api_v2_endpoint.Endpoint{
+func LBEndpoint(addr *envoy_config_core_v3.Address) *envoy_config_endpoint_v3.LbEndpoint {
+	return &envoy_config_endpoint_v3.LbEndpoint{
+		HostIdentifier: &envoy_config_endpoint_v3.LbEndpoint_Endpoint{
+			Endpoint: &envoy_config_endpoint_v3.Endpoint{
 				Address: addr,
 			},
 		},
@@ -35,30 +34,30 @@ func LBEndpoint(addr *envoy_api_v2_core.Address) *envoy_api_v2_endpoint.LbEndpoi
 
 // Endpoints returns a slice of LocalityLbEndpoints.
 // The slice contains one entry, with one LbEndpoint per
-// *envoy_api_v2_core.Address supplied.
-func Endpoints(addrs ...*envoy_api_v2_core.Address) []*envoy_api_v2_endpoint.LocalityLbEndpoints {
-	lbendpoints := make([]*envoy_api_v2_endpoint.LbEndpoint, 0, len(addrs))
+// *envoy_config_core_v3.Address supplied.
+func Endpoints(addrs ...*envoy_config_core_v3.Address) []*envoy_config_endpoint_v3.LocalityLbEndpoints {
+	lbendpoints := make([]*envoy_config_endpoint_v3.LbEndpoint, 0, len(addrs))
 	for _, addr := range addrs {
-		lbendpoints = append(lbendpoints, &envoy_api_v2_endpoint.LbEndpoint{
-			HostIdentifier: &envoy_api_v2_endpoint.LbEndpoint_Endpoint{
-				Endpoint: &envoy_api_v2_endpoint.Endpoint{
+		lbendpoints = append(lbendpoints, &envoy_config_endpoint_v3.LbEndpoint{
+			HostIdentifier: &envoy_config_endpoint_v3.LbEndpoint_Endpoint{
+				Endpoint: &envoy_config_endpoint_v3.Endpoint{
 					Address: addr,
 				},
 			},
 		})
 	}
-	return []*envoy_api_v2_endpoint.LocalityLbEndpoints{{
+	return []*envoy_config_endpoint_v3.LocalityLbEndpoints{{
 		LbEndpoints: lbendpoints,
 	}}
 }
 
-// ClusterLoadAssignment returns a *v2.ClusterLoadAssignment with a single
+// ClusterLoadAssignment returns a *envoy_config_endpoint_v3.ClusterLoadAssignment with a single
 // LocalityLbEndpoints of the supplied addresses.
-func ClusterLoadAssignment(name string, addrs ...*envoy_api_v2_core.Address) *v2.ClusterLoadAssignment {
+func ClusterLoadAssignment(name string, addrs ...*envoy_config_core_v3.Address) *envoy_config_endpoint_v3.ClusterLoadAssignment {
 	if len(addrs) == 0 {
-		return &v2.ClusterLoadAssignment{ClusterName: name}
+		return &envoy_config_endpoint_v3.ClusterLoadAssignment{ClusterName: name}
 	}
-	return &v2.ClusterLoadAssignment{
+	return &envoy_config_endpoint_v3.ClusterLoadAssignment{
 		ClusterName: name,
 		Endpoints:   Endpoints(addrs...),
 	}

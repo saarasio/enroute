@@ -19,7 +19,7 @@ package envoy
 import (
 	"time"
 
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
@@ -35,8 +35,8 @@ const (
 	hcHost               = "contour-envoy-healthcheck"
 )
 
-// healthCheck returns a *envoy_api_v2_core.HealthCheck value.
-func healthCheck(cluster *dag.Cluster) *envoy_api_v2_core.HealthCheck {
+// healthCheck returns a *envoy_config_core_v3.HealthCheck value.
+func healthCheck(cluster *dag.Cluster) *envoy_config_core_v3.HealthCheck {
 	hc := cluster.HealthCheck
 	host := hcHost
 	if hc.Host != "" {
@@ -54,13 +54,13 @@ func healthCheck(cluster *dag.Cluster) *envoy_api_v2_core.HealthCheck {
 
 	// TODO(dfc) why do we need to specify our own default, what is the default
 	// that envoy applies if these fields are left nil?
-	return &envoy_api_v2_core.HealthCheck{
+	return &envoy_config_core_v3.HealthCheck{
 		Timeout:            durationOrDefault(timeoutSecondsDuration, hcTimeout),
 		Interval:           durationOrDefault(intervalSecondsDuration, hcInterval),
 		UnhealthyThreshold: countOrDefault(hc.UnhealthyThresholdCount, hcUnhealthyThreshold),
 		HealthyThreshold:   countOrDefault(hc.HealthyThresholdCount, hcHealthyThreshold),
-		HealthChecker: &envoy_api_v2_core.HealthCheck_HttpHealthCheck_{
-			HttpHealthCheck: &envoy_api_v2_core.HealthCheck_HttpHealthCheck{
+		HealthChecker: &envoy_config_core_v3.HealthCheck_HttpHealthCheck_{
+			HttpHealthCheck: &envoy_config_core_v3.HealthCheck_HttpHealthCheck{
 				Path: hc.Path,
 				Host: host,
 			},

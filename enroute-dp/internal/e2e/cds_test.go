@@ -21,9 +21,12 @@ import (
 	"testing"
 	"time"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_cluster "github.com/envoyproxy/go-control-plane/envoy/api/v2/cluster"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
+	"github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
@@ -65,7 +68,7 @@ func TestClusterLongServiceName(t *testing.T) {
 	))
 
 	// check that it's been translated correctly.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			cluster("default/kbujbkuh-c83ceb/8080/da39a3ee5e", "default/kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r", "default_kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r_8080"),
@@ -127,7 +130,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 	})
 	rh.OnAdd(s1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
@@ -148,7 +151,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 	rh.OnUpdate(s1, s2)
 
 	// check that we get two CDS records because the port is now named.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "4",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard/http", "default_kuard_80"),
@@ -179,7 +182,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 
 	// check that we get four CDS records. Order is important
 	// because the CDS cache is sorted.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "5",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
@@ -204,7 +207,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 
 	// check that we get two CDS records only, and that the 80 and http
 	// records have been removed even though the service object remains.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "6",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
@@ -264,7 +267,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 	)
 
 	rh.OnAdd(s1)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
@@ -284,7 +287,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 	)
 
 	rh.OnUpdate(s1, s2)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard", "default_kuard_443"),
@@ -295,7 +298,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 
 	// now replace s2 with s1 to check it works in the other direction.
 	rh.OnUpdate(s2, s1)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "4",
 		Resources: resources(t,
 			cluster("default/kuard/443/da39a3ee5e", "default/kuard/https", "default_kuard_443"),
@@ -307,7 +310,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 
 	// cleanup and check
 	rh.OnDelete(s1)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "5",
 		Resources:   resources(t),
 		TypeUrl:     clusterType,
@@ -343,7 +346,7 @@ func TestIssue243(t *testing.T) {
 			},
 		)
 		rh.OnAdd(s1)
-		assertEqual(t, &v2.DiscoveryResponse{
+		assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 			VersionInfo: "2",
 			Resources: resources(t,
 				cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
@@ -386,7 +389,7 @@ func TestIssue247(t *testing.T) {
 		},
 	)
 	rh.OnAdd(s1)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
@@ -445,7 +448,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 		},
 	)
 	rh.OnAdd(s2)
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
 			// note, resources are sorted by Cluster.Name
@@ -457,7 +460,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 	}, streamCDS(t, cc))
 
 	// assert we can filter on one resource
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
@@ -467,7 +470,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 	}, streamCDS(t, cc, "default/kuard/80/da39a3ee5e"))
 
 	// assert a non matching filter returns a response with no entries.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		TypeUrl:     clusterType,
 		Nonce:       "3",
@@ -510,21 +513,21 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// check that it's been translated correctly.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
-			&v2.Cluster{
+			&envoy_config_cluster_v3.Cluster{
 				Name:                 "default/kuard/8080/da39a3ee5e",
 				AltStatName:          "default_kuard_8080",
-				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
-				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
+				ClusterDiscoveryType: envoy.ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS),
+				EdsClusterConfig: &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
 					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       v2.Cluster_ROUND_ROBIN,
-				CircuitBreakers: &envoy_cluster.CircuitBreakers{
-					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
+				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				CircuitBreakers: &envoy_config_cluster_v3.CircuitBreakers{
+					Thresholds: []*envoy_config_cluster_v3.CircuitBreakers_Thresholds{{
 						MaxConnections:     protobuf.UInt32(9000),
 						MaxPendingRequests: protobuf.UInt32(4096),
 						MaxRequests:        protobuf.UInt32(404),
@@ -556,21 +559,21 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 	rh.OnUpdate(s1, s2)
 
 	// check that it's been translated correctly.
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
-			&v2.Cluster{
+			&envoy_config_cluster_v3.Cluster{
 				Name:                 "default/kuard/8080/da39a3ee5e",
 				AltStatName:          "default_kuard_8080",
-				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
-				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
+				ClusterDiscoveryType: envoy.ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS),
+				EdsClusterConfig: &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
 					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       v2.Cluster_ROUND_ROBIN,
-				CircuitBreakers: &envoy_cluster.CircuitBreakers{
-					Thresholds: []*envoy_cluster.CircuitBreakers_Thresholds{{
+				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				CircuitBreakers: &envoy_config_cluster_v3.CircuitBreakers{
+					Thresholds: []*envoy_config_cluster_v3.CircuitBreakers_Thresholds{{
 						MaxPendingRequests: protobuf.UInt32(9999),
 					}},
 				},
@@ -631,7 +634,7 @@ func TestClusterPerServiceParameters(t *testing.T) {
 		},
 	})
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			cluster("default/kuard/80/da39a3ee5e", "default/kuard", "default_kuard_80"),
@@ -690,31 +693,31 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 		},
 	})
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
-			&v2.Cluster{
+			&envoy_config_cluster_v3.Cluster{
 				Name:                 "default/kuard/80/58d888c08a",
 				AltStatName:          "default_kuard_80",
-				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
-				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
+				ClusterDiscoveryType: envoy.ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS),
+				EdsClusterConfig: &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
 					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       v2.Cluster_RANDOM,
+				LbPolicy:       envoy_config_cluster_v3.Cluster_RANDOM,
 				CommonLbConfig: envoy.ClusterCommonLBConfig(),
 			},
-			&v2.Cluster{
+			&envoy_config_cluster_v3.Cluster{
 				Name:                 "default/kuard/80/8bf87fefba",
 				AltStatName:          "default_kuard_80",
-				ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
-				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
+				ClusterDiscoveryType: envoy.ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS),
+				EdsClusterConfig: &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
 					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       v2.Cluster_LEAST_REQUEST,
+				LbPolicy:       envoy_config_cluster_v3.Cluster_LEAST_REQUEST,
 				CommonLbConfig: envoy.ClusterCommonLBConfig(),
 			},
 		),
@@ -765,7 +768,7 @@ func TestClusterWithHealthChecks(t *testing.T) {
 		},
 	})
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			clusterWithHealthCheck("default/kuard/80/bc862a33ca", "default/kuard", "default_kuard_80", "/healthz", true),
@@ -814,7 +817,7 @@ func TestClusterServiceTLSBackend(t *testing.T) {
 	}
 	rh.OnAdd(s1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			tlscluster("default/kuard/443/da39a3ee5e", "default/kuard/securebackend", "default_kuard_443", nil, ""),
@@ -879,7 +882,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 
 	rh.OnAdd(ir1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
 			tlscluster(
@@ -918,7 +921,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 
 	rh.OnUpdate(ir1, ir2)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "4",
 		Resources: resources(t,
 			tlscluster(
@@ -960,7 +963,7 @@ func TestExternalNameService(t *testing.T) {
 	})
 	rh.OnAdd(s1)
 
-	assertEqual(t, &v2.DiscoveryResponse{
+	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
 			externalnamecluster("default/kuard/80/da39a3ee5e", "default/kuard/", "default_kuard_80", "foo.io", 80),
@@ -983,41 +986,41 @@ func serviceWithAnnotations(ns, name string, annotations map[string]string, port
 	}
 }
 
-func streamCDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *v2.DiscoveryResponse {
+func streamCDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *envoy_service_discovery_v3.DiscoveryResponse {
 	t.Helper()
-	rds := v2.NewClusterDiscoveryServiceClient(cc)
+	rds := envoy_service_cluster_v3.NewClusterDiscoveryServiceClient(cc)
 	st, err := rds.StreamClusters(context.TODO())
 	check(t, err)
-	return stream(t, st, &v2.DiscoveryRequest{
+	return stream(t, st, &envoy_service_discovery_v3.DiscoveryRequest{
 		TypeUrl:       clusterType,
 		ResourceNames: rn,
 	})
 }
 
-func cluster(name, servicename, statName string) *v2.Cluster {
-	return &v2.Cluster{
+func cluster(name, servicename, statName string) *envoy_config_cluster_v3.Cluster {
+	return &envoy_config_cluster_v3.Cluster{
 		Name:                 name,
-		ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_EDS),
+		ClusterDiscoveryType: envoy.ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS),
 		AltStatName:          statName,
-		EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
+		EdsClusterConfig: &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
 			EdsConfig:   envoy.ConfigSource("enroute"),
 			ServiceName: servicename,
 		},
 		ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-		LbPolicy:       v2.Cluster_ROUND_ROBIN,
+		LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 		CommonLbConfig: envoy.ClusterCommonLBConfig(),
 	}
 }
 
-func externalnamecluster(name, servicename, statName, externalName string, port int) *v2.Cluster {
-	return &v2.Cluster{
+func externalnamecluster(name, servicename, statName, externalName string, port int) *envoy_config_cluster_v3.Cluster {
+	return &envoy_config_cluster_v3.Cluster{
 		Name:                 name,
-		ClusterDiscoveryType: envoy.ClusterDiscoveryType(v2.Cluster_STRICT_DNS),
+		ClusterDiscoveryType: envoy.ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_STRICT_DNS),
 		AltStatName:          statName,
 		ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
-		LbPolicy:             v2.Cluster_ROUND_ROBIN,
+		LbPolicy:             envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 		CommonLbConfig:       envoy.ClusterCommonLBConfig(),
-		LoadAssignment: &v2.ClusterLoadAssignment{
+		LoadAssignment: &envoy_config_endpoint_v3.ClusterLoadAssignment{
 			ClusterName: servicename,
 			Endpoints: envoy.Endpoints(
 				envoy.SocketAddress(externalName, port),
@@ -1026,7 +1029,7 @@ func externalnamecluster(name, servicename, statName, externalName string, port 
 	}
 }
 
-func tlscluster(name, servicename, statsName string, ca []byte, subjectName string) *v2.Cluster {
+func tlscluster(name, servicename, statsName string, ca []byte, subjectName string) *envoy_config_cluster_v3.Cluster {
 	c := cluster(name, servicename, statsName)
 	c.TransportSocket = envoy.UpstreamTLSTransportSocket(
 		envoy.UpstreamTLSContext(ca, subjectName),
@@ -1034,20 +1037,20 @@ func tlscluster(name, servicename, statsName string, ca []byte, subjectName stri
 	return c
 }
 
-func clusterWithHealthCheck(name, servicename, statName, healthCheckPath string, drainConnOnHostRemoval bool) *v2.Cluster {
+func clusterWithHealthCheck(name, servicename, statName, healthCheckPath string, drainConnOnHostRemoval bool) *envoy_config_cluster_v3.Cluster {
 	c := cluster(name, servicename, statName)
-	c.HealthChecks = []*envoy_api_v2_core.HealthCheck{{
+	c.HealthChecks = []*envoy_config_core_v3.HealthCheck{{
 		Timeout:            protobuf.Duration(2 * time.Second),
 		Interval:           protobuf.Duration(10 * time.Second),
 		UnhealthyThreshold: protobuf.UInt32(3),
 		HealthyThreshold:   protobuf.UInt32(2),
-		HealthChecker: &envoy_api_v2_core.HealthCheck_HttpHealthCheck_{
-			HttpHealthCheck: &envoy_api_v2_core.HealthCheck_HttpHealthCheck{
+		HealthChecker: &envoy_config_core_v3.HealthCheck_HttpHealthCheck_{
+			HttpHealthCheck: &envoy_config_core_v3.HealthCheck_HttpHealthCheck{
 				Host: "contour-envoy-healthcheck",
 				Path: healthCheckPath,
 			},
 		},
 	}}
-	c.DrainConnectionsOnHostRemoval = drainConnOnHostRemoval
+	c.CloseConnectionsOnHostHealthFailure = drainConnOnHostRemoval
 	return c
 }

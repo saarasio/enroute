@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"os"
 
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
 	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"

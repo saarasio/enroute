@@ -20,12 +20,11 @@ import (
 	"sort"
 	"time"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_auth "github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
-	envoy_api_v2_core "github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
-	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
-	tcp "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/tcp_proxy/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -50,22 +49,22 @@ const HTTPDefaultIdleTimeout = 60 * time.Second
 const TCPDefaultIdleTimeout = 9001 * time.Second
 
 // TLSInspector returns a new TLS inspector listener filter.
-func TLSInspector() *envoy_api_v2_listener.ListenerFilter {
-	return &envoy_api_v2_listener.ListenerFilter{
+func TLSInspector() *envoy_config_listener_v3.ListenerFilter {
+	return &envoy_config_listener_v3.ListenerFilter{
 		Name: wellknown.TlsInspector,
 	}
 }
 
 // ProxyProtocol returns a new Proxy Protocol listener filter.
-func ProxyProtocol() *envoy_api_v2_listener.ListenerFilter {
-	return &envoy_api_v2_listener.ListenerFilter{
+func ProxyProtocol() *envoy_config_listener_v3.ListenerFilter {
+	return &envoy_config_listener_v3.ListenerFilter{
 		Name: wellknown.ProxyProtocol,
 	}
 }
 
-// Listener returns a new v2.Listener for the supplied address, port, and filters.
-func Listener(name, address string, port int, lf []*envoy_api_v2_listener.ListenerFilter, filters ...*envoy_api_v2_listener.Filter) *v2.Listener {
-	l := &v2.Listener{
+// Listener returns a new envoy_config_listener_v3.Listener for the supplied address, port, and filters.
+func Listener(name, address string, port int, lf []*envoy_config_listener_v3.ListenerFilter, filters ...*envoy_config_listener_v3.Filter) *envoy_config_listener_v3.Listener {
+	l := &envoy_config_listener_v3.Listener{
 		Name:            name,
 		Address:         SocketAddress(address, port),
 		ListenerFilters: lf,
@@ -73,7 +72,7 @@ func Listener(name, address string, port int, lf []*envoy_api_v2_listener.Listen
 	if len(filters) > 0 {
 		l.FilterChains = append(
 			l.FilterChains,
-			&envoy_api_v2_listener.FilterChain{
+			&envoy_config_listener_v3.FilterChain{
 				Filters: filters,
 			},
 		)
@@ -83,33 +82,35 @@ func Listener(name, address string, port int, lf []*envoy_api_v2_listener.Listen
 
 // HTTPConnectionManager creates a new HTTP Connection Manager filter
 // for the supplied route and access log.
-func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *envoy_api_v2_listener.Filter {
-	return &envoy_api_v2_listener.Filter{
+func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *envoy_config_listener_v3.Filter {
+	return &envoy_config_listener_v3.Filter{
 		Name: wellknown.HTTPConnectionManager,
-		ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-			TypedConfig: toAny(&http.HttpConnectionManager{
+		ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+			TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
 				StatPrefix: routename,
-				RouteSpecifier: &http.HttpConnectionManager_Rds{
-					Rds: &http.Rds{
+				RouteSpecifier: &envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager_Rds{
+					Rds: &envoy_extensions_filters_network_http_connection_manager_v3.Rds{
 						RouteConfigName: routename,
-						ConfigSource: &envoy_api_v2_core.ConfigSource{
-							ConfigSourceSpecifier: &envoy_api_v2_core.ConfigSource_ApiConfigSource{
-								ApiConfigSource: &envoy_api_v2_core.ApiConfigSource{
-									ApiType: envoy_api_v2_core.ApiConfigSource_GRPC,
-									GrpcServices: []*envoy_api_v2_core.GrpcService{{
-										TargetSpecifier: &envoy_api_v2_core.GrpcService_EnvoyGrpc_{
-											EnvoyGrpc: &envoy_api_v2_core.GrpcService_EnvoyGrpc{
+						ConfigSource: &envoy_config_core_v3.ConfigSource{
+							ConfigSourceSpecifier: &envoy_config_core_v3.ConfigSource_ApiConfigSource{
+								ApiConfigSource: &envoy_config_core_v3.ApiConfigSource{
+									ApiType: envoy_config_core_v3.ApiConfigSource_GRPC,
+									GrpcServices: []*envoy_config_core_v3.GrpcService{{
+										TargetSpecifier: &envoy_config_core_v3.GrpcService_EnvoyGrpc_{
+											EnvoyGrpc: &envoy_config_core_v3.GrpcService_EnvoyGrpc{
 												ClusterName: "enroute",
 											},
 										},
 									}},
+									TransportApiVersion: envoy_config_core_v3.ApiVersion_V3,
 								},
 							},
+							ResourceApiVersion: envoy_config_core_v3.ApiVersion_V3,
 						},
 					},
 				},
 				HttpFilters: httpFilters(vh),
-				HttpProtocolOptions: &envoy_api_v2_core.Http1ProtocolOptions{
+				HttpProtocolOptions: &envoy_config_core_v3.Http1ProtocolOptions{
 					// Enable support for HTTP/1.0 requests that carry
 					// a Host: header. See #537.
 					AcceptHttp_10: true,
@@ -117,7 +118,7 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *env
 				AccessLog:        FileAccessLog(accessLogPath),
 				UseRemoteAddress: protobuf.Bool(true),
 				NormalizePath:    protobuf.Bool(true),
-				CommonHttpProtocolOptions: &envoy_api_v2_core.HttpProtocolOptions{
+				CommonHttpProtocolOptions: &envoy_config_core_v3.HttpProtocolOptions{
 					// Sets the idle timeout for HTTP connections to 60 seconds.
 					// This is chosen as a rough default to stop idle connections wasting resources,
 					// without stopping slow connections from being terminated too quickly.
@@ -133,16 +134,16 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *env
 }
 
 // TCPProxy creates a new TCPProxy filter.
-func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *envoy_api_v2_listener.Filter {
+func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *envoy_config_listener_v3.Filter {
 	idleTimeout := protobuf.Duration(9001 * time.Second)
 	switch len(proxy.Clusters) {
 	case 1:
-		return &envoy_api_v2_listener.Filter{
+		return &envoy_config_listener_v3.Filter{
 			Name: wellknown.TCPProxy,
-			ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-				TypedConfig: toAny(&tcp.TcpProxy{
+			ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+				TypedConfig: toAny(&envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy{
 					StatPrefix: statPrefix,
-					ClusterSpecifier: &tcp.TcpProxy_Cluster{
+					ClusterSpecifier: &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_Cluster{
 						Cluster: Clustername(proxy.Clusters[0]),
 					},
 					AccessLog:   FileAccessLog(accessLogPath),
@@ -151,25 +152,25 @@ func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *env
 			},
 		}
 	default:
-		var clusters []*tcp.TcpProxy_WeightedCluster_ClusterWeight
+		var clusters []*envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedCluster_ClusterWeight
 		for _, c := range proxy.Clusters {
 			weight := c.Weight
 			if weight == 0 {
 				weight = 1
 			}
-			clusters = append(clusters, &tcp.TcpProxy_WeightedCluster_ClusterWeight{
+			clusters = append(clusters, &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedCluster_ClusterWeight{
 				Name:   Clustername(c),
 				Weight: weight,
 			})
 		}
 		sort.Stable(clustersByNameAndWeight(clusters))
-		return &envoy_api_v2_listener.Filter{
+		return &envoy_config_listener_v3.Filter{
 			Name: wellknown.TCPProxy,
-			ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-				TypedConfig: toAny(&tcp.TcpProxy{
+			ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+				TypedConfig: toAny(&envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy{
 					StatPrefix: statPrefix,
-					ClusterSpecifier: &tcp.TcpProxy_WeightedClusters{
-						WeightedClusters: &tcp.TcpProxy_WeightedCluster{
+					ClusterSpecifier: &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedClusters{
+						WeightedClusters: &envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedCluster{
 							Clusters: clusters,
 						},
 					},
@@ -181,7 +182,7 @@ func TCPProxy(statPrefix string, proxy *dag.TCPProxy, accessLogPath string) *env
 	}
 }
 
-type clustersByNameAndWeight []*tcp.TcpProxy_WeightedCluster_ClusterWeight
+type clustersByNameAndWeight []*envoy_extensions_filters_network_tcp_proxy_v3.TcpProxy_WeightedCluster_ClusterWeight
 
 func (c clustersByNameAndWeight) Len() int      { return len(c) }
 func (c clustersByNameAndWeight) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
@@ -192,28 +193,28 @@ func (c clustersByNameAndWeight) Less(i, j int) bool {
 	return c[i].Name < c[j].Name
 }
 
-// SocketAddress creates a new TCP envoy_api_v2_core.Address.
-func SocketAddress(address string, port int) *envoy_api_v2_core.Address {
+// SocketAddress creates a new TCP envoy_config_core_v3.Address.
+func SocketAddress(address string, port int) *envoy_config_core_v3.Address {
 	if address == "::" {
-		return &envoy_api_v2_core.Address{
-			Address: &envoy_api_v2_core.Address_SocketAddress{
-				SocketAddress: &envoy_api_v2_core.SocketAddress{
-					Protocol:   envoy_api_v2_core.SocketAddress_TCP,
+		return &envoy_config_core_v3.Address{
+			Address: &envoy_config_core_v3.Address_SocketAddress{
+				SocketAddress: &envoy_config_core_v3.SocketAddress{
+					Protocol:   envoy_config_core_v3.SocketAddress_TCP,
 					Address:    address,
 					Ipv4Compat: true,
-					PortSpecifier: &envoy_api_v2_core.SocketAddress_PortValue{
+					PortSpecifier: &envoy_config_core_v3.SocketAddress_PortValue{
 						PortValue: uint32(port),
 					},
 				},
 			},
 		}
 	}
-	return &envoy_api_v2_core.Address{
-		Address: &envoy_api_v2_core.Address_SocketAddress{
-			SocketAddress: &envoy_api_v2_core.SocketAddress{
-				Protocol: envoy_api_v2_core.SocketAddress_TCP,
+	return &envoy_config_core_v3.Address{
+		Address: &envoy_config_core_v3.Address_SocketAddress{
+			SocketAddress: &envoy_config_core_v3.SocketAddress{
+				Protocol: envoy_config_core_v3.SocketAddress_TCP,
 				Address:  address,
-				PortSpecifier: &envoy_api_v2_core.SocketAddress_PortValue{
+				PortSpecifier: &envoy_config_core_v3.SocketAddress_PortValue{
 					PortValue: uint32(port),
 				},
 			},
@@ -221,36 +222,36 @@ func SocketAddress(address string, port int) *envoy_api_v2_core.Address {
 	}
 }
 
-// Filters returns a []*envoy_api_v2_listener.Filter for the supplied filters.
-func Filters(filters ...*envoy_api_v2_listener.Filter) []*envoy_api_v2_listener.Filter {
+// Filters returns a []*envoy_config_listener_v3.Filter for the supplied filters.
+func Filters(filters ...*envoy_config_listener_v3.Filter) []*envoy_config_listener_v3.Filter {
 	if len(filters) == 0 {
 		return nil
 	}
 	return filters
 }
 
-// FilterChain retruns a *envoy_api_v2_listener.FilterChain for the supplied filters.
-func FilterChain(filters ...*envoy_api_v2_listener.Filter) *envoy_api_v2_listener.FilterChain {
-	return &envoy_api_v2_listener.FilterChain{
+// FilterChain retruns a *envoy_config_listener_v3.FilterChain for the supplied filters.
+func FilterChain(filters ...*envoy_config_listener_v3.Filter) *envoy_config_listener_v3.FilterChain {
+	return &envoy_config_listener_v3.FilterChain{
 		Filters: filters,
 	}
 }
 
-// FilterChains returns a []*envoy_api_v2_listener.FilterChain for the supplied filters.
-func FilterChains(filters ...*envoy_api_v2_listener.Filter) []*envoy_api_v2_listener.FilterChain {
+// FilterChains returns a []*envoy_config_listener_v3.FilterChain for the supplied filters.
+func FilterChains(filters ...*envoy_config_listener_v3.Filter) []*envoy_config_listener_v3.FilterChain {
 	if len(filters) == 0 {
 		return nil
 	}
-	return []*envoy_api_v2_listener.FilterChain{
+	return []*envoy_config_listener_v3.FilterChain{
 		FilterChain(filters...),
 	}
 }
 
-// FilterChainTLS returns a TLS enabled envoy_api_v2_listener.FilterChain,
-func FilterChainTLS(domain string, secret *dag.Secret, filters []*envoy_api_v2_listener.Filter, tlsMinProtoVersion envoy_api_v2_auth.TlsParameters_TlsProtocol, alpnProtos ...string) *envoy_api_v2_listener.FilterChain {
-	fc := &envoy_api_v2_listener.FilterChain{
+// FilterChainTLS returns a TLS enabled envoy_config_listener_v3.FilterChain,
+func FilterChainTLS(domain string, secret *dag.Secret, filters []*envoy_config_listener_v3.Filter, tlsMinProtoVersion envoy_extensions_transport_sockets_tls_v3.TlsParameters_TlsProtocol, alpnProtos ...string) *envoy_config_listener_v3.FilterChain {
+	fc := &envoy_config_listener_v3.FilterChain{
 		Filters: filters,
-		FilterChainMatch: &envoy_api_v2_listener.FilterChainMatch{
+		FilterChainMatch: &envoy_config_listener_v3.FilterChainMatch{
 			ServerNames: []string{domain},
 		},
 	}
@@ -263,8 +264,8 @@ func FilterChainTLS(domain string, secret *dag.Secret, filters []*envoy_api_v2_l
 	return fc
 }
 
-// ListenerFilters returns a []*envoy_api_v2_listener.ListenerFilter for the supplied listener filters.
-func ListenerFilters(filters ...*envoy_api_v2_listener.ListenerFilter) []*envoy_api_v2_listener.ListenerFilter {
+// ListenerFilters returns a []*envoy_config_listener_v3.ListenerFilter for the supplied listener filters.
+func ListenerFilters(filters ...*envoy_config_listener_v3.ListenerFilter) []*envoy_config_listener_v3.ListenerFilter {
 	return filters
 }
 

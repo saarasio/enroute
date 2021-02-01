@@ -23,9 +23,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
-	loadstats "github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+
 	rl "github.com/envoyproxy/go-control-plane/envoy/service/ratelimit/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -56,11 +61,11 @@ func NewAPI(log logrus.FieldLogger, resources map[string]Resource) *grpc.Server 
 
 	rls := &ratelimitServer{}
 
-	envoy_api_v2.RegisterClusterDiscoveryServiceServer(g, s)
-	envoy_api_v2.RegisterEndpointDiscoveryServiceServer(g, s)
-	envoy_api_v2.RegisterListenerDiscoveryServiceServer(g, s)
-	envoy_api_v2.RegisterRouteDiscoveryServiceServer(g, s)
-	discovery.RegisterSecretDiscoveryServiceServer(g, s)
+	envoy_service_cluster_v3.RegisterClusterDiscoveryServiceServer(g, s)
+	envoy_service_endpoint_v3.RegisterEndpointDiscoveryServiceServer(g, s)
+	envoy_service_listener_v3.RegisterListenerDiscoveryServiceServer(g, s)
+	envoy_service_route_v3.RegisterRouteDiscoveryServiceServer(g, s)
+	envoy_service_secret_v3.RegisterSecretDiscoveryServiceServer(g, s)
 	rl.RegisterRateLimitServiceServer(g, rls)
 	return g
 }
@@ -90,67 +95,67 @@ type ratelimitServer struct {
 	rl.RateLimitServiceServer
 }
 
-func (s *grpcServer) FetchClusters(_ context.Context, req *envoy_api_v2.DiscoveryRequest) (*envoy_api_v2.DiscoveryResponse, error) {
+func (s *grpcServer) FetchClusters(_ context.Context, req *envoy_service_discovery_v3.DiscoveryRequest) (*envoy_service_discovery_v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "FetchClusters unimplemented")
 }
 
-func (s *grpcServer) FetchEndpoints(_ context.Context, req *envoy_api_v2.DiscoveryRequest) (*envoy_api_v2.DiscoveryResponse, error) {
+func (s *grpcServer) FetchEndpoints(_ context.Context, req *envoy_service_discovery_v3.DiscoveryRequest) (*envoy_service_discovery_v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "FetchEndpoints unimplemented")
 }
 
-func (s *grpcServer) DeltaEndpoints(envoy_api_v2.EndpointDiscoveryService_DeltaEndpointsServer) error {
+func (s *grpcServer) DeltaEndpoints(envoy_service_endpoint_v3.EndpointDiscoveryService_DeltaEndpointsServer) error {
 	return status.Errorf(codes.Unimplemented, "DeltaEndpoints unimplemented")
 }
 
-func (s *grpcServer) FetchListeners(_ context.Context, req *envoy_api_v2.DiscoveryRequest) (*envoy_api_v2.DiscoveryResponse, error) {
+func (s *grpcServer) FetchListeners(_ context.Context, req *envoy_service_discovery_v3.DiscoveryRequest) (*envoy_service_discovery_v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "FetchListeners unimplemented")
 }
 
-func (s *grpcServer) DeltaListeners(envoy_api_v2.ListenerDiscoveryService_DeltaListenersServer) error {
+func (s *grpcServer) DeltaListeners(envoy_service_listener_v3.ListenerDiscoveryService_DeltaListenersServer) error {
 	return status.Errorf(codes.Unimplemented, "DeltaListeners unimplemented")
 }
 
-func (s *grpcServer) FetchRoutes(_ context.Context, req *envoy_api_v2.DiscoveryRequest) (*envoy_api_v2.DiscoveryResponse, error) {
+func (s *grpcServer) FetchRoutes(_ context.Context, req *envoy_service_discovery_v3.DiscoveryRequest) (*envoy_service_discovery_v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "FetchRoutes unimplemented")
 }
 
-func (s *grpcServer) FetchSecrets(_ context.Context, req *envoy_api_v2.DiscoveryRequest) (*envoy_api_v2.DiscoveryResponse, error) {
+func (s *grpcServer) FetchSecrets(_ context.Context, req *envoy_service_discovery_v3.DiscoveryRequest) (*envoy_service_discovery_v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "FetchSecrets unimplemented")
 }
 
-func (s *grpcServer) DeltaSecrets(discovery.SecretDiscoveryService_DeltaSecretsServer) error {
+func (s *grpcServer) DeltaSecrets(envoy_service_secret_v3.SecretDiscoveryService_DeltaSecretsServer) error {
 	return status.Errorf(codes.Unimplemented, "DeltaSecrets unimplemented")
 }
 
-func (s *grpcServer) StreamClusters(srv envoy_api_v2.ClusterDiscoveryService_StreamClustersServer) error {
+func (s *grpcServer) StreamClusters(srv envoy_service_cluster_v3.ClusterDiscoveryService_StreamClustersServer) error {
 	return s.stream(srv)
 }
 
-func (s *grpcServer) StreamEndpoints(srv envoy_api_v2.EndpointDiscoveryService_StreamEndpointsServer) error {
+func (s *grpcServer) StreamEndpoints(srv envoy_service_endpoint_v3.EndpointDiscoveryService_StreamEndpointsServer) error {
 	return s.stream(srv)
 }
 
-func (s *grpcServer) StreamLoadStats(srv loadstats.LoadReportingService_StreamLoadStatsServer) error {
+func (s *grpcServer) StreamLoadStats(srv envoy_service_load_stats_v3.LoadReportingService_StreamLoadStatsServer) error {
 	return status.Errorf(codes.Unimplemented, "StreamLoadStats unimplemented")
 }
 
-func (s *grpcServer) DeltaClusters(envoy_api_v2.ClusterDiscoveryService_DeltaClustersServer) error {
+func (s *grpcServer) DeltaClusters(envoy_service_cluster_v3.ClusterDiscoveryService_DeltaClustersServer) error {
 	return status.Errorf(codes.Unimplemented, "IncrementalClusters unimplemented")
 }
 
-func (s *grpcServer) DeltaRoutes(envoy_api_v2.RouteDiscoveryService_DeltaRoutesServer) error {
+func (s *grpcServer) DeltaRoutes(envoy_service_route_v3.RouteDiscoveryService_DeltaRoutesServer) error {
 	return status.Errorf(codes.Unimplemented, "IncrementalRoutes unimplemented")
 }
 
-func (s *grpcServer) StreamListeners(srv envoy_api_v2.ListenerDiscoveryService_StreamListenersServer) error {
+func (s *grpcServer) StreamListeners(srv envoy_service_listener_v3.ListenerDiscoveryService_StreamListenersServer) error {
 	return s.stream(srv)
 }
 
-func (s *grpcServer) StreamRoutes(srv envoy_api_v2.RouteDiscoveryService_StreamRoutesServer) error {
+func (s *grpcServer) StreamRoutes(srv envoy_service_route_v3.RouteDiscoveryService_StreamRoutesServer) error {
 	return s.stream(srv)
 }
 
-func (s *grpcServer) StreamSecrets(srv discovery.SecretDiscoveryService_StreamSecretsServer) error {
+func (s *grpcServer) StreamSecrets(srv envoy_service_secret_v3.SecretDiscoveryService_StreamSecretsServer) error {
 	return s.stream(srv)
 }
 

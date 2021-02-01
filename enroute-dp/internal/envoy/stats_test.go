@@ -19,10 +19,9 @@ package envoy
 import (
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	envoy_api_v2_listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	envoy_api_v2_route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
-	http "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
@@ -33,47 +32,47 @@ func TestStatsListener(t *testing.T) {
 	tests := map[string]struct {
 		address string
 		port    int
-		want    *v2.Listener
+		want    *envoy_config_listener_v3.Listener
 	}{
 		"stats-health": {
 			address: "127.0.0.127",
 			port:    8123,
-			want: &v2.Listener{
+			want: &envoy_config_listener_v3.Listener{
 				Name:    "stats-health",
 				Address: SocketAddress("127.0.0.127", 8123),
 				FilterChains: FilterChains(
-					&envoy_api_v2_listener.Filter{
+					&envoy_config_listener_v3.Filter{
 						Name: wellknown.HTTPConnectionManager,
-						ConfigType: &envoy_api_v2_listener.Filter_TypedConfig{
-							TypedConfig: toAny(&http.HttpConnectionManager{
+						ConfigType: &envoy_config_listener_v3.Filter_TypedConfig{
+							TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
 								StatPrefix: "stats",
-								RouteSpecifier: &http.HttpConnectionManager_RouteConfig{
-									RouteConfig: &v2.RouteConfiguration{
-										VirtualHosts: []*envoy_api_v2_route.VirtualHost{{
+								RouteSpecifier: &envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager_RouteConfig{
+									RouteConfig: &envoy_config_route_v3.RouteConfiguration{
+										VirtualHosts: []*envoy_config_route_v3.VirtualHost{{
 											Name:    "backend",
 											Domains: []string{"*"},
-											Routes: []*envoy_api_v2_route.Route{{
-												Match: &envoy_api_v2_route.RouteMatch{
-													PathSpecifier: &envoy_api_v2_route.RouteMatch_Prefix{
+											Routes: []*envoy_config_route_v3.Route{{
+												Match: &envoy_config_route_v3.RouteMatch{
+													PathSpecifier: &envoy_config_route_v3.RouteMatch_Prefix{
 														Prefix: "/ready",
 													},
 												},
-												Action: &envoy_api_v2_route.Route_Route{
-													Route: &envoy_api_v2_route.RouteAction{
-														ClusterSpecifier: &envoy_api_v2_route.RouteAction_Cluster{
+												Action: &envoy_config_route_v3.Route_Route{
+													Route: &envoy_config_route_v3.RouteAction{
+														ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
 															Cluster: "service-stats",
 														},
 													},
 												},
 											}, {
-												Match: &envoy_api_v2_route.RouteMatch{
-													PathSpecifier: &envoy_api_v2_route.RouteMatch_Prefix{
+												Match: &envoy_config_route_v3.RouteMatch{
+													PathSpecifier: &envoy_config_route_v3.RouteMatch_Prefix{
 														Prefix: "/stats",
 													},
 												},
-												Action: &envoy_api_v2_route.Route_Route{
-													Route: &envoy_api_v2_route.RouteAction{
-														ClusterSpecifier: &envoy_api_v2_route.RouteAction_Cluster{
+												Action: &envoy_config_route_v3.Route_Route{
+													Route: &envoy_config_route_v3.RouteAction{
+														ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
 															Cluster: "service-stats",
 														},
 													},
@@ -83,7 +82,7 @@ func TestStatsListener(t *testing.T) {
 										}},
 									},
 								},
-								HttpFilters: []*http.HttpFilter{{
+								HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{{
 									Name: wellknown.Router,
 								}},
 								NormalizePath: protobuf.Bool(true),

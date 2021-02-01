@@ -22,9 +22,10 @@ import (
 	"net"
 	"testing"
 
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
-	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v2"
+	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+
+	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -100,7 +101,7 @@ func setup(t *testing.T, opts ...func(*contour.ResourceEventHandler)) (cache.Res
 	check(t, err)
 	discard := logrus.New()
 	discard.Out = new(discardWriter)
-	// Resource types in xDS v2.
+	// Resource types in xDS envoy_service_discovery_v3.
 	srv := cgrpc.NewAPI(discard, map[string]cgrpc.Resource{
 		ch.ClusterCache.TypeURL():  &ch.ClusterCache,
 		ch.RouteCache.TypeURL():    &ch.RouteCache,
@@ -190,11 +191,11 @@ func toAny(t *testing.T, pb proto.Message) *any.Any {
 }
 
 type grpcStream interface {
-	Send(*v2.DiscoveryRequest) error
-	Recv() (*v2.DiscoveryResponse, error)
+	Send(*envoy_service_discovery_v3.DiscoveryRequest) error
+	Recv() (*envoy_service_discovery_v3.DiscoveryResponse, error)
 }
 
-func stream(t *testing.T, st grpcStream, req *v2.DiscoveryRequest) *v2.DiscoveryResponse {
+func stream(t *testing.T, st grpcStream, req *envoy_service_discovery_v3.DiscoveryRequest) *envoy_service_discovery_v3.DiscoveryResponse {
 	t.Helper()
 	err := st.Send(req)
 	check(t, err)
@@ -214,14 +215,14 @@ func (c *Contour) Request(typeurl string, names ...string) *Response {
 	ctx := context.Background()
 	switch typeurl {
 	case secretType:
-		sds := discovery.NewSecretDiscoveryServiceClient(c.ClientConn)
+		sds := envoy_service_secret_v3.NewSecretDiscoveryServiceClient(c.ClientConn)
 		sts, err := sds.StreamSecrets(ctx)
 		c.check(err)
 		st = sts
 	default:
 		c.Fatal("unknown typeURL: " + typeurl)
 	}
-	resp := c.sendRequest(st, &v2.DiscoveryRequest{
+	resp := c.sendRequest(st, &envoy_service_discovery_v3.DiscoveryRequest{
 		TypeUrl:       typeurl,
 		ResourceNames: names,
 	})
@@ -231,7 +232,7 @@ func (c *Contour) Request(typeurl string, names ...string) *Response {
 	}
 }
 
-func (c *Contour) sendRequest(stream grpcStream, req *v2.DiscoveryRequest) *v2.DiscoveryResponse {
+func (c *Contour) sendRequest(stream grpcStream, req *envoy_service_discovery_v3.DiscoveryRequest) *envoy_service_discovery_v3.DiscoveryResponse {
 	err := stream.Send(req)
 	c.check(err)
 	resp, err := stream.Recv()
@@ -247,15 +248,15 @@ func (c *Contour) check(err error) {
 
 type Response struct {
 	*Contour
-	*v2.DiscoveryResponse
+	*envoy_service_discovery_v3.DiscoveryResponse
 }
 
-func (r *Response) Equals(want *v2.DiscoveryResponse) {
+func (r *Response) Equals(want *envoy_service_discovery_v3.DiscoveryResponse) {
 	r.Helper()
 	assertEqual(r.T, want, r.DiscoveryResponse)
 }
 
-func assertEqual(t *testing.T, want, got *v2.DiscoveryResponse) {
+func assertEqual(t *testing.T, want, got *envoy_service_discovery_v3.DiscoveryResponse) {
 	t.Helper()
 	m := proto.TextMarshaler{Compact: true, ExpandAny: true}
 	a := m.Text(want)

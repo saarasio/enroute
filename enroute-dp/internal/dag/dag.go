@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2/auth"
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"k8s.io/api/core/v1"
@@ -222,7 +222,7 @@ type SecureVirtualHost struct {
 	VirtualHost
 
 	// TLS minimum protocol version. Defaults to envoy_api_v2_auth.TlsParameters_TLS_AUTO
-	MinProtoVersion envoy_api_v2_auth.TlsParameters_TlsProtocol
+	MinProtoVersion envoy_extensions_transport_sockets_tls_v3.TlsParameters_TlsProtocol
 
 	// The cert and key for this host.
 	*Secret
