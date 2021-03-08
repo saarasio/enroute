@@ -32,15 +32,15 @@ type RequestHeadersType struct {
 }
 
 type Descriptors struct {
-    GenericKey         *GenericKeyType     `json:"generic_key,omitempty"`
-    RequestHeaders     *RequestHeadersType `json:"request_headers,omitempty"`
-    SourceCluster      string              `json:"source_cluster,omitempty"`
-    DestinationCluster string              `json:"destination_cluster,omitempty"`
-    RemoteAddress      string              `json:"remote_address,omitempty"`
+	GenericKey         *GenericKeyType     `json:"generic_key,omitempty"`
+	RequestHeaders     *RequestHeadersType `json:"request_headers,omitempty"`
+	SourceCluster      string              `json:"source_cluster,omitempty"`
+	DestinationCluster string              `json:"destination_cluster,omitempty"`
+	RemoteAddress      string              `json:"remote_address,omitempty"`
 }
 
 type RouteActionDescriptors struct {
-    Descriptors []Descriptors `json:"descriptors,omitempty"`
+	Descriptors []Descriptors `json:"descriptors,omitempty"`
 }
 
 func UnmarshalRateLimitRouteFilterConfig(filter_config string) (RouteActionDescriptors, error) {

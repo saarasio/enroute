@@ -1,10 +1,10 @@
 package ratelim
 
 type RateLimitGlobalConfig struct {
-    Domain string
+	Domain string
 }
 
 func UnmarshalRateLimitGlobalConfig(config_string string) (RateLimitGlobalConfig, error) {
-    var cfg RateLimitGlobalConfig
-    return cfg, nil
+	var cfg RateLimitGlobalConfig
+	return cfg, nil
 }

@@ -661,7 +661,7 @@ func CreateKSYaml(filename string, ecfg *config.EnrouteConfig) {
 	k8sgh := SyncProxyToK8sApi(ecfg)
 	for _, one := range k8sgh.Items {
 		yamlstr, _ := YAMLMarshal(one)
-        fmt.Printf(" --  experimental -- \n")
+		fmt.Printf(" --  experimental -- \n")
 		fmt.Printf("%s\n", yamlstr)
 	}
 }
