@@ -303,6 +303,8 @@ func db_insert_upstream(u *Upstream, log *logrus.Entry) (int, string) {
 	if len(u.Upstream_protocol) > 0 {
 		if u.Upstream_protocol == "grpc" {
 			args["upstream_protocol"] = "grpc"
+		} else if u.Upstream_protocol == "tls" {
+			args["upstream_protocol"] = "tls"
 		}
 	}
 
