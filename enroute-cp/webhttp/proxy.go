@@ -237,6 +237,12 @@ query get_proxy_detail {
         service_id
         service_name
         fqdn
+        service_filters {
+          filter {
+            filter_name
+            filter_type
+          }
+        }
         service_secrets {
           secret {
             secret_name
