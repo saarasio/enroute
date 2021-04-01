@@ -4,7 +4,7 @@
 
 ![](https://getenroute.io/images/enroute-logo.svg)
 
-Enroute makes it easy to run Envoy as an API Gateway. You can use it for microservices running inside Kubernetes or any service running standalone when there is no Kubernetes.
+EnRoute makes it easy to run Envoy as an API Gateway. You can use it for microservices running inside Kubernetes or any service running standalone when there is no Kubernetes.
 
 What makes it easy is simple REST APIs to configure the Standalone gateway or CRDs to configure the Kubernetes Ingress Gateway. Plugins provide the ability to add fine-grained route-level or global policies and traffic control.
 
@@ -12,11 +12,11 @@ As Envoy is being widely accepted as a next-gen proxy, EnRoute is deployed in pr
 
 #### How is EnRoute different?
 
-Enroute is an API gateway with batteries included. EnRoute is oriented towards DevOps and integration with CI/CD pipelines. It is completely automatable and there is an API for everything. 
+EnRoute is an API gateway with batteries included. EnRoute is oriented towards DevOps and integration with CI/CD pipelines. It is completely automatable and there is an API for everything. 
 
 EnRoute state management is flexible. For Kubernetes Ingress API Gateway, the state is completely managed inside Kubernetes. For Kubernetes, the state is stored in CRDs and state management is completely Kubernetes-native without any external databases. EnRoute supports GitOps even when running as a stateless docker container. 
 
-Enroute is the only gateway on Envoy proxy that works for both Kubernetes Ingress and Standalone use-cases. Typically solutions either target one or the other. A majority of users have a mix of workloads, and this capability comes in handy, especially with the same consistent policy model across all deployments. And running Envoy makes it a super performant solution.
+EnRoute is the only gateway on Envoy proxy that works for both Kubernetes Ingress and Standalone use-cases. Typically solutions either target one or the other. A majority of users have a mix of workloads, and this capability comes in handy, especially with the same consistent policy model across all deployments. And running Envoy makes it a super performant solution.
 
 ![](https://getenroute.io/img/APIGatewayStandaloneAndIngressWithFilters.jpeg)
 
