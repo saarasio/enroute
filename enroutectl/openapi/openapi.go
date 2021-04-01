@@ -156,8 +156,8 @@ func routeMatchCondition(path, opName string) string {
 
 	routeMatchConfig.MatchConditions = append(routeMatchConfig.MatchConditions,
 		saarasconfig.RouteMatchCondition{
-			HeaderName:  ":method",
-			HeaderValue: opName,
+			Name:  ":method",
+			Exact: opName,
 		})
 
 	match_json, err := JSONMarshal(routeMatchConfig)
@@ -457,8 +457,8 @@ func ProxyConfigToRouteFilters(proxy config.SaarasDbProxy) v1beta1.RouteFilterLi
 	return v1beta1.RouteFilterList{}
 }
 
-func ru_to_saaras_ru(ru []config.RouteUpstreams) []saaras.SaarasMicroService2 {
-	sru := make([]saaras.SaarasMicroService2, 0)
+func ru_to_saaras_ru(ru []config.RouteUpstreams) []saarasconfig.SaarasMicroService2 {
+	sru := make([]saarasconfig.SaarasMicroService2, 0)
 
 	for _, one := range ru {
 
@@ -472,9 +472,9 @@ func ru_to_saaras_ru(ru []config.RouteUpstreams) []saaras.SaarasMicroService2 {
 		Upstream_hc_healthythresholdcount, _ = strconv.ParseInt(one.Upstream.UpstreamHcHealthythresholdcount, 10, 32)
 		Upstream_hc_unhealthythresholdcount, _ = strconv.ParseInt(one.Upstream.UpstreamHcUnhealthythresholdcount, 10, 32)
 
-		osru := saaras.SaarasMicroService2{
+		osru := saarasconfig.SaarasMicroService2{
 
-			Upstream: saaras.SaarasUpstream{
+			Upstream: saarasconfig.SaarasUpstream{
 				Upstream_hc_host:                    one.Upstream.UpstreamHcHost,
 				Upstream_hc_intervalseconds:         Upstream_hc_intervalseconds,
 				Upstream_hc_timeoutseconds:          Upstream_hc_timeoutseconds,
@@ -503,12 +503,12 @@ func ss_to_saaras_ss(sf []config.ServiceSecret) []saaras.SaarasSecrets {
 	return nil
 }
 
-func sf_to_saaras_sf(sf []config.ServiceFilters) []saaras.SaarasServiceFilters {
-	ssf := make([]saaras.SaarasServiceFilters, 0)
+func sf_to_saaras_sf(sf []config.ServiceFilters) []saaras.ServiceFilters {
+	ssf := make([]saaras.ServiceFilters, 0)
 
 	for _, one := range sf {
-		onesf := saaras.SaarasServiceFilters{
-			Filter: saaras.SaarasServiceFilter{
+		onesf := saaras.ServiceFilters{
+			Filter: saaras.Filter{
 				Filter_name:   one.Filter.FilterName,
 				Filter_type:   one.Filter.FilterType,
 				Filter_config: one.Filter.FilterConfig,
@@ -521,11 +521,11 @@ func sf_to_saaras_sf(sf []config.ServiceFilters) []saaras.SaarasServiceFilters {
 	return ssf
 }
 
-func rf_to_saaras_rf(rf []config.RouteFilters) []saaras.SaarasRFilter {
-	srf := make([]saaras.SaarasRFilter, 0)
+func rf_to_saaras_rf(rf []config.RouteFilters) []saaras.RouteFilters {
+	srf := make([]saaras.RouteFilters, 0)
 	for _, one := range rf {
-		onerf := saaras.SaarasRFilter{
-			Filter: saarasconfig.SaarasRouteFilter{
+		onerf := saaras.RouteFilters{
+			Filter: saaras.Filter{
 				Filter_name:   one.Filter.FilterName,
 				Filter_type:   one.Filter.FilterType,
 				Filter_config: one.Filter.FilterConfig,

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"github.com/saarasio/enroute/enroute-dp/saaras"
-	"github.com/saarasio/enroute/enroute-dp/saarasconfig"
+	"github.com/saarasio/enroute/enroute-dp/saarasfilters"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -22,7 +22,7 @@ type FilterConfig struct {
 // @Tags filter
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /filter [get]
 // @Security ApiKeyAuth
 func GET_FilterConfig(c echo.Context) error {
@@ -61,7 +61,7 @@ query get_all_filterconfig {
 // @Param filter_name path string true "Name of filter_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /filter/{filter_name} [get]
 // @Security ApiKeyAuth
 func GET_One_FilterConfig(c echo.Context) error {
@@ -98,56 +98,13 @@ query get_all_filter($filter_name: String!) {
 	return c.JSONBlob(http.StatusOK, buf2)
 }
 
-func setConfigJson(log *logrus.Entry, filter_type string, filter_config string, args *map[string]interface{}) {
-	switch filter_type {
-	case saarasconfig.FILTER_TYPE_RT_RATELIMIT:
-		cfg, err := saarasconfig.UnmarshalRateLimitRouteFilterConfig(filter_config)
-		if err == nil {
-			(*args)["config_json"] = cfg
-		} else {
-			(*args)["config_json"] = struct {
-				Descriptors [1]string `json:"descriptors"`
-			}{
-				Descriptors: [...]string{"{}"},
-			}
-			log.Errorf("Failed to decode [%+v] \n", filter_config)
-		}
-	case saarasconfig.FILTER_TYPE_HTTP_LUA:
-		// Lua filter config contains lua script, which cannot be converted to json
-		// convert it to { "config" : "..." } type
-		type luaFilterConfig struct {
-			Config string `json:"config"`
-		}
-
-		var lfc luaFilterConfig
-		lfc.Config = filter_config
-		log.Errorf("Setting config_json to [%+v] \n", lfc)
-		(*args)["config_json"] = lfc
-	default:
-		// Unsupported filter
-		log.Errorf("Unsupported filter type [%s]\n", filter_type)
-	}
-}
-
-func isFilterTypeValid(filter_type string) bool {
-	switch filter_type {
-	case saarasconfig.FILTER_TYPE_HTTP_LUA:
-		return true
-	case saarasconfig.FILTER_TYPE_RT_RATELIMIT:
-		return true
-	default:
-		return false
-	}
-	return false
-}
-
 // @Summary Create filter
 // @Description Create filter
 // @Tags filter
 // @Accept  json
 // @Produce  json
 // @Param Name body webhttp.FilterConfig true "Name of filter to create"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /filter [post]
 // @Security ApiKeyAuth
 func POST_FilterConfig(c echo.Context) error {
@@ -157,7 +114,6 @@ func POST_FilterConfig(c echo.Context) error {
 	args = make(map[string]interface{})
 
 	Q := `
-
 mutation insert_into_filter($filter_name: String!, $filter_type: String, $filter_config: String!, $config_json: jsonb) {
   insert_saaras_db_filter
   (
@@ -191,13 +147,15 @@ mutation insert_into_filter($filter_name: String!, $filter_type: String, $filter
 	args["filter_type"] = fc.Filter_type
 	args["filter_config"] = fc.Filter_config
 
-	if !isFilterTypeValid(fc.Filter_type) {
+	if !saarasfilters.IsFilterTypeValid(fc.Filter_type) {
 		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Invalid filter type \"}")
 	}
 
-	setConfigJson(log, fc.Filter_type, fc.Filter_config, &args)
+	var parse_config_success bool
+	saarasfilters.SetConfigJson(log, fc.Filter_type, fc.Filter_config, &args, &parse_config_success)
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
 	if err := saaras.RunDBQueryGenericVals(url, Q, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
@@ -258,7 +216,7 @@ func getFilterType(filter_name string) string {
 // @Param filter_name path string true "Name of filter_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /filter/:filter_name/config [post]
 // @Security ApiKeyAuth
 func POST_One_FilterConfig(c echo.Context) error {
@@ -286,6 +244,7 @@ func POST_One_FilterConfig(c echo.Context) error {
         }
     }
 `
+
 	log2 := logrus.StandardLogger()
 	log := log2.WithField("context", "web-http")
 
@@ -315,18 +274,19 @@ func POST_One_FilterConfig(c echo.Context) error {
 	args["filter_name"] = filter_name
 	args["filter_config"] = config_from_file
 
-	// TODO: Check filter_type is one of the allowed types
 	filter_type := getFilterType(filter_name)
 
-	if !isFilterTypeValid(filter_type) {
+	if !saarasfilters.IsFilterTypeValid(filter_type) {
 		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Cannot find filter or type not recognized\n\"}")
 	}
 
-	setConfigJson(log, filter_type, config_from_file, &args)
+	var parse_config_success bool
+	saarasfilters.SetConfigJson(log, filter_type, config_from_file, &args, &parse_config_success)
 
 	log.Errorf("config_json set to [%s]\n", args["config_json"])
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
+
 	if err := saaras.RunDBQueryGenericVals(url, Q, &buf, args, log); err != nil {
 		log.Errorf("Error when running http request [%v]\n", err)
 	}
@@ -341,7 +301,7 @@ func POST_One_FilterConfig(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param Name body webhttp.FilterConfig true "Name of filter to create"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /filter/:filter_name [patch]
 // @Security ApiKeyAuth
 func PATCH_One_FilterConfig(c echo.Context) error {
@@ -378,17 +338,17 @@ func PATCH_One_FilterConfig(c echo.Context) error {
 	}
 
 	if len(fc.Filter_type) == 0 {
-		return c.JSON(http.StatusBadRequest, "{\"Error\" : \" Please provide name of Filter using Filter_name field \"}")
+		return c.JSON(http.StatusBadRequest, "{\"Error\" : \" Please provide type of Filter using Filter_type field \"}")
 	}
 
-	if !isFilterTypeValid(fc.Filter_type) {
+	if !saarasfilters.IsFilterTypeValid(fc.Filter_type) {
 		return c.JSON(http.StatusBadRequest, "{\"Error\" : \"Cannot find filter or type not recognized\n\"}")
 	}
 
 	args["filter_name"] = filter_name
 	args["filter_type"] = fc.Filter_type
 
-	log.Errorf("config_json set to [%s]\n", args["config_json"])
+	log.Errorf("config_json set to [%+v]\n", args["config_json"])
 
 	url := "http://" + HOST + ":" + PORT + "/v1/graphql"
 	if err := saaras.RunDBQueryGenericVals(url, Q, &buf, args, log); err != nil {
@@ -404,7 +364,7 @@ func PATCH_One_FilterConfig(c echo.Context) error {
 // @Param filter_name path string true "Name of filter_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /filter/{filter_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_FilterConfig(c echo.Context) error {
@@ -451,7 +411,7 @@ mutation delete_filter($filter_name: String!) {
 // @Param filter_name path string true "Name of filter"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/route/{route_name}/filter/{filter_name} [post]
 // @Security ApiKeyAuth
 func POST_Service_Route_FilterConfig_Association(c echo.Context) error {
@@ -517,7 +477,7 @@ mutation insert_into_route_filter($service_name : String!, $route_name : String!
 // @Param filter_name path string true "Name of filter"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/filter/{filter_name} [post]
 // @Security ApiKeyAuth
 func POST_Service_FilterConfig_Association(c echo.Context) error {
@@ -575,7 +535,7 @@ mutation insert_into_service_filter($service_name : String!, $filter_name : Stri
 // @Param filter_name path string true "Name of filter"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/filter/{filter_name} [get]
 // @Security ApiKeyAuth
 func GET_Service_FilterConfig_Association(c echo.Context) error {
@@ -626,7 +586,7 @@ query get_filter_for_service($service_name: String!, $filter_name:String!) {
 // @Param service_name path string true "Name of service"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/filter [get]
 // @Security ApiKeyAuth
 func GET_Service_All_FilterConfig_Association(c echo.Context) error {
@@ -677,7 +637,7 @@ query get_filter_for_service($service_name: String!) {
 // @Param filter_name path string true "Name of filter for route"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/filter/{filter_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Service_FilterConfig_Association(c echo.Context) error {
@@ -730,7 +690,7 @@ mutation delete_service_filter($service_name: String!, $filter_name:String!) {
 // @Param filter_name path string true "Name of filter for route"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/route/{route_name}/filter/{filter_name} [get]
 // @Security ApiKeyAuth
 func GET_Service_Route_FilterConfig_Association(c echo.Context) error {
@@ -787,7 +747,7 @@ query get_filter_for_service_route2($service_name: String!, $route_name: String!
 // @Param route_name path string true "Name of route for service"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/route/{route_name}/filter [get]
 // @Security ApiKeyAuth
 func GET_Service_Route_All_FilterConfig_Association(c echo.Context) error {
@@ -842,7 +802,7 @@ query get_filter_for_service_route2($service_name: String!, $route_name: String!
 // @Param filter_name path string true "Name of filter for route"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /service/{service_name}/route/{route_name}/filter/{filter_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Service_Route_FilterConfig_Association(c echo.Context) error {

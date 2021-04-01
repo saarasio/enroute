@@ -247,7 +247,7 @@ func TestWalkSpec(t *testing.T) {
 }
 `
 
-	var ps_json_want = `{"data":{"saaras_db_proxy":[{"proxy_name":"gw","proxy_services":[{"service":{"fqdn":"*","service_name":"openapi-petstore.swagger.io","routes":[{"route_config":"{\"prefix\":\"/v1/pets\",\"header\":[{\"header_name\":\":method\",\"header_value\":\"POST\"}]}\n","route_name":"openapi-createPets-v1pets-84baf17cbf","route_upstreams":[{"upstream":{"upstream_ip":"petstore.swagger.io","upstream_name":"openapi-upstream-petstore.swagger.io","upstream_port":80}}]},{"route_config":"{\"prefix\":\"/v1/pets\",\"header\":[{\"header_name\":\":method\",\"header_value\":\"GET\"}]}\n","route_name":"openapi-listPets-v1pets-fecf51846e","route_upstreams":[{"upstream":{"upstream_ip":"petstore.swagger.io","upstream_name":"openapi-upstream-petstore.swagger.io","upstream_port":80}}]},{"route_config":"{\"prefix\":\"/v1/pets/(?P<petId>.*)/abcd/(?P<petId2>.*)/efgh/(?P<petId3>.*)$\",\"header\":[{\"header_name\":\":method\",\"header_value\":\"GET\"}]}\n","route_name":"openapi-showPetById-f06a8d1fd1-d025573cbf","route_upstreams":[{"upstream":{"upstream_ip":"petstore.swagger.io","upstream_name":"openapi-upstream-petstore.swagger.io","upstream_port":80}}]}]}}]}]}}
+	var ps_json_want = `{"data":{"saaras_db_proxy":[{"proxy_name":"gw","proxy_services":[{"service":{"fqdn":"*","service_name":"openapi-petstore.swagger.io","routes":[{"route_config":"{\"prefix\":\"/v1/pets\",\"header\":[{\"name\":\":method\",\"exact\":\"POST\"}]}\n","route_name":"openapi-createPets-v1pets-c7baa9ec7f","route_upstreams":[{"upstream":{"upstream_ip":"petstore.swagger.io","upstream_name":"openapi-upstream-petstore.swagger.io","upstream_port":80}}]},{"route_config":"{\"prefix\":\"/v1/pets\",\"header\":[{\"name\":\":method\",\"exact\":\"GET\"}]}\n","route_name":"openapi-listPets-v1pets-ec51ad447d","route_upstreams":[{"upstream":{"upstream_ip":"petstore.swagger.io","upstream_name":"openapi-upstream-petstore.swagger.io","upstream_port":80}}]},{"route_config":"{\"prefix\":\"/v1/pets/(?P<petId>.*)/abcd/(?P<petId2>.*)/efgh/(?P<petId3>.*)$\",\"header\":[{\"name\":\":method\",\"exact\":\"GET\"}]}\n","route_name":"openapi-showPetById-f06a8d1fd1-dc96a9cc81","route_upstreams":[{"upstream":{"upstream_ip":"petstore.swagger.io","upstream_name":"openapi-upstream-petstore.swagger.io","upstream_port":80}}]}]}}]}]}}
 `
 	tests := map[string]struct {
 		spec_in           string
@@ -288,8 +288,8 @@ func TestSwaggerPathSpecToSaarasRoute(t *testing.T) {
 			opname_in: "GET",
 			prefix_in: "/test",
 			want: config.Routes{
-				RouteConfig: "{\"prefix\":\"/test\",\"header\":[{\"header_name\":\":method\",\"header_value\":\"GET\"}]}\n",
-				RouteName:   "openapi-test-test-2ff9ae6eff",
+				RouteConfig: "{\"prefix\":\"/test\",\"header\":[{\"name\":\":method\",\"exact\":\"GET\"}]}\n",
+				RouteName:   "openapi-test-test-89c114d0f6",
 				RouteUpstreams: []config.RouteUpstreams{{
 					Upstream: config.Upstream{
 						UpstreamName: "openapi-upstream-testhost",
@@ -309,8 +309,8 @@ func TestSwaggerPathSpecToSaarasRoute(t *testing.T) {
 			opname_in: "GET",
 			prefix_in: "/test2",
 			want: config.Routes{
-				RouteConfig: "{\"prefix\":\"/test2\",\"header\":[{\"header_name\":\":method\",\"header_value\":\"GET\"}]}\n",
-				RouteName:   "openapi-test2-test2-631d337a77",
+				RouteConfig: "{\"prefix\":\"/test2\",\"header\":[{\"name\":\":method\",\"exact\":\"GET\"}]}\n",
+				RouteName:   "openapi-test2-test2-7a669d3de6",
 				RouteUpstreams: []config.RouteUpstreams{{
 					Upstream: config.Upstream{
 						UpstreamName: "openapi-upstream-testhost",
@@ -330,8 +330,8 @@ func TestSwaggerPathSpecToSaarasRoute(t *testing.T) {
 			opname_in: "PUT",
 			prefix_in: "/test",
 			want: config.Routes{
-				RouteConfig: "{\"prefix\":\"/test\",\"header\":[{\"header_name\":\":method\",\"header_value\":\"PUT\"}]}\n",
-				RouteName:   "openapi-put-test-3acaa1c084",
+				RouteConfig: "{\"prefix\":\"/test\",\"header\":[{\"name\":\":method\",\"exact\":\"PUT\"}]}\n",
+				RouteName:   "openapi-put-test-818f8f196d",
 				RouteUpstreams: []config.RouteUpstreams{{
 					Upstream: config.Upstream{
 						UpstreamName: "openapi-upstream-testhost",

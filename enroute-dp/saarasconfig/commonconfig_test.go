@@ -134,15 +134,15 @@ func TestRouteMatchUnmarshal(t *testing.T) {
                 "Prefix" : "/",  
                 "header":
                 [
-                { "header_name" : ":method", "header_value" : "GET"}
+                { "name" : ":method", "exact" : "GET"}
                 ]
             }
             `,
 			want: RouteMatchConditions{
 				Prefix: "/",
 				MatchConditions: []RouteMatchCondition{{
-					HeaderName:  ":method",
-					HeaderValue: "GET",
+					Name:  ":method",
+					Exact: "GET",
 				}},
 			},
 		},

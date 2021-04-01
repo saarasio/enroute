@@ -23,12 +23,12 @@ func TestConvertPathRouteMatchToDagRouteMatch(t *testing.T) {
         "Prefix" : "/test4",
         "Header":
         [
-          { "header_name": ":method", "header_value" : "GET" }
+          { "name": ":method", "exact" : "GET" }
         ]
     }
     `}
 	irCond4 := ir.Condition{Prefix: "/test4"}
-	irCond5 := ir.Condition{Header: &ir.HeaderCondition{Name: ":method", Contains: "GET"}}
+	irCond5 := ir.Condition{Header: &ir.HeaderCondition{Name: ":method", Exact: "GET"}}
 
 	tests := map[string]struct {
 		route SaarasRoute2

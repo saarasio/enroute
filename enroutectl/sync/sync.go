@@ -150,10 +150,10 @@ func routeMatchConditionsEqual(ra_mc, rb_mc saarasconfig.RouteMatchConditions) b
 
 		if len(ra_cond) == len(rb_cond) {
 			for idx, c := range ra_cond {
-				if c.HeaderName != rb_cond[idx].HeaderName {
+				if c.Name != rb_cond[idx].Name {
 					return false
 				}
-				if c.HeaderValue != rb_cond[idx].HeaderValue {
+				if c.Exact != rb_cond[idx].Exact {
 					return false
 				}
 			}

@@ -20,15 +20,15 @@ func TestSetRouteConfigJson(t *testing.T) {
                 "Prefix" : "/",  
                 "header":
                 [
-                { "header_name" : ":method", "header_value" : "GET"}
+                { "name" : ":method", "exact" : "GET"}
                 ]
             }
             `,
 			want: saarasconfig.RouteMatchConditions{
 				Prefix: "/",
 				MatchConditions: []saarasconfig.RouteMatchCondition{{
-					HeaderName:  ":method",
-					HeaderValue: "GET",
+					Name:  ":method",
+					Exact: "GET",
 				}},
 			},
 		},
@@ -38,20 +38,20 @@ func TestSetRouteConfigJson(t *testing.T) {
                 "Prefix" : "/",  
                 "header":
                 [
-                { "header_name" : ":method", "header_value" : "GET"},
-                { "header_name" : ":path", "header_value" : "/"}
+                { "name" : ":method", "exact" : "GET"},
+                { "name" : ":path", "exact" : "/"}
                 ]
             }
             `,
 			want: saarasconfig.RouteMatchConditions{
 				Prefix: "/",
 				MatchConditions: []saarasconfig.RouteMatchCondition{{
-					HeaderName:  ":method",
-					HeaderValue: "GET",
+					Name:  ":method",
+					Exact: "GET",
 				},
 					{
-						HeaderName:  ":path",
-						HeaderValue: "/",
+						Name:  ":path",
+						Exact: "/",
 					},
 				},
 			},
