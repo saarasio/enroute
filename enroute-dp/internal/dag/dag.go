@@ -53,14 +53,18 @@ func (d *DAG) Statuses() map[Meta]Status {
 	return d.statuses
 }
 
+type Filter struct {
+	Filter_name   string
+	Filter_type   string
+	Filter_config string
+}
+
 type RouteFilter struct {
-	Filters     []*cfg.SaarasRouteFilter
-	has_changed bool
+	Filter
 }
 
 type HttpFilter struct {
-	Filters     []*cfg.SaarasRouteFilter
-	has_changed bool
+	Filter
 }
 
 type Condition interface {
@@ -132,7 +136,7 @@ type Route struct {
 	// Indicates that during forwarding, the matched prefix (or path) should be swapped with this value
 	PrefixRewrite string
 
-	RouteFilters *RouteFilter
+	RouteFilters []*RouteFilter
 }
 
 // TimeoutPolicy defines the timeout request/idle
@@ -181,23 +185,43 @@ type VirtualHost struct {
 	// as defined by RFC 3986.
 	Name string
 
-	HttpFilters *HttpFilter
+	HttpFilters []*HttpFilter
 
-	routes map[string]*Route
+	Routes map[string]*Route
 
 	// Service to TCP proxy all incoming connections.
 	*TCPProxy
 }
 
+func (v *VirtualHost) GetVirtualHostRouteFilters() []*cfg.SaarasRouteFilter {
+	f := make([]*cfg.SaarasRouteFilter, 0)
+
+	for _, r := range v.Routes {
+		if r.RouteFilters != nil {
+			for _, f2 := range r.RouteFilters {
+				f = append(f,
+					&cfg.SaarasRouteFilter{
+						Filter_name:   f2.Filter.Filter_name,
+						Filter_type:   f2.Filter.Filter_type,
+						Filter_config: f2.Filter.Filter_config,
+					},
+				)
+			}
+		}
+	}
+
+	return f
+}
+
 func (v *VirtualHost) GetVirtualHostRoutes() map[string]*Route {
-	return v.routes
+	return v.Routes
 }
 
 func (v *VirtualHost) addRoute(route *Route) {
-	if v.routes == nil {
-		v.routes = make(map[string]*Route)
+	if v.Routes == nil {
+		v.Routes = make(map[string]*Route)
 	}
-	v.routes[conditionsToString(route)] = route
+	v.Routes[conditionsToString(route)] = route
 }
 
 func conditionsToString(r *Route) string {
@@ -209,9 +233,10 @@ func conditionsToString(r *Route) string {
 }
 
 func (v *VirtualHost) Visit(f func(Vertex)) {
-	for _, r := range v.routes {
+	for _, r := range v.Routes {
 		f(r)
 	}
+
 	if v.TCPProxy != nil {
 		f(v.TCPProxy)
 	}
@@ -268,6 +293,11 @@ func (l *Listener) Visit(f func(Vertex)) {
 	}
 }
 
+type ServiceBase struct {
+	// ServiceType can be one of TCPService or HTTPService
+	ServiceType string
+}
+
 // TCPProxy represents a cluster of TCP endpoints.
 type TCPProxy struct {
 
@@ -284,6 +314,8 @@ func (t *TCPProxy) Visit(f func(Vertex)) {
 
 // TCPService represents a Kuberentes Service that speaks TCP. That's all we know.
 type TCPService struct {
+	ServiceBase
+
 	Name, Namespace string
 
 	*v1.ServicePort
@@ -342,11 +374,18 @@ type Cluster struct {
 	// UpstreamValidation defines how to verify the backend service's certificate
 	UpstreamValidation *UpstreamValidation
 
+	// ClientValidation defines a way to provide client's identity encoded in SAN in a certificate.
+	// The certificate to send to backend service that it'll verify
+	ClientValidation *UpstreamValidation
+
 	// The load balancer type to use when picking a host in the cluster.
 	// See https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cds.proto#envoy-api-enum-cluster-lbpolicy
 	LoadBalancerStrategy string
 
 	HealthCheck *gatewayhostv1.HealthCheck
+
+	// Set cluster SNI
+	SNI string
 }
 
 func (c Cluster) Visit(f func(Vertex)) {

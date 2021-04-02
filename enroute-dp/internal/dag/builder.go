@@ -28,9 +28,10 @@ import (
 	"k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
+	_ "github.com/davecgh/go-spew/spew"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
-	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
+	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 	"github.com/sirupsen/logrus"
 )
 
@@ -55,8 +56,8 @@ func (b *builder) reset() {
 	b.secrets = make(map[Meta]*Secret, len(b.secrets))
 	b.listeners = make(map[int]*Listener, len(b.listeners))
 
-	b.routefilters = make(map[RouteFilterMeta]*cfg.SaarasRouteFilter, len(b.routefilters))
-	b.httpfilters = make(map[HttpFilterMeta]*cfg.SaarasRouteFilter, len(b.httpfilters))
+	b.routefilters = make(map[RouteFilterMeta]*RouteFilter, len(b.routefilters))
+	b.httpfilters = make(map[HttpFilterMeta]*HttpFilter, len(b.httpfilters))
 
 	b.statuses = make(map[Meta]Status, len(b.statuses))
 }
@@ -70,13 +71,23 @@ type builder struct {
 	secrets   map[Meta]*Secret
 	listeners map[int]*Listener
 
-	routefilters map[RouteFilterMeta]*cfg.SaarasRouteFilter
-	httpfilters  map[HttpFilterMeta]*cfg.SaarasRouteFilter
+	routefilters map[RouteFilterMeta]*RouteFilter
+	httpfilters  map[HttpFilterMeta]*HttpFilter
 
 	orphaned map[Meta]bool
 
 	statuses map[Meta]Status
 	log      logrus.FieldLogger
+}
+
+func (b *builder) debugPrintServices(m Meta, port intstr.IntOrString) {
+	if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
+
+		logger.EL.ELogger.Debugf("dag:builder:debugPrintServices(): Cannot find service meta [%+v] port [%+v]\n", m, port)
+		for _, svc := range b.source.services {
+			logger.EL.ELogger.Debugf("dag:builder:debugPrintServices(): Have service [%+v]\n", svc)
+		}
+	}
 }
 
 // lookupHTTPService returns a HTTPService that matches the Meta and port supplied.
@@ -88,6 +99,7 @@ func (b *builder) lookupHTTPService(m Meta, port intstr.IntOrString) *HTTPServic
 	case nil:
 		svc, ok := b.source.services[m]
 		if !ok {
+			b.debugPrintServices(m, port)
 			return nil
 		}
 		for i := range svc.Spec.Ports {
@@ -99,9 +111,11 @@ func (b *builder) lookupHTTPService(m Meta, port intstr.IntOrString) *HTTPServic
 				return b.addHTTPService(svc, p)
 			}
 		}
+		b.debugPrintServices(m, port)
 		return nil
 	default:
 		// some other type
+		b.debugPrintServices(m, port)
 		return nil
 	}
 }
@@ -205,14 +219,24 @@ func (b *builder) addTCPService(svc *v1.Service, port *v1.ServicePort) *TCPServi
 // lookupSecret returns a Secret if present or nil if the underlying kubernetes
 // secret fails validation or is missing.
 func (b *builder) lookupSecret(m Meta, validate func(*v1.Secret) bool) *Secret {
+
+	if logger.EL.ELogger != nil {
+		logger.EL.ELogger.Debugf("dag:builder:lookupSecret(): [%+v]\n", m)
+	}
 	if s, ok := b.secrets[m]; ok {
 		return s
 	}
 	sec, ok := b.source.secrets[m]
 	if !ok {
+		if logger.EL.ELogger != nil {
+			logger.EL.ELogger.Infof("dag:builder:lookupSecret(): secret [%+v] not found in k8s cache\n", m)
+		}
 		return nil
 	}
 	if !validate(sec) {
+		if logger.EL.ELogger != nil {
+			logger.EL.ELogger.Infof("dag:builder:lookupSecret(): secret [%+v] in k8s cache but invalid\n", m)
+		}
 		return nil
 	}
 	s := &Secret{
@@ -276,6 +300,10 @@ func (b *builder) listener(port int) *Listener {
 func (b *builder) compute() *DAG {
 	b.source.mu.RLock() // blocks mutation of the underlying cache until compute is done.
 	defer b.source.mu.RUnlock()
+
+	if logger.EL.ELogger != nil {
+		logger.EL.ELogger.Debugf("dag:builder:compute:DAG compute()\n")
+	}
 
 	// setup secure vhosts if there is a matching secret
 	// we do this first so that the set of active secure vhosts is stable
@@ -457,6 +485,8 @@ func (b *builder) computeIngresses() {
 				path := stringOrDefault(httppath.Path, "/")
 				be := httppath.Backend
 				m := Meta{name: be.ServiceName, namespace: ing.Namespace}
+				// XXX: We now read the protocol directly from gatewayhostv1.Service
+				// s.Protocol = be.Protocol
 				s := b.lookupHTTPService(m, be.ServicePort)
 				if s == nil {
 					continue
@@ -522,7 +552,7 @@ func (b *builder) computeGatewayHosts() {
 				svhost.Secret = sec
 				svhost.MinProtoVersion = minProtoVersion(ir.Spec.VirtualHost.TLS.MinimumProtocolVersion)
 				enforceTLS = true
-				b.SetupHttpFilters(&svhost.VirtualHost, ir.Spec.VirtualHost, ir.Namespace)
+				b.SetupHttpFilters(&svhost.VirtualHost, ir)
 			}
 			// passthrough is true if tls.secretName is not present, and
 			// tls.passthrough is set to true.
@@ -539,7 +569,7 @@ func (b *builder) computeGatewayHosts() {
 			b.processTCPProxy(ir, nil, host)
 		case ir.Spec.Routes != nil:
 			vh := b.lookupVirtualHost(host)
-			b.SetupHttpFilters(vh, ir.Spec.VirtualHost, ir.Namespace)
+			b.SetupHttpFilters(vh, ir)
 			b.processRoutes(ir, nil, host, enforceTLS)
 		}
 	}
@@ -585,7 +615,7 @@ func (b *builder) DAG() *DAG {
 			switch vh := vh.(type) {
 			case *VirtualHost:
 				// suppress virtual hosts without routes.
-				if len(vh.routes) < 1 {
+				if len(vh.Routes) < 1 {
 					delete(l.VirtualHosts, k)
 				}
 			case *SecureVirtualHost:
@@ -648,20 +678,57 @@ func validSecret(s *v1.Secret) bool {
 	return s.Type == v1.SecretTypeTLS && len(s.Data[v1.TLSCertKey]) > 0 && len(s.Data[v1.TLSPrivateKeyKey]) > 0
 }
 
+// validCert returns true if the Secret contains certificate and private key material.
+func validCert(s *v1.Secret) bool {
+	return s.Type == v1.SecretTypeTLS && len(s.Data[v1.TLSCertKey]) > 0
+}
+
 func validCA(s *v1.Secret) bool {
 	return len(s.Data["ca.crt"]) > 0
+}
+
+func getProtocol(service gatewayhostv1.Service, s *HTTPService) (string, error) {
+	// Determine the protocol to use to speak to this Cluster.
+	var protocol string
+	if service.Protocol != "" {
+		protocol = service.Protocol
+		switch protocol {
+		case "h2c", "h2", "tls":
+			// If we did not set the protocol on the DAG service, copy it from GatewayHost Service to DAG Service
+			s.Protocol = protocol
+		default:
+			return "", fmt.Errorf("unsupported protocol: %v", protocol)
+		}
+	} else {
+		protocol = s.Protocol
+	}
+
+	return protocol, nil
 }
 
 // Process routes for one GatewayHost
 func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewayhostv1.GatewayHost, host string, enforceTLS bool) {
 	visited = append(visited, ir)
 
+	if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+		logger.EL.ELogger.Debugf("dag:builder:processRoutes() IR [%s]", ir.Spec.VirtualHost.Fqdn)
+	}
+
 	for _, route := range ir.Spec.Routes {
 
 		pathConditionValid, errMesg := pathConditionsValid(route.Conditions, "route")
+
+		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+			logger.EL.ELogger.Debugf("dag:builder:processRoutes() Check Path Condition Valid: IR [%s] ", ir.Spec.VirtualHost.Fqdn)
+		}
+
 		if !pathConditionValid {
 			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: errMesg, Vhost: host})
 			continue
+		}
+
+		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+			logger.EL.ELogger.Debugf("dag:builder:processRoutes() Check Header Condition Valid: IR [%s] ", ir.Spec.VirtualHost.Fqdn)
 		}
 		// Look for duplicate exact match headers on this route
 		if !headerConditionsAreValid(route.Conditions) {
@@ -681,7 +748,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 		if len(route.Services) > 0 {
 			r := &Route{
 				PathCondition:    mergePathConditions(route.Conditions),
-				HeaderConditions: mergeHeaderConditions(route.Conditions),
+				HeaderConditions: MergeHeaderConditions(route.Conditions),
 				Websocket:        route.EnableWebsockets,
 				HTTPSUpgrade:     routeEnforceTLS(enforceTLS, route.PermitInsecure),
 				PrefixRewrite:    route.PrefixRewrite,
@@ -691,44 +758,96 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 
 			b.SetupRouteFilters(r, &route, ir.Namespace)
 
+			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+				logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Walk through Route Services", ir.Spec.VirtualHost.Fqdn)
+			}
+
 			for _, service := range route.Services {
 				if service.Port < 1 || service.Port > 65535 {
 					b.setStatus(Status{Object: ir, Status: StatusInvalid,
 						Description: fmt.Sprintf("service %q: port must be in the range 1-65535", service.Name), Vhost: host})
 					return
 				}
-				if service.Weight < 0 {
-					b.log.Infof("bad service weight [%s] [%d]\n", service.Name, service.Weight)
+				if service.Weight < 0 && logger.EL.ELogger != nil {
+					logger.EL.ELogger.Infof("bad service weight [%s] [%d]\n", service.Name, service.Weight)
 					b.setStatus(Status{Object: ir, Status: StatusInvalid,
 						Description: fmt.Sprintf("service %q: weight must be greater than or equal to zero", service.Name), Vhost: host})
 					return
 				}
 				m := Meta{name: service.Name, namespace: ir.Namespace}
 				s := b.lookupHTTPService(m, intstr.FromInt(service.Port))
+
+				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
+					logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Looked up Service [%s:%d]\n",
+						ir.Spec.VirtualHost.Fqdn, service.Name, service.Port)
+				}
+
 				if s == nil {
-					b.log.Debugf("bad service [%s] - invalid or missing\n", service.Name)
+					if logger.EL.ELogger != nil {
+						logger.EL.ELogger.Debugf("bad service [%s] - invalid or missing\n", service.Name)
+					}
 					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
 					return
 				}
 
-				var uv *UpstreamValidation
+				var uv, cv *UpstreamValidation
 				var err error
-				if s.Protocol == "tls" {
+
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Debugf("service [%s] - protocol [%s]\n", service.Name, s.Protocol)
+				}
+
+				protocol, err := getProtocol(service, s)
+
+				// XXX: Ensure that our HTTPService on DAG has the right protocol set
+				s.Protocol = protocol
+
+				if err != nil {
+					if logger.EL.ELogger != nil {
+						logger.EL.ELogger.Debugf("bad service [%s] - error in getting protocol\n", service.Name)
+					}
+				}
+
+				if protocol == "tls" {
 					// we can only validate TLS connections to services that talk TLS
-					uv, err = b.lookupUpstreamValidation(ir, host, route, service, ir.Namespace)
+					uv, err = b.lookupUpstreamValidation(ir, host, &service, ir.Namespace)
 
 					if err != nil {
 						// Do not add route/upstream if we cannot validate upstream validation context
+						if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+							logger.EL.ELogger.Infof("dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
+								ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
+						}
+
+						return
+					}
+
+					// client validation
+					cv, err = b.lookupClientValidation(ir, host, &service, ir.Namespace)
+
+					if err != nil {
+						// Do not add route/upstream if we cannot validate upstream validation context
+						if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+							logger.EL.ELogger.Infof("dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
+								ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
+						}
+
 						return
 					}
 				}
+				// When talking to an ExternalName (DNS) service, explicitly set SNI to that name
 				r.Clusters = append(r.Clusters, &Cluster{
 					Upstream:             s,
 					LoadBalancerStrategy: service.Strategy,
 					Weight:               service.Weight,
 					HealthCheck:          service.HealthCheck,
 					UpstreamValidation:   uv,
+					ClientValidation:     cv,
+					SNI:                  s.ExternalName,
 				})
+				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+					logger.EL.ELogger.Infof("dag:builder:processRoutes() Valid: IR [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
+				}
 			}
 
 			b.lookupVirtualHost(host).addRoute(r)
@@ -776,7 +895,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 // TODO(dfc) needs unit tests; we should pass in some kind of context object that encasulates all the properties we need for reporting
 // status here, the ir, the host, the route, etc. I'm thinking something like logrus' WithField.
 
-func (b *builder) lookupUpstreamValidation(ir *gatewayhostv1.GatewayHost, host string, route gatewayhostv1.Route, service gatewayhostv1.Service, namespace string) (*UpstreamValidation, error) {
+func (b *builder) lookupUpstreamValidation(ir *gatewayhostv1.GatewayHost, host string, service *gatewayhostv1.Service, namespace string) (*UpstreamValidation, error) {
 	uv := service.UpstreamValidation
 	if uv == nil {
 		// no upstream validation requested, nothing to do
@@ -799,6 +918,32 @@ func (b *builder) lookupUpstreamValidation(ir *gatewayhostv1.GatewayHost, host s
 	return &UpstreamValidation{
 		CACertificate: cacert,
 		SubjectName:   uv.SubjectName,
+	}, nil
+}
+
+func (b *builder) lookupClientValidation(ir *gatewayhostv1.GatewayHost, host string, service *gatewayhostv1.Service, namespace string) (*UpstreamValidation, error) {
+	cv := service.ClientValidation
+	if cv == nil {
+		// no client validation requested, nothing to do
+		return nil, nil
+	}
+
+	cacert := b.lookupSecret(Meta{name: cv.CACertificate, namespace: namespace}, validSecret)
+	if cacert == nil {
+		// UpstreamValidation is requested, but cert is missing or not configured
+		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: clientValidation requested but secret not found or misconfigured", service.Name), Vhost: host})
+		return nil, fmt.Errorf("service %q: clientValidation requested but secret not found or misconfigured", service.Name)
+	}
+
+	// TODO: We probably don't need to specify the SAN since the cert has the SAN that the backend service will verify
+	//if cv.SubjectName == "" {
+	//	// UpstreamValidation is requested, but SAN is not provided
+	//	b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name), Vhost: host})
+	//	return nil, fmt.Errorf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name)
+	//}
+
+	return &UpstreamValidation{
+		CACertificate: cacert,
 	}, nil
 }
 

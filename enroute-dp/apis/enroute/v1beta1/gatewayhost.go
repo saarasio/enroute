@@ -202,15 +202,34 @@ type Service struct {
 	// Names defined here will be used to look up corresponding endpoints which contain the ips to route.
 	Name string `json:"name"`
 	// Port (defined as Integer) to proxy traffic to since a service can have multiple defined
+	//
+	// +required
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65536
+	// +kubebuilder:validation:ExclusiveMinimum=false
+	// +kubebuilder:validation:ExclusiveMaximum=true
 	Port int `json:"port"`
+	// Protocol may be used to specify (or override) the protocol used to reach this Service.
+	// Values may be tls, h2, h2c. If omitted, protocol-selection falls back on Service annotations.
+	// +kubebuilder:validation:Enum=h2;h2c;tls
+	// +optional
+	Protocol string `json:"protocol,omitempty"`
 	// Weight defines percentage of traffic to balance traffic
+	// +optional
 	Weight uint32 `json:"weight,omitempty"`
 	// HealthCheck defines optional healthchecks on the upstream service
+	// +optional
 	HealthCheck *HealthCheck `json:"healthCheck,omitempty"`
 	// LB Algorithm to apply (see https://github.com/saarasio/enroute/enroute-dp/blob/master/design/gatewayhost-design.md#load-balancing)
+	// +optional
 	Strategy string `json:"strategy,omitempty"`
 	// UpstreamValidation defines how to verify the backend service's certificate
+	// +optional
 	UpstreamValidation *UpstreamValidation `json:"validation,omitempty"`
+	// ClientValidation defines a way to provide client's identity encoded in SAN in a certificate.
+	// The certificate to send to backend service that it'll verify
+	// +optional
+	ClientValidation *UpstreamValidation `json:"clientvalidation,omitempty"`
 }
 
 // Delegate allows for delegating VHosts to other GatewayHosts

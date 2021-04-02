@@ -629,6 +629,11 @@ func (in *Service) DeepCopyInto(out *Service) {
 		*out = new(UpstreamValidation)
 		**out = **in
 	}
+	if in.ClientValidation != nil {
+		in, out := &in.ClientValidation, &out.ClientValidation
+		*out = new(UpstreamValidation)
+		**out = **in
+	}
 	return
 }
 

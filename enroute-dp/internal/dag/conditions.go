@@ -79,7 +79,7 @@ func pathConditionsValid(conds []gatewayhostv1.Condition, conditionsContext stri
 	return true, ""
 }
 
-func mergeHeaderConditions(conds []gatewayhostv1.Condition) []HeaderCondition {
+func MergeHeaderConditions(conds []gatewayhostv1.Condition) []HeaderCondition {
 	var hc []HeaderCondition
 	for _, cond := range conds {
 		switch {

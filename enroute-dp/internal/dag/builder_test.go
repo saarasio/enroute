@@ -2326,7 +2326,7 @@ func TestDAGInsert(t *testing.T) {
 						&SecureVirtualHost{
 							VirtualHost: VirtualHost{
 								Name: "foo.com",
-								routes: routemap(
+								Routes: routemap(
 									routeUpgrade("/", httpService(s1)),
 								),
 							},
@@ -2353,7 +2353,7 @@ func TestDAGInsert(t *testing.T) {
 						&SecureVirtualHost{
 							VirtualHost: VirtualHost{
 								Name: "foo.com",
-								routes: routemap(
+								Routes: routemap(
 									routeUpgrade("/", httpService(s1)),
 								),
 							},
@@ -2419,7 +2419,7 @@ func TestDAGInsert(t *testing.T) {
 						&SecureVirtualHost{
 							VirtualHost: VirtualHost{
 								Name: "b.example.com",
-								routes: routemap(
+								Routes: routemap(
 									prefixroute("/", httpService(s1)),
 								),
 							},
@@ -4148,7 +4148,7 @@ func TestDAGGatewayHostUniqueFQDNs(t *testing.T) {
 					VirtualHosts: virtualhosts(
 						&VirtualHost{
 							Name: "example.com",
-							routes: routemap(
+							Routes: routemap(
 								prefixroute("/", httpService(s1)),
 							),
 						},
@@ -4478,7 +4478,7 @@ func virtualhosts(vx ...Vertex) map[string]Vertex {
 func virtualhost(name string, routes ...*Route) *VirtualHost {
 	return &VirtualHost{
 		Name:   name,
-		routes: routemap(routes...),
+		Routes: routemap(routes...),
 	}
 }
 
@@ -4486,7 +4486,7 @@ func securevirtualhost(name string, sec *v1.Secret, routes ...*Route) *SecureVir
 	return &SecureVirtualHost{
 		VirtualHost: VirtualHost{
 			Name:   name,
-			routes: routemap(routes...),
+			Routes: routemap(routes...),
 		},
 		MinProtoVersion: envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1,
 		Secret:          secret(sec),

@@ -8,7 +8,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
-	_ "github.com/saarasio/enroute/enroute-dp/internal/assert"
+	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
@@ -48,11 +48,9 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 			}),
 		},
 	}
-	dag_filters_in := []*cfg.SaarasRouteFilter{
-		{
-			Filter_type:   cfg.FILTER_TYPE_HTTP_LUA,
-			Filter_config: luaCode,
-		},
+	dag_filters_in := dag.Filter{
+		Filter_type:   cfg.FILTER_TYPE_HTTP_LUA,
+		Filter_config: luaCode,
 	}
 
 	filter_out := &envoy_config_listener_v3.Filter{
@@ -61,7 +59,7 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 			TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
 				HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
 					{
-						Name: wellknown.Lua,
+						Name: "envoy.lua",
 						ConfigType: &envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter_TypedConfig{
 							TypedConfig: toAny(&envoy_extensions_filters_http_lua_v3.Lua{
 								InlineCode: luaCode,
@@ -104,7 +102,7 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 				FilterChains: FilterChains(filter_in),
 			},
 			dag_filters: dag.HttpFilter{
-				Filters: dag_filters_in,
+				Filter: dag_filters_in,
 			},
 			name: "",
 			want: envoy_config_listener_v3.Listener{
@@ -115,9 +113,13 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			AddHttpFilterToListener(&tc.l, &tc.dag_filters, tc.name)
-			//got := tc.l
-			//assert.Equal(t, tc.want, got)
+			vh := dag.VirtualHost{}
+			vh.HttpFilters = []*dag.HttpFilter{
+				&tc.dag_filters,
+			}
+			AddHttpFilterToListener(&tc.l, &vh, tc.name)
+			got := tc.l
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

@@ -237,7 +237,7 @@ func TestHeaderConditions(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := mergeHeaderConditions(tc.conditions)
+			got := MergeHeaderConditions(tc.conditions)
 			assert.Equal(t, tc.want, got)
 		})
 	}

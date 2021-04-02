@@ -82,7 +82,7 @@ func rateLimitActionGenericKey(descriptor_value string) *envoy_config_route_v3.R
 	}
 }
 
-func rateLimits(rl *dag.RouteFilter) []*envoy_config_route_v3.RateLimit {
+func rateLimits(rl_filters []*dag.RouteFilter) []*envoy_config_route_v3.RateLimit {
 
 	var rad saarasconfig.RouteActionDescriptors
 	var err error
@@ -92,17 +92,17 @@ func rateLimits(rl *dag.RouteFilter) []*envoy_config_route_v3.RateLimit {
 	rrl_slice = make([]*envoy_config_route_v3.RateLimit, 0)
 	// fmt.Printf("rateLimits(): RouteFilter [%+v]\n", rl)
 
-	for _, f := range rl.Filters {
+	for _, f := range rl_filters {
 		// fmt.Printf("rateLimits(): processing filter [%+v]\n", f)
 		if f == nil {
 			continue
 		}
 		// f is of type cfg.SaarasRouteFilter
 		// TODO: Fix the switch on filter type, we only parse rate-limit config if filter type is rate-limit
-		switch f.Filter_type {
+		switch f.Filter.Filter_type {
 		case saarasconfig.FILTER_TYPE_RT_RATELIMIT:
 			// fmt.Printf("rateLimits(): Unmarshalling [%+s]\n", f.Filter_config)
-			rad, err = saarasconfig.UnmarshalRateLimitRouteFilterConfig(f.Filter_config)
+			rad, err = saarasconfig.UnmarshalRateLimitRouteFilterConfig(f.Filter.Filter_config)
 			// fmt.Printf("rateLimits(): Route action descriptor [%+v]\n", rad)
 			if err != nil {
 				//TODO

@@ -12,6 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sort"
 	//"strconv"
+	"net"
 	"strings"
 )
 
@@ -37,7 +38,7 @@ query get_services_by_proxy($proxy_name: String!) {
       routes {
         route_name
         route_prefix
-		route_config
+        route_config
         create_ts
         update_ts
         route_upstreams {
@@ -66,6 +67,26 @@ query get_services_by_proxy($proxy_name: String!) {
             filter_name
             filter_type
             filter_config
+            filter_upstreams {
+              upstream {
+                    upstream_name
+                    upstream_ip
+                    upstream_port
+                    upstream_weight
+                    upstream_hc_path
+                    upstream_hc_host
+                    upstream_hc_intervalseconds
+                    upstream_hc_timeoutseconds
+                    upstream_hc_unhealthythresholdcount
+                    upstream_hc_healthythresholdcount
+                    upstream_strategy
+                    upstream_validation_cacertificate
+                    upstream_validation_subjectname
+                    upstream_protocol
+                    create_ts
+                    update_ts
+              }
+            }
             create_ts
             update_ts
           }
@@ -77,6 +98,26 @@ query get_services_by_proxy($proxy_name: String!) {
           filter_name
           filter_type
           filter_config
+          filter_upstreams {
+              upstream {
+                upstream_name
+                    upstream_ip
+                    upstream_port
+                    upstream_weight
+                    upstream_hc_path
+                    upstream_hc_host
+                    upstream_hc_intervalseconds
+                    upstream_hc_timeoutseconds
+                    upstream_hc_unhealthythresholdcount
+                    upstream_hc_healthythresholdcount
+                    upstream_strategy
+                    upstream_validation_cacertificate
+                    upstream_validation_subjectname
+                    upstream_protocol
+                    create_ts
+                    update_ts
+              }
+            }
           create_ts
           update_ts
         }
@@ -135,10 +176,11 @@ type DataUpstreams struct {
 }
 
 type Filter struct {
-	FilterID      int    `json:"filter_id"`
-	Filter_name   string `json:"filter_name"`
-	Filter_type   string `json:"filter_type"`
-	Filter_config string `json:"filter_config"`
+	FilterID         int                       `json:"filter_id"`
+	Filter_name      string                    `json:"filter_name"`
+	Filter_type      string                    `json:"filter_type"`
+	Filter_config    string                    `json:"filter_config"`
+	Filter_upstreams []cfg.SaarasMicroService2 `json:"filter_upstreams"`
 }
 
 type RouteFilters struct {
@@ -282,6 +324,17 @@ func upstream_service(oneService *cfg.SaarasMicroService2) v1beta1.Service {
 	}
 
 	return s
+}
+
+func saaras_set_sni_for_externalname_service(sir *cfg.SaarasMicroService2) string {
+	ip := net.ParseIP(sir.Upstream.Upstream_ip)
+	if ip == nil {
+		// Couldn't parse IP, assume it's a domain name
+		// 09-08-2020 return service domain used to connect to service as SNI for validation
+		return sir.Upstream.Upstream_ip
+	}
+
+	return ""
 }
 
 func saaras_upstream_to_v1b1_uv(sir *cfg.SaarasMicroService2) *v1beta1.UpstreamValidation {
@@ -440,7 +493,7 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasGatewayHostService, log logrus.
 		if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
 			spew.Dump(onev1b1ir)
 		}
-		m[onev1b1ir.Name+"_"+onev1b1ir.Namespace] = onev1b1ir
+		m[onev1b1ir.Name + "_" + onev1b1ir.Namespace] = onev1b1ir
 	}
 
 	return &m

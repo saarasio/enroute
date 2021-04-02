@@ -83,6 +83,12 @@ CREATE SEQUENCE saaras_db.filter_filter_id_seq
     NO MAXVALUE
     CACHE 1;
 ALTER SEQUENCE saaras_db.filter_filter_id_seq OWNED BY saaras_db.filter.filter_id;
+CREATE TABLE saaras_db.filter_upstream (
+    filter_id integer NOT NULL,
+    upstream_id integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
 CREATE TABLE saaras_db.globalconfig (
     globalconfig_id bigint NOT NULL,
     create_ts timestamp with time zone DEFAULT now() NOT NULL,
@@ -327,6 +333,8 @@ ALTER TABLE ONLY saaras_db.filter
     ADD CONSTRAINT filter_filter_name_key UNIQUE (filter_name);
 ALTER TABLE ONLY saaras_db.filter
     ADD CONSTRAINT filter_pkey PRIMARY KEY (filter_id);
+ALTER TABLE ONLY saaras_db.filter_upstream
+    ADD CONSTRAINT filter_upstream_pkey PRIMARY KEY (filter_id, upstream_id);
 ALTER TABLE ONLY saaras_db.globalconfig
     ADD CONSTRAINT globalconfig_globalconfig_name_key UNIQUE (globalconfig_name);
 ALTER TABLE ONLY saaras_db.globalconfig
@@ -375,6 +383,8 @@ ALTER TABLE ONLY saaras_db.upstream
     ADD CONSTRAINT upstream_pkey PRIMARY KEY (upstream_id);
 ALTER TABLE ONLY saaras_db.upstream
     ADD CONSTRAINT upstream_upstream_name_key UNIQUE (upstream_name);
+CREATE TRIGGER set_saaras_db_filter_upstream_updated_at BEFORE UPDATE ON saaras_db.filter_upstream FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_updated_at();
+COMMENT ON TRIGGER set_saaras_db_filter_upstream_updated_at ON saaras_db.filter_upstream IS 'trigger to set value of column "updated_at" to current timestamp on row update';
 CREATE TRIGGER set_saaras_db_proxy_service_update_ts BEFORE UPDATE ON saaras_db.proxy_service FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
 COMMENT ON TRIGGER set_saaras_db_proxy_service_update_ts ON saaras_db.proxy_service IS 'trigger to set value of column "update_ts" to current timestamp on row update';
 CREATE TRIGGER set_saaras_db_proxy_update_ts BEFORE UPDATE ON saaras_db.proxy FOR EACH ROW EXECUTE PROCEDURE saaras_db.set_current_timestamp_update_ts();
@@ -393,6 +403,10 @@ CREATE TRIGGER set_saaras_db_upstream_update_ts BEFORE UPDATE ON saaras_db.upstr
 COMMENT ON TRIGGER set_saaras_db_upstream_update_ts ON saaras_db.upstream IS 'trigger to set value of column "update_ts" to current timestamp on row update';
 ALTER TABLE ONLY saaras_db.artifact
     ADD CONSTRAINT artifact_secret_id_fkey FOREIGN KEY (secret_id) REFERENCES saaras_db.secret(secret_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.filter_upstream
+    ADD CONSTRAINT filter_upstream_filter_id_fkey FOREIGN KEY (filter_id) REFERENCES saaras_db.filter(filter_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
+ALTER TABLE ONLY saaras_db.filter_upstream
+    ADD CONSTRAINT filter_upstream_upstream_id_fkey FOREIGN KEY (upstream_id) REFERENCES saaras_db.upstream(upstream_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.proxy_globalconfig
     ADD CONSTRAINT proxy_globalconfig_globalconfig_id_fkey FOREIGN KEY (globalconfig_id) REFERENCES saaras_db.globalconfig(globalconfig_id) ON UPDATE RESTRICT ON DELETE RESTRICT;
 ALTER TABLE ONLY saaras_db.proxy_globalconfig

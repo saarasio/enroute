@@ -69,6 +69,7 @@ Filters/Plugins are supported for both Kubernetes Ingress Gateway and Standalone
 
 [Periodic Office Hours](https://www.meetup.com/enroute-universal-api-gateway-periodic-office-hours/events/rtqbdsycccbsb/)
 
+[Community Slack](https://join.slack.com/t/saaras-io/shared_invite/zt-o5nzx78x-bjm7XEyRFRFkMSZzBX12mA)
 [Community Discord](https://discord.gg/p9Nu9Uk)
 
 ### Enterprise Support and Demo
