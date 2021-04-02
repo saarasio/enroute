@@ -30,32 +30,65 @@ import (
 	envoy_type "github.com/envoyproxy/go-control-plane/envoy/type/v3"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
+	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )
 
 // CACertificateKey stores the key for the TLS validation secret cert
 const CACertificateKey = "ca.crt"
+const TLSSecretCertificate = "tls.crt"
+const TLSSecretKey = "tls.key"
 
 // Cluster creates new envoy_config_cluster_v3.Cluster from dag.Cluster.
 func Cluster(c *dag.Cluster) *envoy_config_cluster_v3.Cluster {
+
+	if logger.EL.ELogger != nil {
+		logger.EL.ELogger.Debugf("internal:envoy:cluster:Cluster() Setup cluster for upstream [%+v] \n", c.Upstream)
+	}
 	switch upstream := c.Upstream.(type) {
 	case *dag.HTTPService:
 		cl := cluster(c, &upstream.TCPService)
 		switch upstream.Protocol {
 		case "tls":
-			cl.TransportSocket = UpstreamTLSTransportSocket(
-				UpstreamTLSContext(
-					upstreamValidationCACert(c),
-					upstreamValidationSubjectAltName(c),
-				),
-			)
+			if c.ClientValidation != nil {
+				cl.TransportSocket = UpstreamTLSTransportSocket(
+					UpstreamTLSContextWithClientValidation(
+						c.SNI,
+						upstreamValidationCACert(c),
+						clientValidationCACert(c),
+						clientValidationKey(c),
+						upstreamValidationSubjectAltName(c),
+					),
+				)
+			} else {
+				cl.TransportSocket = UpstreamTLSTransportSocket(
+					UpstreamTLSContext(
+						c.SNI,
+						upstreamValidationCACert(c),
+						upstreamValidationSubjectAltName(c),
+					),
+				)
+			}
 		case "h2":
-			cl.TransportSocket = UpstreamTLSTransportSocket(
-				UpstreamTLSContext(
-					upstreamValidationCACert(c),
-					upstreamValidationSubjectAltName(c),
-					"h2"),
-			)
+			if c.ClientValidation != nil {
+				cl.TransportSocket = UpstreamTLSTransportSocket(
+					UpstreamTLSContextWithClientValidation(
+						upstream.TCPService.ExternalName,
+						upstreamValidationCACert(c),
+						clientValidationCACert(c),
+						clientValidationKey(c),
+						upstreamValidationSubjectAltName(c),
+						"h2"),
+				)
+			} else {
+				cl.TransportSocket = UpstreamTLSTransportSocket(
+					UpstreamTLSContext(
+						upstream.TCPService.ExternalName,
+						upstreamValidationCACert(c),
+						upstreamValidationSubjectAltName(c),
+						"h2"),
+				)
+			}
 			fallthrough
 		case "h2c":
 			cl.Http2ProtocolOptions = &envoy_config_core_v3.Http2ProtocolOptions{}
@@ -66,6 +99,22 @@ func Cluster(c *dag.Cluster) *envoy_config_cluster_v3.Cluster {
 	default:
 		panic(fmt.Sprintf("unsupported upstream type: %T", upstream))
 	}
+}
+
+func clientValidationCACert(c *dag.Cluster) []byte {
+	if c.ClientValidation == nil {
+		// No validation required
+		return nil
+	}
+	return c.ClientValidation.CACertificate.Object.Data[TLSSecretCertificate]
+}
+
+func clientValidationKey(c *dag.Cluster) []byte {
+	if c.ClientValidation == nil {
+		// No validation required
+		return nil
+	}
+	return c.ClientValidation.CACertificate.Object.Data[TLSSecretKey]
 }
 
 func upstreamValidationCACert(c *dag.Cluster) []byte {
@@ -92,6 +141,9 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluste
 		LbPolicy:       lbPolicy(cluster.LoadBalancerStrategy),
 		CommonLbConfig: ClusterCommonLBConfig(),
 		HealthChecks:   edshealthcheck(cluster),
+		// TODO: Force v4, TODO: This should be configurable
+		// https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster.proto#envoy-api-enum-cluster-dnslookupfamily
+		DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 	}
 
 	switch len(service.ExternalName) {

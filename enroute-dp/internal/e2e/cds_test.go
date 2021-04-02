@@ -534,7 +534,8 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 						MaxRetries:         protobuf.UInt32(7),
 					}},
 				},
-				CommonLbConfig: envoy.ClusterCommonLBConfig(),
+				CommonLbConfig:  envoy.ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		),
 		TypeUrl: clusterType,
@@ -577,7 +578,8 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 						MaxPendingRequests: protobuf.UInt32(9999),
 					}},
 				},
-				CommonLbConfig: envoy.ClusterCommonLBConfig(),
+				CommonLbConfig:  envoy.ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		),
 		TypeUrl: clusterType,
@@ -704,9 +706,10 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
-				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       envoy_config_cluster_v3.Cluster_RANDOM,
-				CommonLbConfig: envoy.ClusterCommonLBConfig(),
+				ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:        envoy_config_cluster_v3.Cluster_RANDOM,
+				CommonLbConfig:  envoy.ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 			&envoy_config_cluster_v3.Cluster{
 				Name:                 "default/kuard/80/8bf87fefba",
@@ -716,9 +719,10 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 					EdsConfig:   envoy.ConfigSource("enroute"),
 					ServiceName: "default/kuard",
 				},
-				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       envoy_config_cluster_v3.Cluster_LEAST_REQUEST,
-				CommonLbConfig: envoy.ClusterCommonLBConfig(),
+				ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:        envoy_config_cluster_v3.Cluster_LEAST_REQUEST,
+				CommonLbConfig:  envoy.ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		),
 		TypeUrl: clusterType,
@@ -1006,9 +1010,10 @@ func cluster(name, servicename, statName string) *envoy_config_cluster_v3.Cluste
 			EdsConfig:   envoy.ConfigSource("enroute"),
 			ServiceName: servicename,
 		},
-		ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-		LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
-		CommonLbConfig: envoy.ClusterCommonLBConfig(),
+		ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+		LbPolicy:        envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+		CommonLbConfig:  envoy.ClusterCommonLBConfig(),
+		DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 	}
 }
 
@@ -1026,13 +1031,15 @@ func externalnamecluster(name, servicename, statName, externalName string, port 
 				envoy.SocketAddress(externalName, port),
 			),
 		},
+		DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 	}
 }
 
 func tlscluster(name, servicename, statsName string, ca []byte, subjectName string) *envoy_config_cluster_v3.Cluster {
 	c := cluster(name, servicename, statsName)
+	sni := ""
 	c.TransportSocket = envoy.UpstreamTLSTransportSocket(
-		envoy.UpstreamTLSContext(ca, subjectName),
+		envoy.UpstreamTLSContext(sni, ca, subjectName),
 	)
 	return c
 }

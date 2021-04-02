@@ -85,9 +85,10 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
-				CommonLbConfig: ClusterCommonLBConfig(),
+				ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:        envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"h2c upstream": {
@@ -109,6 +110,7 @@ func TestCluster(t *testing.T) {
 				LbPolicy:             envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				Http2ProtocolOptions: &envoy_config_core_v3.Http2ProtocolOptions{},
 				CommonLbConfig:       ClusterCommonLBConfig(),
+				DnsLookupFamily:      envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"h2 upstream": {
@@ -129,10 +131,11 @@ func TestCluster(t *testing.T) {
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				TransportSocket: UpstreamTLSTransportSocket(
-					UpstreamTLSContext(nil, "", "h2"),
+					UpstreamTLSContext("", nil, "", "h2"),
 				),
 				Http2ProtocolOptions: &envoy_config_core_v3.Http2ProtocolOptions{},
 				CommonLbConfig:       ClusterCommonLBConfig(),
+				DnsLookupFamily:      envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"externalName service": {
@@ -149,6 +152,7 @@ func TestCluster(t *testing.T) {
 				ConnectTimeout:       protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:             envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				CommonLbConfig:       ClusterCommonLBConfig(),
+				DnsLookupFamily:      envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"tls upstream": {
@@ -169,9 +173,10 @@ func TestCluster(t *testing.T) {
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				TransportSocket: UpstreamTLSTransportSocket(
-					UpstreamTLSContext(nil, ""),
+					UpstreamTLSContext("", nil, ""),
 				),
-				CommonLbConfig: ClusterCommonLBConfig(),
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"verify tls upstream with san": {
@@ -206,9 +211,10 @@ func TestCluster(t *testing.T) {
 				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
 				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				TransportSocket: UpstreamTLSTransportSocket(
-					UpstreamTLSContext([]byte("cacert"), "foo.bar.io"),
+					UpstreamTLSContext("", []byte("cacert"), "foo.bar.io"),
 				),
-				CommonLbConfig: ClusterCommonLBConfig(),
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"enroute.saaras.io/max-connections": {
@@ -236,7 +242,8 @@ func TestCluster(t *testing.T) {
 						MaxConnections: protobuf.UInt32(9000),
 					}},
 				},
-				CommonLbConfig: ClusterCommonLBConfig(),
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"enroute.saaras.io/max-pending-requests": {
@@ -264,7 +271,8 @@ func TestCluster(t *testing.T) {
 						MaxPendingRequests: protobuf.UInt32(4096),
 					}},
 				},
-				CommonLbConfig: ClusterCommonLBConfig(),
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"enroute.saaras.io/max-requests": {
@@ -292,7 +300,8 @@ func TestCluster(t *testing.T) {
 						MaxRequests: protobuf.UInt32(404),
 					}},
 				},
-				CommonLbConfig: ClusterCommonLBConfig(),
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"enroute.saaras.io/max-retries": {
@@ -320,7 +329,8 @@ func TestCluster(t *testing.T) {
 						MaxRetries: protobuf.UInt32(7),
 					}},
 				},
-				CommonLbConfig: ClusterCommonLBConfig(),
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"cluster with random load balancer policy": {
@@ -338,9 +348,10 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       envoy_config_cluster_v3.Cluster_RANDOM,
-				CommonLbConfig: ClusterCommonLBConfig(),
+				ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:        envoy_config_cluster_v3.Cluster_RANDOM,
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"cluster with cookie policy": {
@@ -358,9 +369,10 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       envoy_config_cluster_v3.Cluster_RING_HASH,
-				CommonLbConfig: ClusterCommonLBConfig(),
+				ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:        envoy_config_cluster_v3.Cluster_RING_HASH,
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 
@@ -379,9 +391,10 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
-				CommonLbConfig: ClusterCommonLBConfig(),
+				ConnectTimeout:  protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:        envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				CommonLbConfig:  ClusterCommonLBConfig(),
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 		"tcp service with healthcheck": {
@@ -418,6 +431,7 @@ func TestCluster(t *testing.T) {
 						},
 					},
 				}},
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
 	}

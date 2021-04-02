@@ -20,6 +20,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	matcher "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
+	_ "github.com/saarasio/enroute/enroute-dp/internal/logger"
 )
 
 var (
@@ -51,11 +52,12 @@ var (
 // UpstreamTLSContext creates an envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext. By default
 // UpstreamTLSContext returns a HTTP/1.1 TLS enabled context. A list of
 // additional ALPN protocols can be provided.
-func UpstreamTLSContext(ca []byte, subjectName string, alpnProtocols ...string) *envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext {
+func UpstreamTLSContext(sni string, ca []byte, subjectName string, alpnProtocols ...string) *envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext {
 	context := &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
 		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
 			AlpnProtocols: alpnProtocols,
 		},
+		Sni: sni,
 	}
 
 	// we have to do explicitly assign the value from validationContext
@@ -66,6 +68,36 @@ func UpstreamTLSContext(ca []byte, subjectName string, alpnProtocols ...string) 
 	vc := validationContext(ca, subjectName)
 	if vc != nil {
 		context.CommonTlsContext.ValidationContextType = vc
+	}
+
+	return context
+}
+
+func UpstreamTLSContextWithClientValidation(sni string, ca []byte, cv_cert []byte, cv_key []byte, subjectName string, alpnProtocols ...string) *envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext {
+
+	context := &envoy_extensions_transport_sockets_tls_v3.UpstreamTlsContext{
+		CommonTlsContext: &envoy_extensions_transport_sockets_tls_v3.CommonTlsContext{
+			AlpnProtocols: alpnProtocols,
+		},
+		Sni: sni,
+	}
+
+	// we have to do explicitly assign the value from validationContext
+	// to context.CommonTlsContext.ValidationContextType because the latter
+	// is an interface, returning nil from validationContext directly into
+	// this field boxes the nil into the unexported type of this grpc OneOf field
+	// which causes proto marshaling to explode later on. Not happy Jan.
+	vc := validationContext(ca, subjectName)
+	if vc != nil {
+		context.CommonTlsContext.ValidationContextType = vc
+	}
+
+	ctls := clientTlsCertificates(cv_cert, cv_key)
+	if ctls != nil {
+		if context.CommonTlsContext.TlsCertificates == nil {
+			context.CommonTlsContext.TlsCertificates = make([]*envoy_extensions_transport_sockets_tls_v3.TlsCertificate, 0)
+		}
+		context.CommonTlsContext.TlsCertificates = append(context.CommonTlsContext.TlsCertificates, ctls)
 	}
 
 	return context
@@ -82,6 +114,21 @@ func StringToExactMatch(in []string) []*matcher.StringMatcher {
 		})
 	}
 	return res
+}
+
+func clientTlsCertificates(cv_cert, cv_key []byte) *envoy_extensions_transport_sockets_tls_v3.TlsCertificate {
+	return &envoy_extensions_transport_sockets_tls_v3.TlsCertificate{
+		CertificateChain: &envoy_config_core_v3.DataSource{
+			Specifier: &envoy_config_core_v3.DataSource_InlineBytes{
+				InlineBytes: cv_cert,
+			},
+		},
+		PrivateKey: &envoy_config_core_v3.DataSource{
+			Specifier: &envoy_config_core_v3.DataSource_InlineBytes{
+				InlineBytes: cv_key,
+			},
+		},
+	}
 }
 
 func validationContext(ca []byte, subjectName string) *envoy_extensions_transport_sockets_tls_v3.CommonTlsContext_ValidationContext {

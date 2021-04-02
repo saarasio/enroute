@@ -77,8 +77,9 @@ func TestUpstreamTLSContext(t *testing.T) {
 	}
 
 	for name, tc := range tests {
+		sni := ""
 		t.Run(name, func(t *testing.T) {
-			got := UpstreamTLSContext(tc.ca, tc.subjectName, tc.alpnProtocols...)
+			got := UpstreamTLSContext(sni, tc.ca, tc.subjectName, tc.alpnProtocols...)
 			if diff := cmp.Diff(tc.want, got, protocmp.Transform()); diff != "" {
 				t.Fatal(diff)
 			}
