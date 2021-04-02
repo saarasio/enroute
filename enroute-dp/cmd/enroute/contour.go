@@ -19,16 +19,24 @@ import (
 
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
-	"github.com/sirupsen/logrus"
+	"github.com/saarasio/enroute/enroute-dp/internal/logger"
+	_ "github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+func init() {
+	logger.EL = logger.EnrouteLogger{}
+	logger.EL.Initialize()
+}
+
 func main() {
-	log := logrus.StandardLogger()
-	log.SetLevel(logrus.DebugLevel)
+
+	// Use our logger
+	el := logger.EL
+
 	app := kingpin.New("enroute", "enroute agent to control envoy proxy")
 
 	bootstrap, bootstrapCtx := registerBootstrap(app)
@@ -82,8 +90,8 @@ func main() {
 		// on top of any values sourced from -c's config file.
 		_, err := app.Parse(args)
 		check(err)
-		log.Infof("args: %v", args)
-		doServe(log, serveCtx)
+		el.ELogger.Infof("args: %v", args)
+		doServe(el.ELogger, serveCtx)
 	default:
 		app.Usage(args)
 		os.Exit(2)

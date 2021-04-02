@@ -24,6 +24,7 @@ import (
 
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/httpsvc"
+	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 )
 
 // Service serves various http endpoints including /debug/pprof.
@@ -38,6 +39,7 @@ type Service struct {
 func (svc *Service) Start(stop <-chan struct{}) error {
 	registerProfile(&svc.ServeMux)
 	registerDotWriter(&svc.ServeMux, svc.KubernetesCache)
+	registerEnrouteLogger(&svc.ServeMux)
 	return svc.Service.Start(stop)
 }
 
@@ -60,4 +62,9 @@ func registerDotWriter(mux *http.ServeMux, kc *dag.KubernetesCache) {
 		}
 		dw.WriteDot(w)
 	})
+}
+
+func registerEnrouteLogger(mux *http.ServeMux) {
+	enrouteLogger := logger.EnrouteLogger{}
+	mux.Handle("/logging", &enrouteLogger)
 }
