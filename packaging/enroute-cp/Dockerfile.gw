@@ -72,16 +72,16 @@ COPY graf/* /graf/
 RUN ["mkdir", "-p", "/examples"]
 COPY petstore.json /examples/
 
-WORKDIR /prom
-RUN ["tar", "-xzf", "/prom/prometheus-2.19.0.linux-amd64.tar.gz"]
-RUN ["chown", "-R", "postgres:postgres", "/prom"]
-RUN ["chmod", "-R", "+x", "/prom/prometheus-2.19.0.linux-amd64/data"]
-WORKDIR /graf
-RUN ["tar", "-xzf", "grafana-7.0.3.linux-amd64.tar.gz"]
-RUN ["chown", "-R", "postgres:postgres", "/graf"]
-RUN ["chmod", "-R", "+x", "/graf/grafana-7.0.3/data"]
-WORKDIR /examples
-RUN ["chown", "-R", "postgres:postgres", "/examples"]
+#WORKDIR /prom
+#RUN ["tar", "-xzf", "/prom/prometheus-2.19.0.linux-amd64.tar.gz"]
+#RUN ["chown", "-R", "postgres:postgres", "/prom"]
+#RUN ["chmod", "-R", "+x", "/prom/prometheus-2.19.0.linux-amd64/data"]
+#WORKDIR /graf
+#RUN ["tar", "-xzf", "grafana-7.0.3.linux-amd64.tar.gz"]
+#RUN ["chown", "-R", "postgres:postgres", "/graf"]
+#RUN ["chmod", "-R", "+x", "/graf/grafana-7.0.3/data"]
+#WORKDIR /examples
+#RUN ["chown", "-R", "postgres:postgres", "/examples"]
 
 WORKDIR /bin
 
