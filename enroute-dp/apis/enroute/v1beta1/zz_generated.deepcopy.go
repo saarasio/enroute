@@ -341,7 +341,7 @@ func (in *HttpFilter) DeepCopyInto(out *HttpFilter) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
-	out.Spec = in.Spec
+	in.Spec.DeepCopyInto(&out.Spec)
 	out.Status = in.Status
 	return
 }
@@ -401,6 +401,7 @@ func (in *HttpFilterList) DeepCopyObject() runtime.Object {
 func (in *HttpFilterSpec) DeepCopyInto(out *HttpFilterSpec) {
 	*out = *in
 	out.HttpFilterConfig = in.HttpFilterConfig
+	in.Service.DeepCopyInto(&out.Service)
 	return
 }
 
@@ -543,7 +544,7 @@ func (in *RouteFilter) DeepCopyInto(out *RouteFilter) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
 	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
-	out.Spec = in.Spec
+	in.Spec.DeepCopyInto(&out.Spec)
 	out.Status = in.Status
 	return
 }
@@ -603,6 +604,7 @@ func (in *RouteFilterList) DeepCopyObject() runtime.Object {
 func (in *RouteFilterSpec) DeepCopyInto(out *RouteFilterSpec) {
 	*out = *in
 	out.RouteFilterConfig = in.RouteFilterConfig
+	in.Service.DeepCopyInto(&out.Service)
 	return
 }
 

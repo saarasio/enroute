@@ -13,6 +13,9 @@ type RouteFilterSpec struct {
 	Name              string                   `json:"name,omitempty"`
 	Type              string                   `json:"type,omitempty"`
 	RouteFilterConfig GenericRouteFilterConfig `json:"routeFilterConfig,omitempty"`
+	// Service that the filter may need to communicate with to provide the filter functionality
+	// Eg: jwt server that hosts external JWKS
+	Service Service `json:"services,omitempty"`
 }
 
 // +genclient

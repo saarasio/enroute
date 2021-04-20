@@ -13,6 +13,9 @@ type HttpFilterSpec struct {
 	Name             string                  `json:"name,omitempty"`
 	Type             string                  `json:"type,omitempty"`
 	HttpFilterConfig GenericHttpFilterConfig `json:"httpFilterConfig,omitempty"`
+	// Service that the filter communicates with to provide the filter functionality
+	// Eg: jwt server that hosts external JWKS
+	Service Service `json:"services,omitempty"`
 }
 
 // +genclient
