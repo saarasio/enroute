@@ -7,7 +7,10 @@
             "name": "API Support",
             "url": "https://saaras.io/"
         },
-        "license": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "1.0"
     },
     "paths": {
@@ -33,7 +36,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -62,6 +65,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.FilterConfig"
                         }
                     }
@@ -70,13 +74,48 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
             }
         },
-        "/filter/:filter_name": {
+        "/filter/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Set filter config from file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "filter"
+                ],
+                "summary": "Set filter config from file",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name of filter_name for which to list config",
+                        "name": "filter_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -108,6 +147,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.FilterConfig"
                         }
                     }
@@ -116,44 +156,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
-                        }
-                    }
-                }
-            }
-        },
-        "/filter/:filter_name/config": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Set filter config from file",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "filter"
-                ],
-                "summary": "Set filter config from file",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Name of filter_name for which to list config",
-                        "name": "filter_name",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -190,7 +193,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -225,7 +228,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -253,7 +256,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -279,7 +282,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -316,7 +319,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -351,7 +354,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -386,7 +389,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -423,7 +426,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -451,7 +454,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -480,6 +483,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Proxy"
                         }
                     }
@@ -488,7 +492,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -517,7 +521,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -555,7 +559,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -592,7 +596,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -627,7 +631,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -671,7 +675,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -713,7 +717,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -755,7 +759,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -792,7 +796,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -836,7 +840,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -878,7 +882,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -920,7 +924,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -948,7 +952,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -976,6 +980,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Secret"
                         }
                     }
@@ -984,7 +989,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1020,7 +1025,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1064,7 +1069,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1108,7 +1113,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1136,7 +1141,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1165,6 +1170,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Service"
                         }
                     }
@@ -1173,7 +1179,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1217,7 +1223,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1270,7 +1276,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1316,7 +1322,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1354,7 +1360,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1391,7 +1397,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1426,7 +1432,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1455,6 +1461,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Service"
                         }
                     },
@@ -1470,7 +1477,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1507,7 +1514,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1551,7 +1558,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1593,7 +1600,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1635,7 +1642,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1673,7 +1680,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1711,7 +1718,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1748,6 +1755,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Route"
                         }
                     }
@@ -1756,7 +1764,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1801,7 +1809,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1845,6 +1853,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Route"
                         }
                     }
@@ -1853,7 +1862,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1897,7 +1906,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1948,7 +1957,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -1997,7 +2006,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2046,7 +2055,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2092,7 +2101,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2145,7 +2154,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2183,7 +2192,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2228,7 +2237,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2271,7 +2280,35 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "/status/{status}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get status of HTTP service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Get status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "number"
                         }
                     }
                 }
@@ -2299,7 +2336,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2327,6 +2364,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Upstream"
                         }
                     }
@@ -2335,7 +2373,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2380,7 +2418,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2416,7 +2454,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2450,7 +2488,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2478,6 +2516,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/webhttp.Upstream"
                         }
                     },
@@ -2493,7 +2532,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2530,7 +2569,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": ""
+                            "type": "number"
                         }
                     }
                 }
@@ -2563,6 +2602,10 @@
         "webhttp.Route": {
             "type": "object",
             "properties": {
+                "route_config": {
+                    "description": "Route_config holds configuration in json. Use this config if present. Else, fallback to individual fields above",
+                    "type": "string"
+                },
                 "route_name": {
                     "type": "string"
                 },
@@ -2575,6 +2618,10 @@
             "type": "object",
             "properties": {
                 "secret_cert": {
+                    "type": "string"
+                },
+                "secret_config": {
+                    "description": "Secret_config holds configuration in json. Use this config if present. Else, fallback to individual fields above",
                     "type": "string"
                 },
                 "secret_key": {
@@ -2594,6 +2641,10 @@
                 "fqdn": {
                     "type": "string"
                 },
+                "service_config": {
+                    "description": "Service_config holds configuration in json. Use this config if present. Else, fallback to individual fields above",
+                    "type": "string"
+                },
                 "service_name": {
                     "type": "string"
                 }
@@ -2602,6 +2653,10 @@
         "webhttp.Upstream": {
             "type": "object",
             "properties": {
+                "upstream_config": {
+                    "description": "Upstream_config holds configuration in json. Use this config if present. Else, fallback to individual fields above",
+                    "type": "string"
+                },
                 "upstream_hc_healthythresholdcount": {
                     "type": "string"
                 },

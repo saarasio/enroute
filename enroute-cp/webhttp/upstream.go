@@ -164,7 +164,7 @@ query get_upstream_routes($upstream_name: String!) {
 // @Produce  json
 // @Param Upstream body webhttp.Upstream true "Upstream to update"
 // @Param upstream_name path string true "Name of upstream to update"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream/{upstream_name} [patch]
 // @Security ApiKeyAuth
 func PATCH_Upstream(c echo.Context) error {
@@ -386,7 +386,7 @@ func validate_upstream(u *Upstream) (int, string) {
 // @Accept  json
 // @Produce  json
 // @Param Upstream body webhttp.Upstream true "Upstream to create"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream [post]
 // @Security ApiKeyAuth
 func POST_Upstream(c echo.Context) error {
@@ -489,7 +489,7 @@ func db_get_one_upstream(upstream_name string, decode bool, log *logrus.Entry) (
 // @Accept  json
 // @Produce  json
 // @Param upstream_name path string true "Name of upstream to delete"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream/{upstream_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Upstream(c echo.Context) error {
@@ -509,7 +509,7 @@ func GET_One_Upstream(c echo.Context) error {
 // @Produce  json
 // @Param upstream_name_src path string true "Name of upstream"
 // @Param upstream_name_dst path string true "Name of upstream"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream/copy/{upstream_name_src}/{upstream_name_dst} [get]
 // @Security ApiKeyAuth
 func POST_Upstream_Copy(c echo.Context) error {
@@ -536,7 +536,7 @@ func POST_Upstream_Copy(c echo.Context) error {
 // @Tags upstream
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream [get]
 // @Security ApiKeyAuth
 func GET_Upstream(c echo.Context) error {
@@ -560,7 +560,7 @@ func GET_Upstream(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param upstream_name path string true "Name of upstream to delete"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream/{upstream_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Upstream(c echo.Context) error {
@@ -586,7 +586,7 @@ func DELETE_Upstream(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param upstream_name path string true "Name of upstream"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /upstream/{upstream_name}/route [get]
 // @Security ApiKeyAuth
 func GET_Upstream_Routes(c echo.Context) error {

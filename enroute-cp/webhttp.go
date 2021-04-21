@@ -15,6 +15,7 @@ import (
 )
 
 // @title Enroute API
+// @name Enroute Universal API Gateway
 // @version 1.0
 // @description APIs to configure multiple envoy proxies
 // @name Enroute Universal Standalone API Gateway
@@ -23,6 +24,8 @@ import (
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	e := echo.New()
 

@@ -15,6 +15,10 @@ definitions:
     type: object
   webhttp.Route:
     properties:
+      route_config:
+        description: Route_config holds configuration in json. Use this config if
+          present. Else, fallback to individual fields above
+        type: string
       route_name:
         type: string
       route_prefix:
@@ -23,6 +27,10 @@ definitions:
   webhttp.Secret:
     properties:
       secret_cert:
+        type: string
+      secret_config:
+        description: Secret_config holds configuration in json. Use this config if
+          present. Else, fallback to individual fields above
         type: string
       secret_key:
         type: string
@@ -35,11 +43,19 @@ definitions:
     properties:
       fqdn:
         type: string
+      service_config:
+        description: Service_config holds configuration in json. Use this config if
+          present. Else, fallback to individual fields above
+        type: string
       service_name:
         type: string
     type: object
   webhttp.Upstream:
     properties:
+      upstream_config:
+        description: Upstream_config holds configuration in json. Use this config
+          if present. Else, fallback to individual fields above
+        type: string
       upstream_hc_healthythresholdcount:
         type: string
       upstream_hc_host:
@@ -74,7 +90,9 @@ info:
     name: API Support
     url: https://saaras.io/
   description: APIs to configure multiple envoy proxies
-  license: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Enroute API
   version: "1.0"
 paths:
@@ -89,7 +107,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get all filters in db
@@ -106,19 +124,20 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.FilterConfig'
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create filter
       tags:
       - filter
-  /filter/:filter_name:
+  /filter/:
     patch:
       consumes:
       - application/json
@@ -135,19 +154,19 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.FilterConfig'
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Update filter config - update filter type
       tags:
       - filter
-  /filter/:filter_name/config:
     post:
       consumes:
       - application/json
@@ -164,7 +183,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Set filter config from file
@@ -187,7 +206,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete filter config
@@ -209,7 +228,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get filters detail for provided name
@@ -226,7 +245,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get all globalconfigs in db
@@ -242,7 +261,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create globalconfig
@@ -265,7 +284,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete globalconfig
@@ -287,7 +306,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get globalconfigs for provided name
@@ -309,7 +328,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Update globalconfig type
@@ -332,7 +351,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Set globalconfig from file
@@ -349,7 +368,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: List proxies
@@ -366,13 +385,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Proxy'
+          type: object
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create a proxy
@@ -395,7 +415,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete a proxy
@@ -417,7 +437,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get information about a proxy
@@ -445,7 +465,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Disassociate a globalconfig from proxy
@@ -472,7 +492,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Return specified globalconfig associated with this proxy
@@ -499,7 +519,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Associate a globalconfig with proxy
@@ -522,7 +542,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: List services associated with proxy
@@ -550,7 +570,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Disassociate a service from proxy
@@ -577,7 +597,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Return specified service associated with this proxy
@@ -604,7 +624,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Associate a service with proxy
@@ -621,7 +641,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get all proxy details
@@ -645,7 +665,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get details of specified proxy
@@ -663,7 +683,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: List all secrets
@@ -679,13 +699,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Secret'
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create a secret
@@ -707,7 +728,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete a secret
@@ -737,7 +758,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Set the secret cert from file
@@ -767,7 +788,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Set the secret key from file
@@ -784,7 +805,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: List all services
@@ -801,13 +822,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Service'
+          type: object
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create a service
@@ -830,7 +852,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete the specified service
@@ -852,7 +874,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Fetch some details of specified service
@@ -869,6 +891,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Service'
+          type: object
       - description: name of service to update
         in: path
         name: service_name
@@ -880,7 +903,7 @@ paths:
         "201":
           description: Created
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Update a service
@@ -903,7 +926,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Return filters associated with a service
@@ -931,7 +954,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete filter associated with a service
@@ -958,7 +981,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Return filter associated with a service
@@ -985,7 +1008,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Associate a filter with service
@@ -1008,7 +1031,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Fetch list of proxies on which this service is programmed
@@ -1032,7 +1055,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get all routes for a service
@@ -1055,13 +1078,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Route'
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create a route associated with a service
@@ -1090,7 +1114,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete the route associated with the service
@@ -1118,13 +1142,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Route'
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Update a route associated with a service
@@ -1153,7 +1178,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Return filters associated with a service route
@@ -1186,7 +1211,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete filter associated with a service route
@@ -1218,7 +1243,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Return filter associated with a service route
@@ -1250,7 +1275,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Associate a filter with route
@@ -1278,7 +1303,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get all upstreams associated with a service route
@@ -1314,7 +1339,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Disassociate an upstream with a service route
@@ -1339,7 +1364,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: List all secrets associated with a service
@@ -1368,7 +1393,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Disassociate a secret with a service
@@ -1396,7 +1421,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Associate a secret with a service
@@ -1424,7 +1449,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Copy service
@@ -1458,7 +1483,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Copy a route on source service to a destination service
@@ -1489,7 +1514,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Deep copy service
@@ -1514,13 +1539,30 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Fetch detail of specified service
       tags:
       - service
       - operational-verbs
+  /status/{status}:
+    get:
+      consumes:
+      - application/json
+      description: Get status of HTTP service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: number
+      security:
+      - ApiKeyAuth: []
+      summary: Get status
+      tags:
+      - service
   /upstream:
     get:
       consumes:
@@ -1532,7 +1574,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: List all upstreams
@@ -1548,13 +1590,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Upstream'
+          type: object
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Create an upstream
@@ -1576,7 +1619,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Delete an upstream
@@ -1597,7 +1640,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get info of an upstream
@@ -1613,6 +1656,7 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/webhttp.Upstream'
+          type: object
       - description: Name of upstream to update
         in: path
         name: upstream_name
@@ -1624,7 +1668,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Update an upstream
@@ -1646,7 +1690,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Get routes to which this upstream is associated
@@ -1675,7 +1719,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: ""
+            type: number
       security:
       - ApiKeyAuth: []
       summary: Copy an upstream

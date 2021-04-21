@@ -297,7 +297,7 @@ func isGlobalConfigTypeValid(filter_type string) bool {
 // @Accept  json
 // @Produce  json
 // @Param Name body webhttp.Proxy true "Name of proxy to create"
-// @Success 201 {} int OK
+// @Success 201 {number} uint OK
 // @Router /proxy [post]
 // @Security ApiKeyAuth
 func POST_Proxy(c echo.Context) error {
@@ -331,7 +331,7 @@ func POST_Proxy(c echo.Context) error {
 // @Tags proxy
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy [get]
 // @Security ApiKeyAuth
 func GET_Proxy(c echo.Context) error {
@@ -355,7 +355,7 @@ func GET_Proxy(c echo.Context) error {
 // @Tags proxy, operational-verbs
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/dump [get]
 // @Security ApiKeyAuth
 func GET_Proxy_Detail(c echo.Context) error {
@@ -380,7 +380,7 @@ func GET_Proxy_Detail(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param proxy_name path string true "Name of proxy for which to list services"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/dump/{proxy_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Proxy_Detail(c echo.Context) error {
@@ -461,7 +461,7 @@ query get_one_proxy_detail($proxy_name:String!) {
 // @Param proxy_name path string true "Name of proxy for which to list services"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/service [get]
 // @Security ApiKeyAuth
 func GET_Proxy_Service(c echo.Context) error {
@@ -487,7 +487,7 @@ func GET_Proxy_Service(c echo.Context) error {
 // @Tags globalconfig
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /globalconfig [get]
 // @Security ApiKeyAuth
 func GET_GlobalConfig(c echo.Context) error {
@@ -526,7 +526,7 @@ query get_all_globalconfig {
 // @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /globalconfig/{globalconfig_name} [get]
 // @Security ApiKeyAuth
 func GET_One_GlobalConfig(c echo.Context) error {
@@ -566,7 +566,7 @@ query get_all_globalconfig($globalconfig_name: String!) {
 // @Tags globalconfig
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /globalconfig [post]
 // @Security ApiKeyAuth
 func POST_GlobalConfig(c echo.Context) error {
@@ -650,7 +650,7 @@ func POST_GlobalConfig(c echo.Context) error {
 // @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /globalconfig/{globalconfig_name}/config [post]
 // @Security ApiKeyAuth
 func POST_GlobalConfig_Config(c echo.Context) error {
@@ -740,7 +740,7 @@ func POST_GlobalConfig_Config(c echo.Context) error {
 // @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /globalconfig/{globalconfig_name} [patch]
 // @Security ApiKeyAuth
 func PATCH_GlobalConfig(c echo.Context) error {
@@ -797,7 +797,7 @@ func PATCH_GlobalConfig(c echo.Context) error {
 // @Param globalconfig_name path string true "Name of globalconfig_name for which to list config"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /globalconfig/{globalconfig_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_GlobalConfig(c echo.Context) error {
@@ -843,7 +843,7 @@ mutation delete_globalconfig($globalconfig_name: String!) {
 // @Param globalconfig_name path string true "Name of globalconfig"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/globalconfig/{globalconfig_name} [post]
 // @Security ApiKeyAuth
 func POST_Proxy_GlobalConfig_Association(c echo.Context) error {
@@ -911,7 +911,7 @@ mutation create_proxy_globalconfig($proxy_name: String!, $globalconfig_name: Str
 // @Param globalconfig_name path string true "Name of globalconfig"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/globalconfig/{globalconfig_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Proxy_GlobalConfig_Association(c echo.Context) error {
@@ -959,7 +959,7 @@ mutation delete_proxy_globalconfig($globalconfig_name: String!, $proxy_name: Str
 // @Param globalconfig_name path string true "Name of globalconfig to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/globalconfig/{globalconfig_name} [get]
 // @Security ApiKeyAuth
 func GET_Proxy_GlobalConfig_Association(c echo.Context) error {
@@ -1007,7 +1007,7 @@ query get_proxy_globalconfig2($proxy_name: String!) {
 // @Param proxy_name path string true "Name of proxy to delete"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Proxy(c echo.Context) error {
@@ -1036,7 +1036,7 @@ func DELETE_Proxy(c echo.Context) error {
 // @Param proxy_name path string true "Name of proxy to delete"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name} [get]
 // @Security ApiKeyAuth
 func GET_One_Proxy(c echo.Context) error {
@@ -1066,7 +1066,7 @@ func GET_One_Proxy(c echo.Context) error {
 // @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/service/{service_name} [post]
 // @Security ApiKeyAuth
 func POST_Proxy_Service_Association(c echo.Context) error {
@@ -1098,7 +1098,7 @@ func POST_Proxy_Service_Association(c echo.Context) error {
 // @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/service/{service_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Proxy_Service_Association(c echo.Context) error {
@@ -1130,7 +1130,7 @@ func DELETE_Proxy_Service_Association(c echo.Context) error {
 // @Param service_name path string true "Name of service to list"
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /proxy/{proxy_name}/service/{service_name} [get]
 // @Security ApiKeyAuth
 func GET_Proxy_Service_Association(c echo.Context) error {

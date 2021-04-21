@@ -102,7 +102,7 @@ mutation delete_secret($secret_name: String!){
 // @Accept  json
 // @Produce  json
 // @Param Secret body webhttp.Secret true "Secret to create"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /secret [post]
 // @Security ApiKeyAuth
 func POST_Secret(c echo.Context) error {
@@ -146,7 +146,7 @@ func POST_Secret(c echo.Context) error {
 // @Produce  json
 // @Param secret_name path string true "Name of secret"
 // @Param secret_key formData file true "Location of file holding the secret key"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /secret/{secret_name}/key [post]
 // @Security ApiKeyAuth
 func POST_Secret_Key(c echo.Context) error {
@@ -198,7 +198,7 @@ func POST_Secret_Key(c echo.Context) error {
 // @Produce  json
 // @Param secret_name path string true "Name of secret"
 // @Param secret_cert formData file true "Location of file holding the secret cert"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /secret/{secret_name}/cert [post]
 // @Security ApiKeyAuth
 func POST_Secret_Cert(c echo.Context) error {
@@ -244,7 +244,7 @@ func POST_Secret_Cert(c echo.Context) error {
 // @Tags secret
 // @Accept  json
 // @Produce  json
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /secret [get]
 // @Security ApiKeyAuth
 func GET_Secret(c echo.Context) error {
@@ -268,7 +268,7 @@ func GET_Secret(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param secret_name path string true "Name of secret"
-// @Success 200 {} int OK
+// @Success 200 {number} uint OK
 // @Router /secret/{secret_name} [delete]
 // @Security ApiKeyAuth
 func DELETE_Secret(c echo.Context) error {
