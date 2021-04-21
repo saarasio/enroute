@@ -1546,7 +1546,7 @@ paths:
       tags:
       - service
       - operational-verbs
-  /status/{status}:
+  /status:
     get:
       consumes:
       - application/json

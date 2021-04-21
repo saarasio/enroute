@@ -2286,7 +2286,7 @@
                 }
             }
         },
-        "/status/{status}": {
+        "/status": {
             "get": {
                 "security": [
                     {

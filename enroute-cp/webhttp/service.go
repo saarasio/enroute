@@ -659,11 +659,10 @@ func GET_One_Service(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Success 200 {number} uint OK
-// @Router /status/{status} [get]
+// @Router /status [get]
 // @Security ApiKeyAuth
 func GET_Status(c echo.Context) error {
 
-	ID = c.Param("status")
 
 	rstr := "{\"Status\" : \"OK\"}"
 	return c.JSONBlob(http.StatusOK, []byte(rstr))
