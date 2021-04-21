@@ -19,7 +19,7 @@ import (
 // @version 1.0
 // @description APIs to configure multiple envoy proxies
 // @name Enroute Universal Standalone API Gateway
-// @contact.name API Support
+// @contact.name contact@saaras.io
 // @contact.url https://saaras.io/
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header

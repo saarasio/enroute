@@ -87,7 +87,7 @@ definitions:
     type: object
 info:
   contact:
-    name: API Support
+    name: contact@saaras.io
     url: https://saaras.io/
   description: APIs to configure multiple envoy proxies
   license:
