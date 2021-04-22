@@ -63,11 +63,11 @@ RUN chmod +x /bin/run_enroute_envoy.sh
 COPY redis-server /bin/
 
 # 1.4.6
-RUN ["mkdir", "-p", "/prom"]
-COPY prom/* /prom/
-
-RUN ["mkdir", "-p", "/graf"]
-COPY graf/* /graf/
+#RUN ["mkdir", "-p", "/prom"]
+#COPY prom/* /prom/
+#
+#RUN ["mkdir", "-p", "/graf"]
+#COPY graf/* /graf/
 
 RUN ["mkdir", "-p", "/examples"]
 COPY petstore.json /examples/
