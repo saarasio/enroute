@@ -26,6 +26,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
+	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 )
 
 const (
@@ -243,6 +244,10 @@ type listenerVisitor struct {
 
 // Entry-point from builder
 func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*envoy_config_listener_v3.Listener {
+	if logger.EL.ELogger != nil {
+		logger.EL.ELogger.Debugf("contour:visitListeners()")
+	}
+
 	lv := listenerVisitor{
 		ListenerVisitorConfig: lvc,
 		listeners: map[string]*envoy_config_listener_v3.Listener{
@@ -268,6 +273,10 @@ func visitListeners(root dag.Vertex, lvc *ListenerVisitorConfig) map[string]*env
 				// on the first slice entry.
 				return lv.listeners[ENVOY_HTTPS_LISTENER].FilterChains[i].FilterChainMatch.ServerNames[0] < lv.listeners[ENVOY_HTTPS_LISTENER].FilterChains[j].FilterChainMatch.ServerNames[0]
 			})
+	}
+
+	if logger.EL.ELogger != nil {
+		logger.EL.ELogger.Debugf("contour:visitListeners() -> setupHttpFilters()")
 	}
 
 	// All the listeners have been setup.
