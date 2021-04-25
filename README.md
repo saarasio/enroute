@@ -47,7 +47,7 @@ EnRoute is built on high performance feature rich Envoy and provides the followi
 
 ## Getting Started
 
-* Use helm to get started with [Kubernetes Ingress API Gateway](https://getenroute.io/docs/getting-started-enroute-ingress-controller/)
+* Use helm to get started with [Kubernetes Ingress API Gateway](https://getenroute.io/docs/ingress-filter-legos-secure-microservices-apis-using-helm-envoy/)
 * Use docker to get started with [Standalone Gateway](https://getenroute.io/docs/getting-started-enroute-standalone-gateway/)
 * Use ```enroutectl``` to [program OpenAPI spec on gateway](https://getenroute.io/cookbook/openapi-swagger-spec-autoprogram-api-gateway-30-seconds-no-code/)
 
