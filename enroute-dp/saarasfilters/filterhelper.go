@@ -12,7 +12,7 @@ import (
 	_ "github.com/sirupsen/logrus"
 )
 
-func SequenceFilters(m *map[string]*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter) []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter  {
+func SequenceFilters(m *map[string]*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter) []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter {
 	http_filters := make([]*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter, 0)
 
 	// Lua

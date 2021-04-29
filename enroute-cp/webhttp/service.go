@@ -663,7 +663,6 @@ func GET_One_Service(c echo.Context) error {
 // @Security ApiKeyAuth
 func GET_Status(c echo.Context) error {
 
-
 	rstr := "{\"Status\" : \"OK\"}"
 	return c.JSONBlob(http.StatusOK, []byte(rstr))
 }

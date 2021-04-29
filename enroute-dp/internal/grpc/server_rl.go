@@ -23,14 +23,14 @@ func NewAPIRateLimit(log logrus.FieldLogger, c chan string) *grpc.Server {
 		grpc.MaxConcurrentStreams(grpcMaxConcurrentStreams),
 	}
 	g := grpc.NewServer(opts...)
-    rls := &ratelimitServer{FieldLogger: log,}
+	rls := &ratelimitServer{FieldLogger: log}
 	rl.RegisterRateLimitServiceServer(g, rls)
 	return g
 }
 
 type ratelimitServer struct {
 	rl.RateLimitServiceServer
-    logrus.FieldLogger
+	logrus.FieldLogger
 }
 
 func (s *ratelimitServer) getRateLimit(requestsPerUnit uint32, unit rl.RateLimitResponse_RateLimit_Unit) *rl.RateLimitResponse_RateLimit {

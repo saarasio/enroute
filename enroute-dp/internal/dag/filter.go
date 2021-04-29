@@ -3,8 +3,7 @@
 
 package dag
 
-import (
-)
+import ()
 
 func GetVHHttpFilterConfigIfPresent(filter_type string, v *VirtualHost) *HttpFilter {
 	var http_filters []*HttpFilter
