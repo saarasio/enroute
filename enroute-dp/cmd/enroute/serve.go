@@ -251,6 +251,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	}
 
 	c := make(chan string)
+	c2 := make(chan string)
 
 	// Create a set of SharedInformerFactories for each root-gatewayhost namespace (if defined)
 	var namespacedInformers []coreinformers.SharedInformerFactory
@@ -283,6 +284,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		},
 		KubernetesCache: dag.KubernetesCache{
 			GatewayHostRootNamespaces: ctx.gatewayHostRootNamespaces(),
+			FieldLogger:               log.WithField("context", "KubernetesCache"),
 		},
 		IngressClass: ctx.ingressClass,
 		FieldLogger:  log.WithField("context", "resourceEventHandler"),
@@ -319,8 +321,9 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	}
 
 	pct := &contour.GlobalConfigTranslator{
-		FieldLogger:          log.WithField("context", "proxyconfigtranslator"),
-		RateLimitSyncChannel: c,
+		FieldLogger: log.WithField("context", "proxyconfigtranslator"),
+		C:           c,
+		C2:          c2,
 	}
 
 	if mode_ingress {

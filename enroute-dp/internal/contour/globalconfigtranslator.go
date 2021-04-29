@@ -1,3 +1,5 @@
+// +build !c,!e
+
 // SPDX-License-Identifier: Apache-2.0
 // Copyright(c) 2018-2020 Saaras Inc.
 
@@ -16,7 +18,8 @@ type GlobalConfigTranslator struct {
 	logrus.FieldLogger
 	clusterLoadAssignmentCache
 	Cond
-	RateLimitSyncChannel chan string
+	C  chan string
+	C2 chan string
 }
 
 func (e *GlobalConfigTranslator) OnAdd(obj interface{}) {

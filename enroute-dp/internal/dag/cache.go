@@ -26,6 +26,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	"github.com/sirupsen/logrus"
 )
 
 // A KubernetesCache holds Kubernetes objects and associated configuration and produces
@@ -37,6 +38,7 @@ type KubernetesCache struct {
 	GatewayHostRootNamespaces []string
 
 	mu sync.RWMutex
+	logrus.FieldLogger
 
 	ingresses    map[Meta]*v1beta1.Ingress
 	gatewayhosts map[Meta]*gatewayhostv1.GatewayHost
