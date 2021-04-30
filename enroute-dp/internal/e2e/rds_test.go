@@ -26,6 +26,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+	"github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
@@ -33,6 +34,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/k8s"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"google.golang.org/grpc"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/networking/v1beta1"
@@ -2797,6 +2799,135 @@ func TestLoadBalancingStrategies(t *testing.T) {
 		},
 	}}
 	assertRDS(t, cc, "5", want, nil)
+}
+
+func TestCorsFilter(t *testing.T) {
+	rh, cc, done := setup(t)
+	defer done()
+
+	st := v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "template",
+			Namespace: "default",
+		},
+		Spec: v1.ServiceSpec{
+			Ports: []v1.ServicePort{{
+				Protocol:   "TCP",
+				Port:       80,
+				TargetPort: intstr.FromInt(8080),
+			}},
+		},
+	}
+
+	services := []struct {
+		name       string
+		lbHash     string
+		lbStrategy string
+		lbDesc     string
+	}{
+		{"s1", "f3b72af6a9", "RoundRobin", "RoundRobin lb algorithm"},
+		{"s2", "8bf87fefba", "WeightedLeastRequest", "WeightedLeastRequest lb algorithm"},
+		{"s5", "58d888c08a", "Random", "Random lb algorithm"},
+		{"s6", "da39a3ee5e", "", "Default lb algorithm"},
+	}
+	ss := make([]gatewayhostv1.Service, len(services))
+	wc := make([]weightedcluster, len(services))
+	for i, x := range services {
+		s := st
+		s.ObjectMeta.Name = x.name
+		rh.OnAdd(&s)
+		ss[i] = gatewayhostv1.Service{
+			Name:     x.name,
+			Port:     80,
+			Strategy: x.lbStrategy,
+		}
+		wc[i] = weightedcluster{fmt.Sprintf("default/%s/80/%s", x.name, x.lbHash), 1}
+	}
+
+	host_filters := make([]gatewayhostv1.HostAttachedFilter, 0)
+	host_filters = append(host_filters, gatewayhostv1.HostAttachedFilter{Name: "cors_filter", Type: cfg.FILTER_TYPE_HTTP_CORS})
+
+	hf := gatewayhostv1.HttpFilter{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "cors_filter",
+			Namespace: "default",
+		},
+		Spec: gatewayhostv1.HttpFilterSpec{
+			Name: "cors_filter",
+			Type: cfg.FILTER_TYPE_HTTP_CORS,
+			HttpFilterConfig: gatewayhostv1.GenericHttpFilterConfig{
+				Config: `{
+		"match_condition" : {
+			"regex" : "https://*foo.example"
+		},
+		"access_control_allow_methods" : "POST, GET, OPTIONS",
+		"access_control_allow_headers" : "X-PINGOTHER, Content-Type",
+		"access_control_expose_headers" : "*",
+		"access_control_max_age" : "60"
+
+				}`,
+			},
+		},
+	}
+
+	fmt.Printf("\nBefore HTTP filter add \n")
+	rh.OnAdd(&hf)
+	fmt.Printf("\nAfter HTTP filter add \n")
+
+	ir := &gatewayhostv1.GatewayHost{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "simple",
+			Namespace: "default",
+		},
+		Spec: gatewayhostv1.GatewayHostSpec{
+			VirtualHost: &gatewayhostv1.VirtualHost{
+				Fqdn:    "test2.test.com",
+				Filters: host_filters,
+			},
+			Routes: []gatewayhostv1.Route{{
+				Conditions: []gatewayhostv1.Condition{{
+					Prefix: "/a",
+				}},
+				Services: ss,
+			}},
+		},
+	}
+
+	rh.OnAdd(ir)
+	want := []*envoy_config_route_v3.VirtualHost{{
+		Name:    "test2.test.com",
+		Domains: domains("test2.test.com"),
+		Cors:    CorsConfig("https://*foo.example", "POST, GET, OPTIONS", "X-PINGOTHER, Content-Type", "*", "60"),
+		Routes: []*envoy_config_route_v3.Route{
+			{
+				Match:               envoy.RouteMatch("/a"),
+				Action:              routeweightedcluster(wc...),
+				RequestHeadersToAdd: envoy.RouteHeaders(),
+			},
+		},
+	}}
+	assertRDS(t, cc, "6", want, nil)
+}
+
+func CorsConfig(allowOrigin, allowMethods, allowHeaders, exposeHeaders, maxAge string) *envoy_config_route_v3.CorsPolicy {
+	sm := envoy_type_matcher_v3.StringMatcher{
+		MatchPattern: &envoy_type_matcher_v3.StringMatcher_SafeRegex{
+			SafeRegex: &envoy_type_matcher_v3.RegexMatcher{
+				EngineType: &envoy_type_matcher_v3.RegexMatcher_GoogleRe2{
+					GoogleRe2: &envoy_type_matcher_v3.RegexMatcher_GoogleRE2{},
+				},
+				Regex: allowOrigin,
+			},
+		},
+	}
+
+	return &envoy_config_route_v3.CorsPolicy{
+		AllowOriginStringMatch: []*envoy_type_matcher_v3.StringMatcher{&sm},
+		AllowMethods:           allowMethods,
+		AllowHeaders:           allowHeaders,
+		ExposeHeaders:          exposeHeaders,
+		MaxAge:                 maxAge,
+	}
 }
 
 func assertRDS(t *testing.T, cc *grpc.ClientConn, versioninfo string, ingress_http, ingress_https []*envoy_config_route_v3.VirtualHost) {
