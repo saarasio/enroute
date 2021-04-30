@@ -4,9 +4,8 @@ go 1.13
 
 require (
 	github.com/client9/misspell v0.3.4
-	github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354 // indirect
 	github.com/davecgh/go-spew v1.1.1
-	github.com/envoyproxy/go-control-plane v0.9.6
+	github.com/envoyproxy/go-control-plane v0.9.8
 	github.com/evanphx/json-patch v4.5.0+incompatible
 	github.com/gogo/protobuf v1.2.2-0.20190730201129-28a6bbf47e48
 	github.com/golang/protobuf v1.4.2

@@ -143,6 +143,35 @@ func visitRoutes(root dag.Vertex) map[string]*envoy_config_route_v3.RouteConfigu
 	return rv.routes
 }
 
+func SetupFilters(vh *dag.VirtualHost, vhost *envoy_config_route_v3.VirtualHost, isVh bool, r *dag.Route) {
+	// Walk through filters and invoke SetupEnvoyFilters for e
+	envoy.SetupEnvoyFilters(vh, vhost, isVh, r)
+}
+
+func envoyRouteFromDagRoute(vh *dag.VirtualHost, vhost *envoy_config_route_v3.VirtualHost, isVh bool, r *dag.Route) {
+	if len(r.Clusters) < 1 {
+		// no services for this route, skip it.
+		return
+	}
+
+	SetupFilters(vh, vhost, isVh, r)
+
+	rr := &envoy_config_route_v3.Route{
+		Match:               envoy.RouteMatchNew(r),
+		Action:              envoy.RouteRoute(r),
+		RequestHeadersToAdd: envoy.RouteHeaders(),
+		// TODO: Only add this if there is a per-route filter configured
+		//TypedPerFilterConfig: envoy.RouteTypedFilterConfig(r),
+	}
+
+	if isVh == true && r.HTTPSUpgrade {
+		rr.Action = envoy.UpgradeHTTPS()
+		rr.RequestHeadersToAdd = nil
+	}
+
+	vhost.Routes = append(vhost.Routes, rr)
+}
+
 func (v *routeVisitor) visit(vertex dag.Vertex) {
 	switch l := vertex.(type) {
 	case *dag.Listener:
@@ -152,21 +181,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 				vhost := envoy.VirtualHost(vh.Name)
 				vh.Visit(func(v dag.Vertex) {
 					if r, ok := v.(*dag.Route); ok {
-						if len(r.Clusters) < 1 {
-							// no services for this route, skip it.
-							return
-						}
-						rr := &envoy_config_route_v3.Route{
-							Match:               envoy.RouteMatchNew(r),
-							Action:              envoy.RouteRoute(r),
-							RequestHeadersToAdd: envoy.RouteHeaders(),
-						}
-
-						if r.HTTPSUpgrade {
-							rr.Action = envoy.UpgradeHTTPS()
-							rr.RequestHeadersToAdd = nil
-						}
-						vhost.Routes = append(vhost.Routes, rr)
+						envoyRouteFromDagRoute(vh, vhost, true, r)
 					}
 				})
 				if len(vhost.Routes) < 1 {
@@ -178,15 +193,7 @@ func (v *routeVisitor) visit(vertex dag.Vertex) {
 				vhost := envoy.VirtualHost(vh.VirtualHost.Name)
 				vh.Visit(func(v dag.Vertex) {
 					if r, ok := v.(*dag.Route); ok {
-						if len(r.Clusters) < 1 {
-							// no services for this route, skip it.
-							return
-						}
-						vhost.Routes = append(vhost.Routes, &envoy_config_route_v3.Route{
-							Match:               envoy.RouteMatchNew(r),
-							Action:              envoy.RouteRoute(r),
-							RequestHeadersToAdd: envoy.RouteHeaders(),
-						})
+						envoyRouteFromDagRoute(&vh.VirtualHost, vhost, false, r)
 					}
 				})
 				if len(vhost.Routes) < 1 {
