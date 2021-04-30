@@ -134,8 +134,4 @@ func corsConfig(vh *dag.VirtualHost) *envoy_config_route_v3.CorsPolicy {
 func SetupEnvoyFilters(vh *dag.VirtualHost, vhost *envoy_config_route_v3.VirtualHost, isVh bool, r *dag.Route) {
 	c := corsConfig(vh)
 	vhost.Cors = c
-	// TODO: Convert this to logger
-	fmt.Printf("envoy:SetupFilters() dag vh [%+v]\n", vh)
-	fmt.Printf("envoy:SetupFilters() VirtualHost Cors [%+v]\n", c)
-	fmt.Printf("envoy:SetupFilters() VirtualHost [%+v]\n", vhost)
 }
