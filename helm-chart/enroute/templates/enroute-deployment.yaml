@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: enroute
+  name: enroute
+  namespace: {{ .Values.globalSettings.namespace.name }}
+spec:
+  selector:
+    matchLabels:
+      app: enroute
+  replicas: {{ .Values.enrouteService.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: enroute
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8002"
+        prometheus.io/path: "/stats/prometheus"
+    spec:
+      containers:
+      - image: {{ .Values.enrouteService.imageLocationEnroute }}
+        imagePullPolicy: Always
+        name: enroute
+        command: ["/bin/enroute"]
+        args: ["serve", "--incluster", "--envoy-service-http-port", "8080", "--envoy-service-https-port", "8443", "--mode-ingress", "--enable-ratelimit"]
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+      - image: redis
+        imagePullPolicy: Always
+        name: redis
+        command: ["redis-server"]
+        args: ["--port", "6379", "--loglevel", "verbose"]
+      - image: {{ .Values.enrouteService.imageLocationEnvoy}}
+        name: envoy
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8443
+          name: https
+        command: ["envoy"]
+        args:
+        - --config-path /config/enroute.json
+        - --service-cluster $(ENROUTE_NAMESPACE)
+        - --service-node $(ENVOY_POD_NAME)
+        - --log-level trace
+        env:
+        - name: ENROUTE_NAMESPACE
+          valueFrom:
+             fieldRef:
+               apiVersion: v1
+               fieldPath: metadata.namespace
+        - name: ENVOY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8000
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        volumeMounts:
+        - name: enroute-config
+          mountPath: /config
+        lifecycle:
+          preStop:
+            exec:
+              command: ["wget", "-qO-", "--post-data=''", "http://localhost:9001/healthcheck/fail"]
+      initContainers:
+      - image: {{ .Values.enrouteService.imageLocationEnroute }}
+        imagePullPolicy: Always
+        name: envoy-initconfig
+        command: ["enroute"]
+        args:
+        - bootstrap
+        - /config/enroute.json
+        volumeMounts:
+        - name: enroute-config
+          mountPath: /config
+        env:
+        - name: ENROUTE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      volumes:
+      - name: enroute-config
+        emptyDir: {}
+      dnsPolicy: ClusterFirst
+      serviceAccountName: {{ .Values.globalSettings.serviceAccount.name }}
+      terminationGracePeriodSeconds: 30
+      # The affinity stanza below tells Kubernetes to try hard not to place 2 of
+      # these pods on the same node.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: enroute
+              topologyKey: kubernetes.io/hostname
+---
