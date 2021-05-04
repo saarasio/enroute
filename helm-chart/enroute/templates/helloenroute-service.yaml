@@ -185,8 +185,10 @@ spec:
         type: http_filter_lua
       - name: corsfilter
         type: http_filter_cors
+{{- if .Values.filters.jwt.enable }}
       - name: jwtfilter
         type: http_filter_jwt
+{{- end }}
   routes:
     - conditions:
       - prefix: /

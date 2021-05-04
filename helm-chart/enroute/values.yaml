@@ -100,3 +100,13 @@ globalSettings:
 helloenrouteService:
   create: false
   imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute
+
+filters:
+  lua:
+    enable: true
+  ratelimit:
+    enable: true
+  cors:
+    enable: false
+  jwt:
+    enable: false
