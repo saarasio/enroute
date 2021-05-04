@@ -1,0 +1,260 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: gatewayhosts.enroute.saaras.io
+  labels:
+    component: gatewayhost
+spec:
+  group: enroute.saaras.io
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: gatewayhosts
+    kind: GatewayHost
+    listKind: GatewayHostList
+  additionalPrinterColumns:
+    - name: FQDN
+      type: string
+      description: Fully qualified domain name
+      JSONPath: .spec.virtualhost.fqdn
+    - name: TLS Secret
+      type: string
+      description: Secret with TLS credentials
+      JSONPath: .spec.virtualhost.tls.secretName
+    - name: First route
+      type: string
+      description: First routes defined
+      JSONPath: .spec.routes[0].match
+    - name: Status
+      type: string
+      description: The current status of the GatewayHost
+      JSONPath: .status.currentStatus
+    - name: Status Description
+      type: string
+      description: Description of the current status
+      JSONPath: .status.description
+  validation:
+    openAPIV3Schema:
+      description: GatewayHost CRD is top level object to specify how to direct traffic to a service. It is an Ingress specification similar to VirtualHost
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: GatewayHostSpec defines the spec of the CRD
+          properties:
+            routes:
+              description: Routes are the ingress routes. If TCPProxy is present, Routes is ignored.
+              items:
+                description: Route contains the set of routes for a virtual host.
+                properties:
+                  conditions:
+                    description: 'Conditions are a set of rules that are applied to a Route. When applied, they are merged using AND, with one exception: There can be only one Prefix MatchCondition per Conditions slice. More than one Prefix, or contradictory Conditions, will make the route invalid.'
+                    items:
+                      description: MatchCondition are a general holder for matching rules for HTTPProxies. One of Prefix or Header must be provided.
+                      properties:
+                        header:
+                          description: Header specifies the header condition to match.
+                          properties:
+                            contains:
+                              description: Contains specifies a substring that must be present in the header value.
+                              type: string
+                            exact:
+                              description: Exact specifies a string that the header value must be equal to.
+                              type: string
+                            name:
+                              description: Name is the name of the header to match against. Name is required. Header names are case insensitive.
+                              type: string
+                            notcontains:
+                              description: NotContains specifies a substring that must not be present in the header value.
+                              type: string
+                            notexact:
+                              description: NoExact specifies a string that the header value must not be equal to. The condition is true if the header has any other value.
+                              type: string
+                            present:
+                              description: Present specifies that condition is true when the named header is present, regardless of its value. Note that setting Present to false does not make the condition true if the named header is absent.
+                              type: boolean
+                          required:
+                          - name
+                          type: object
+                        prefix:
+                          description: Prefix defines a prefix match for a request.
+                          type: string
+                      type: object
+                    type: array
+                  enableWebsockets:
+                    description: Enables websocket support for the route.
+                    type: boolean
+                  pathRewrite:
+                    description: The rule for rewriting the path of the request URL.
+                    type: string
+                  permitInsecure:
+                    description: Allow this path to respond to insecure requests over HTTP which are normally not permitted when a `virtualhost.tls` block is present.
+                    type: boolean
+                  timeoutPolicy:
+                    description: The timeout policy for this route.
+                    properties:
+                      request:
+                        description: Timeout for receiving a response from the server after processing a request from client.
+                        type: string
+                    type: object
+                  retryPolicy:
+                    description: The retry policy for this route.
+                    properties:
+                      numRetries:
+                        description: NumRetries is maximum allowed number of retries. If not supplied, the number of retries is one.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      perTryTimeout:
+                        description: PerTryTimeout specifies the timeout per retry attempt. Ignored if NumRetries is not supplied.
+                        pattern: ^(((\d*(\.\d*)?h)|(\d*(\.\d*)?m)|(\d*(\.\d*)?s)|(\d*(\.\d*)?ms)|(\d*(\.\d*)?us)|(\d*(\.\d*)?µs)|(\d*(\.\d*)?ns))+|infinity|infinite)$
+                        type: string
+                    type: object
+                  filters:
+                    description: Filters associated with this route
+                    items:
+                      description: Filter associated with a route
+                      properties:
+                        name:
+                          description: name of filter
+                          type: string
+                        type:
+                          description: type of filter
+                          type: string
+                    type: array
+                  services:
+                    description: Services are the services to proxy traffic.
+                    items:
+                      description: Service defines an Kubernetes Service to proxy traffic.
+                      properties:
+                        name:
+                          description: Name is the name of Kubernetes service to proxy traffic. Names defined here will be used to look up corresponding endpoints which contain the ips to route.
+                          type: string
+                        port:
+                          description: Port (defined as Integer) to proxy traffic to since a service can have multiple defined.
+                          exclusiveMaximum: true
+                          maximum: 65536
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol may be used to specify (or override) the protocol used to reach this Service. Values may be tls, h2, h2c. If omitted, protocol-selection falls back on Service annotations.
+                          enum:
+                          - h2
+                          - h2c
+                          - tls
+                          type: string
+                        UpstreamValidation:
+                          description: UpstreamValidation defines how to verify the backend service's certificate
+                          properties:
+                            cACertificate:
+                              description: Name of the Kubernetes secret be used to validate the certificate presented by the backend
+                              type: string
+                            subjectName:
+                              description: Key which is expected to be present in the 'subjectAltName' of the presented certificate
+                              type: string
+                        ClientValidation:
+                          description: ClientValidation defines how the upstream verifies client's certificate
+                          properties:
+                            cACertificate:
+                              description: Name of the Kubernetes secret to be sent to backend for verification
+                              type: string
+                          required:
+                          - caCertificate
+                          type: object
+                        weight:
+                          description: Weight defines percentage of traffic to balance traffic
+                          format: int64
+                          minimum: 0
+                          type: integer
+                        strategy:
+                          description: LB Algorithm to apply
+                          type: string
+                        healthCheck:
+                          description: healthcheck defines optional healthchecks on upstream service
+                          properties:
+                            path:
+                              description: http endpoint used to perform health checks on upstream service
+                              type: string
+                            host:
+                              description: The value of the host header in the HTTP health check request.
+                              type: string
+                            intervalSeconds:
+                              description: The interval (seconds) between health checks
+                              type: integer
+                            timeoutSeconds:
+                              description: The time to wait (seconds) for a health check response
+                              type: integer
+                            unhealthyThresholdCound:
+                              description: The number of unhealthy health checks required before a host is marked unhealthy
+                              type: integer
+                            healthyThresholdCount:
+                              description: The number of healthy health checks required before a host is marked healthy
+                              type: integer
+                          type: object
+                      required:
+                      - name
+                      - port
+                      type: object
+                    minItems: 1
+                    type: array
+                  timeoutPolicy:
+                    description: The timeout policy for this route.
+                    properties:
+                      idle:
+                        description: Timeout after which, if there are no active requests for this route, the connection between Envoy and the backend or Envoy and the external client will be closed. If not specified, there is no per-route idle timeout, though a connection manager-wide stream_idle_timeout default of 5m still applies.
+                        pattern: ^(((\d*(\.\d*)?h)|(\d*(\.\d*)?m)|(\d*(\.\d*)?s)|(\d*(\.\d*)?ms)|(\d*(\.\d*)?us)|(\d*(\.\d*)?µs)|(\d*(\.\d*)?ns))+|infinity|infinite)$
+                        type: string
+                      response:
+                        description: Timeout for receiving a response from the server after processing a request from client. If not supplied, Envoy's default value of 15s applies.
+                        pattern: ^(((\d*(\.\d*)?h)|(\d*(\.\d*)?m)|(\d*(\.\d*)?s)|(\d*(\.\d*)?ms)|(\d*(\.\d*)?us)|(\d*(\.\d*)?µs)|(\d*(\.\d*)?ns))+|infinity|infinite)$
+                        type: string
+                    type: object
+                required:
+                - services
+                type: object
+              type: array
+            tcpproxy:
+              description: TCPProxy holds TCP proxy information.
+            virtualhost:
+              description: Virtualhost provides one time config objects for this GatewayHost
+              properties:
+                fqdn:
+                  description: The fully qualified domain name of the root of the ingress tree all leaves of the DAG rooted at this object relate to the fqdn.
+                  type: string
+                tls:
+                  description: If present the fields describes TLS properties of the virtual host. The SNI names that will be matched on are described in fqdn, the tls.secretName secret must contain a certificate that itself contains a name that matches the FQDN.
+                  properties:
+                    minimumProtocolVersion:
+                      description: Minimum TLS version this vhost should negotiate
+                      type: string
+                    passthrough:
+                      description: Passthrough defines whether the encrypted TLS handshake will be passed through to the backing cluster. Either Passthrough or SecretName must be specified, but not both.
+                      type: boolean
+                    secretName:
+                      description: SecretName is the name of a TLS secret in the current namespace. Either SecretName or Passthrough must be specified, but not both. If specified, the named secret must contain a matching certificate for the virtual host's FQDN.
+                      type: string
+                  type: object
+                filters:
+                  description: Filters associated with this VirtualHost
+                  items:
+                    description: Filter associated with a VirtualHost
+                    properties:
+                      name:
+                        description: name of filter
+                        type: string
+                      type:
+                        description: type of filter
+                        type: string
+                  type: array
+              required:
+              - fqdn
+              type: object
+        status:
+          description: Status is a container for computed information about GatewayHost
+

@@ -1,0 +1,118 @@
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: GatewayHost
+metadata:
+  labels:
+    app: hello-enroute
+  name: hello-enroute-gatewayhost-notls
+  namespace: enroutedemo
+spec:
+  virtualhost:
+    fqdn: '*'
+    filters:
+      - name: luatestfilter
+        type: http_filter_lua
+  routes:
+    - conditions:
+      - prefix: /
+        header:
+          name: ":method"
+          exact: "GET"
+      filters:
+        - name: rl2
+          type: route_filter_ratelimit
+      services:
+        - name: hello-enroute
+          port: 9091
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: GlobalConfig
+metadata:
+  labels:
+    app: hello-enroute
+  name: rl-global-config
+  namespace: enroutedemo
+spec:
+  name: rl-global-config
+  type: globalconfig_ratelimit
+  config: |
+        {
+          "domain": "enroute",
+          "descriptors" :
+          [
+            {
+              "key": "x-subscriber-id",
+              "descriptors" :
+              [
+                {
+                  "key" : "x-bucket-id",
+                  "value" : "0",
+                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 0 }
+                },
+                {
+                  "key" : "x-bucket-id",
+                  "value" : "1",
+                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 1 }
+                },
+                {
+                  "key" : "x-bucket-id",
+                  "value" : "2",
+                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 2 }
+                },
+                {
+                  "key" : "x-bucket-id",
+                  "value" : "3",
+                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 3 }
+                },
+                {
+                  "key" : "x-bucket-id",
+                  "value" : "4",
+                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 4 }
+                }
+              ]
+            }
+          ]
+        }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: RouteFilter
+metadata:
+  labels:
+    app: hello-enroute
+  name: rl2
+  namespace: enroutedemo
+spec:
+  name: rl2
+  type: route_filter_ratelimit
+  routeFilterConfig:
+    config: |
+          { 
+            "descriptors" : 
+            [ 
+              { "request_headers": { "header_name": "x-subscriber-id", "descriptor_key": "x-subscriber-id" } },
+              { "request_headers": { "header_name": "x-bucket-id", "descriptor_key": "x-bucket-id" } }
+            ]
+          }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: HttpFilter
+metadata:
+  labels:
+    app: hello-enroute
+  name: luatestfilter
+  namespace: enroutedemo
+spec:
+  name: luatestfilter
+  type: http_filter_lua
+  httpFilterConfig:
+    config: |
+        function envoy_on_request(request_handle)
+           request_handle:headers():add("x-bucket-id", "4")
+           request_handle:headers():add("x-subscriber-id", "10")
+           request_handle:logInfo("Hello World request" .. body);
+        end
+
+        function envoy_on_response(response_handle)
+           response_handle:logInfo("Hello World response");
+        end
+---
