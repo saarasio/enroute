@@ -8,26 +8,21 @@ metadata:
   namespace: enroutedemo
 spec:
   virtualhost:
-    {{- if .Values.service.fqdn -}}
-    #
+    {{- if .Values.service.fqdn }}
     fqdn: {{ .Values.service.fqdn }}
     {{- else }}
     fqdn: '*'
     {{- end }}
-    #
-    {{- if .Values.filters.lua.enable -}}
-    #
+    {{- if .Values.filters.lua.enable }}
     filters:
       - name: luatestfilter
         type: http_filter_lua
     {{- end }}
-    {{- if .Values.filters.cors.enable -}}
-    #
+    {{- if .Values.filters.cors.enable }}
       - name: corsfilter
         type: http_filter_cors
     {{- end }}
-    {{- if .Values.filters.jwt.enable -}}
-    #
+    {{- if .Values.filters.jwt.enable }}
       - name: jwtfilter
         type: http_filter_jwt
     {{- end }}
@@ -37,8 +32,7 @@ spec:
         header:
           name: ":method"
           exact: "GET"
-      {{- if .Values.filters.ratelimit.enable -}}
-      #
+      {{- if .Values.filters.ratelimit.enable }}
       filters:
         - name: rl2
           type: route_filter_ratelimit
@@ -133,7 +127,7 @@ spec:
                "regex" : "\\*"
              },
              "access_control_allow_methods" : "GET, OPTIONS",
-             "access_control_allow_headers" : "X-PINGOTHER, Content-Type",
+             "access_control_allow_headers" : "Content-Type",
              "access_control_expose_headers" : "*",
              "access_control_max_age" : "120"
          }
