@@ -59,7 +59,7 @@ awsSettings:
   enable: false
 
 ociSettings:
-  enable: false
+  enable: true
 
 # Oneof ["trace", "debug", "info", "error"]
 envoySettings:

@@ -20,7 +20,7 @@ metadata:
 
   {{- if .Values.ociSettings.enable -}}
   #
-  service.beta.kubernetes.io/oci-load-balancer-backend-protocol: http
+  service.beta.kubernetes.io/oci-load-balancer-backend-protocol: HTTP
   {{- end }}
 
   # Scrape metrics for the enroute container
