@@ -2,7 +2,7 @@
 {{ if (lookup "v1" "ClusterIssuers" "cert-manager" "") }}
 # do nothing
 {{- else }}
-{{- if or .Values.autoTLS.createIssuers .Values.service.enableTLS }}
+{{- if .Values.service.enableTLS }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
