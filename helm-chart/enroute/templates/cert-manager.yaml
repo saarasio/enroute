@@ -1,0 +1,90 @@
+{{- if .Values.certManager.enable }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.service.name }}-secret-cert-manager
+  namespace: enroutedemo
+spec:
+  commonName: {{ .Values.service.certificateCN }}
+  dnsNames:
+  - {{ .Values.service.certificateCN }}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  secretName: {{ .Values.service.name }}-secret
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+  namespace: cert-manager
+spec:
+  acme:
+    email: contact@universalapigateway.com
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    solvers:
+    - http01:
+        ingress:
+          class: enroute
+      selector: {}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: cert-manager
+spec:
+  acme:
+    email: contact@universalapigateaway.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+    - http01:
+        ingress:
+          class: enroute
+      selector: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acme-challenge-service
+  namespace: enroutedemo
+spec:
+  ports:
+  - port: 80
+    targetPort: 8089
+  selector:
+    acme.cert-manager.io/http01-solver: "true"
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: GatewayHost
+metadata:
+  labels:
+    app: hello-enroute
+  name: {{ .Values.service.name }}-gatewayhost-certmanager
+  namespace: enroutedemo
+spec:
+  virtualhost:
+    fqdn: {{ quote .Values.service.certificateCN }}
+  routes:
+    - conditions:
+      - prefix: /.well-known/acme-challenge/
+        header:
+          name: ":method"
+          exact: "GET"
+      services:
+        - name: acme-challenge-service
+          port: 80
+    - conditions:
+      - prefix: /
+        header:
+          name: ":method"
+          exact: "GET"
+      services:
+        - name: {{ .Values.service.name }}
+          port: {{ .Values.service.port }}
+---
+{{- end }}

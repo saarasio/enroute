@@ -110,5 +110,11 @@ filters:
 service:
   name: hello-enroute
   port: 9090
-  fqdn: ""
+  fqdn: ''
   imageLocation: gcr.io/saarasio-291001/hello-enroute
+  enableTLS: false
+
+certManager:
+  enable: false
+  issueCert: false
+  certificateCN: 'he.enroutedemo.com'

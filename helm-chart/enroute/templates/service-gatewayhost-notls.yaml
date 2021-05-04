@@ -1,17 +1,22 @@
+{{- if eq .Values.certManager.enable false }}
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: GatewayHost
 metadata:
   labels:
     app: hello-enroute
-  name: {{ .Values.service.name }}-gatewayhost-notls
+  name: {{ .Values.service.name }}-gatewayhost
   namespace: enroutedemo
 spec:
   virtualhost:
-    {{- if .Values.service.fqdn }}
-    fqdn: {{ .Values.service.fqdn }}
-    {{- else }}
+    {{- if eq (len .Values.service.fqdn) 0 }}
     fqdn: '*'
+    {{- else }}
+    fqdn: {{ quote .Values.service.fqdn }}
+    {{- end }}
+    {{- if .Values.service.enableTLS }}
+    tls:
+      secretName: {{ .Values.service.name }}-secret
     {{- end }}
     {{- if .Values.filters.lua.enable }}
     filters:
@@ -172,3 +177,4 @@ spec:
   # important to set protocol name
     name: https
 ---
+{{- end }}
