@@ -11,7 +11,7 @@ metadata:
   namespace: cert-manager
 spec:
   acme:
-    email: contact@universalapigateway.com
+    email: contact@example.com
     privateKeySecretRef:
       name: letsencrypt-staging
     server: https://acme-staging-v02.api.letsencrypt.org/directory
@@ -28,7 +28,7 @@ metadata:
   namespace: cert-manager
 spec:
   acme:
-    email: contact@universalapigateaway.com
+    email: contact@example.com
     privateKeySecretRef:
     {{- if .Values.autoTLS.enableProd }}
       name: letsencrypt-prod
