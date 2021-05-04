@@ -2,14 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 enrouteService:
+  enable: false
   replicaCount: 1
   
   imagePullSecrets: []
   
+  #TODO
   imageLocationEnroute: gcr.io/saarasio-291001/enroute-gw
   #imageLocationEnroute: saarasio/enroute-gw:latest
   imageLocationEnvoy: envoyproxy/envoy:v1.16.2
-  
  
   podAnnotations: {}
   
@@ -111,6 +112,7 @@ service:
   port: 9090
   fqdn: ''
   enableTLS: false
+  namespace: enroutedemo
   prefix: /
 
 autoTLS:

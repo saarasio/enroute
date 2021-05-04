@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: httpbin
-  namespace: enroutedemo
+  namespace: {{ .Values.service.namespace }}
   labels:
     app: httpbin
 spec:
@@ -11,13 +11,12 @@ spec:
     image: kennethreitz/httpbin
     ports:
       - containerPort: 80
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: httpbin
-  namespace: enroutedemo
+  namespace: {{ .Values.service.namespace }}
 spec:
   selector:
     app: httpbin

@@ -1,3 +1,5 @@
+{{- if .Values.enrouteService.enable }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -109,3 +111,4 @@ spec:
                   app: enroute
               topologyKey: kubernetes.io/hostname
 ---
+{{- end }}
