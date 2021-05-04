@@ -18,7 +18,7 @@ metadata:
   service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
   {{- end }}
 
-  # Scrape metrics for the contour container
+  # Scrape metrics for the enroute container
   # The envoy container is scraped by annotations on the pod spec
   prometheus.io/port: "8000"
   prometheus.io/scrape: "true"
