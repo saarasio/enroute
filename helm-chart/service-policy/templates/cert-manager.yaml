@@ -42,6 +42,7 @@ spec:
           class: enroute
       selector: {}
 {{ end }}
+{{- end }}
 ---
 {{- if or .Values.autoTLS.issueCert .Values.service.enableTLS }}
 apiVersion: cert-manager.io/v1
@@ -74,5 +75,4 @@ spec:
   selector:
     acme.cert-manager.io/http01-solver: "true"
 ---
-{{- end }}
 {{- end }}
