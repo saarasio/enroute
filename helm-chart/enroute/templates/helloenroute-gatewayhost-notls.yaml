@@ -23,7 +23,7 @@ spec:
           type: route_filter_ratelimit
       services:
         - name: hello-enroute
-          port: 9091
+          port: 9090
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: GlobalConfig
@@ -107,9 +107,7 @@ spec:
   httpFilterConfig:
     config: |
         function envoy_on_request(request_handle)
-           request_handle:headers():add("x-bucket-id", "4")
-           request_handle:headers():add("x-subscriber-id", "10")
-           request_handle:logInfo("Hello World request" .. body);
+           request_handle:logInfo("Hello World request");
         end
 
         function envoy_on_response(response_handle)
