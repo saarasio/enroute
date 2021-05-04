@@ -1,4 +1,4 @@
-{{- if .Values.autoTLS.createIssuers }}
+{{- if or .Values.autoTLS.createIssuers .Values.service.enableTLS}}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -39,12 +39,12 @@ spec:
       selector: {}
 {{ end }}
 ---
-{{- if .Values.autoTLS.issueCert }}
+{{- if or .Values.autoTLS.issueCert .Values.service.enableTLS }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: {{ .Values.autoTLS.certificateCN }}
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   commonName: {{ .Values.autoTLS.certificateCN }}
   dnsNames:
@@ -62,7 +62,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: acme-challenge-service
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   ports:
   - port: 80
