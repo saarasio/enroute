@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 enrouteService:
-  replicaCount: 3
+  replicaCount: 1
   
   imagePullSecrets: []
   
@@ -61,6 +61,9 @@ awsSettings:
 ociSettings:
   enable: false
 
+gkeSettings:
+  enable: false
+
 # Oneof ["trace", "debug", "info", "error"]
 envoySettings:
   logLevel: "info"
@@ -92,3 +95,19 @@ globalSettings:
 helloenrouteService:
   create: true
   imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute
+
+filters:
+  lua:
+    enable: false
+  ratelimit:
+    enable: false
+  cors:
+    enable: false
+  jwt:
+    enable: false
+
+service:
+  name: hello-enroute
+  port: 9090
+  fqdn: ""
+  imageLocation: gcr.io/saarasio-291001/hello-enroute

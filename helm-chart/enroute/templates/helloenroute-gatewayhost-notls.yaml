@@ -8,22 +8,34 @@ metadata:
   namespace: enroutedemo
 spec:
   virtualhost:
+    {{- if .Values.service.fqdn -}}
+    #
+    fqdn: {{ .Values.service.fqdn }}
+    {{- else }}
     fqdn: '*'
+    {{- end }}
+    #
+    {{- if .Values.filters.lua.enable -}}
+    #
     filters:
       - name: luatestfilter
         type: http_filter_lua
+    {{- end }}
   routes:
     - conditions:
       - prefix: /
         header:
           name: ":method"
           exact: "GET"
+      {{- if .Values.filters.ratelimit.enable -}}
+      #
       filters:
         - name: rl2
           type: route_filter_ratelimit
+      {{- end }}
       services:
-        - name: hello-enroute
-          port: 9090
+        - name: {{ .Values.service.name }}
+          port: {{ .Values.service.port }}
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: GlobalConfig
