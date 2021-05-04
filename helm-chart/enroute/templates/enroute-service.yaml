@@ -18,6 +18,11 @@ metadata:
   service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
   {{- end }}
 
+  {{- if .Values.ociSettings.enable -}}
+  #
+  service.beta.kubernetes.io/oci-load-balancer-backend-protocol: http
+  {{- end }}
+
   # Scrape metrics for the enroute container
   # The envoy container is scraped by annotations on the pod spec
   prometheus.io/port: "8000"

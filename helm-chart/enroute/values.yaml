@@ -7,7 +7,8 @@ enrouteService:
   imagePullSecrets: []
   
   imageLocationEnroute: gcr.io/saarasio-291001/enroute-gw-c:latest
-  imageLocationEnvoy: gcr.io/saarasio-291001/envoy1.15:latest
+  #imageLocationEnvoy: gcr.io/saarasio-291001/envoy1.15:latest
+  imageLocationEnvoy: envoyproxy/envoy:v1.16.2
   
  
   podAnnotations: {}
@@ -56,7 +57,14 @@ enrouteService:
 # for information about enabling the PROXY protocol on the ELB to recover
 # the original remote IP address.
 awsSettings:
-  enable: true
+  enable: false
+
+ociSettings:
+  enable: false
+
+# Oneof ["trace", "debug", "info", "error"]
+envoySettings:
+  logLevel: "info"
 
 globalSettings:
   nameOverride: ""

@@ -41,33 +41,13 @@ spec:
           "descriptors" :
           [
             {
-              "key": "x-subscriber-id",
+              "key": "x-forwarded-for",
               "descriptors" :
               [
                 {
-                  "key" : "x-bucket-id",
-                  "value" : "0",
-                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 0 }
-                },
-                {
-                  "key" : "x-bucket-id",
-                  "value" : "1",
-                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 1 }
-                },
-                {
-                  "key" : "x-bucket-id",
-                  "value" : "2",
+                  "key" : "x-forwarded-proto",
+                  "value" : "http",
                   "rate_limit" : { "unit" : "second", "requests_per_unit" : 2 }
-                },
-                {
-                  "key" : "x-bucket-id",
-                  "value" : "3",
-                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 3 }
-                },
-                {
-                  "key" : "x-bucket-id",
-                  "value" : "4",
-                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 4 }
                 }
               ]
             }
@@ -89,8 +69,8 @@ spec:
           { 
             "descriptors" : 
             [ 
-              { "request_headers": { "header_name": "x-subscriber-id", "descriptor_key": "x-subscriber-id" } },
-              { "request_headers": { "header_name": "x-bucket-id", "descriptor_key": "x-bucket-id" } }
+              { "request_headers": { "header_name": "x-forwarded-for", "descriptor_key": "x-forwarded-for" } },
+              { "request_headers": { "header_name": "x-forwarded-proto", "descriptor_key": "x-forwarded-proto" } }
             ]
           }
 ---

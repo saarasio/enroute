@@ -50,7 +50,7 @@ spec:
         - --config-path /config/enroute.json
         - --service-cluster $(ENROUTE_NAMESPACE)
         - --service-node $(ENVOY_POD_NAME)
-        - --log-level trace
+        - --log-level {{ .Values.envoySettings.logLevel }}
         env:
         - name: ENROUTE_NAMESPACE
           valueFrom:
