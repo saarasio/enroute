@@ -24,7 +24,7 @@ spec:
     - name: First route
       type: string
       description: First routes defined
-      JSONPath: .spec.routes[0].match
+      JSONPath: .spec.routes[0].conditions[0].prefix
     - name: Status
       type: string
       description: The current status of the GatewayHost
