@@ -3,9 +3,9 @@ entries:
   enroute:
   - apiVersion: v1
     appVersion: "0.5"
-    created: "2021-05-04T05:36:09.691518133Z"
+    created: "2021-05-04T06:55:09.189033513Z"
     description: A Helm chart for EnRoute API Gateway for Kubernetes Ingress
-    digest: dd6cae098d95335ebf26398a64dff508696da5f95970939e8fdb328016efb7f8
+    digest: 03b1540ac47857131d92f941ebee6a2ed59bc10721a4c1634cbf82ed1ed481a8
     home: https://getenroute.io/
     icon: https://getenroute.io/favicon.ico
     keywords:
@@ -28,9 +28,9 @@ entries:
   enroute-crds:
   - apiVersion: v1beta1
     appVersion: "0.5"
-    created: "2021-05-04T05:36:09.691844979Z"
+    created: "2021-05-04T06:55:09.189378914Z"
     description: A Helm chart for CRDs for EnRoute API Gateway for Kubernetes Ingress
-    digest: 48edce76d060c9c9e4efb015bca0a88bad5a8f5259febaa8d3b398d1fd9c15fd
+    digest: a41b6607672be9fe27fdb0a453323bd8f9e3c64d832157550771fe9fa99c136c
     home: https://getenroute.io/
     icon: https://getenroute.io/favicon.ico
     keywords:
@@ -50,4 +50,4 @@ entries:
     urls:
     - enroute-crds-0.1.0.tgz
     version: 0.1.0
-generated: "2021-05-04T05:36:09.690646367Z"
+generated: "2021-05-04T06:55:09.188157178Z"
