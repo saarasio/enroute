@@ -1,0 +1,46 @@
+{{- if .Values.helloenrouteService.create -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-enroute
+  namespace: enroutedemo
+  labels:
+    app: hello-enroute
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-enroute
+  template:
+    metadata:
+      labels:
+        app: hello-enroute
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl
+        imagePullPolicy: Always
+        command: [ "sleep", "600" ]
+      - name: hello-enroute
+        image: {{ .Values.helloenrouteService.imageLocationHelloEnroute }}
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 15
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+---
+{{- end }}

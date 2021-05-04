@@ -82,3 +82,6 @@ globalSettings:
     create: true
     name: "enroutedemo"
  
+helloenrouteService:
+  create: true
+  imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute

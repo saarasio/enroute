@@ -1,0 +1,22 @@
+{{- if .Values.helloenrouteService.create -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-enroute
+  namespace: enroutedemo
+  labels:
+    app: hello-enroute
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 9090
+    targetPort: 8080
+  - name: https
+    port: 9091
+    targetPort: 8081
+  selector:
+    app: hello-enroute
+---
+{{- end }}
