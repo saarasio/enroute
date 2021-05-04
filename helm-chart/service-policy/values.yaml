@@ -36,10 +36,6 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  type: ClusterIP
-  port: 80
-
 ingress:
   enabled: false
   annotations: {}
@@ -95,7 +91,7 @@ service:
   port: 80
   fqdn: ''
   enableTLS: false
-  namespace: enroutedemo
+  namespace: demo-service
   prefix: /
 
 autoTLS:

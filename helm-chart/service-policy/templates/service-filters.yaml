@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Values.service.name }}-app
   name: {{ .Values.service.name }}-rl-global-config
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   name: {{ .Values.service.name }}-rl-global-config
   type: globalconfig_ratelimit
@@ -53,7 +53,7 @@ metadata:
   labels:
     app: {{ .Values.service.name }}-app
   name: {{ .Values.service.name }}-rl2
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   name: {{ .Values.service.name }}-rl2
   type: route_filter_ratelimit
@@ -74,7 +74,7 @@ metadata:
   labels:
     app: {{ .Values.service.name }}-app
   name: {{ .Values.service.name }}-luatestfilter
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   name: {{ .Values.service.name }}-luatestfilter
   type: http_filter_lua
@@ -94,7 +94,7 @@ metadata:
   labels:
     app: {{ .Values.service.name }}-app
   name: {{ .Values.service.name }}-corsfilter
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   name: {{ .Values.service.name }}-corsfilter
   type: http_filter_cors
@@ -116,7 +116,7 @@ metadata:
   labels:
     app: {{ .Values.service.name }}-app
   name: {{ .Values.service.name }}-jwtfilter
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   name: {{ .Values.service.name }}-jwtfilter
   type: http_filter_jwt
@@ -141,7 +141,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.service.name }}-externalauth
-  namespace: {{ .Values.globalSettings.namespace.name }}
+  namespace: {{ .Values.service.namespace }}
 spec:
   type: ExternalName
   externalName: saaras.auth0.com
