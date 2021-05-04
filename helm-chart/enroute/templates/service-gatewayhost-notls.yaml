@@ -26,6 +26,11 @@ spec:
       - name: corsfilter
         type: http_filter_cors
     {{- end }}
+    {{- if .Values.filters.jwt.enable -}}
+    #
+      - name: jwtfilter
+        type: http_filter_jwt
+    {{- end }}
   routes:
     - conditions:
       - prefix: /
@@ -132,4 +137,44 @@ spec:
              "access_control_expose_headers" : "*",
              "access_control_max_age" : "120"
          }
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: HttpFilter
+metadata:
+  labels:
+    app: hello-enroute
+  name: jwtfilter
+  namespace: enroutedemo
+spec:
+  name: jwtfilter
+  type: http_filter_jwt
+  services:
+     name: externalauth
+     port: 443
+     protocol: tls
+  httpFilterConfig:
+    config: |
+         {
+           "name" : "auth0",
+           "jwks_uri" : "https://saaras.auth0.com/.well-known/jwks.json",
+           "audience" : "api-identifier",
+           "issuer" : "https://saaras.auth0.com/",
+           "route" : [{"prefix" : "/"}],
+           "jwt_service_name" : "auth0",
+           "jwt_service_port" : 443,
+           "jwt_forward_header_name" : "x-jwt-token"
+         }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: externalauth
+  namespace: enroutedemo
+spec:
+  type: ExternalName
+  externalName: saaras.auth0.com
+  ports:
+  - port: 443
+  # important to set protocol name
+    name: https
 ---
