@@ -1,4 +1,4 @@
-{{- if eq .Values.service.name "hello-enroute" -}}
+{{- if eq .Values.helloenrouteService.create true -}}
 ---
 apiVersion: apps/v1
 kind: Deployment

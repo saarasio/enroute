@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 enrouteService:
-  enable: false
+  enable: true
   replicaCount: 1
   
   imagePullSecrets: []
@@ -98,4 +98,5 @@ globalSettings:
     name: "enroutedemo"
  
 helloenrouteService:
+  create: false
   imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute

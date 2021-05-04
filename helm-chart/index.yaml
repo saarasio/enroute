@@ -2,8 +2,32 @@ apiVersion: v1
 entries:
   enroute:
   - apiVersion: v1
+    appVersion: 0.6.0
+    created: "2021-05-04T07:08:29.100013763Z"
+    description: EnRoute API Gateway
+    digest: cceec575590dea17f58f21d25848fb833278c5e8f59fcd507f460c7659919bcf
+    home: https://getenroute.io/
+    icon: https://getenroute.io/favicon.ico
+    keywords:
+    - api gateway
+    - EnRoute - Envoy Route Controller
+    - Saaras
+    - envoy
+    - ingress
+    maintainers:
+    - email: contact@saaras.io
+      name: contact
+    name: enroute
+    sources:
+    - https://github.com/saarasio/enroute
+    - https://getenroute.io
+    - https://github.com/envoyproxy/envoy
+    urls:
+    - enroute-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v1
     appVersion: "0.5"
-    created: "2021-05-04T06:55:09.189033513Z"
+    created: "2021-05-04T07:08:29.099324182Z"
     description: A Helm chart for EnRoute API Gateway for Kubernetes Ingress
     digest: 03b1540ac47857131d92f941ebee6a2ed59bc10721a4c1634cbf82ed1ed481a8
     home: https://getenroute.io/
@@ -27,8 +51,32 @@ entries:
     version: 0.1.0
   enroute-crds:
   - apiVersion: v1beta1
+    appVersion: "0.6"
+    created: "2021-05-04T07:08:29.100629494Z"
+    description: CRDs for EnRoute API Gateway
+    digest: 4e0dd7c445de5823aa6c7e609a8acc3efe19e7d0f4a394a9378a42357fe28395
+    home: https://getenroute.io/
+    icon: https://getenroute.io/favicon.ico
+    keywords:
+    - api gateway
+    - EnRoute - Envoy Route Controller
+    - Saaras
+    - envoy
+    - ingress
+    maintainers:
+    - email: contact@saaras.io
+      name: contact
+    name: enroute-crds
+    sources:
+    - https://github.com/saarasio/enroute
+    - https://getenroute.io
+    - https://github.com/envoyproxy/envoy
+    urls:
+    - enroute-crds-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v1beta1
     appVersion: "0.5"
-    created: "2021-05-04T06:55:09.189378914Z"
+    created: "2021-05-04T07:08:29.100343625Z"
     description: A Helm chart for CRDs for EnRoute API Gateway for Kubernetes Ingress
     digest: a41b6607672be9fe27fdb0a453323bd8f9e3c64d832157550771fe9fa99c136c
     home: https://getenroute.io/
@@ -50,4 +98,15 @@ entries:
     urls:
     - enroute-crds-0.1.0.tgz
     version: 0.1.0
-generated: "2021-05-04T06:55:09.188157178Z"
+  service-policy:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-05-04T07:08:29.101094241Z"
+    description: A Helm chart for defining service policy using EnRoute Ingress Controller API Gateway for Kubernetes
+    digest: 255c4a38f8e2f2306d6108d6d38921c3f4173aa177871f94eb133eb37d2f1ca0
+    name: service-policy
+    type: application
+    urls:
+    - service-policy-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-05-04T07:08:29.098414475Z"
