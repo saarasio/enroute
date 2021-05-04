@@ -1,4 +1,8 @@
-{{- if or .Values.autoTLS.createIssuers .Values.service.enableTLS}}
+#kubectl get -n cert-manager ClusterIssuers letsencrypt-prod
+{{ if (lookup "v1" "ClusterIssuers" "cert-manager" "") }}
+# do nothing
+{{- else }}
+{{- if or .Values.autoTLS.createIssuers .Values.service.enableTLS }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -70,4 +74,5 @@ spec:
   selector:
     acme.cert-manager.io/http01-solver: "true"
 ---
+{{- end }}
 {{- end }}
