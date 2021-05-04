@@ -23,11 +23,6 @@ enrouteService:
     # runAsNonRoot: true
     # runAsUser: 1000
   
-  enrouteService:
-    create: true
-    type: LoadBalancer
-    port: 80
-  
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
@@ -53,6 +48,15 @@ enrouteService:
   
   affinity: {}
 
+# awsSettings controls AWS annotations
+# This annotation puts the AWS ELB into "TCP" mode so that it does not
+# do HTTP negotiation for HTTPS connections at the ELB edge.
+# The downside of this is the remote IP address of all connections will
+# appear to be the internal address of the ELB. See docs/proxy-proto.md
+# for information about enabling the PROXY protocol on the ELB to recover
+# the original remote IP address.
+awsSettings:
+  enable: true
 
 globalSettings:
   nameOverride: ""
