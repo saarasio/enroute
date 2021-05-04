@@ -1,8 +1,8 @@
 #kubectl get -n cert-manager ClusterIssuers letsencrypt-prod
-{{ if (lookup "v1" "ClusterIssuers" "cert-manager" "") }}
-# do nothing
-{{- else }}
-{{- if .Values.service.enableTLS }}
+#{{ if (lookup "v1" "ClusterIssuers" "cert-manager" "") }}
+## do nothing
+#{{- else }}
+{{- if .Values.autoTLS.createIssuers }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -42,7 +42,7 @@ spec:
           class: enroute
       selector: {}
 {{ end }}
-{{- end }}
+#{{- end }}
 ---
 {{- if or .Values.autoTLS.issueCert .Values.service.enableTLS }}
 apiVersion: cert-manager.io/v1
