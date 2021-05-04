@@ -77,3 +77,51 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+filters:
+  lua:
+    enable: true
+  ratelimit:
+    enable: true
+  cors:
+    enable: false
+  jwt:
+    enable: false
+
+service:
+  name: hello-enroute
+  port: 9090
+  fqdn: ''
+  enableTLS: false
+  namespace: enroutedemo
+  prefix: /
+
+autoTLS:
+  enable: false
+  issueCert: false
+  certificateCN: 'he.enroutedemo.com'
+  enableProd: false
+
+globalSettings:
+  nameOverride: ""
+  fullnameOverride: ""
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: "enroutedemo"
+  
+  clusterRole:
+    create: true
+    name: "enroutedemo"
+  
+  clusterRoleBinding:
+    create: true
+    name: "enroutedemo"
+  
+  namespace:
+    create: true
+    name: "enroutedemo"

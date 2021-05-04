@@ -99,27 +99,3 @@ globalSettings:
  
 helloenrouteService:
   imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute
-
-filters:
-  lua:
-    enable: true
-  ratelimit:
-    enable: true
-  cors:
-    enable: false
-  jwt:
-    enable: false
-
-service:
-  name: hello-enroute
-  port: 9090
-  fqdn: ''
-  enableTLS: false
-  namespace: enroutedemo
-  prefix: /
-
-autoTLS:
-  enable: false
-  issueCert: false
-  certificateCN: 'he.enroutedemo.com'
-  enableProd: false
