@@ -11,7 +11,7 @@ metadata:
   namespace: cert-manager
 spec:
   acme:
-    email: contact@example.com
+    email: {{ .Values.autoTLS.email }}
     privateKeySecretRef:
       name: letsencrypt-staging
     server: https://acme-staging-v02.api.letsencrypt.org/directory
@@ -28,7 +28,7 @@ metadata:
   namespace: cert-manager
 spec:
   acme:
-    email: contact@example.com
+    email: {{ .Values.autoTLS.email }}
     privateKeySecretRef:
     {{- if .Values.autoTLS.enableProd }}
       name: letsencrypt-prod

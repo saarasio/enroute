@@ -99,6 +99,7 @@ autoTLS:
   certificateCN: 'he.enroutedemo.com'
   enableProd: false
   createIssuers: false
+  email: contact@example.com
 
 globalSettings:
   nameOverride: ""
