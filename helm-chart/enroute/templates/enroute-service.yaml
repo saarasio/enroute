@@ -18,9 +18,8 @@ metadata:
   service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
   {{- end }}
 
-  {{- if .Values.ociSettings.enable -}}
-  #
-  service.beta.kubernetes.io/oci-load-balancer-backend-protocol: HTTP
+  {{- if .Values.ociSettings.enable }}
+  service.beta.kubernetes.io/oci-load-balancer-backend-protocol: TCP
   {{- end }}
 
   # Scrape metrics for the enroute container

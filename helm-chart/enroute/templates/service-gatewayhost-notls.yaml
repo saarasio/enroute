@@ -65,6 +65,11 @@ spec:
                   "key" : "x-forwarded-proto",
                   "value" : "http",
                   "rate_limit" : { "unit" : "second", "requests_per_unit" : 2 }
+                },
+                {
+                  "key" : "x-forwarded-proto",
+                  "value" : "https",
+                  "rate_limit" : { "unit" : "second", "requests_per_unit" : 2 }
                 }
               ]
             }
