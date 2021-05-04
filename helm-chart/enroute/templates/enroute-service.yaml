@@ -20,6 +20,15 @@ metadata:
 
   {{- if .Values.ociSettings.enable }}
   service.beta.kubernetes.io/oci-load-balancer-backend-protocol: TCP
+  service.beta.kubernetes.io/oci-load-balancer-ssl-ports: "443"
+  #service.beta.kubernetes.io/oci-load-balancer-tls-secret: ssl-certificate-secret
+  {{- end }}
+
+  {{- if .Values.digitaloceanSettings.enable }}
+  service.beta.kubernetes.io/do-loadbalancer-protocol: TCP
+  service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: true
+  service.beta.kubernetes.io/do-loadbalancer-size-slug: lb-medium
+  service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: true
   {{- end }}
 
   # Scrape metrics for the enroute container

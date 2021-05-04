@@ -39,7 +39,11 @@ spec:
   acme:
     email: contact@universalapigateaway.com
     privateKeySecretRef:
+    {{- if .Values.autoTLS.enableProd }}
       name: letsencrypt-prod
+    {{- else }}
+      name: letsencrypt-staging
+    {{- end }}
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
     - http01:

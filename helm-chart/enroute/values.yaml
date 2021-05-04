@@ -62,7 +62,7 @@ awsSettings:
 ociSettings:
   enable: false
 
-gkeSettings:
+digitaloceanSettings:
   enable: false
 
 # Oneof ["trace", "debug", "info", "error"]
@@ -118,3 +118,4 @@ autoTLS:
   enable: false
   issueCert: false
   certificateCN: 'he.enroutedemo.com'
+  enableProd: false
