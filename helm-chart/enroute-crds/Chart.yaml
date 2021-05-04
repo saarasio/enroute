@@ -1,0 +1,20 @@
+apiVersion: v1beta1
+appVersion: 0.5
+description: A Helm chart for EnRoute API Gateway for Kubernetes Ingress
+home: https://getenroute.io/
+icon: https://getenroute.io/favicon.ico
+keywords:
+ - api gateway
+ - EnRoute - Envoy Route Controller
+ - Saaras
+ - envoy
+ - ingress
+maintainers:
+ - email: contact@saaras.io
+   name: contact
+name: enroute
+sources:
+ - https://github.com/saarasio/enroute
+ - https://getenroute.io
+ - https://github.com/envoyproxy/envoy
+version: 0.1.0
