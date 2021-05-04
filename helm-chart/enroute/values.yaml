@@ -6,8 +6,7 @@ enrouteService:
   
   imagePullSecrets: []
   
-  imageLocationEnroute: gcr.io/saarasio-291001/enroute-gw-c:latest
-  #imageLocationEnvoy: gcr.io/saarasio-291001/envoy1.15:latest
+  imageLocationEnroute: saarasio/enroute-gw:latest
   imageLocationEnvoy: envoyproxy/envoy:v1.16.2
   
  
