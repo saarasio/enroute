@@ -8,9 +8,9 @@ enrouteService:
   imagePullSecrets: []
   
   #TODO
-  imageLocationEnroute: gcr.io/saarasio-291001/enroute-gw
   #imageLocationEnroute: saarasio/enroute-gw:latest
-  imageLocationEnvoy: envoyproxy/envoy:v1.16.2
+  imageLocationEnroute: saarasio/enroute-gwi:latest
+  imageLocationEnvoy: envoyproxy/envoy:v1.16.3
  
   podAnnotations: {}
   

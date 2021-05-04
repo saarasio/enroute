@@ -81,7 +81,7 @@ spec:
       - image: {{ .Values.enrouteService.imageLocationEnroute }}
         imagePullPolicy: Always
         name: envoy-initconfig
-        command: ["enroute"]
+        command: ["/bin/enroute"]
         args:
         - bootstrap
         - /config/enroute.json
