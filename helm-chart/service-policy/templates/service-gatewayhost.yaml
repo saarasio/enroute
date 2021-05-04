@@ -11,7 +11,7 @@ spec:
     fqdn: {{ quote .Values.autoTLS.certificateCN }}
     {{ if .Values.service.enableTLS }}
     tls:
-      secretName: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-secret
+      secretName: Secret-{{ .Values.autoTLS.certificateCN }}
     {{ end }}
     {{ if .Values.filters.lua.enable }}
     filters:

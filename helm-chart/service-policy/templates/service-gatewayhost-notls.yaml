@@ -9,37 +9,37 @@ metadata:
   namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   virtualhost:
-    {{ if eq (len .Values.service.fqdn) 0 }}
+    {{- if eq (len .Values.service.fqdn) 0 }}
     fqdn: '*'
-    {{ else }}
+    {{- else }}
     fqdn: {{ quote .Values.service.fqdn }}
-    {{ end }}
-    {{ if .Values.filters.lua.enable }}
+    {{- end -}}
+    {{- if .Values.filters.lua.enable }}
     filters:
       - name: luatestfilter
         type: http_filter_lua
-    {{ end }}
-    {{ if .Values.filters.cors.enable }}
+    {{- end }}
+    {{- if .Values.filters.cors.enable }}
       - name: corsfilter
         type: http_filter_cors
-    {{ end }}
-    {{ if .Values.filters.jwt.enable }}
+    {{- end }}
+    {{- if .Values.filters.jwt.enable }}
       - name: jwtfilter
         type: http_filter_jwt
-    {{ end }}
+    {{- end }}
   routes:
     - conditions:
       - prefix: {{ .Values.service.prefix }}
-        {{ if eq .Values.service.name "hello-enroute" }}
+        {{- if eq .Values.service.name "hello-enroute" }}
         header:
           name: ":method"
           exact: "GET"
-        {{ end }}
-      {{ if .Values.filters.ratelimit.enable }}
+        {{- end }}
+      {{- if .Values.filters.ratelimit.enable }}
       filters:
         - name: rl2
           type: route_filter_ratelimit
-      {{ end }}
+      {{- end }}
       services:
         - name: {{ .Values.service.name }}
           port: {{ .Values.service.port }}

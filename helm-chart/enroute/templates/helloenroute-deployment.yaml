@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-enroute
-  namespace: {{ .Values.globalSettings.namespace }}
+  namespace: {{ .Values.globalSettings.namespace.name }}
   labels:
     app: hello-enroute
 spec:
