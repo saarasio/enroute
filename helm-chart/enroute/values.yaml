@@ -94,7 +94,6 @@ globalSettings:
     name: "enroutedemo"
  
 helloenrouteService:
-  create: true
   imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute
 
 filters:
@@ -111,8 +110,8 @@ service:
   name: hello-enroute
   port: 9090
   fqdn: ''
-  imageLocation: gcr.io/saarasio-291001/hello-enroute
   enableTLS: false
+  prefix: /
 
 autoTLS:
   enable: false

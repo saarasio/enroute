@@ -1,18 +1,17 @@
-{{- if eq .Values.autoTLS.enable false }}
----
+{{- if eq .Values.autoTLS.enable true }}
 apiVersion: enroute.saaras.io/v1beta1
 kind: GatewayHost
 metadata:
   labels:
     app: {{ .Values.service.name }}
-  name: {{ .Values.service.name }}-gatewayhost
+  name: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-gatewayhost
   namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   virtualhost:
-    {{ if eq (len .Values.service.fqdn) 0 }}
-    fqdn: '*'
-    {{ else }}
-    fqdn: {{ quote .Values.service.fqdn }}
+    fqdn: {{ quote .Values.autoTLS.certificateCN }}
+    {{ if .Values.service.enableTLS }}
+    tls:
+      secretName: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-secret
     {{ end }}
     {{ if .Values.filters.lua.enable }}
     filters:
@@ -29,6 +28,14 @@ spec:
     {{ end }}
   routes:
     - conditions:
+      - prefix: /.well-known/acme-challenge/
+        header:
+          name: ":method"
+          exact: "GET"
+      services:
+        - name: acme-challenge-service
+          port: 80
+    - conditions:
       - prefix: {{ .Values.service.prefix }}
         {{ if eq .Values.service.name "hello-enroute" }}
         header:
@@ -43,4 +50,5 @@ spec:
       services:
         - name: {{ .Values.service.name }}
           port: {{ .Values.service.port }}
+---
 {{- end }}
