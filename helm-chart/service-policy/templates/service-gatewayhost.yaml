@@ -15,15 +15,15 @@ spec:
     {{ end }}
     {{ if .Values.filters.lua.enable }}
     filters:
-      - name: luatestfilter
+      - name: {{ .Values.service.name }}-luatestfilter
         type: http_filter_lua
     {{ end }}
     {{ if .Values.filters.cors.enable }}
-      - name: corsfilter
+      - name: {{ .Values.service.name }}-corsfilter
         type: http_filter_cors
     {{ end }}
     {{ if .Values.filters.jwt.enable }}
-      - name: jwtfilter
+      - name: {{ .Values.service.name }}-jwtfilter
         type: http_filter_jwt
     {{ end }}
   routes:
@@ -44,7 +44,7 @@ spec:
         {{ end }}
       {{ if .Values.filters.ratelimit.enable }}
       filters:
-        - name: rl2
+        - name: {{ .Values.service.name }}-rl2
           type: route_filter_ratelimit
       {{ end }}
       services:

@@ -88,9 +88,11 @@ filters:
   jwt:
     enable: false
 
+installHttpbin: false
+
 service:
-  name: hello-enroute
-  port: 9090
+  name: httpbin
+  port: 80
   fqdn: ''
   enableTLS: false
   namespace: enroutedemo
