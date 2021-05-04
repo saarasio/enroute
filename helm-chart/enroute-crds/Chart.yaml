@@ -1,6 +1,6 @@
 apiVersion: v1beta1
 appVersion: 0.5
-description: A Helm chart for EnRoute API Gateway for Kubernetes Ingress
+description: A Helm chart for CRDs for EnRoute API Gateway for Kubernetes Ingress
 home: https://getenroute.io/
 icon: https://getenroute.io/favicon.ico
 keywords:
@@ -12,7 +12,7 @@ keywords:
 maintainers:
  - email: contact@saaras.io
    name: contact
-name: enroute
+name: enroute-crds
 sources:
  - https://github.com/saarasio/enroute
  - https://getenroute.io
