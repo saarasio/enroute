@@ -4,7 +4,7 @@ kind: GatewayHost
 metadata:
   labels:
     app: hello-enroute
-  name: hello-enroute-gatewayhost-notls
+  name: {{ .Values.service.name }}-gatewayhost-notls
   namespace: enroutedemo
 spec:
   virtualhost:
