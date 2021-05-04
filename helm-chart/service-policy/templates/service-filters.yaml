@@ -27,7 +27,7 @@ spec:
                    {
                      "key" : "generic_key",
                      "value" : "default_route",
-                     "rate_limit" : { "unit" : "second", "requests_per_unit" : 1 }
+                     "rate_limit" : { "unit" : "second", "requests_per_unit" : 5 }
                     }
                   ]
                 },
@@ -121,7 +121,7 @@ spec:
   name: {{ .Values.service.name }}-jwtfilter
   type: http_filter_jwt
   services:
-     name: externalauth
+     name: {{ .Values.service.name }}-externalauth
      port: 443
      protocol: tls
   httpFilterConfig:

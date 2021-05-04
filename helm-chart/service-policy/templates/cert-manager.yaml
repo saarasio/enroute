@@ -1,17 +1,4 @@
-{{- if .Values.autoTLS.issueCert }}
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: Certificate-{{ .Values.autoTLS.certificateCN }}
-  namespace: {{ .Values.globalSettings.namespace.name }}
-spec:
-  commonName: {{ .Values.service.certificateCN }}
-  dnsNames:
-  - {{ .Values.autoTLS.certificateCN }}
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  secretName: Secret-{{ .Values.autoTLS.certificateCN }}
+{{- if .Values.autoTLS.createIssuers }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -50,12 +37,32 @@ spec:
         ingress:
           class: enroute
       selector: {}
+{{ end }}
+---
+{{- if .Values.autoTLS.issueCert }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.autoTLS.certificateCN }}
+  namespace: {{ .Values.globalSettings.namespace.name }}
+spec:
+  commonName: {{ .Values.autoTLS.certificateCN }}
+  dnsNames:
+  - {{ .Values.autoTLS.certificateCN }}
+  issuerRef:
+    {{- if .Values.autoTLS.enableProd }}
+    name: letsencrypt-prod
+    {{- else }}
+    name: letsencrypt-staging
+    {{- end }}
+    kind: ClusterIssuer
+  secretName: {{ .Values.autoTLS.certificateCN }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: acme-challenge-service
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   ports:
   - port: 80

@@ -99,10 +99,10 @@ service:
   prefix: /
 
 autoTLS:
-  enable: false
   issueCert: false
   certificateCN: 'he.enroutedemo.com'
   enableProd: false
+  createIssuers: false
 
 globalSettings:
   nameOverride: ""

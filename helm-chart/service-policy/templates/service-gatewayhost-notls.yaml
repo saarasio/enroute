@@ -1,4 +1,4 @@
-{{- if eq .Values.autoTLS.enable false }}
+{{- if eq .Values.service.enableTLS false }}
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: GatewayHost
@@ -28,6 +28,16 @@ spec:
         type: http_filter_jwt
     {{- end }}
   routes:
+    {{ if .Values.autoTLS.issueCert }}
+    - conditions:
+      - prefix: /.well-known/acme-challenge/
+        header:
+          name: ":method"
+          exact: "GET"
+      services:
+        - name: acme-challenge-service
+          port: 80
+    {{- end }}
     - conditions:
       - prefix: {{ .Values.service.prefix }}
         {{- if eq .Values.service.name "hello-enroute" }}
