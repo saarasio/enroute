@@ -1,4 +1,4 @@
-{{- if eq .Values.certManager.enable false }}
+{{- if eq .Values.autoTLS.enable false }}
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: GatewayHost
@@ -6,17 +6,13 @@ metadata:
   labels:
     app: hello-enroute
   name: {{ .Values.service.name }}-gatewayhost
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   virtualhost:
     {{- if eq (len .Values.service.fqdn) 0 }}
     fqdn: '*'
     {{- else }}
     fqdn: {{ quote .Values.service.fqdn }}
-    {{- end }}
-    {{- if .Values.service.enableTLS }}
-    tls:
-      secretName: {{ .Values.service.name }}-secret
     {{- end }}
     {{- if .Values.filters.lua.enable }}
     filters:
@@ -52,7 +48,7 @@ metadata:
   labels:
     app: hello-enroute
   name: rl-global-config
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   name: rl-global-config
   type: globalconfig_ratelimit
@@ -81,7 +77,7 @@ metadata:
   labels:
     app: hello-enroute
   name: rl2
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   name: rl2
   type: route_filter_ratelimit
@@ -101,7 +97,7 @@ metadata:
   labels:
     app: hello-enroute
   name: luatestfilter
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   name: luatestfilter
   type: http_filter_lua
@@ -121,7 +117,7 @@ metadata:
   labels:
     app: hello-enroute
   name: corsfilter
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   name: corsfilter
   type: http_filter_cors
@@ -143,7 +139,7 @@ metadata:
   labels:
     app: hello-enroute
   name: jwtfilter
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   name: jwtfilter
   type: http_filter_jwt
@@ -168,7 +164,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: externalauth
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   type: ExternalName
   externalName: saaras.auth0.com

@@ -67,7 +67,7 @@ gkeSettings:
 
 # Oneof ["trace", "debug", "info", "error"]
 envoySettings:
-  logLevel: "info"
+  logLevel: "trace"
 
 globalSettings:
   nameOverride: ""
@@ -114,7 +114,7 @@ service:
   imageLocation: gcr.io/saarasio-291001/hello-enroute
   enableTLS: false
 
-certManager:
+autoTLS:
   enable: false
   issueCert: false
   certificateCN: 'he.enroutedemo.com'

@@ -1,17 +1,17 @@
-{{- if .Values.certManager.enable }}
+{{- if .Values.autoTLS.issueCert }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: {{ .Values.service.name }}-secret-cert-manager
-  namespace: enroutedemo
+  name: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   commonName: {{ .Values.service.certificateCN }}
   dnsNames:
-  - {{ .Values.service.certificateCN }}
+  - {{ .Values.autoTLS.certificateCN }}
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
-  secretName: {{ .Values.service.name }}-secret
+  secretName: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-secret
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -51,7 +51,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: acme-challenge-service
-  namespace: enroutedemo
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   ports:
   - port: 80
@@ -64,11 +64,15 @@ kind: GatewayHost
 metadata:
   labels:
     app: hello-enroute
-  name: {{ .Values.service.name }}-gatewayhost-certmanager
-  namespace: enroutedemo
+  name: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-gatewayhost
+  namespace: {{ .Values.globalSettings.namespace.name }}
 spec:
   virtualhost:
-    fqdn: {{ quote .Values.service.certificateCN }}
+    fqdn: {{ quote .Values.autoTLS.certificateCN }}
+    {{- if .Values.service.enableTLS }}
+    tls:
+      secretName: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-secret
+    {{- end }}
   routes:
     - conditions:
       - prefix: /.well-known/acme-challenge/
