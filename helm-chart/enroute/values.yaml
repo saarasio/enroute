@@ -99,9 +99,9 @@ helloenrouteService:
 
 filters:
   lua:
-    enable: false
+    enable: true
   ratelimit:
-    enable: false
+    enable: true
   cors:
     enable: false
   jwt:

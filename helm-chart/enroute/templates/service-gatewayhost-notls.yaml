@@ -21,6 +21,11 @@ spec:
       - name: luatestfilter
         type: http_filter_lua
     {{- end }}
+    {{- if .Values.filters.cors.enable -}}
+    #
+      - name: corsfilter
+        type: http_filter_cors
+    {{- end }}
   routes:
     - conditions:
       - prefix: /
@@ -105,4 +110,26 @@ spec:
         function envoy_on_response(response_handle)
            response_handle:logInfo("Hello World response");
         end
+---
+apiVersion: enroute.saaras.io/v1beta1
+kind: HttpFilter
+metadata:
+  labels:
+    app: hello-enroute
+  name: corsfilter
+  namespace: enroutedemo
+spec:
+  name: corsfilter
+  type: http_filter_cors
+  httpFilterConfig:
+    config: |
+         {
+             "match_condition" : {
+               "regex" : "\\*"
+             },
+             "access_control_allow_methods" : "GET, OPTIONS",
+             "access_control_allow_headers" : "X-PINGOTHER, Content-Type",
+             "access_control_expose_headers" : "*",
+             "access_control_max_age" : "120"
+         }
 ---
