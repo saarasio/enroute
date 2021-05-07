@@ -1,6 +1,6 @@
 [![Build Status](https://dev.azure.com/saaras-io/Enroute/_apis/build/status/saarasio.enroute?branchName=master)](https://dev.azure.com/saaras-io/Enroute/_build/latest?definitionId=6&branchName=master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Twitter](https://img.shields.io/twitter/follow/SaarasInc?label=Follow%20EnRoute&style=social)
+[![Twitter](https://img.shields.io/twitter/follow/SaarasInc?label=Follow%20EnRoute&style=social)](https://twitter.com/intent/follow?screen_name=SaarasInc)
 
 ![](https://getenroute.io/images/enroute-logo.svg)
 
