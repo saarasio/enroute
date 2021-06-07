@@ -10,7 +10,7 @@ EnRoute makes it easy to run Envoy as an API Gateway. You can use it for microse
 
 What makes it easy is simple REST APIs to configure the Standalone gateway or CRDs to configure the Kubernetes Ingress Gateway. Plugins provide the ability to add fine-grained route-level or global policies and traffic control.
 
-As Envoy is being widely accepted as a next-gen proxy, EnRoute is deployed in production use at companies. EnRoute is an actively maintained project and community edition supports Advanced Rate Limiting.
+As Envoy is being widely accepted as a next-gen proxy, EnRoute is deployed in production use at companies. EnRoute is an actively maintained project and community edition supports Advanced Rate Limiting and JWT.
 
 #### How is EnRoute different?
 
