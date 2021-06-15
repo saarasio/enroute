@@ -493,7 +493,7 @@ func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasGatewayHostService, log logrus.
 		if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
 			spew.Dump(onev1b1ir)
 		}
-		m[onev1b1ir.Name+"_"+onev1b1ir.Namespace] = onev1b1ir
+		m[onev1b1ir.Name + "_" + onev1b1ir.Namespace] = onev1b1ir
 	}
 
 	return &m

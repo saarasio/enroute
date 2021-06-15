@@ -68,7 +68,7 @@ func Reporter() {
 
 	for {
 		if USAGE != "no" {
-			sendOnce()
+			// sendOnce()
 		} else {
 			fmt.Printf("Not sending anon stat\n")
 		}

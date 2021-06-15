@@ -1,0 +1,6 @@
+FROM ubuntu:groovy-20210325.1
+
+WORKDIR /bin
+
+COPY enroute /bin/
+ENV SEND_ANON_STAT="1"
