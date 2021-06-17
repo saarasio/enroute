@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2020 Saaras Inc.
+// Copyright(c) 2018-2021 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -22,6 +22,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
@@ -42,7 +44,7 @@ var gatewayhostsResource = schema.GroupVersionResource{Group: "enroute.saaras.io
 var gatewayhostsKind = schema.GroupVersionKind{Group: "enroute.saaras.io", Version: "v1beta1", Kind: "GatewayHost"}
 
 // Get takes name of the gatewayHost, and returns the corresponding gatewayHost object, and an error if there is any.
-func (c *FakeGatewayHosts) Get(name string, options v1.GetOptions) (result *v1beta1.GatewayHost, err error) {
+func (c *FakeGatewayHosts) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.GatewayHost, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(gatewayhostsResource, c.ns, name), &v1beta1.GatewayHost{})
 
@@ -53,7 +55,7 @@ func (c *FakeGatewayHosts) Get(name string, options v1.GetOptions) (result *v1be
 }
 
 // List takes label and field selectors, and returns the list of GatewayHosts that match those selectors.
-func (c *FakeGatewayHosts) List(opts v1.ListOptions) (result *v1beta1.GatewayHostList, err error) {
+func (c *FakeGatewayHosts) List(ctx context.Context, opts v1.ListOptions) (result *v1beta1.GatewayHostList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(gatewayhostsResource, gatewayhostsKind, c.ns, opts), &v1beta1.GatewayHostList{})
 
@@ -75,14 +77,14 @@ func (c *FakeGatewayHosts) List(opts v1.ListOptions) (result *v1beta1.GatewayHos
 }
 
 // Watch returns a watch.Interface that watches the requested gatewayHosts.
-func (c *FakeGatewayHosts) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeGatewayHosts) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(gatewayhostsResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a gatewayHost and creates it.  Returns the server's representation of the gatewayHost, and an error, if there is any.
-func (c *FakeGatewayHosts) Create(gatewayHost *v1beta1.GatewayHost) (result *v1beta1.GatewayHost, err error) {
+func (c *FakeGatewayHosts) Create(ctx context.Context, gatewayHost *v1beta1.GatewayHost, opts v1.CreateOptions) (result *v1beta1.GatewayHost, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(gatewayhostsResource, c.ns, gatewayHost), &v1beta1.GatewayHost{})
 
@@ -93,7 +95,7 @@ func (c *FakeGatewayHosts) Create(gatewayHost *v1beta1.GatewayHost) (result *v1b
 }
 
 // Update takes the representation of a gatewayHost and updates it. Returns the server's representation of the gatewayHost, and an error, if there is any.
-func (c *FakeGatewayHosts) Update(gatewayHost *v1beta1.GatewayHost) (result *v1beta1.GatewayHost, err error) {
+func (c *FakeGatewayHosts) Update(ctx context.Context, gatewayHost *v1beta1.GatewayHost, opts v1.UpdateOptions) (result *v1beta1.GatewayHost, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(gatewayhostsResource, c.ns, gatewayHost), &v1beta1.GatewayHost{})
 
@@ -105,7 +107,7 @@ func (c *FakeGatewayHosts) Update(gatewayHost *v1beta1.GatewayHost) (result *v1b
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeGatewayHosts) UpdateStatus(gatewayHost *v1beta1.GatewayHost) (*v1beta1.GatewayHost, error) {
+func (c *FakeGatewayHosts) UpdateStatus(ctx context.Context, gatewayHost *v1beta1.GatewayHost, opts v1.UpdateOptions) (*v1beta1.GatewayHost, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(gatewayhostsResource, "status", c.ns, gatewayHost), &v1beta1.GatewayHost{})
 
@@ -116,7 +118,7 @@ func (c *FakeGatewayHosts) UpdateStatus(gatewayHost *v1beta1.GatewayHost) (*v1be
 }
 
 // Delete takes name of the gatewayHost and deletes it. Returns an error if one occurs.
-func (c *FakeGatewayHosts) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeGatewayHosts) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(gatewayhostsResource, c.ns, name), &v1beta1.GatewayHost{})
 
@@ -124,15 +126,15 @@ func (c *FakeGatewayHosts) Delete(name string, options *v1.DeleteOptions) error 
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeGatewayHosts) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(gatewayhostsResource, c.ns, listOptions)
+func (c *FakeGatewayHosts) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(gatewayhostsResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1beta1.GatewayHostList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched gatewayHost.
-func (c *FakeGatewayHosts) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta1.GatewayHost, err error) {
+func (c *FakeGatewayHosts) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1beta1.GatewayHost, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(gatewayhostsResource, c.ns, name, pt, data, subresources...), &v1beta1.GatewayHost{})
 

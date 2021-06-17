@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2020 Saaras Inc.
+// Copyright(c) 2018-2021 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -22,6 +22,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
@@ -42,7 +44,7 @@ var globalconfigsResource = schema.GroupVersionResource{Group: "enroute.saaras.i
 var globalconfigsKind = schema.GroupVersionKind{Group: "enroute.saaras.io", Version: "v1beta1", Kind: "GlobalConfig"}
 
 // Get takes name of the globalConfig, and returns the corresponding globalConfig object, and an error if there is any.
-func (c *FakeGlobalConfigs) Get(name string, options v1.GetOptions) (result *v1beta1.GlobalConfig, err error) {
+func (c *FakeGlobalConfigs) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.GlobalConfig, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(globalconfigsResource, c.ns, name), &v1beta1.GlobalConfig{})
 
@@ -53,7 +55,7 @@ func (c *FakeGlobalConfigs) Get(name string, options v1.GetOptions) (result *v1b
 }
 
 // List takes label and field selectors, and returns the list of GlobalConfigs that match those selectors.
-func (c *FakeGlobalConfigs) List(opts v1.ListOptions) (result *v1beta1.GlobalConfigList, err error) {
+func (c *FakeGlobalConfigs) List(ctx context.Context, opts v1.ListOptions) (result *v1beta1.GlobalConfigList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(globalconfigsResource, globalconfigsKind, c.ns, opts), &v1beta1.GlobalConfigList{})
 
@@ -75,14 +77,14 @@ func (c *FakeGlobalConfigs) List(opts v1.ListOptions) (result *v1beta1.GlobalCon
 }
 
 // Watch returns a watch.Interface that watches the requested globalConfigs.
-func (c *FakeGlobalConfigs) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeGlobalConfigs) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(globalconfigsResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a globalConfig and creates it.  Returns the server's representation of the globalConfig, and an error, if there is any.
-func (c *FakeGlobalConfigs) Create(globalConfig *v1beta1.GlobalConfig) (result *v1beta1.GlobalConfig, err error) {
+func (c *FakeGlobalConfigs) Create(ctx context.Context, globalConfig *v1beta1.GlobalConfig, opts v1.CreateOptions) (result *v1beta1.GlobalConfig, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(globalconfigsResource, c.ns, globalConfig), &v1beta1.GlobalConfig{})
 
@@ -93,7 +95,7 @@ func (c *FakeGlobalConfigs) Create(globalConfig *v1beta1.GlobalConfig) (result *
 }
 
 // Update takes the representation of a globalConfig and updates it. Returns the server's representation of the globalConfig, and an error, if there is any.
-func (c *FakeGlobalConfigs) Update(globalConfig *v1beta1.GlobalConfig) (result *v1beta1.GlobalConfig, err error) {
+func (c *FakeGlobalConfigs) Update(ctx context.Context, globalConfig *v1beta1.GlobalConfig, opts v1.UpdateOptions) (result *v1beta1.GlobalConfig, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(globalconfigsResource, c.ns, globalConfig), &v1beta1.GlobalConfig{})
 
@@ -105,7 +107,7 @@ func (c *FakeGlobalConfigs) Update(globalConfig *v1beta1.GlobalConfig) (result *
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeGlobalConfigs) UpdateStatus(globalConfig *v1beta1.GlobalConfig) (*v1beta1.GlobalConfig, error) {
+func (c *FakeGlobalConfigs) UpdateStatus(ctx context.Context, globalConfig *v1beta1.GlobalConfig, opts v1.UpdateOptions) (*v1beta1.GlobalConfig, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(globalconfigsResource, "status", c.ns, globalConfig), &v1beta1.GlobalConfig{})
 
@@ -116,7 +118,7 @@ func (c *FakeGlobalConfigs) UpdateStatus(globalConfig *v1beta1.GlobalConfig) (*v
 }
 
 // Delete takes name of the globalConfig and deletes it. Returns an error if one occurs.
-func (c *FakeGlobalConfigs) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeGlobalConfigs) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(globalconfigsResource, c.ns, name), &v1beta1.GlobalConfig{})
 
@@ -124,15 +126,15 @@ func (c *FakeGlobalConfigs) Delete(name string, options *v1.DeleteOptions) error
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeGlobalConfigs) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(globalconfigsResource, c.ns, listOptions)
+func (c *FakeGlobalConfigs) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(globalconfigsResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1beta1.GlobalConfigList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched globalConfig.
-func (c *FakeGlobalConfigs) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta1.GlobalConfig, err error) {
+func (c *FakeGlobalConfigs) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1beta1.GlobalConfig, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(globalconfigsResource, c.ns, name, pt, data, subresources...), &v1beta1.GlobalConfig{})
 

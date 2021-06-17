@@ -21,8 +21,10 @@ package certgen
 import (
 	"fmt"
 	"path"
+	"context"
 
 	"k8s.io/client-go/kubernetes"
+	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // WritePEM writes a certificate out to its filename in outputDir.
@@ -103,8 +105,9 @@ func writeCACertSecret(outputDir, namespace string, cert []byte) error {
 }
 
 func writeCACertKube(client *kubernetes.Clientset, namespace string, cert []byte) error {
+	var co meta_v1.CreateOptions
 	secret := newCertOnlySecret("cacert", namespace, "cacert.pem", cert)
-	_, err := client.CoreV1().Secrets(namespace).Create(secret)
+	_, err := client.CoreV1().Secrets(namespace).Create(context.TODO(), secret, co)
 	if err != nil {
 		return err
 	}
@@ -127,9 +130,10 @@ func writeKeyPairSecret(outputDir, service, namespace string, cert, key []byte) 
 }
 
 func writeKeyPairKube(client *kubernetes.Clientset, service, namespace string, cert, key []byte) error {
+	var co meta_v1.CreateOptions
 	secretname := service + "cert"
 	secret := newTLSSecret(secretname, namespace, key, cert)
-	_, err := client.CoreV1().Secrets(namespace).Create(secret)
+	_, err := client.CoreV1().Secrets(namespace).Create(context.TODO(), secret, co)
 	if err != nil {
 		return err
 	}

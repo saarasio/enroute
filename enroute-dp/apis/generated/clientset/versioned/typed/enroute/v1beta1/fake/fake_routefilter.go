@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2020 Saaras Inc.
+// Copyright(c) 2018-2021 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -22,6 +22,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
@@ -42,7 +44,7 @@ var routefiltersResource = schema.GroupVersionResource{Group: "enroute.saaras.io
 var routefiltersKind = schema.GroupVersionKind{Group: "enroute.saaras.io", Version: "v1beta1", Kind: "RouteFilter"}
 
 // Get takes name of the routeFilter, and returns the corresponding routeFilter object, and an error if there is any.
-func (c *FakeRouteFilters) Get(name string, options v1.GetOptions) (result *v1beta1.RouteFilter, err error) {
+func (c *FakeRouteFilters) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.RouteFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(routefiltersResource, c.ns, name), &v1beta1.RouteFilter{})
 
@@ -53,7 +55,7 @@ func (c *FakeRouteFilters) Get(name string, options v1.GetOptions) (result *v1be
 }
 
 // List takes label and field selectors, and returns the list of RouteFilters that match those selectors.
-func (c *FakeRouteFilters) List(opts v1.ListOptions) (result *v1beta1.RouteFilterList, err error) {
+func (c *FakeRouteFilters) List(ctx context.Context, opts v1.ListOptions) (result *v1beta1.RouteFilterList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(routefiltersResource, routefiltersKind, c.ns, opts), &v1beta1.RouteFilterList{})
 
@@ -75,14 +77,14 @@ func (c *FakeRouteFilters) List(opts v1.ListOptions) (result *v1beta1.RouteFilte
 }
 
 // Watch returns a watch.Interface that watches the requested routeFilters.
-func (c *FakeRouteFilters) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeRouteFilters) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(routefiltersResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a routeFilter and creates it.  Returns the server's representation of the routeFilter, and an error, if there is any.
-func (c *FakeRouteFilters) Create(routeFilter *v1beta1.RouteFilter) (result *v1beta1.RouteFilter, err error) {
+func (c *FakeRouteFilters) Create(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.CreateOptions) (result *v1beta1.RouteFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(routefiltersResource, c.ns, routeFilter), &v1beta1.RouteFilter{})
 
@@ -93,7 +95,7 @@ func (c *FakeRouteFilters) Create(routeFilter *v1beta1.RouteFilter) (result *v1b
 }
 
 // Update takes the representation of a routeFilter and updates it. Returns the server's representation of the routeFilter, and an error, if there is any.
-func (c *FakeRouteFilters) Update(routeFilter *v1beta1.RouteFilter) (result *v1beta1.RouteFilter, err error) {
+func (c *FakeRouteFilters) Update(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.UpdateOptions) (result *v1beta1.RouteFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(routefiltersResource, c.ns, routeFilter), &v1beta1.RouteFilter{})
 
@@ -105,7 +107,7 @@ func (c *FakeRouteFilters) Update(routeFilter *v1beta1.RouteFilter) (result *v1b
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeRouteFilters) UpdateStatus(routeFilter *v1beta1.RouteFilter) (*v1beta1.RouteFilter, error) {
+func (c *FakeRouteFilters) UpdateStatus(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.UpdateOptions) (*v1beta1.RouteFilter, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(routefiltersResource, "status", c.ns, routeFilter), &v1beta1.RouteFilter{})
 
@@ -116,7 +118,7 @@ func (c *FakeRouteFilters) UpdateStatus(routeFilter *v1beta1.RouteFilter) (*v1be
 }
 
 // Delete takes name of the routeFilter and deletes it. Returns an error if one occurs.
-func (c *FakeRouteFilters) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeRouteFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(routefiltersResource, c.ns, name), &v1beta1.RouteFilter{})
 
@@ -124,15 +126,15 @@ func (c *FakeRouteFilters) Delete(name string, options *v1.DeleteOptions) error 
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeRouteFilters) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(routefiltersResource, c.ns, listOptions)
+func (c *FakeRouteFilters) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(routefiltersResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1beta1.RouteFilterList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched routeFilter.
-func (c *FakeRouteFilters) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta1.RouteFilter, err error) {
+func (c *FakeRouteFilters) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1beta1.RouteFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(routefiltersResource, c.ns, name, pt, data, subresources...), &v1beta1.RouteFilter{})
 

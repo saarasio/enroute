@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2020 Saaras Inc.
+// Copyright(c) 2018-2021 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -22,6 +22,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	"context"
 	"time"
 
 	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
@@ -40,15 +41,15 @@ type RouteFiltersGetter interface {
 
 // RouteFilterInterface has methods to work with RouteFilter resources.
 type RouteFilterInterface interface {
-	Create(*v1beta1.RouteFilter) (*v1beta1.RouteFilter, error)
-	Update(*v1beta1.RouteFilter) (*v1beta1.RouteFilter, error)
-	UpdateStatus(*v1beta1.RouteFilter) (*v1beta1.RouteFilter, error)
-	Delete(name string, options *v1.DeleteOptions) error
-	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1beta1.RouteFilter, error)
-	List(opts v1.ListOptions) (*v1beta1.RouteFilterList, error)
-	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta1.RouteFilter, err error)
+	Create(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.CreateOptions) (*v1beta1.RouteFilter, error)
+	Update(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.UpdateOptions) (*v1beta1.RouteFilter, error)
+	UpdateStatus(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.UpdateOptions) (*v1beta1.RouteFilter, error)
+	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
+	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1beta1.RouteFilter, error)
+	List(ctx context.Context, opts v1.ListOptions) (*v1beta1.RouteFilterList, error)
+	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1beta1.RouteFilter, err error)
 	RouteFilterExpansion
 }
 
@@ -67,20 +68,20 @@ func newRouteFilters(c *EnrouteV1beta1Client, namespace string) *routeFilters {
 }
 
 // Get takes name of the routeFilter, and returns the corresponding routeFilter object, and an error if there is any.
-func (c *routeFilters) Get(name string, options v1.GetOptions) (result *v1beta1.RouteFilter, err error) {
+func (c *routeFilters) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.RouteFilter, err error) {
 	result = &v1beta1.RouteFilter{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("routefilters").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // List takes label and field selectors, and returns the list of RouteFilters that match those selectors.
-func (c *routeFilters) List(opts v1.ListOptions) (result *v1beta1.RouteFilterList, err error) {
+func (c *routeFilters) List(ctx context.Context, opts v1.ListOptions) (result *v1beta1.RouteFilterList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -91,13 +92,13 @@ func (c *routeFilters) List(opts v1.ListOptions) (result *v1beta1.RouteFilterLis
 		Resource("routefilters").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Watch returns a watch.Interface that watches the requested routeFilters.
-func (c *routeFilters) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *routeFilters) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -108,87 +109,90 @@ func (c *routeFilters) Watch(opts v1.ListOptions) (watch.Interface, error) {
 		Resource("routefilters").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Watch()
+		Watch(ctx)
 }
 
 // Create takes the representation of a routeFilter and creates it.  Returns the server's representation of the routeFilter, and an error, if there is any.
-func (c *routeFilters) Create(routeFilter *v1beta1.RouteFilter) (result *v1beta1.RouteFilter, err error) {
+func (c *routeFilters) Create(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.CreateOptions) (result *v1beta1.RouteFilter, err error) {
 	result = &v1beta1.RouteFilter{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("routefilters").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(routeFilter).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Update takes the representation of a routeFilter and updates it. Returns the server's representation of the routeFilter, and an error, if there is any.
-func (c *routeFilters) Update(routeFilter *v1beta1.RouteFilter) (result *v1beta1.RouteFilter, err error) {
+func (c *routeFilters) Update(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.UpdateOptions) (result *v1beta1.RouteFilter, err error) {
 	result = &v1beta1.RouteFilter{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("routefilters").
 		Name(routeFilter.Name).
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(routeFilter).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-
-func (c *routeFilters) UpdateStatus(routeFilter *v1beta1.RouteFilter) (result *v1beta1.RouteFilter, err error) {
+func (c *routeFilters) UpdateStatus(ctx context.Context, routeFilter *v1beta1.RouteFilter, opts v1.UpdateOptions) (result *v1beta1.RouteFilter, err error) {
 	result = &v1beta1.RouteFilter{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("routefilters").
 		Name(routeFilter.Name).
 		SubResource("status").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(routeFilter).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Delete takes name of the routeFilter and deletes it. Returns an error if one occurs.
-func (c *routeFilters) Delete(name string, options *v1.DeleteOptions) error {
+func (c *routeFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("routefilters").
 		Name(name).
-		Body(options).
-		Do().
+		Body(&opts).
+		Do(ctx).
 		Error()
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *routeFilters) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+func (c *routeFilters) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
 	var timeout time.Duration
-	if listOptions.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
+	if listOpts.TimeoutSeconds != nil {
+		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("routefilters").
-		VersionedParams(&listOptions, scheme.ParameterCodec).
+		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Body(options).
-		Do().
+		Body(&opts).
+		Do(ctx).
 		Error()
 }
 
 // Patch applies the patch and returns the patched routeFilter.
-func (c *routeFilters) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta1.RouteFilter, err error) {
+func (c *routeFilters) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1beta1.RouteFilter, err error) {
 	result = &v1beta1.RouteFilter{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("routefilters").
-		SubResource(subresources...).
 		Name(name).
+		SubResource(subresources...).
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(data).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }

@@ -21,7 +21,7 @@
 
 git clone https://github.com/kubernetes/code-generator.git
 cd code-generator
-git reset --hard remotes/origin/release-1.15
+git reset --hard remotes/origin/release-1.18
 go install ./...
 cd ..
 

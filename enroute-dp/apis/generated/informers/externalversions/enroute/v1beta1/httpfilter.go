@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2020 Saaras Inc.
+// Copyright(c) 2018-2021 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -22,6 +22,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	"context"
 	time "time"
 
 	enroutev1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
@@ -64,13 +65,13 @@ func NewFilteredHttpFilterInformer(client versioned.Interface, namespace string,
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EnrouteV1beta1().HttpFilters(namespace).List(options)
+				return client.EnrouteV1beta1().HttpFilters(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.EnrouteV1beta1().HttpFilters(namespace).Watch(options)
+				return client.EnrouteV1beta1().HttpFilters(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&enroutev1beta1.HttpFilter{},

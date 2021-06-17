@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright(c) 2018-2020 Saaras Inc.
+// Copyright(c) 2018-2021 Saaras Inc.
 
 /*
 Copyright 2019  Heptio
@@ -22,6 +22,8 @@ limitations under the License.
 package fake
 
 import (
+	"context"
+
 	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
@@ -42,7 +44,7 @@ var httpfiltersResource = schema.GroupVersionResource{Group: "enroute.saaras.io"
 var httpfiltersKind = schema.GroupVersionKind{Group: "enroute.saaras.io", Version: "v1beta1", Kind: "HttpFilter"}
 
 // Get takes name of the httpFilter, and returns the corresponding httpFilter object, and an error if there is any.
-func (c *FakeHttpFilters) Get(name string, options v1.GetOptions) (result *v1beta1.HttpFilter, err error) {
+func (c *FakeHttpFilters) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.HttpFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(httpfiltersResource, c.ns, name), &v1beta1.HttpFilter{})
 
@@ -53,7 +55,7 @@ func (c *FakeHttpFilters) Get(name string, options v1.GetOptions) (result *v1bet
 }
 
 // List takes label and field selectors, and returns the list of HttpFilters that match those selectors.
-func (c *FakeHttpFilters) List(opts v1.ListOptions) (result *v1beta1.HttpFilterList, err error) {
+func (c *FakeHttpFilters) List(ctx context.Context, opts v1.ListOptions) (result *v1beta1.HttpFilterList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(httpfiltersResource, httpfiltersKind, c.ns, opts), &v1beta1.HttpFilterList{})
 
@@ -75,14 +77,14 @@ func (c *FakeHttpFilters) List(opts v1.ListOptions) (result *v1beta1.HttpFilterL
 }
 
 // Watch returns a watch.Interface that watches the requested httpFilters.
-func (c *FakeHttpFilters) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeHttpFilters) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(httpfiltersResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a httpFilter and creates it.  Returns the server's representation of the httpFilter, and an error, if there is any.
-func (c *FakeHttpFilters) Create(httpFilter *v1beta1.HttpFilter) (result *v1beta1.HttpFilter, err error) {
+func (c *FakeHttpFilters) Create(ctx context.Context, httpFilter *v1beta1.HttpFilter, opts v1.CreateOptions) (result *v1beta1.HttpFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(httpfiltersResource, c.ns, httpFilter), &v1beta1.HttpFilter{})
 
@@ -93,7 +95,7 @@ func (c *FakeHttpFilters) Create(httpFilter *v1beta1.HttpFilter) (result *v1beta
 }
 
 // Update takes the representation of a httpFilter and updates it. Returns the server's representation of the httpFilter, and an error, if there is any.
-func (c *FakeHttpFilters) Update(httpFilter *v1beta1.HttpFilter) (result *v1beta1.HttpFilter, err error) {
+func (c *FakeHttpFilters) Update(ctx context.Context, httpFilter *v1beta1.HttpFilter, opts v1.UpdateOptions) (result *v1beta1.HttpFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(httpfiltersResource, c.ns, httpFilter), &v1beta1.HttpFilter{})
 
@@ -105,7 +107,7 @@ func (c *FakeHttpFilters) Update(httpFilter *v1beta1.HttpFilter) (result *v1beta
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeHttpFilters) UpdateStatus(httpFilter *v1beta1.HttpFilter) (*v1beta1.HttpFilter, error) {
+func (c *FakeHttpFilters) UpdateStatus(ctx context.Context, httpFilter *v1beta1.HttpFilter, opts v1.UpdateOptions) (*v1beta1.HttpFilter, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(httpfiltersResource, "status", c.ns, httpFilter), &v1beta1.HttpFilter{})
 
@@ -116,7 +118,7 @@ func (c *FakeHttpFilters) UpdateStatus(httpFilter *v1beta1.HttpFilter) (*v1beta1
 }
 
 // Delete takes name of the httpFilter and deletes it. Returns an error if one occurs.
-func (c *FakeHttpFilters) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeHttpFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(httpfiltersResource, c.ns, name), &v1beta1.HttpFilter{})
 
@@ -124,15 +126,15 @@ func (c *FakeHttpFilters) Delete(name string, options *v1.DeleteOptions) error {
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeHttpFilters) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(httpfiltersResource, c.ns, listOptions)
+func (c *FakeHttpFilters) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(httpfiltersResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1beta1.HttpFilterList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched httpFilter.
-func (c *FakeHttpFilters) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta1.HttpFilter, err error) {
+func (c *FakeHttpFilters) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1beta1.HttpFilter, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(httpfiltersResource, c.ns, name, pt, data, subresources...), &v1beta1.HttpFilter{})
 
