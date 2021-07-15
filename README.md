@@ -26,9 +26,9 @@ EnRoute is the only gateway on Envoy proxy that works for both Kubernetes Ingres
 
 [Getting Started EnRoute Standalone Guide](https://getenroute.io/reference/getting-started/getting-started-enroute-standalone-gateway/)
 
-EnRoute Standalone can also be setup using the [getting started bash script](https://github.com/saarasio/gettingstarted)
+* EnRoute Standalone can also be setup using the [getting started bash script](https://github.com/saarasio/gettingstarted)
 
-EnRoute APIs can be invoked from any language. [An example in golang can be found here](https://github.com/saarasio/api-ratelimit)
+* EnRoute APIs can be invoked from any language. [An example in golang can be found here](https://github.com/saarasio/api-ratelimit)
 
 * Use ```enroutectl``` to [program OpenAPI spec on gateway](https://getenroute.io/cookbook/openapi-swagger-spec-autoprogram-api-gateway-30-seconds-no-code/)
 
@@ -38,7 +38,7 @@ EnRoute APIs can be invoked from any language. [An example in golang can be foun
 
 ## Community
 
-[Periodic Office Hours](https://www.meetup.com/enroute-universal-api-gateway-periodic-office-hours/events/rtqbdsycccbsb/)
+- [Periodic Office Hours](https://www.meetup.com/enroute-universal-api-gateway-periodic-office-hours/events/rtqbdsycccbsb/)
 
 - [Community Slack](https://join.slack.com/t/saaras-io/shared_invite/zt-pz1qay34-9UNGwJWTOMG5jolGrbWH~g)
 
