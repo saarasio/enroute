@@ -37,6 +37,13 @@ spec:
       services:
         - name: acme-challenge-service
           port: 80
+          healthCheck:
+            healthyThresholdCount: 3
+            intervalSeconds: 5
+            path: /
+            host: hc
+            timeoutSeconds: 3
+            unhealthyThresholdCount: 3
     {{- end }}
     - conditions:
       - prefix: {{ .Values.service.prefix }}
