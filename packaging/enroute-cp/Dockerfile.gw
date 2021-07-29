@@ -32,7 +32,9 @@ RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 40976EAF437D05B5
 RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 3B4FE6ACC0B21F32
 RUN add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
 RUN apt-get update && apt-get install -y gnupg2 libicu55
-RUN apt-key adv --no-tty --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+#RUN apt-key adv --no-tty --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+COPY ACCC4CF8.asc .
+RUN cat ACCC4CF8.asc | apt-key add -
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ groovy-pgdg main" > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update && apt-get install -y software-properties-common postgresql-11 postgresql-client-11 postgresql-contrib-11
 
