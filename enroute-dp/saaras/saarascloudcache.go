@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	enroutev1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/config"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 	"github.com/saarasio/enroute/enroute-dp/internal/logger"
@@ -33,14 +33,14 @@ type SaarasCloudCache struct {
 	sdbpg      map[string]*cfg.SaarasProxyGroupConfig
 	sdbsecrets map[string]*v1.Secret
 
-	ir  map[string]*v1beta1.GatewayHost
+	ir  map[string]*enroutev1.GatewayHost
 	svc map[string]*v1.Service
 	ep  map[string]*v1.Endpoints
 	sec map[string]*v1.Secret
 
-	rf map[string]*v1beta1.RouteFilter
-	vf map[string]*v1beta1.HttpFilter
-	pc map[string]*v1beta1.GlobalConfig
+	rf map[string]*enroutev1.RouteFilter
+	vf map[string]*enroutev1.HttpFilter
+	pc map[string]*enroutev1.GlobalConfig
 }
 
 // CloudEventHandler fetches state from the cloud and generates
@@ -50,7 +50,7 @@ type CloudEventHandler interface {
 }
 
 func (sac *SaarasCloudCache) update__v1b1_ir__cache(
-	saaras_ir_cloud_map *map[string]*v1beta1.GatewayHost,
+	saaras_ir_cloud_map *map[string]*enroutev1.GatewayHost,
 	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
 
 	for cloud_ir_id, cloud_ir := range *saaras_ir_cloud_map {
@@ -75,7 +75,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 				log.Infof("update__v1b1_ir__cache() -> IR [%s, %s] - not in cache - OnAdd()\n",
 					cloud_ir_id, cloud_ir.Spec.VirtualHost.Fqdn)
 				if sac.ir == nil {
-					sac.ir = make(map[string]*v1beta1.GatewayHost)
+					sac.ir = make(map[string]*enroutev1.GatewayHost)
 				}
 				sac.ir[cache_key] = cloud_ir
 				//spew.Dump(cloud_ir)
@@ -134,23 +134,23 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 }
 
 func saaras_ir_slice__to__v1b1_routefilter_map(
-	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1beta1.RouteFilter {
-	rf := make(map[string]*v1beta1.RouteFilter, 0)
+	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*enroutev1.RouteFilter {
+	rf := make(map[string]*enroutev1.RouteFilter, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneRoute := range oneSaarasIRService.Service.Routes {
 			for _, oneRF := range oneRoute.Route_filters {
 
-				var one_routefilter *v1beta1.RouteFilter
+				var one_routefilter *enroutev1.RouteFilter
 
-				one_routefilter = &v1beta1.RouteFilter{
+				one_routefilter = &enroutev1.RouteFilter{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      oneRF.Filter.Filter_name,
 						Namespace: ENROUTE_NAME,
 					},
-					Spec: v1beta1.RouteFilterSpec{
+					Spec: enroutev1.RouteFilterSpec{
 						Name: oneRF.Filter.Filter_name,
 						Type: oneRF.Filter.Filter_type,
-						RouteFilterConfig: v1beta1.GenericRouteFilterConfig{
+						RouteFilterConfig: enroutev1.GenericRouteFilterConfig{
 							Config: oneRF.Filter.Filter_config,
 						},
 					},
@@ -165,18 +165,18 @@ func saaras_ir_slice__to__v1b1_routefilter_map(
 }
 
 func saaras_ir_slice__to__v1b1__pc_map(s *[]SaarasGatewayHostService,
-	log logrus.FieldLogger) *map[string]*v1beta1.GlobalConfig {
+	log logrus.FieldLogger) *map[string]*enroutev1.GlobalConfig {
 
-	pc := make(map[string]*v1beta1.GlobalConfig, 0)
+	pc := make(map[string]*enroutev1.GlobalConfig, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, onePC := range oneSaarasIRService.Proxy.ProxyGlobalconfigs {
 
-			one_pcf := &v1beta1.GlobalConfig{
+			one_pcf := &enroutev1.GlobalConfig{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      onePC.Globalconfig.GlobalconfigName,
 					Namespace: ENROUTE_NAME,
 				},
-				Spec: v1beta1.GlobalConfigSpec{
+				Spec: enroutev1.GlobalConfigSpec{
 					Name:   "proxy_config_name",
 					Type:   onePC.Globalconfig.GlobalconfigType,
 					Config: onePC.Globalconfig.Config,
@@ -191,21 +191,21 @@ func saaras_ir_slice__to__v1b1__pc_map(s *[]SaarasGatewayHostService,
 }
 
 func saaras_ir_slice__to__v1b1_httpfilter_map(
-	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1beta1.HttpFilter {
-	vf := make(map[string]*v1beta1.HttpFilter, 0)
+	s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*enroutev1.HttpFilter {
+	vf := make(map[string]*enroutev1.HttpFilter, 0)
 	for _, oneSaarasIRService := range *s {
 		for _, oneServiceFilter := range oneSaarasIRService.Service.Service_filters {
 
-			var one_vhfilter *v1beta1.HttpFilter
-			one_vhfilter = &v1beta1.HttpFilter{
+			var one_vhfilter *enroutev1.HttpFilter
+			one_vhfilter = &enroutev1.HttpFilter{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      oneServiceFilter.Filter.Filter_name,
 					Namespace: ENROUTE_NAME,
 				},
-				Spec: v1beta1.HttpFilterSpec{
+				Spec: enroutev1.HttpFilterSpec{
 					Name: oneServiceFilter.Filter.Filter_name,
 					Type: oneServiceFilter.Filter.Filter_type,
-					HttpFilterConfig: v1beta1.GenericHttpFilterConfig{
+					HttpFilterConfig: enroutev1.GenericHttpFilterConfig{
 						Config: oneServiceFilter.Filter.Filter_config,
 					},
 				},
@@ -471,7 +471,7 @@ func (sac *SaarasCloudCache) update_saaras_secret_cache(
 	}
 }
 
-func (sac *SaarasCloudCache) update__v1__rf_cache(v1b1_rf_map *map[string]*v1beta1.RouteFilter,
+func (sac *SaarasCloudCache) update__v1__rf_cache(v1b1_rf_map *map[string]*enroutev1.RouteFilter,
 	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
 
 	for _, cloud_rf := range *v1b1_rf_map {
@@ -485,7 +485,7 @@ func (sac *SaarasCloudCache) update__v1__rf_cache(v1b1_rf_map *map[string]*v1bet
 			}
 		} else {
 			if sac.rf == nil {
-				sac.rf = make(map[string]*v1beta1.RouteFilter, 0)
+				sac.rf = make(map[string]*enroutev1.RouteFilter, 0)
 			}
 			sac.rf[cloud_rf.ObjectMeta.Namespace+cloud_rf.ObjectMeta.Name+cloud_rf.Spec.Type] = cloud_rf
 			log.Infof("update__v1__rf_cache() - RF [%s] on saaras cloud not in cache - OnAdd()\n", cloud_rf.ObjectMeta.Name)
@@ -504,7 +504,7 @@ func (sac *SaarasCloudCache) update__v1__rf_cache(v1b1_rf_map *map[string]*v1bet
 	}
 }
 
-func (sac *SaarasCloudCache) update__v1b1__pc(v1b1_pc_map *map[string]*v1beta1.GlobalConfig,
+func (sac *SaarasCloudCache) update__v1b1__pc(v1b1_pc_map *map[string]*enroutev1.GlobalConfig,
 	pct *contour.GlobalConfigTranslator, log logrus.FieldLogger) {
 
 	for _, cloud_pc := range *v1b1_pc_map {
@@ -516,7 +516,7 @@ func (sac *SaarasCloudCache) update__v1b1__pc(v1b1_pc_map *map[string]*v1beta1.G
 			}
 		} else {
 			if sac.pc == nil {
-				sac.pc = make(map[string]*v1beta1.GlobalConfig, 0)
+				sac.pc = make(map[string]*enroutev1.GlobalConfig, 0)
 			}
 			sac.pc[cloud_pc.ObjectMeta.Namespace+cloud_pc.ObjectMeta.Name+cloud_pc.Spec.Type] = cloud_pc
 			pct.OnAdd(cloud_pc)
@@ -533,7 +533,7 @@ func (sac *SaarasCloudCache) update__v1b1__pc(v1b1_pc_map *map[string]*v1beta1.G
 	}
 }
 
-func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*v1beta1.HttpFilter,
+func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*enroutev1.HttpFilter,
 	reh *contour.ResourceEventHandler, log logrus.FieldLogger) {
 
 	for _, cloud_vf := range *v1b1_vf_map {
@@ -547,7 +547,7 @@ func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*v1bet
 			}
 		} else {
 			if sac.vf == nil {
-				sac.vf = make(map[string]*v1beta1.HttpFilter, 0)
+				sac.vf = make(map[string]*enroutev1.HttpFilter, 0)
 			}
 			sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type] = cloud_vf
 			log.Infof("update__v1__vf_cache() - HTTPFilter [%s] on saaras cloud not in cache - OnAdd()\n", cloud_vf.ObjectMeta.Name)

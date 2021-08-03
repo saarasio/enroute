@@ -29,7 +29,7 @@ GOPATH=${HOME}/go code-generator/generate-groups.sh \
   all \
   github.com/saarasio/enroute/enroute-dp/apis/generated \
   github.com/saarasio/enroute/enroute-dp/apis \
-  "enroute:v1beta1 " \
+  "enroute:v1" \
   --output-base . \
   --go-header-file hack/boilerplate.go.tmpl \
   $@
@@ -39,5 +39,5 @@ rm -rf code-generator
 # Copy the generated.deepcopy to the api packages
 rm -rf apis/generated
 cp -R github.com/saarasio/enroute/enroute-dp/apis/generated apis/
-mv github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1/zz_generated.deepcopy.go apis/enroute/v1beta1
+mv github.com/saarasio/enroute/enroute-dp/apis/enroute/v1/zz_generated.deepcopy.go apis/enroute/v1
 rm -rf github.com

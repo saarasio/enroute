@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/gogo/protobuf/types"
-	"k8s.io/api/networking/v1beta1"
+	"k8s.io/api/networking/v1"
 )
 
 const (
@@ -32,13 +32,13 @@ const (
 
 // httpAllowed returns true unless the kubernetes.io/ingress.allow-http annotation is
 // present and set to false.
-func httpAllowed(i *v1beta1.Ingress) bool {
+func httpAllowed(i *v1.Ingress) bool {
 	return !(i.Annotations["kubernetes.io/ingress.allow-http"] == "false")
 }
 
 // websocketRoutes returns a map of websocket routes. If the value is not present, or
 // malformed, then an empty map is returned.
-func websocketRoutes(i *v1beta1.Ingress) map[string]*types.BoolValue {
+func websocketRoutes(i *v1.Ingress) map[string]*types.BoolValue {
 	routes := make(map[string]*types.BoolValue)
 	for _, v := range strings.Split(i.Annotations[annotationWebsocketRoutes], ",") {
 		route := strings.TrimSpace(v)

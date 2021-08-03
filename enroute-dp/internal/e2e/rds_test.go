@@ -28,7 +28,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned/fake"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
@@ -36,15 +36,15 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"google.golang.org/grpc"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 // saarasio/enroute#172. Updating an object from
 //
-// apiVersion: networking/v1beta1
+// apiVersion: networking/v1
 // kind: Ingress
 // metadata:
 //   name: kuard
@@ -55,7 +55,7 @@ import (
 //
 // to
 //
-// apiVersion: networking/v1beta1
+// apiVersion: networking/v1
 // kind: Ingress
 // metadata:
 //   name: kuard
@@ -75,13 +75,13 @@ func TestEditIngress(t *testing.T) {
 
 	meta := metav1.ObjectMeta{Name: "kuard", Namespace: "default"}
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -92,12 +92,16 @@ func TestEditIngress(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// add default/kuard to translator.
-	old := &v1beta1.Ingress{
+	old := &netv1.Ingress{
 		ObjectMeta: meta,
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(80),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
 			},
 		},
 	}
@@ -128,17 +132,21 @@ func TestEditIngress(t *testing.T) {
 	}, streamRDS(t, cc))
 
 	// update old to new
-	rh.OnUpdate(old, &v1beta1.Ingress{
+	rh.OnUpdate(old, &netv1.Ingress{
 		ObjectMeta: meta,
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/testing",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}},
 					},
@@ -175,7 +183,7 @@ func TestEditIngress(t *testing.T) {
 // saarasio/enroute#101
 // The path /hello should point to default/hello/80 on "*"
 //
-// apiVersion: networking/v1beta1
+// apiVersion: networking/v1
 // kind: Ingress
 // metadata:
 //   name: hello
@@ -192,17 +200,21 @@ func TestIngressPathRouteWithoutHost(t *testing.T) {
 	defer done()
 
 	// add default/hello to translator.
-	rh.OnAdd(&v1beta1.Ingress{
+	rh.OnAdd(&netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default"},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/hello",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "hello",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "hello",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}},
 					},
@@ -211,13 +223,13 @@ func TestIngressPathRouteWithoutHost(t *testing.T) {
 		},
 	})
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hello",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -256,18 +268,22 @@ func TestEditIngressInPlace(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default"},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "hello.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "wowie",
-								ServicePort: intstr.FromString("http"),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "wowie",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
@@ -277,13 +293,13 @@ func TestEditIngressInPlace(t *testing.T) {
 	}
 	rh.OnAdd(i1)
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wowie",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -293,13 +309,13 @@ func TestEditIngressInPlace(t *testing.T) {
 	}
 	rh.OnAdd(s1)
 
-	s2 := &v1.Service{
+	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kerpow",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       9000,
@@ -333,24 +349,32 @@ func TestEditIngressInPlace(t *testing.T) {
 	}, streamRDS(t, cc))
 
 	// i2 is like i1 but adds a second route
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default"},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "hello.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "wowie",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "wowie",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}, {
 							Path: "/whoop",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kerpow",
-								ServicePort: intstr.FromInt(9000),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kerpow",
+									Port: netv1.ServiceBackendPort{
+										Number: 9000,
+									},
+								},
 							},
 						}},
 					},
@@ -387,29 +411,37 @@ func TestEditIngressInPlace(t *testing.T) {
 	}, streamRDS(t, cc))
 
 	// i3 is like i2, but adds the ingress.kubernetes.io/force-ssl-redirect: "true" annotation
-	i3 := &v1beta1.Ingress{
+	i3 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hello",
 			Namespace: "default",
 			Annotations: map[string]string{
 				"ingress.kubernetes.io/force-ssl-redirect": "true"},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "hello.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "wowie",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "wowie",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}, {
 							Path: "/whoop",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kerpow",
-								ServicePort: intstr.FromInt(9000),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kerpow",
+									Port: netv1.ServiceBackendPort{
+										Number: 9000,
+									},
+								},
 							},
 						}},
 					},
@@ -441,47 +473,55 @@ func TestEditIngressInPlace(t *testing.T) {
 		Nonce:   "5",
 	}, streamRDS(t, cc))
 
-	rh.OnAdd(&v1.Secret{
+	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hello-kitty",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	})
 
 	// i4 is the same as i3, and includes a TLS spec object to enable ingress_https routes
 	// i3 is like i2, but adds the ingress.kubernetes.io/force-ssl-redirect: "true" annotation
-	i4 := &v1beta1.Ingress{
+	i4 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hello",
 			Namespace: "default",
 			Annotations: map[string]string{
 				"ingress.kubernetes.io/force-ssl-redirect": "true"},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"hello.example.com"},
 				SecretName: "hello-kitty",
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "hello.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "wowie",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "wowie",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}, {
 							Path: "/whoop",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kerpow",
-								ServicePort: intstr.FromInt(9000),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kerpow",
+									Port: netv1.ServiceBackendPort{
+										Number: 9000,
+									},
+								},
 							},
 						}},
 					},
@@ -539,13 +579,13 @@ func TestRequestTimeout(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -555,10 +595,10 @@ func TestRequestTimeout(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// i1 is a simple ingress bound to the default vhost.
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default"},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
 		},
 	}
 	rh.OnAdd(i1)
@@ -573,14 +613,14 @@ func TestRequestTimeout(t *testing.T) {
 	}}, nil)
 
 	// i2 adds an _invalid_ timeout, which we interpret as _infinite_.
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
 				"enroute.saaras.io/request-timeout": "600", // not valid
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
 		},
 	}
 	rh.OnUpdate(i1, i2)
@@ -595,14 +635,14 @@ func TestRequestTimeout(t *testing.T) {
 	}}, nil)
 
 	// i3 corrects i2 to use a proper duration
-	i3 := &v1beta1.Ingress{
+	i3 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
 				"enroute.saaras.io/request-timeout": "600s", // 10 * time.Minute
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
 		},
 	}
 	rh.OnUpdate(i2, i3)
@@ -617,14 +657,14 @@ func TestRequestTimeout(t *testing.T) {
 	}}, nil)
 
 	// i4 updates i3 to explicitly request infinite timeout
-	i4 := &v1beta1.Ingress{
+	i4 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
 				"enroute.saaras.io/request-timeout": "infinity",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
 		},
 	}
 	rh.OnUpdate(i3, i4)
@@ -646,7 +686,7 @@ func TestSSLRedirectOverlay(t *testing.T) {
 	defer done()
 
 	// i1 is a stock ingress with force-ssl-redirect on the / route
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app",
 			Namespace: "default",
@@ -654,20 +694,24 @@ func TestSSLRedirectOverlay(t *testing.T) {
 				"ingress.kubernetes.io/force-ssl-redirect": "true",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"example.com"},
 				SecretName: "example-tls",
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "app-service",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "app-service",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -677,25 +721,25 @@ func TestSSLRedirectOverlay(t *testing.T) {
 	}
 	rh.OnAdd(i1)
 
-	rh.OnAdd(&v1.Secret{
+	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	})
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app-service",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -705,18 +749,22 @@ func TestSSLRedirectOverlay(t *testing.T) {
 	})
 
 	// i2 is an overlay to add the let's encrypt handler.
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "challenge", Namespace: "nginx-ingress"},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "challenge-service",
-								ServicePort: intstr.FromInt(8009),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "challenge-service",
+									Port: netv1.ServiceBackendPort{
+										Number: 8009,
+									},
+								},
 							},
 						}},
 					},
@@ -726,13 +774,13 @@ func TestSSLRedirectOverlay(t *testing.T) {
 	}
 	rh.OnAdd(i2)
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "challenge-service",
 			Namespace: "nginx-ingress",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8009,
@@ -772,27 +820,27 @@ func TestInvalidCertInIngress(t *testing.T) {
 	defer done()
 
 	// Create an invalid TLS secret
-	secret := &v1.Secret{
+	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       nil,
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       nil,
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 	rh.OnAdd(secret)
 
 	// Create a service
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -801,21 +849,25 @@ func TestInvalidCertInIngress(t *testing.T) {
 	})
 
 	// Create an ingress that uses the invalid secret
-	rh.OnAdd(&v1beta1.Ingress{
+	rh.OnAdd(&netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "kuard-ing", Namespace: "default"},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.io"},
 				SecretName: "example-tls",
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "kuard.io",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromInt(80),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}},
 					},
@@ -835,15 +887,15 @@ func TestInvalidCertInIngress(t *testing.T) {
 	}}, nil)
 
 	// Correct the secret
-	rh.OnUpdate(secret, &v1.Secret{
+	rh.OnUpdate(secret, &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("cert"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("cert"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	})
 
@@ -871,7 +923,7 @@ func TestIssue257(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	// apiVersion: networking/v1beta1
+	// apiVersion: networking/v1
 	// kind: Ingress
 	// metadata:
 	//   name: kuard-ing
@@ -883,7 +935,7 @@ func TestIssue257(t *testing.T) {
 	//   backend:
 	//     serviceName: kuard
 	//     servicePort: 80
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
@@ -891,22 +943,26 @@ func TestIssue257(t *testing.T) {
 				"kubernetes.io/ingress.class": "contour",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(80),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
 			},
 		},
 	}
 	rh.OnAdd(i1)
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -926,7 +982,7 @@ func TestIssue257(t *testing.T) {
 		}},
 	}}, nil)
 
-	// apiVersion: networking/v1beta1
+	// apiVersion: networking/v1
 	// kind: Ingress
 	// metadata:
 	//   name: kuard-ing
@@ -943,7 +999,7 @@ func TestIssue257(t *testing.T) {
 	//         serviceName: kuard
 	//         servicePort: 80
 	//        path: /
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
@@ -951,16 +1007,20 @@ func TestIssue257(t *testing.T) {
 				"kubernetes.io/ingress.class": "contour",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "kuard.db.gd-ms.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}},
 					},
@@ -986,7 +1046,7 @@ func TestRDSFilter(t *testing.T) {
 	defer done()
 
 	// i1 is a stock ingress with force-ssl-redirect on the / route
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app",
 			Namespace: "default",
@@ -994,20 +1054,24 @@ func TestRDSFilter(t *testing.T) {
 				"ingress.kubernetes.io/force-ssl-redirect": "true",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"example.com"},
 				SecretName: "example-tls",
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "app-service",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "app-service",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -1017,25 +1081,25 @@ func TestRDSFilter(t *testing.T) {
 	}
 	rh.OnAdd(i1)
 
-	rh.OnAdd(&v1.Secret{
+	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	})
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app-service",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1046,18 +1110,22 @@ func TestRDSFilter(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// i2 is an overlay to add the let's encrypt handler.
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "challenge", Namespace: "nginx-ingress"},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "challenge-service",
-								ServicePort: intstr.FromInt(8009),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "challenge-service",
+									Port: netv1.ServiceBackendPort{
+										Number: 8009,
+									},
+								},
 							},
 						}},
 					},
@@ -1067,13 +1135,13 @@ func TestRDSFilter(t *testing.T) {
 	}
 	rh.OnAdd(i2)
 
-	s2 := &v1.Service{
+	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "challenge-service",
 			Namespace: "nginx-ingress",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8009,
@@ -1135,13 +1203,13 @@ func TestWebsocketIngress(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "ws",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -1149,7 +1217,7 @@ func TestWebsocketIngress(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&v1beta1.Ingress{
+	rh.OnAdd(&netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "ws",
 			Namespace: "default",
@@ -1157,16 +1225,20 @@ func TestWebsocketIngress(t *testing.T) {
 				"enroute.saaras.io/websocket-routes": "/",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "websocket.hello.world",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "ws",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "ws",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}},
 					},
@@ -1190,13 +1262,13 @@ func TestWebsocketGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "ws",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -1263,13 +1335,13 @@ func TestPrefixRewriteGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "ws",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -1338,13 +1410,13 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -1358,13 +1430,13 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-gui",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -1373,38 +1445,49 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&v1beta1.Ingress{
+	rh.OnAdd(&netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "hello",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(80),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
 			},
-
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "test-gui",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "test-gui",
-								ServicePort: intstr.FromInt(80),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "test-gui",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}},
 					},
 				},
 			}, {
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/kuard",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -1455,13 +1538,13 @@ func TestRDSGatewayHostInsideRootNamespaces(t *testing.T) {
 	})
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "roots",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       8080,
 				TargetPort: intstr.FromInt(8080),
@@ -1522,13 +1605,13 @@ func TestRDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 	})
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       8080,
 				TargetPort: intstr.FromInt(8080),
@@ -1579,13 +1662,13 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 	})
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       8080,
 				TargetPort: intstr.FromInt(8080),
@@ -1769,13 +1852,13 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 	})
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       8080,
 				TargetPort: intstr.FromInt(8080),
@@ -1783,15 +1866,19 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 		},
 	})
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
@@ -1806,7 +1893,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 		}},
 	}}, nil)
 
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
@@ -1814,17 +1901,21 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 				"kubernetes.io/ingress.class": "contour",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
 	rh.OnUpdate(i1, i2)
 	assertRDS(t, cc, "3", nil, nil)
 
-	i3 := &v1beta1.Ingress{
+	i3 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
@@ -1832,17 +1923,21 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 				"enroute.saaras.io/ingress.class": "contour",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
 	rh.OnUpdate(i2, i3)
 	assertRDS(t, cc, "3", nil, nil)
 
-	i4 := &v1beta1.Ingress{
+	i4 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
@@ -1850,10 +1945,14 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 				"kubernetes.io/ingress.class": "linkerd",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
@@ -1868,7 +1967,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 		}},
 	}}, nil)
 
-	i5 := &v1beta1.Ingress{
+	i5 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard-ing",
 			Namespace: "default",
@@ -1876,10 +1975,14 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 				"enroute.saaras.io/ingress.class": "linkerd",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
@@ -1906,13 +2009,13 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 
 	stop := make(chan struct{})
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -1957,7 +2060,7 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 }
 
 // issue 606: spec.rules.host without a http key causes panic.
-// apiVersion: networking/v1beta1
+// apiVersion: networking/v1
 // kind: Ingress
 // metadata:
 //   name: test-ingress3
@@ -1978,23 +2081,27 @@ func TestRDSIngressSpecMissingHTTPKey(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-ingress3",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "test1.test.com",
 			}, {
 				Host: "test2.test.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "network-test",
-								ServicePort: intstr.FromInt(9001),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "network-test",
+									Port: netv1.ServiceBackendPort{
+										Number: 9001,
+									},
+								},
 							},
 						}},
 					},
@@ -2004,13 +2111,13 @@ func TestRDSIngressSpecMissingHTTPKey(t *testing.T) {
 	}
 	rh.OnAdd(i1)
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "network-test",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       9001,
@@ -2035,13 +2142,13 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2123,13 +2230,13 @@ func TestRouteWithTLS(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2137,15 +2244,15 @@ func TestRouteWithTLS(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&v1.Secret{
+	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	})
 
@@ -2209,13 +2316,13 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2223,13 +2330,13 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "svc2",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2237,15 +2344,15 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 		},
 	})
 
-	rh.OnAdd(&v1.Secret{
+	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	})
 
@@ -2331,13 +2438,13 @@ func TestRouteRetryAnnotations(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2346,7 +2453,7 @@ func TestRouteRetryAnnotations(t *testing.T) {
 	}
 	rh.OnAdd(s1)
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "hello", Namespace: "default",
 			Annotations: map[string]string{
@@ -2355,8 +2462,15 @@ func TestRouteRetryAnnotations(t *testing.T) {
 				"enroute.saaras.io/per-try-timeout": "120ms",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
 		},
 	}
 	rh.OnAdd(i1)
@@ -2376,13 +2490,13 @@ func TestRouteRetryGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2436,13 +2550,13 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2583,13 +2697,13 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2731,13 +2845,13 @@ func TestLoadBalancingStrategies(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	st := v1.Service{
+	st := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "template",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2805,13 +2919,13 @@ func TestCorsFilter(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	st := v1.Service{
+	st := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "template",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -2870,9 +2984,7 @@ func TestCorsFilter(t *testing.T) {
 		},
 	}
 
-	fmt.Printf("\nBefore HTTP filter add \n")
 	rh.OnAdd(&hf)
-	fmt.Printf("\nAfter HTTP filter add \n")
 
 	ir := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -3041,28 +3153,28 @@ func clustertimeout(c string, timeout time.Duration) *envoy_config_route_v3.Rout
 	return cl
 }
 
-func service(ns, name string, ports ...v1.ServicePort) *v1.Service {
-	return &v1.Service{
+func service(ns, name string, ports ...corev1.ServicePort) *corev1.Service {
+	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: ns,
 		},
-		Spec: v1.ServiceSpec{
+		Spec: corev1.ServiceSpec{
 			Ports: ports,
 		},
 	}
 }
 
-func externalnameservice(ns, name, externalname string, ports ...v1.ServicePort) *v1.Service {
-	return &v1.Service{
+func externalnameservice(ns, name, externalname string, ports ...corev1.ServicePort) *corev1.Service {
+	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: ns,
 		},
-		Spec: v1.ServiceSpec{
+		Spec: corev1.ServiceSpec{
 			Ports:        ports,
 			ExternalName: externalname,
-			Type:         v1.ServiceTypeExternalName,
+			Type:         corev1.ServiceTypeExternalName,
 		},
 	}
 }

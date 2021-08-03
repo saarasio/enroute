@@ -19,8 +19,8 @@ package dag
 import (
 	"time"
 
-	enrouteapi "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
-	k8sapi "k8s.io/api/networking/v1beta1"
+	enrouteapi "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
+	k8sapi "k8s.io/api/networking/v1"
 )
 
 func retryPolicy(rp *enrouteapi.RetryPolicy) *RetryPolicy {

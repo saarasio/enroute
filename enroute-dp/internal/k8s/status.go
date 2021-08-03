@@ -18,14 +18,14 @@
 package k8s
 
 import (
-	"encoding/json"
 	"context"
+	"encoding/json"
 
 	jsonpatch "github.com/evanphx/json-patch"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
-	"k8s.io/apimachinery/pkg/types"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // GatewayHostStatus allows for updating the object's Status field
@@ -67,8 +67,8 @@ func (irs *GatewayHostStatus) setStatus(existing, updated *gatewayhostv1.Gateway
 
 	var po meta_v1.PatchOptions
 
-	if irs != nil && irs.Client != nil && irs.Client.EnrouteV1beta1() != nil && existing != nil {
-		_, err = irs.Client.EnrouteV1beta1().GatewayHosts(existing.GetNamespace()).Patch(context.TODO(), existing.GetName(), types.MergePatchType, patchBytes, po)
+	if irs != nil && irs.Client != nil && irs.Client.EnrouteV1() != nil && existing != nil {
+		_, err = irs.Client.EnrouteV1().GatewayHosts(existing.GetNamespace()).Patch(context.TODO(), existing.GetName(), types.MergePatchType, patchBytes, po)
 	}
 	return err
 }

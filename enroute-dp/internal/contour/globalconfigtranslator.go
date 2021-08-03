@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	// v1 "k8s.io/api/core/v1"
 	// metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	_ "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	k8scache "k8s.io/client-go/tools/cache"
 )

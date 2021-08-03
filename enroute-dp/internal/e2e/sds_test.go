@@ -24,8 +24,8 @@ import (
 
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -40,15 +40,15 @@ func TestSDSVisibility(t *testing.T) {
 	}
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 	// add secret
@@ -64,14 +64,14 @@ func TestSDSVisibility(t *testing.T) {
 	})
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -102,29 +102,29 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 	}
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 	// add secret
 	rh.OnAdd(s1)
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -154,15 +154,15 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 	})
 
 	// s2 is not referenced by any active ingress object.
-	s2 := &v1.Secret{
+	s2 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "unrelated",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 	rh.OnAdd(s2)
@@ -193,7 +193,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	}
 
 	// s1 is NOT a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "invalid",
 			Namespace: "default",
@@ -207,14 +207,14 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	rh.OnAdd(s1)
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("backend", intstr.FromInt(80)),
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "invalid",
 			}},
@@ -231,7 +231,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 	})
 }
 
-func secret(sec *v1.Secret) *envoy_extensions_transport_sockets_tls_v3.Secret {
+func secret(sec *corev1.Secret) *envoy_extensions_transport_sockets_tls_v3.Secret {
 	return envoy.Secret(&dag.Secret{
 		Object: sec,
 	})

@@ -16,7 +16,7 @@ package dag
 import (
 	"testing"
 
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 )
 

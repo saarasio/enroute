@@ -5,7 +5,7 @@ package saaras
 
 import (
 	"github.com/davecgh/go-spew/spew"
-	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"github.com/sirupsen/logrus"
@@ -258,11 +258,11 @@ type DataPayloadSaarasApp2 struct {
 
 ////////////// GatewayHost //////////////////////////////////////////////
 
-func upstream_hc(oneService *cfg.SaarasMicroService2) *v1beta1.HealthCheck {
+func upstream_hc(oneService *cfg.SaarasMicroService2) *v1.HealthCheck {
 
 	if need_hc(oneService) {
 
-		hc := v1beta1.HealthCheck{}
+		hc := v1.HealthCheck{}
 		if len(oneService.Upstream.Upstream_hc_path) > 0 {
 			hc.Path = oneService.Upstream.Upstream_hc_path
 		}
@@ -308,9 +308,9 @@ func need_hc(oneService *cfg.SaarasMicroService2) bool {
 	return false
 }
 
-func upstream_service(oneService *cfg.SaarasMicroService2) v1beta1.Service {
+func upstream_service(oneService *cfg.SaarasMicroService2) v1.Service {
 
-	s := v1beta1.Service{
+	s := v1.Service{
 		Name: serviceName2(oneService.Upstream.Upstream_name),
 		Port: int(oneService.Upstream.Upstream_port),
 	}
@@ -337,10 +337,10 @@ func saaras_set_sni_for_externalname_service(sir *cfg.SaarasMicroService2) strin
 	return ""
 }
 
-func saaras_upstream_to_v1b1_uv(sir *cfg.SaarasMicroService2) *v1beta1.UpstreamValidation {
+func saaras_upstream_to_v1b1_uv(sir *cfg.SaarasMicroService2) *v1.UpstreamValidation {
 
 	if sir != nil && sir.Upstream.Upstream_validation_cacertificate != "" && sir.Upstream.Upstream_validation_subjectname != "" {
-		return &v1beta1.UpstreamValidation{
+		return &v1.UpstreamValidation{
 			CACertificate: sir.Upstream.Upstream_validation_cacertificate,
 			SubjectName:   sir.Upstream.Upstream_validation_subjectname,
 		}
@@ -348,8 +348,8 @@ func saaras_upstream_to_v1b1_uv(sir *cfg.SaarasMicroService2) *v1beta1.UpstreamV
 	return nil
 }
 
-func saaras_service__to__v1b1_service(sm *cfg.SaarasMicroService2) v1beta1.Service {
-	s := v1beta1.Service{
+func saaras_service__to__v1b1_service(sm *cfg.SaarasMicroService2) v1.Service {
+	s := v1.Service{
 		Name:               serviceName2(sm.Upstream.Upstream_name),
 		Port:               int(sm.Upstream.Upstream_port),
 		Weight:             uint32(sm.Upstream.Upstream_weight),
@@ -361,8 +361,8 @@ func saaras_service__to__v1b1_service(sm *cfg.SaarasMicroService2) v1beta1.Servi
 	return s
 }
 
-func saaras_route_to_v1b1_service_slice2(sir *SaarasGatewayHostService, r SaarasRoute2) []v1beta1.Service {
-	services := make([]v1beta1.Service, 0)
+func saaras_route_to_v1b1_service_slice2(sir *SaarasGatewayHostService, r SaarasRoute2) []v1.Service {
+	services := make([]v1.Service, 0)
 	for _, oneService := range r.Route_upstreams {
 		s := saaras_service__to__v1b1_service(&oneService)
 		services = append(services, s)
@@ -382,10 +382,10 @@ func getIrSecretName2(sir *SaarasGatewayHostService) string {
 	return secret_name
 }
 
-func getIrTLS(sir *SaarasGatewayHostService) *v1beta1.TLS {
+func getIrTLS(sir *SaarasGatewayHostService) *v1.TLS {
 	secret_name := getIrSecretName2(sir)
 	if len(secret_name) > 0 {
-		return &v1beta1.TLS{
+		return &v1.TLS{
 			SecretName: secret_name,
 		}
 	} else {
@@ -393,11 +393,11 @@ func getIrTLS(sir *SaarasGatewayHostService) *v1beta1.TLS {
 	}
 }
 
-func saaras_ir_host_filter__to__v1b1_host_filter(sir *SaarasGatewayHostService) []v1beta1.HostAttachedFilter {
-	haf_slice := []v1beta1.HostAttachedFilter{}
+func saaras_ir_host_filter__to__v1b1_host_filter(sir *SaarasGatewayHostService) []v1.HostAttachedFilter {
+	haf_slice := []v1.HostAttachedFilter{}
 
 	for _, oneServiceFilter := range sir.Service.Service_filters {
-		v1b1_haf := v1beta1.HostAttachedFilter{
+		v1b1_haf := v1.HostAttachedFilter{
 			Name: oneServiceFilter.Filter.Filter_name,
 			Type: oneServiceFilter.Filter.Filter_type,
 		}
@@ -407,11 +407,11 @@ func saaras_ir_host_filter__to__v1b1_host_filter(sir *SaarasGatewayHostService) 
 	return haf_slice
 }
 
-func saaras_ir_route_filter__to__v1b1_route_filter(r SaarasRoute2) []v1beta1.RouteAttachedFilter {
-	raf_slice := []v1beta1.RouteAttachedFilter{}
+func saaras_ir_route_filter__to__v1b1_route_filter(r SaarasRoute2) []v1.RouteAttachedFilter {
+	raf_slice := []v1.RouteAttachedFilter{}
 
 	for _, oneRouteFilter := range r.Route_filters {
-		v1b1_raf := v1beta1.RouteAttachedFilter{
+		v1b1_raf := v1.RouteAttachedFilter{
 			Name: oneRouteFilter.Filter.Filter_name,
 			Type: oneRouteFilter.Filter.Filter_type,
 		}
@@ -421,31 +421,31 @@ func saaras_ir_route_filter__to__v1b1_route_filter(r SaarasRoute2) []v1beta1.Rou
 }
 
 // TODO: This needs a test
-func saaras_routecondition_to_v1b1_ir_routecondition(r SaarasRoute2) []v1beta1.Condition {
-	conds := make([]v1beta1.Condition, 0)
+func saaras_routecondition_to_v1b1_ir_routecondition(r SaarasRoute2) []v1.Condition {
+	conds := make([]v1.Condition, 0)
 
 	// If Route_prefix is populated, ignore Route_config
 	if len(r.Route_prefix) > 0 {
-		conds = append(conds, v1beta1.Condition{Prefix: r.Route_prefix})
+		conds = append(conds, v1.Condition{Prefix: r.Route_prefix})
 		return conds
 	}
 
 	// Route configuration provided in Route_config, unmarshal and convert to dag Conditions
 	saarasRouteCond, err := cfg.UnmarshalRouteMatchCondition(r.Route_config)
 	if err != nil {
-		conds = append(conds, v1beta1.Condition{Prefix: "/"})
+		conds = append(conds, v1.Condition{Prefix: "/"})
 		return conds
 	}
 
-	cond := v1beta1.Condition{
+	cond := v1.Condition{
 		Prefix: saarasRouteCond.Prefix,
 	}
 
 	conds = append(conds, cond)
 
 	for _, rmc := range saarasRouteCond.MatchConditions {
-		cond2 := v1beta1.Condition{
-			Header: &v1beta1.HeaderCondition{
+		cond2 := v1.Condition{
+			Header: &v1.HeaderCondition{
 				Name:  rmc.Name,
 				Exact: strings.TrimSpace(rmc.Exact),
 			},
@@ -457,23 +457,23 @@ func saaras_routecondition_to_v1b1_ir_routecondition(r SaarasRoute2) []v1beta1.C
 	return conds
 }
 
-func Saaras_ir__to__v1b1_ir2(sir *SaarasGatewayHostService) *v1beta1.GatewayHost {
-	routes := make([]v1beta1.Route, 0)
+func Saaras_ir__to__v1b1_ir2(sir *SaarasGatewayHostService) *v1.GatewayHost {
+	routes := make([]v1.Route, 0)
 	for _, oneRoute := range sir.Service.Routes {
-		routes = append(routes, v1beta1.Route{
+		routes = append(routes, v1.Route{
 
 			Conditions: saaras_routecondition_to_v1b1_ir_routecondition(oneRoute),
 			Services:   saaras_route_to_v1b1_service_slice2(sir, oneRoute),
 			Filters:    saaras_ir_route_filter__to__v1b1_route_filter(oneRoute),
 		})
 	}
-	return &v1beta1.GatewayHost{
+	return &v1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      sir.Service.Service_name,
 			Namespace: ENROUTE_NAME,
 		},
-		Spec: v1beta1.GatewayHostSpec{
-			VirtualHost: &v1beta1.VirtualHost{
+		Spec: v1.GatewayHostSpec{
+			VirtualHost: &v1.VirtualHost{
 				Fqdn: sir.Service.Fqdn,
 				// TODO
 				TLS:     getIrTLS(sir),
@@ -484,22 +484,22 @@ func Saaras_ir__to__v1b1_ir2(sir *SaarasGatewayHostService) *v1beta1.GatewayHost
 	}
 }
 
-func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1beta1.GatewayHost {
-	var m map[string]*v1beta1.GatewayHost
-	m = make(map[string]*v1beta1.GatewayHost)
+func saaras_ir_slice__to__v1b1_ir_map(s *[]SaarasGatewayHostService, log logrus.FieldLogger) *map[string]*v1.GatewayHost {
+	var m map[string]*v1.GatewayHost
+	m = make(map[string]*v1.GatewayHost)
 
 	for _, oneSaarasIRService := range *s {
 		onev1b1ir := Saaras_ir__to__v1b1_ir2(&oneSaarasIRService)
 		if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
 			spew.Dump(onev1b1ir)
 		}
-		m[onev1b1ir.Name + "_" + onev1b1ir.Namespace] = onev1b1ir
+		m[onev1b1ir.Name+"_"+onev1b1ir.Namespace] = onev1b1ir
 	}
 
 	return &m
 }
 
-func v1b1_tcpproxy_equal(log logrus.FieldLogger, t1, t2 *v1beta1.TCPProxy) bool {
+func v1b1_tcpproxy_equal(log logrus.FieldLogger, t1, t2 *v1.TCPProxy) bool {
 	if t1 == nil && t2 == nil {
 		return true
 	}
@@ -512,7 +512,7 @@ func v1b1_tcpproxy_equal(log logrus.FieldLogger, t1, t2 *v1beta1.TCPProxy) bool 
 	return v1b1_service_slice_equal(log, t1.Services, t2.Services)
 }
 
-type sliceOfIRService []v1beta1.Service
+type sliceOfIRService []v1.Service
 
 func (o sliceOfIRService) Len() int {
 	return len(o)
@@ -526,7 +526,7 @@ func (o sliceOfIRService) Less(i, j int) bool {
 	return o[i].Name > o[j].Name
 }
 
-func v1b1_service_slice_equal(log logrus.FieldLogger, s1, s2 []v1beta1.Service) bool {
+func v1b1_service_slice_equal(log logrus.FieldLogger, s1, s2 []v1.Service) bool {
 	sort.Sort(sliceOfIRService(s1))
 	sort.Sort(sliceOfIRService(s2))
 
@@ -546,7 +546,7 @@ func v1b1_service_slice_equal(log logrus.FieldLogger, s1, s2 []v1beta1.Service) 
 	return true
 }
 
-func v1b1_route_equal(log logrus.FieldLogger, ir_r1, ir_r2 v1beta1.Route) bool {
+func v1b1_route_equal(log logrus.FieldLogger, ir_r1, ir_r2 v1.Route) bool {
 	if len(ir_r1.Conditions) > 0 && len(ir_r2.Conditions) > 0 {
 		if len(ir_r1.Conditions) == len(ir_r2.Conditions) {
 			// TODO: We only compare the prefix here (if present)
@@ -564,7 +564,7 @@ func v1b1_route_equal(log logrus.FieldLogger, ir_r1, ir_r2 v1beta1.Route) bool {
 	return false
 }
 
-type sliceOfIRRoutes []v1beta1.Route
+type sliceOfIRRoutes []v1.Route
 
 func (o sliceOfIRRoutes) Len() int {
 	return len(o)
@@ -574,7 +574,7 @@ func (o sliceOfIRRoutes) Swap(i, j int) {
 	o[i], o[j] = o[j], o[i]
 }
 
-func conditionsToString(r *v1beta1.Route) string {
+func conditionsToString(r *v1.Route) string {
 	s := []string{}
 	for _, cond := range r.Conditions {
 		if cond.Header != nil {
@@ -590,7 +590,7 @@ func (o sliceOfIRRoutes) Less(i, j int) bool {
 	return conditionsToString(&o[i]) > conditionsToString(&o[j])
 }
 
-func v1b1_route_slice_equal(log logrus.FieldLogger, r1, r2 []v1beta1.Route) bool {
+func v1b1_route_slice_equal(log logrus.FieldLogger, r1, r2 []v1.Route) bool {
 	sort.Sort(sliceOfIRRoutes(r1))
 	sort.Sort(sliceOfIRRoutes(r2))
 	for idx, oneRoute := range r1 {
@@ -605,7 +605,7 @@ func v1b1_route_slice_equal(log logrus.FieldLogger, r1, r2 []v1beta1.Route) bool
 	return true
 }
 
-func v1b1_tls_equal(tls1, tls2 *v1beta1.TLS) bool {
+func v1b1_tls_equal(tls1, tls2 *v1.TLS) bool {
 	if tls1 == nil && tls2 == nil {
 		return true
 	}
@@ -620,12 +620,12 @@ func v1b1_tls_equal(tls1, tls2 *v1beta1.TLS) bool {
 		(tls1.MinimumProtocolVersion == tls2.MinimumProtocolVersion)
 }
 
-func v1b1_vh_equal(log logrus.FieldLogger, vh1, vh2 *v1beta1.VirtualHost) bool {
+func v1b1_vh_equal(log logrus.FieldLogger, vh1, vh2 *v1.VirtualHost) bool {
 	return vh1.Fqdn == vh2.Fqdn &&
 		v1b1_tls_equal(vh1.TLS, vh2.TLS)
 }
 
-func v1b1_ir_equal(log logrus.FieldLogger, ir1, ir2 *v1beta1.GatewayHost) bool {
+func v1b1_ir_equal(log logrus.FieldLogger, ir1, ir2 *v1.GatewayHost) bool {
 	return ir1.Name == ir2.Name &&
 		ir1.Namespace == ir2.Namespace &&
 		v1b1_vh_equal(log, ir1.Spec.VirtualHost, ir2.Spec.VirtualHost) &&

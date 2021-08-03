@@ -27,15 +27,15 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/prometheus/client_golang/prometheus"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	//"github.com/saarasio/enroute/enroute-dp/internal/debug"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	core_v1 "k8s.io/api/core/v1"
+	"k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -196,20 +196,24 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"single unnamed service": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&v1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "kuard",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromInt(443),
+					Spec: v1.IngressSpec{
+						DefaultBackend: &v1.IngressBackend{
+							Service: &v1.IngressServiceBackend{
+								Name: "kuard",
+								Port: v1.ServiceBackendPort{
+									Number: 443,
+								},
+							},
 						},
 					},
 				},
 				service("default", "kuard",
-					v1.ServicePort{
+					core_v1.ServicePort{
 						Protocol:   "TCP",
 						Port:       443,
 						TargetPort: intstr.FromInt(8443),
@@ -233,20 +237,24 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"single named service": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&v1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "kuard",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromString("https"),
+					Spec: v1.IngressSpec{
+						DefaultBackend: &v1.IngressBackend{
+							Service: &v1.IngressServiceBackend{
+								Name: "kuard",
+								Port: v1.ServiceBackendPort{
+									Name: "https",
+								},
+							},
 						},
 					},
 				},
 				service("default", "kuard",
-					v1.ServicePort{
+					core_v1.ServicePort{
 						Name:       "https",
 						Protocol:   "TCP",
 						Port:       443,
@@ -271,15 +279,19 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"h2c upstream": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&v1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "kuard",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromString("http"),
+					Spec: v1.IngressSpec{
+						DefaultBackend: &v1.IngressBackend{
+							Service: &v1.IngressServiceBackend{
+								Name: "kuard",
+								Port: v1.ServiceBackendPort{
+									Name: "http",
+								},
+							},
 						},
 					},
 				},
@@ -289,7 +301,7 @@ func TestClusterVisit(t *testing.T) {
 					map[string]string{
 						"enroute.saaras.io/upstream-protocol.h2c": "80,http",
 					},
-					v1.ServicePort{
+					core_v1.ServicePort{
 						Protocol: "TCP",
 						Name:     "http",
 						Port:     80,
@@ -315,20 +327,24 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"long namespace and service name": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&v1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "webserver-1-unimatrix-zero-one",
 						Namespace: "beurocratic-company-test-domain-1",
 					},
-					Spec: v1beta1.IngressSpec{
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "tiny-cog-department-test-instance",
-							ServicePort: intstr.FromInt(443),
+					Spec: v1.IngressSpec{
+						DefaultBackend: &v1.IngressBackend{
+							Service: &v1.IngressServiceBackend{
+								Name: "tiny-cog-department-test-instance",
+								Port: v1.ServiceBackendPort{
+									Number: 443,
+								},
+							},
 						},
 					},
 				},
 				service("beurocratic-company-test-domain-1", "tiny-cog-department-test-instance",
-					v1.ServicePort{
+					core_v1.ServicePort{
 						Name:       "svc-0",
 						Protocol:   "TCP",
 						Port:       443,
@@ -376,12 +392,12 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
 					TargetPort: intstr.FromInt(6502),
-				}, v1.ServicePort{
+				}, core_v1.ServicePort{
 					Name:       "alt",
 					Protocol:   "TCP",
 					Port:       8080,
@@ -442,7 +458,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -508,7 +524,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -567,7 +583,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -613,7 +629,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -659,7 +675,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -714,7 +730,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -773,7 +789,7 @@ func TestClusterVisit(t *testing.T) {
 						}},
 					},
 				},
-				service("default", "backend", v1.ServicePort{
+				service("default", "backend", core_v1.ServicePort{
 					Name:       "http",
 					Protocol:   "TCP",
 					Port:       80,
@@ -798,15 +814,19 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"circuitbreaker annotations": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&v1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "kuard",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromString("http"),
+					Spec: v1.IngressSpec{
+						DefaultBackend: &v1.IngressBackend{
+							Service: &v1.IngressServiceBackend{
+								Name: "kuard",
+								Port: v1.ServiceBackendPort{
+									Name: "http",
+								},
+							},
 						},
 					},
 				},
@@ -819,7 +839,7 @@ func TestClusterVisit(t *testing.T) {
 						"enroute.saaras.io/max-requests":         "404",
 						"enroute.saaras.io/max-retries":          "7",
 					},
-					v1.ServicePort{
+					core_v1.ServicePort{
 						Protocol: "TCP",
 						Name:     "http",
 						Port:     80,
@@ -852,7 +872,7 @@ func TestClusterVisit(t *testing.T) {
 		},
 		"enroute.saaras.io/num-retries annotation": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&v1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "kuard",
 						Namespace: "default",
@@ -861,15 +881,19 @@ func TestClusterVisit(t *testing.T) {
 							"enroute.saaras.io/retry-on":    "gateway-error",
 						},
 					},
-					Spec: v1beta1.IngressSpec{
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromString("https"),
+					Spec: v1.IngressSpec{
+						DefaultBackend: &v1.IngressBackend{
+							Service: &v1.IngressServiceBackend{
+								Name: "kuard",
+								Port: v1.ServiceBackendPort{
+									Name: "https",
+								},
+							},
 						},
 					},
 				},
 				service("default", "kuard",
-					v1.ServicePort{
+					core_v1.ServicePort{
 						Name:       "https",
 						Protocol:   "TCP",
 						Port:       443,
@@ -917,18 +941,18 @@ func TestClusterVisit(t *testing.T) {
 	}
 }
 
-func service(ns, name string, ports ...v1.ServicePort) *v1.Service {
+func service(ns, name string, ports ...core_v1.ServicePort) *core_v1.Service {
 	return serviceWithAnnotations(ns, name, nil, ports...)
 }
 
-func serviceWithAnnotations(ns, name string, annotations map[string]string, ports ...v1.ServicePort) *v1.Service {
-	return &v1.Service{
+func serviceWithAnnotations(ns, name string, annotations map[string]string, ports ...core_v1.ServicePort) *core_v1.Service {
+	return &core_v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Namespace:   ns,
 			Annotations: annotations,
 		},
-		Spec: v1.ServiceSpec{
+		Spec: core_v1.ServiceSpec{
 			Ports: ports,
 		},
 	}

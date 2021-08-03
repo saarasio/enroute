@@ -12,14 +12,13 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/prometheus/client_golang/prometheus"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"google.golang.org/protobuf/testing/protocmp"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func TestSecretCacheContents(t *testing.T) {
@@ -117,19 +116,23 @@ func TestSecretVisit(t *testing.T) {
 		},
 		"simple ingress with secret": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&netv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						TLS: []v1beta1.IngressTLS{{
+					Spec: netv1.IngressSpec{
+						TLS: []netv1.IngressTLS{{
 							Hosts:      []string{"whatever.example.com"},
 							SecretName: "secret",
 						}},
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromInt(8080),
+						DefaultBackend: &netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: "kuard",
+								Port: netv1.ServiceBackendPort{
+									Number: 8080,
+								},
+							},
 						},
 					},
 				},
@@ -141,35 +144,43 @@ func TestSecretVisit(t *testing.T) {
 		},
 		"multiple ingresses with shared secret": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&netv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-a",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						TLS: []v1beta1.IngressTLS{{
+					Spec: netv1.IngressSpec{
+						TLS: []netv1.IngressTLS{{
 							Hosts:      []string{"whatever.example.com"},
 							SecretName: "secret",
 						}},
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromInt(8080),
+						DefaultBackend: &netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: "kuard",
+								Port: netv1.ServiceBackendPort{
+									Number: 8080,
+								},
+							},
 						},
 					},
 				},
-				&v1beta1.Ingress{
+				&netv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-b",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						TLS: []v1beta1.IngressTLS{{
+					Spec: netv1.IngressSpec{
+						TLS: []netv1.IngressTLS{{
 							Hosts:      []string{"omg.example.com"},
 							SecretName: "secret",
 						}},
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromInt(8080),
+						DefaultBackend: &netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: "kuard",
+								Port: netv1.ServiceBackendPort{
+									Number: 8080,
+								},
+							},
 						},
 					},
 				},
@@ -181,35 +192,43 @@ func TestSecretVisit(t *testing.T) {
 		},
 		"multiple ingresses with different secrets": {
 			objs: []interface{}{
-				&v1beta1.Ingress{
+				&netv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-a",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						TLS: []v1beta1.IngressTLS{{
+					Spec: netv1.IngressSpec{
+						TLS: []netv1.IngressTLS{{
 							Hosts:      []string{"whatever.example.com"},
 							SecretName: "secret-a",
 						}},
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromInt(8080),
+						DefaultBackend: &netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: "kuard",
+								Port: netv1.ServiceBackendPort{
+									Number: 8080,
+								},
+							},
 						},
 					},
 				},
-				&v1beta1.Ingress{
+				&netv1.Ingress{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      "simple-b",
 						Namespace: "default",
 					},
-					Spec: v1beta1.IngressSpec{
-						TLS: []v1beta1.IngressTLS{{
+					Spec: netv1.IngressSpec{
+						TLS: []netv1.IngressTLS{{
 							Hosts:      []string{"omg.example.com"},
 							SecretName: "secret-b",
 						}},
-						Backend: &v1beta1.IngressBackend{
-							ServiceName: "kuard",
-							ServicePort: intstr.FromInt(8080),
+						DefaultBackend: &netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: "kuard",
+								Port: netv1.ServiceBackendPort{
+									Number: 8080,
+								},
+							},
 						},
 					},
 				},
@@ -414,14 +433,14 @@ func secret(name, cert, key string) *envoy_extensions_transport_sockets_tls_v3.S
 	}
 }
 
-// tlssecert creates a new v1.Secret object of type kubernetes.io/tls.
-func tlssecret(namespace, name string, data map[string][]byte) *v1.Secret {
-	return &v1.Secret{
+// tlssecert creates a new corev1.Secret object of type kubernetes.io/tls.
+func tlssecret(namespace, name string, data map[string][]byte) *corev1.Secret {
+	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
 		},
-		Type: v1.SecretTypeTLS,
+		Type: corev1.SecretTypeTLS,
 		Data: data,
 	}
 }

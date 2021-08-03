@@ -23,9 +23,9 @@ import (
 
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/google/go-cmp/cmp"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -34,41 +34,41 @@ func TestDAGInsert(t *testing.T) {
 	// The DAG is sensitive to ordering, adding an ingress, then a service,
 	// should have the same result as adding a service, then an ingress.
 
-	sec1 := &v1.Secret{
+	sec1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
-		Type: v1.SecretTypeTLS,
+		Type: corev1.SecretTypeTLS,
 		Data: secretdata(CERTIFICATE, RSA_PRIVATE_KEY),
 	}
 
 	// Invalid cert in the secret
-	sec2 := &v1.Secret{
+	sec2 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
-		Type: v1.SecretTypeTLS,
+		Type: corev1.SecretTypeTLS,
 		Data: secretdata("wrong", "wronger"),
 	}
 
 	// weird secret with a blank ca.crt that
 	// cert manager creates. #1644
-	sec3 := &v1.Secret{
+	sec3 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
-		Type: v1.SecretTypeTLS,
+		Type: corev1.SecretTypeTLS,
 		Data: map[string][]byte{
-			"ca.crt":            []byte(""),
-			v1.TLSCertKey:       []byte(CERTIFICATE),
-			v1.TLSPrivateKeyKey: []byte(RSA_PRIVATE_KEY),
+			"ca.crt":                []byte(""),
+			corev1.TLSCertKey:       []byte(CERTIFICATE),
+			corev1.TLSPrivateKeyKey: []byte(RSA_PRIVATE_KEY),
 		},
 	}
 
-	cert1 := &v1.Secret{
+	cert1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "ca",
 			Namespace: "default",
@@ -78,15 +78,15 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("kuard", intstr.FromInt(8080))},
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("kuard", intstr.FromInt(8080))},
 	}
-	i1a := &v1beta1.Ingress{
+	i1a := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
@@ -94,18 +94,18 @@ func TestDAGInsert(t *testing.T) {
 				"kubernetes.io/ingress.allow-http": "false",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("kuard", intstr.FromInt(8080))},
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("kuard", intstr.FromInt(8080))},
 	}
 
 	// i2 is functionally identical to i1
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromInt(8080))),
 			}},
 		},
@@ -113,69 +113,69 @@ func TestDAGInsert(t *testing.T) {
 
 	// i2a is missing a http key from the spec.rule.
 	// see issue 606
-	i2a := &v1beta1.Ingress{
+	i2a := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "test1.test.com",
 			}},
 		},
 	}
 
 	// i3 is similar to i2 but includes a hostname on the ingress rule
-	i3 := &v1beta1.Ingress{
+	i3 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host:             "kuard.example.com",
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromInt(8080))),
 			}},
 		},
 	}
 	// i4 is like i1 except it uses a named service port
-	i4 := &v1beta1.Ingress{
+	i4 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("kuard", intstr.FromString("http"))},
+		Spec: netv1.IngressSpec{
+			DefaultBackend: backend("kuard", intstr.FromString("http"))},
 	}
 	// i5 is functionally identical to i2
-	i5 := &v1beta1.Ingress{
+	i5 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromString("http"))),
 			}},
 		},
 	}
 	// i6 contains two named vhosts which point to the same service
 	// one of those has TLS
-	i6 := &v1beta1.Ingress{
+	i6 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-vhosts",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host:             "a.example.com",
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromInt(8080))),
 			}, {
@@ -184,7 +184,7 @@ func TestDAGInsert(t *testing.T) {
 			}},
 		},
 	}
-	i6a := &v1beta1.Ingress{
+	i6a := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-vhosts",
 			Namespace: "default",
@@ -192,12 +192,12 @@ func TestDAGInsert(t *testing.T) {
 				"kubernetes.io/ingress.allow-http": "false",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host:             "a.example.com",
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromInt(8080))),
 			}, {
@@ -206,7 +206,7 @@ func TestDAGInsert(t *testing.T) {
 			}},
 		},
 	}
-	i6b := &v1beta1.Ingress{
+	i6b := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-vhosts",
 			Namespace: "default",
@@ -214,18 +214,18 @@ func TestDAGInsert(t *testing.T) {
 				"ingress.kubernetes.io/force-ssl-redirect": "true",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host:             "b.example.com",
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromString("http"))),
 			}},
 		},
 	}
-	i6c := &v1beta1.Ingress{
+	i6c := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-vhosts",
 			Namespace: "default",
@@ -234,12 +234,12 @@ func TestDAGInsert(t *testing.T) {
 				"kubernetes.io/ingress.allow-http":         "false",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host:             "b.example.com",
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromString("http"))),
 			}},
@@ -247,30 +247,38 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i7 contains a single vhost with two paths
-	i7 := &v1beta1.Ingress{
+	i7 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-paths",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "b.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}, {
 							Path: "/kuarder",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuarder",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuarder",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -280,37 +288,45 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i8 is identical to i7 but uses multiple IngressRules
-	i8 := &v1beta1.Ingress{
+	i8 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-rules",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "b.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
 				},
 			}, {
 				Host: "b.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/kuarder",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuarder",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuarder",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -319,7 +335,7 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 	// i9 is identical to i8 but disables non TLS connections
-	i9 := &v1beta1.Ingress{
+	i9 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-rules",
 			Namespace: "default",
@@ -327,32 +343,40 @@ func TestDAGInsert(t *testing.T) {
 				"kubernetes.io/ingress.allow-http": "false",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "b.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
 				},
 			}, {
 				Host: "b.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/kuarder",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuarder",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuarder",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -362,7 +386,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i10 specifies a minimum tls version
-	i10 := &v1beta1.Ingress{
+	i10 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "two-rules",
 			Namespace: "default",
@@ -370,19 +394,23 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/tls-minimum-protocol-version": "1.3",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"b.example.com"},
 				SecretName: sec1.Name,
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "b.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
@@ -392,7 +420,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i11 has a websocket route
-	i11 := &v1beta1.Ingress{
+	i11 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "websocket",
 			Namespace: "default",
@@ -400,20 +428,28 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/websocket-routes": "/ws1 , /ws2",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}, {
 							Path: "/ws1",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
@@ -423,7 +459,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i12a has an invalid timeout
-	i12a := &v1beta1.Ingress{
+	i12a := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "timeout",
 			Namespace: "default",
@@ -431,15 +467,19 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/request-timeout": "peanut",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
@@ -449,7 +489,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i12b has a reasonable timeout
-	i12b := &v1beta1.Ingress{
+	i12b := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "timeout",
 			Namespace: "default",
@@ -457,15 +497,19 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/request-timeout": "1m30s", // 90 seconds y'all
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
@@ -475,7 +519,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// i12c has an unreasonable timeout
-	i12c := &v1beta1.Ingress{
+	i12c := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "timeout",
 			Namespace: "default",
@@ -483,12 +527,18 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/request-timeout": "infinite",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{HTTP: &v1beta1.HTTPIngressRuleValue{
-					Paths: []v1beta1.HTTPIngressPath{{Path: "/",
-						Backend: v1beta1.IngressBackend{ServiceName: "kuard",
-							ServicePort: intstr.FromString("http")},
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{HTTP: &netv1.HTTPIngressRuleValue{
+					Paths: []netv1.HTTPIngressPath{{Path: "/",
+						Backend: netv1.IngressBackend{
+							Service: &netv1.IngressServiceBackend{
+								Name: "kuard",
+								Port: netv1.ServiceBackendPort{
+									Name: "http",
+								},
+							},
+						},
 					}}},
 				}}}},
 	}
@@ -496,7 +546,7 @@ func TestDAGInsert(t *testing.T) {
 	// i13 a and b are a pair of ingresses for the same vhost
 	// they represent a tricky way over 'overlaying' routes from one
 	// ingress onto another
-	i13a := &v1beta1.Ingress{
+	i13a := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app",
 			Namespace: "default",
@@ -504,20 +554,24 @@ func TestDAGInsert(t *testing.T) {
 				"ingress.kubernetes.io/force-ssl-redirect": "true",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"example.com"},
 				SecretName: "example-tls",
 			}},
-			Rules: []v1beta1.IngressRule{{
+			Rules: []netv1.IngressRule{{
 				Host: "example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "app-service",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "app-service",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -525,18 +579,22 @@ func TestDAGInsert(t *testing.T) {
 			}},
 		},
 	}
-	i13b := &v1beta1.Ingress{
+	i13b := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{Name: "challenge", Namespace: "nginx-ingress"},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/.well-known/acme-challenge/gVJl5NWL2owUqZekjHkt_bo3OHYC2XNDURRRgLI5JTk",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "challenge-service",
-								ServicePort: intstr.FromInt(8009),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "challenge-service",
+									Port: netv1.ServiceBackendPort{
+										Number: 8009,
+									},
+								},
 							},
 						}},
 					},
@@ -545,19 +603,19 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	i3a := &v1beta1.Ingress{
+	i3a := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				IngressRuleValue: ingressrulevalue(backend("kuard", intstr.FromInt(80))),
 			}},
 		},
 	}
 
-	i14 := &v1beta1.Ingress{
+	i14 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "timeout",
 			Namespace: "default",
@@ -567,15 +625,19 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/per-try-timeout": "10s",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}},
 					},
@@ -585,7 +647,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// s3a and b have http/2 protocol annotations
-	s3a := &v1.Service{
+	s3a := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
@@ -593,8 +655,8 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/upstream-protocol.h2c": "80,http",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -603,7 +665,7 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s3b := &v1.Service{
+	s3b := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s3a.Name,
 			Namespace: s3a.Namespace,
@@ -614,7 +676,7 @@ func TestDAGInsert(t *testing.T) {
 		Spec: s3a.Spec,
 	}
 
-	s3c := &v1.Service{
+	s3c := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      s3b.Name,
 			Namespace: s3b.Namespace,
@@ -622,8 +684,8 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/upstream-protocol.tls": "80,http",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       80,
@@ -632,25 +694,25 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	sec13 := &v1.Secret{
+	sec13 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "example-tls",
 			Namespace: "default",
 		},
-		Type: v1.SecretTypeTLS,
+		Type: corev1.SecretTypeTLS,
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
-	s13a := &v1.Service{
+	s13a := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "app-service",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -659,13 +721,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s13b := &v1.Service{
+	s13b := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "challenge-service",
 			Namespace: "nginx-ingress",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8009,
@@ -1328,13 +1390,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s5 := &v1.Service{
+	s5 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "blog-admin",
 			Namespace: "operations",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1343,13 +1405,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1359,7 +1421,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// s1a carries the tls annotation
-	s1a := &v1.Service{
+	s1a := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
@@ -1367,8 +1429,8 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/upstream-protocol.tls": "8080",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1378,7 +1440,7 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// s1b carries all four ingress annotations{
-	s1b := &v1.Service{
+	s1b := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
@@ -1389,8 +1451,8 @@ func TestDAGInsert(t *testing.T) {
 				"enroute.saaras.io/max-retries":          "7",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1400,13 +1462,13 @@ func TestDAGInsert(t *testing.T) {
 	}
 
 	// s2 is like s1 but with a different name
-	s2 := &v1.Service{
+	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuarder",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1415,13 +1477,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 	// s3 is like s1 but has a different port
-	s3 := &v1.Service{
+	s3 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       9999,
@@ -1430,13 +1492,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s4 := &v1.Service{
+	s4 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "blog",
 			Namespace: "marketing",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1445,13 +1507,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s6 := &v1.Service{
+	s6 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "marketing",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -1460,13 +1522,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	s7 := &v1.Service{
+	s7 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "home",
 			Namespace: "finance",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -1474,13 +1536,13 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	//s8 := &v1.Service{
+	//s8 := &corev1.Service{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "green",
 	//		Namespace: "marketing",
 	//	},
-	//	Spec: v1.ServiceSpec{
-	//		Ports: []v1.ServicePort{{
+	//	Spec: corev1.ServiceSpec{
+	//		Ports: []corev1.ServicePort{{
 	//			Name:     "http",
 	//			Protocol: "TCP",
 	//			Port:     80,
@@ -1488,26 +1550,26 @@ func TestDAGInsert(t *testing.T) {
 	//	},
 	//}
 
-	//s9 := &v1.Service{
+	//s9 := &corev1.Service{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "nginx",
 	//		Namespace: "default",
 	//	},
-	//	Spec: v1.ServiceSpec{
-	//		Ports: []v1.ServicePort{{
+	//	Spec: corev1.ServiceSpec{
+	//		Ports: []corev1.ServicePort{{
 	//			Protocol: "TCP",
 	//			Port:     80,
 	//		}},
 	//	},
 	//}
 
-	//s10 := &v1.Service{
+	//s10 := &corev1.Service{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "tls-passthrough",
 	//		Namespace: "default",
 	//	},
-	//	Spec: v1.ServiceSpec{
-	//		Ports: []v1.ServicePort{{
+	//	Spec: corev1.ServiceSpec{
+	//		Ports: []corev1.ServicePort{{
 	//			Name:       "https",
 	//			Protocol:   "TCP",
 	//			Port:       443,
@@ -1521,13 +1583,13 @@ func TestDAGInsert(t *testing.T) {
 	//	},
 	//}
 
-	//s11 := &v1.Service{
+	//s11 := &corev1.Service{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "blog",
 	//		Namespace: "it",
 	//	},
-	//	Spec: v1.ServiceSpec{
-	//		Ports: []v1.ServicePort{{
+	//	Spec: corev1.ServiceSpec{
+	//		Ports: []corev1.ServicePort{{
 	//			Name:     "blog",
 	//			Protocol: "TCP",
 	//			Port:     8080,
@@ -1535,13 +1597,13 @@ func TestDAGInsert(t *testing.T) {
 	//	},
 	//}
 
-	//s12 := &v1.Service{
+	//s12 := &corev1.Service{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "kuard",
 	//		Namespace: "teama",
 	//	},
-	//	Spec: v1.ServiceSpec{
-	//		Ports: []v1.ServicePort{{
+	//	Spec: corev1.ServiceSpec{
+	//		Ports: []corev1.ServicePort{{
 	//			Name:       "http",
 	//			Protocol:   "TCP",
 	//			Port:       8080,
@@ -1550,13 +1612,13 @@ func TestDAGInsert(t *testing.T) {
 	//	},
 	//}
 
-	//s13 := &v1.Service{
+	//s13 := &corev1.Service{
 	//	ObjectMeta: metav1.ObjectMeta{
 	//		Name:      "kuard",
 	//		Namespace: "teamb",
 	//	},
-	//	Spec: v1.ServiceSpec{
-	//		Ports: []v1.ServicePort{{
+	//	Spec: corev1.ServiceSpec{
+	//		Ports: []corev1.ServicePort{{
 	//			Name:       "http",
 	//			Protocol:   "TCP",
 	//			Port:       8080,
@@ -3171,17 +3233,17 @@ func TestDAGInsert(t *testing.T) {
 		//			objs: []interface{}{
 		//				sec1,
 		//				s9,
-		//				&v1beta1.Ingress{
+		//				&netv1.Ingress{
 		//					ObjectMeta: metav1.ObjectMeta{
 		//						Name:      "nginx",
 		//						Namespace: "default",
 		//					},
-		//					Spec: v1beta1.IngressSpec{
-		//						TLS: []v1beta1.IngressTLS{{
+		//					Spec: netv1.IngressSpec{
+		//						TLS: []netv1.IngressTLS{{
 		//							Hosts:      []string{"example.com"},
 		//							SecretName: s1.Name,
 		//						}},
-		//						Rules: []v1beta1.IngressRule{{
+		//						Rules: []netv1.IngressRule{{
 		//							Host:             "example.com",
 		//							IngressRuleValue: ingressrulevalue(backend(s9.Name, intstr.FromInt(80))),
 		//						}},
@@ -3271,17 +3333,32 @@ func (lm listenerMap) Visit(v Vertex) {
 	}
 }
 
-func backend(name string, port intstr.IntOrString) *v1beta1.IngressBackend {
-	return &v1beta1.IngressBackend{
-		ServiceName: name,
-		ServicePort: port,
+func backend(name string, port intstr.IntOrString) *netv1.IngressBackend {
+	if port.Type == intstr.Int {
+		return &netv1.IngressBackend{
+			Service: &netv1.IngressServiceBackend{
+				Name: name,
+				Port: netv1.ServiceBackendPort{
+					Number: port.IntVal,
+				},
+			},
+		}
+	} else {
+		return &netv1.IngressBackend{
+			Service: &netv1.IngressServiceBackend{
+				Name: name,
+				Port: netv1.ServiceBackendPort{
+					Name: port.StrVal,
+				},
+			},
+		}
 	}
 }
 
-func ingressrulevalue(backend *v1beta1.IngressBackend) v1beta1.IngressRuleValue {
-	return v1beta1.IngressRuleValue{
-		HTTP: &v1beta1.HTTPIngressRuleValue{
-			Paths: []v1beta1.HTTPIngressPath{{
+func ingressrulevalue(backend *netv1.IngressBackend) netv1.IngressRuleValue {
+	return netv1.IngressRuleValue{
+		HTTP: &netv1.HTTPIngressRuleValue{
+			Paths: []netv1.HTTPIngressPath{{
 				Backend: *backend,
 			}},
 		},
@@ -3289,13 +3366,13 @@ func ingressrulevalue(backend *v1beta1.IngressBackend) v1beta1.IngressRuleValue 
 }
 
 func TestBuilderLookupHTTPService(t *testing.T) {
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -3303,33 +3380,33 @@ func TestBuilderLookupHTTPService(t *testing.T) {
 			}},
 		},
 	}
-	services := map[Meta]*v1.Service{
+	services := map[Meta]*corev1.Service{
 		{name: "service1", namespace: "default"}: s1,
 	}
 
 	tests := map[string]struct {
 		Meta
-		port intstr.IntOrString
+		port netv1.ServiceBackendPort
 		want *HTTPService
 	}{
 		"lookup service by port number": {
 			Meta: Meta{name: "service1", namespace: "default"},
-			port: intstr.FromInt(8080),
+			port: netv1.ServiceBackendPort{Number: 8080},
 			want: httpService(s1),
 		},
 		"lookup service by port name": {
 			Meta: Meta{name: "service1", namespace: "default"},
-			port: intstr.FromString("http"),
+			port: netv1.ServiceBackendPort{Name: "http"},
 			want: httpService(s1),
 		},
 		"lookup service by port number (as string)": {
 			Meta: Meta{name: "service1", namespace: "default"},
-			port: intstr.Parse("8080"),
+			port: netv1.ServiceBackendPort{Number: 8080},
 			want: httpService(s1),
 		},
 		"lookup service by port number (from string)": {
 			Meta: Meta{name: "service1", namespace: "default"},
-			port: intstr.FromString("8080"),
+			port: netv1.ServiceBackendPort{Number: 8080},
 			want: httpService(s1),
 		},
 	}
@@ -3393,13 +3470,13 @@ func TestDAGRootNamespaces(t *testing.T) {
 		},
 	}
 
-	s2 := &v1.Service{
+	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "allowed1",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -3407,13 +3484,13 @@ func TestDAGRootNamespaces(t *testing.T) {
 		},
 	}
 
-	s3 := &v1.Service{
+	s3 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "allowed2",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -3908,13 +3985,13 @@ func TestDAGGatewayHostStatus(t *testing.T) {
 		},
 	}
 
-	s4 := &v1.Service{
+	s4 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "home",
 			Namespace: "roots",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -3922,13 +3999,13 @@ func TestDAGGatewayHostStatus(t *testing.T) {
 		},
 	}
 
-	s5 := &v1.Service{
+	s5 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "parent",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -3936,13 +4013,13 @@ func TestDAGGatewayHostStatus(t *testing.T) {
 		},
 	}
 
-	s6 := &v1.Service{
+	s6 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "roots",
 			Name:      "foo2",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -3950,13 +4027,13 @@ func TestDAGGatewayHostStatus(t *testing.T) {
 		},
 	}
 
-	s7 := &v1.Service{
+	s7 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo3",
 			Namespace: "roots",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     12345678,
@@ -4118,13 +4195,13 @@ func TestDAGGatewayHostUniqueFQDNs(t *testing.T) {
 		},
 	}
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "http",
 				Protocol:   "TCP",
 				Port:       8080,
@@ -4221,49 +4298,66 @@ func TestDAGGatewayHostUniqueFQDNs(t *testing.T) {
 
 func TestHttpPaths(t *testing.T) {
 	tests := map[string]struct {
-		rule v1beta1.IngressRule
-		want []v1beta1.HTTPIngressPath
+		rule netv1.IngressRule
+		want []netv1.HTTPIngressPath
 	}{
 		"zero value": {
-			rule: v1beta1.IngressRule{},
+			rule: netv1.IngressRule{},
 			want: nil,
 		},
 		"empty paths": {
-			rule: v1beta1.IngressRule{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{},
+			rule: netv1.IngressRule{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{},
 				},
 			},
 			want: nil,
 		},
 		"several paths": {
-			rule: v1beta1.IngressRule{
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+			rule: netv1.IngressRule{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}, {
 							Path: "/kuarder",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuarder",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuarder",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
 				},
 			},
-			want: []v1beta1.HTTPIngressPath{{
-				Backend: v1beta1.IngressBackend{
-					ServiceName: "kuard",
-					ServicePort: intstr.FromString("http"),
+			want: []netv1.HTTPIngressPath{{
+				Backend: netv1.IngressBackend{
+					Service: &netv1.IngressServiceBackend{
+						Name: "kuard",
+						Port: netv1.ServiceBackendPort{
+							Name: "http",
+						},
+					},
 				},
 			}, {
 				Path: "/kuarder",
-				Backend: v1beta1.IngressBackend{ServiceName: "kuarder",
-					ServicePort: intstr.FromInt(8080),
+				Backend: netv1.IngressBackend{
+					Service: &netv1.IngressServiceBackend{
+						Name: "kuarder",
+						Port: netv1.ServiceBackendPort{
+							Number: 8080,
+						},
+					},
 				},
 			}},
 		},
@@ -4426,7 +4520,7 @@ func clusters(services ...Service) (c []*Cluster) {
 	return c
 }
 
-func tcpService(s *v1.Service) *TCPService {
+func tcpService(s *corev1.Service) *TCPService {
 	return &TCPService{
 		Name:        s.Name,
 		Namespace:   s.Namespace,
@@ -4434,7 +4528,7 @@ func tcpService(s *v1.Service) *TCPService {
 	}
 }
 
-func httpService(s *v1.Service) *HTTPService {
+func httpService(s *corev1.Service) *HTTPService {
 	return &HTTPService{
 		TCPService: TCPService{
 			Name:        s.Name,
@@ -4444,7 +4538,7 @@ func httpService(s *v1.Service) *HTTPService {
 	}
 }
 
-func clustermap(services ...*v1.Service) []*Cluster {
+func clustermap(services ...*corev1.Service) []*Cluster {
 	var c []*Cluster
 	for _, s := range services {
 		c = append(c, &Cluster{
@@ -4454,7 +4548,7 @@ func clustermap(services ...*v1.Service) []*Cluster {
 	return c
 }
 
-func secret(s *v1.Secret) *Secret {
+func secret(s *corev1.Secret) *Secret {
 	return &Secret{
 		Object: s,
 	}
@@ -4482,7 +4576,7 @@ func virtualhost(name string, routes ...*Route) *VirtualHost {
 	}
 }
 
-func securevirtualhost(name string, sec *v1.Secret, routes ...*Route) *SecureVirtualHost {
+func securevirtualhost(name string, sec *corev1.Secret, routes ...*Route) *SecureVirtualHost {
 	return &SecureVirtualHost{
 		VirtualHost: VirtualHost{
 			Name:   name,

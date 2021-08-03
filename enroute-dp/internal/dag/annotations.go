@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
-	"k8s.io/api/networking/v1beta1"
+	"k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -110,17 +110,17 @@ func parseUpstreamProtocols(annotations map[string]string, annotation string, pr
 
 // httpAllowed returns true unless the kubernetes.io/ingress.allow-http annotation is
 // present and set to false.
-func httpAllowed(i *v1beta1.Ingress) bool {
+func httpAllowed(i *v1.Ingress) bool {
 	return !(i.Annotations["kubernetes.io/ingress.allow-http"] == "false")
 }
 
 // tlsRequired returns true if the ingress.kubernetes.io/force-ssl-redirect annotation is
 // present and set to true.
-func tlsRequired(i *v1beta1.Ingress) bool {
+func tlsRequired(i *v1.Ingress) bool {
 	return i.Annotations["ingress.kubernetes.io/force-ssl-redirect"] == "true"
 }
 
-func websocketRoutes(i *v1beta1.Ingress) map[string]bool {
+func websocketRoutes(i *v1.Ingress) map[string]bool {
 	routes := make(map[string]bool)
 	for _, v := range strings.Split(i.Annotations[annotationWebsocketRoutes], ",") {
 		route := strings.TrimSpace(v)
@@ -146,11 +146,11 @@ func MinProtoVersion(version string) envoy_extensions_transport_sockets_tls_v3.T
 }
 
 // perTryTimeout returns the duration envoy will wait per retry cycle.
-func perTryTimeout(i *v1beta1.Ingress) time.Duration {
+func perTryTimeout(i *v1.Ingress) time.Duration {
 	return parseTimeout(compatAnnotation(i, "per-try-timeout"))
 }
 
 // numRetries returns the number of retries specified by the "enroute.saaras.io/num-retries"
-func numRetries(i *v1beta1.Ingress) uint32 {
+func numRetries(i *v1.Ingress) uint32 {
 	return parseUInt32(compatAnnotation(i, "num-retries"))
 }

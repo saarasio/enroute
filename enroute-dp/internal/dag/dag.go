@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"k8s.io/api/core/v1"
 )

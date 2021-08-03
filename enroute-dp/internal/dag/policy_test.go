@@ -21,12 +21,12 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	"github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 )
 
 func TestRetryPolicyGatewayHost(t *testing.T) {
 	tests := map[string]struct {
-		rp   *v1beta1.RetryPolicy
+		rp   *v1.RetryPolicy
 		want *RetryPolicy
 	}{
 		"nil retry policy": {
@@ -34,14 +34,14 @@ func TestRetryPolicyGatewayHost(t *testing.T) {
 			want: nil,
 		},
 		"empty policy": {
-			rp: &v1beta1.RetryPolicy{},
+			rp: &v1.RetryPolicy{},
 			want: &RetryPolicy{
 				RetryOn:    "5xx",
 				NumRetries: 1,
 			},
 		},
 		"explicitly zero retries": {
-			rp: &v1beta1.RetryPolicy{
+			rp: &v1.RetryPolicy{
 				NumRetries: 0, // zero value for NumRetries
 			},
 			want: &RetryPolicy{
@@ -50,7 +50,7 @@ func TestRetryPolicyGatewayHost(t *testing.T) {
 			},
 		},
 		"no retry count, per try timeout": {
-			rp: &v1beta1.RetryPolicy{
+			rp: &v1.RetryPolicy{
 				PerTryTimeout: "10s",
 			},
 			want: &RetryPolicy{
@@ -60,7 +60,7 @@ func TestRetryPolicyGatewayHost(t *testing.T) {
 			},
 		},
 		"explicit 0s timeout": {
-			rp: &v1beta1.RetryPolicy{
+			rp: &v1.RetryPolicy{
 				PerTryTimeout: "0s",
 			},
 			want: &RetryPolicy{
@@ -83,7 +83,7 @@ func TestRetryPolicyGatewayHost(t *testing.T) {
 
 func TestTimeoutPolicyGatewayHost(t *testing.T) {
 	tests := map[string]struct {
-		tp   *v1beta1.TimeoutPolicy
+		tp   *v1.TimeoutPolicy
 		want *TimeoutPolicy
 	}{
 		"nil timeout policy": {
@@ -91,13 +91,13 @@ func TestTimeoutPolicyGatewayHost(t *testing.T) {
 			want: nil,
 		},
 		"empty timeout policy": {
-			tp: &v1beta1.TimeoutPolicy{},
+			tp: &v1.TimeoutPolicy{},
 			want: &TimeoutPolicy{
 				Timeout: 0 * time.Second,
 			},
 		},
 		"valid request timeout": {
-			tp: &v1beta1.TimeoutPolicy{
+			tp: &v1.TimeoutPolicy{
 				Request: "1m30s",
 			},
 			want: &TimeoutPolicy{
@@ -105,7 +105,7 @@ func TestTimeoutPolicyGatewayHost(t *testing.T) {
 			},
 		},
 		"invalid request timeout": {
-			tp: &v1beta1.TimeoutPolicy{
+			tp: &v1.TimeoutPolicy{
 				Request: "90", // 90 what?
 			},
 			want: &TimeoutPolicy{
@@ -117,7 +117,7 @@ func TestTimeoutPolicyGatewayHost(t *testing.T) {
 			},
 		},
 		"infinite request timeout": {
-			tp: &v1beta1.TimeoutPolicy{
+			tp: &v1.TimeoutPolicy{
 				Request: "infinite",
 			},
 			want: &TimeoutPolicy{

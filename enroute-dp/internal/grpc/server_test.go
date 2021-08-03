@@ -38,8 +38,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -51,16 +51,16 @@ func TestGRPC(t *testing.T) {
 
 	tests := map[string]func(*testing.T, *grpc.ClientConn){
 		"StreamClusters": func(t *testing.T, cc *grpc.ClientConn) {
-			reh.OnAdd(&v1.Service{
+			reh.OnAdd(&corev1.Service{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "simple",
 					Namespace: "default",
 				},
-				Spec: v1.ServiceSpec{
+				Spec: corev1.ServiceSpec{
 					Selector: map[string]string{
 						"app": "simple",
 					},
-					Ports: []v1.ServicePort{{
+					Ports: []corev1.ServicePort{{
 						Protocol:   "TCP",
 						Port:       80,
 						TargetPort: intstr.FromInt(6502),
@@ -78,16 +78,16 @@ func TestGRPC(t *testing.T) {
 			checktimeout(t, stream)                  // check that the second receive times out
 		},
 		"StreamEndpoints": func(t *testing.T, cc *grpc.ClientConn) {
-			et.OnAdd(&v1.Endpoints{
+			et.OnAdd(&corev1.Endpoints{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "kube-scheduler",
 					Namespace: "kube-system",
 				},
-				Subsets: []v1.EndpointSubset{{
-					Addresses: []v1.EndpointAddress{{
+				Subsets: []corev1.EndpointSubset{{
+					Addresses: []corev1.EndpointAddress{{
 						IP: "130.211.139.167",
 					}},
-					Ports: []v1.EndpointPort{{
+					Ports: []corev1.EndpointPort{{
 						Port: 80,
 					}, {
 						Port: 443,
@@ -106,20 +106,25 @@ func TestGRPC(t *testing.T) {
 		},
 		"StreamListeners": func(t *testing.T, cc *grpc.ClientConn) {
 			// add an ingress, which will create a non tls listener
-			reh.OnAdd(&v1beta1.Ingress{
+			reh.OnAdd(&netv1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "httpbin-org",
 					Namespace: "default",
 				},
-				Spec: v1beta1.IngressSpec{
-					Rules: []v1beta1.IngressRule{{
+				Spec: netv1.IngressSpec{
+					Rules: []netv1.IngressRule{{
 						Host: "httpbin.org",
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{{
-									Backend: v1beta1.IngressBackend{
-										ServiceName: "httpbin-org",
-										ServicePort: intstr.FromInt(80),
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{{
+
+									Backend: netv1.IngressBackend{
+										Service: &netv1.IngressServiceBackend{
+											Name: "httpbin-org",
+											Port: netv1.ServiceBackendPort{
+												Number: 80,
+											},
+										},
 									},
 								}},
 							},
@@ -138,20 +143,24 @@ func TestGRPC(t *testing.T) {
 			checktimeout(t, stream)                   // check that the second receive times out
 		},
 		"StreamRoutes": func(t *testing.T, cc *grpc.ClientConn) {
-			reh.OnAdd(&v1beta1.Ingress{
+			reh.OnAdd(&netv1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "httpbin-org",
 					Namespace: "default",
 				},
-				Spec: v1beta1.IngressSpec{
-					Rules: []v1beta1.IngressRule{{
+				Spec: netv1.IngressSpec{
+					Rules: []netv1.IngressRule{{
 						Host: "httpbin.org",
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{{
-									Backend: v1beta1.IngressBackend{
-										ServiceName: "httpbin-org",
-										ServicePort: intstr.FromInt(80),
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{{
+									Backend: netv1.IngressBackend{
+										Service: &netv1.IngressServiceBackend{
+											Name: "httpbin-org",
+											Port: netv1.ServiceBackendPort{
+												Number: 80,
+											},
+										},
 									},
 								}},
 							},
@@ -170,14 +179,14 @@ func TestGRPC(t *testing.T) {
 			checktimeout(t, stream)                // check that the second receive times out
 		},
 		"StreamSecrets": func(t *testing.T, cc *grpc.ClientConn) {
-			reh.OnAdd(&v1.Secret{
+			reh.OnAdd(&corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "secret",
 					Namespace: "default",
 				},
 				Data: map[string][]byte{
-					v1.TLSCertKey:       []byte("certificate"),
-					v1.TLSPrivateKeyKey: []byte("key"),
+					corev1.TLSCertKey:       []byte("certificate"),
+					corev1.TLSPrivateKeyKey: []byte("key"),
 				},
 			})
 

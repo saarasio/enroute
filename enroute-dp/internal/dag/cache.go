@@ -22,10 +22,10 @@ import (
 	"sync"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	net_v1 "k8s.io/api/networking/v1"
 	"k8s.io/client-go/tools/cache"
 
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,7 +40,7 @@ type KubernetesCache struct {
 	mu sync.RWMutex
 	logrus.FieldLogger
 
-	ingresses    map[Meta]*v1beta1.Ingress
+	ingresses    map[Meta]*net_v1.Ingress
 	gatewayhosts map[Meta]*gatewayhostv1.GatewayHost
 	secrets      map[Meta]*v1.Secret
 	delegations  map[Meta]*gatewayhostv1.TLSCertificateDelegation
@@ -81,10 +81,10 @@ func (kc *KubernetesCache) Insert(obj interface{}) {
 			kc.services = make(map[Meta]*v1.Service)
 		}
 		kc.services[m] = obj
-	case *v1beta1.Ingress:
+	case *net_v1.Ingress:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		if kc.ingresses == nil {
-			kc.ingresses = make(map[Meta]*v1beta1.Ingress)
+			kc.ingresses = make(map[Meta]*net_v1.Ingress)
 		}
 		kc.ingresses[m] = obj
 	case *gatewayhostv1.GatewayHost:
@@ -140,7 +140,7 @@ func (kc *KubernetesCache) remove(obj interface{}) {
 	case *v1.Service:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.services, m)
-	case *v1beta1.Ingress:
+	case *net_v1.Ingress:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.ingresses, m)
 	case *gatewayhostv1.GatewayHost:

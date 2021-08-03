@@ -3,7 +3,7 @@ package saaras
 import (
 	"testing"
 
-	ir "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	ir "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 )
 

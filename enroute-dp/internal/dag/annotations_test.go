@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"k8s.io/api/networking/v1beta1"
+	"k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -116,11 +116,11 @@ func TestParseUpstreamProtocols(t *testing.T) {
 
 func TestWebsocketRoutes(t *testing.T) {
 	tests := map[string]struct {
-		a    *v1beta1.Ingress
+		a    *v1.Ingress
 		want map[string]bool
 	}{
 		"empty": {
-			a: &v1beta1.Ingress{
+			a: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{annotationWebsocketRoutes: ""},
 				},
@@ -128,7 +128,7 @@ func TestWebsocketRoutes(t *testing.T) {
 			want: map[string]bool{},
 		},
 		"empty with spaces": {
-			a: &v1beta1.Ingress{
+			a: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{annotationWebsocketRoutes: ", ,"},
 				},
@@ -136,7 +136,7 @@ func TestWebsocketRoutes(t *testing.T) {
 			want: map[string]bool{},
 		},
 		"single value": {
-			a: &v1beta1.Ingress{
+			a: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{annotationWebsocketRoutes: "/ws1"},
 				},
@@ -146,7 +146,7 @@ func TestWebsocketRoutes(t *testing.T) {
 			},
 		},
 		"multiple values": {
-			a: &v1beta1.Ingress{
+			a: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{annotationWebsocketRoutes: "/ws1,/ws2"},
 				},
@@ -157,7 +157,7 @@ func TestWebsocketRoutes(t *testing.T) {
 			},
 		},
 		"multiple values with spaces and invalid entries": {
-			a: &v1beta1.Ingress{
+			a: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Annotations: map[string]string{annotationWebsocketRoutes: " /ws1, , /ws2 "},
 				},
@@ -181,27 +181,27 @@ func TestWebsocketRoutes(t *testing.T) {
 
 func TestHttpAllowed(t *testing.T) {
 	tests := map[string]struct {
-		i     *v1beta1.Ingress
+		i     *v1.Ingress
 		valid bool
 	}{
 		"basic ingress": {
-			i: &v1beta1.Ingress{
+			i: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "simple",
 					Namespace: "default",
 				},
-				Spec: v1beta1.IngressSpec{
-					TLS: []v1beta1.IngressTLS{{
+				Spec: v1.IngressSpec{
+					TLS: []v1.IngressTLS{{
 						Hosts:      []string{"whatever.example.com"},
 						SecretName: "secret",
 					}},
-					Backend: backend("backend", intstr.FromInt(80)),
+					DefaultBackend: backend("backend", intstr.FromInt(80)),
 				},
 			},
 			valid: true,
 		},
 		"kubernetes.io/ingress.allow-http: \"false\"": {
-			i: &v1beta1.Ingress{
+			i: &v1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "simple",
 					Namespace: "default",
@@ -209,12 +209,12 @@ func TestHttpAllowed(t *testing.T) {
 						"kubernetes.io/ingress.allow-http": "false",
 					},
 				},
-				Spec: v1beta1.IngressSpec{
-					TLS: []v1beta1.IngressTLS{{
+				Spec: v1.IngressSpec{
+					TLS: []v1.IngressTLS{{
 						Hosts:      []string{"whatever.example.com"},
 						SecretName: "secret",
 					}},
-					Backend: backend("backend", intstr.FromInt(80)),
+					DefaultBackend: backend("backend", intstr.FromInt(80)),
 				},
 			},
 			valid: false,

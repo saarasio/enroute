@@ -27,12 +27,12 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
 
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	"google.golang.org/grpc"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -43,15 +43,19 @@ func TestClusterLongServiceName(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "default",
 			Name:      "kuard",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
@@ -60,7 +64,7 @@ func TestClusterLongServiceName(t *testing.T) {
 	rh.OnAdd(service(
 		"default",
 		"kbujbkuhdod66gjdmwmijz8xzgsx1nkfbrloezdjiulquzk4x3p0nnvpzi8r",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       8080,
 			TargetPort: intstr.FromInt(8080),
@@ -84,35 +88,43 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(80),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
 			},
 		},
 	}
 	rh.OnAdd(i1)
 
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuarder",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "www.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
 							Path: "/kuarder",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("https"),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "https",
+									},
+								},
 							},
 						}},
 					},
@@ -123,7 +135,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 	rh.OnAdd(i2)
 
 	// s1 is a simple tcp 80 -> 8080 service.
-	s1 := service("default", "kuard", v1.ServicePort{
+	s1 := service("default", "kuard", corev1.ServicePort{
 		Protocol:   "TCP",
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
@@ -140,7 +152,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 	}, streamCDS(t, cc))
 
 	// s2 is the same as s2, but the service port has a name
-	s2 := service("default", "kuard", v1.ServicePort{
+	s2 := service("default", "kuard", corev1.ServicePort{
 		Name:       "http",
 		Protocol:   "TCP",
 		Port:       80,
@@ -163,13 +175,13 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 	// s3 is like s2, but has a second named port. The k8s spec
 	// requires all ports to be named if there is more than one of them.
 	s3 := service("default", "kuard",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Name:       "http",
 			Protocol:   "TCP",
 			Port:       80,
 			TargetPort: intstr.FromInt(8080),
 		},
-		v1.ServicePort{
+		corev1.ServicePort{
 			Name:       "https",
 			Protocol:   "TCP",
 			Port:       443,
@@ -194,7 +206,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 
 	// s4 is s3 with the http port removed.
 	s4 := service("default", "kuard",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Name:       "https",
 			Protocol:   "TCP",
 			Port:       443,
@@ -222,26 +234,34 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "www.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromString("http"),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Name: "http",
+									},
+								},
 							},
 						}, {
 							Path: "/kuarder",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromInt(443),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Number: 443,
+									},
+								},
 							},
 						}},
 					},
@@ -252,13 +272,13 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 	rh.OnAdd(i1)
 
 	s1 := service("default", "kuard",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Name:       "http",
 			Protocol:   "TCP",
 			Port:       80,
 			TargetPort: intstr.FromInt(8080),
 		},
-		v1.ServicePort{
+		corev1.ServicePort{
 			Name:       "https",
 			Protocol:   "TCP",
 			Port:       443,
@@ -279,7 +299,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 
 	// s2 removes the name on port 80, moves it to port 443 and deletes the https port
 	s2 := service("default", "kuard",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       443,
 			TargetPort: intstr.FromInt(8000),
@@ -325,21 +345,25 @@ func TestIssue243(t *testing.T) {
 
 	t.Run("single unnamed service with a different numeric target port", func(t *testing.T) {
 
-		i1 := &v1beta1.Ingress{
+		i1 := &netv1.Ingress{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "kuard",
 				Namespace: "default",
 			},
-			Spec: v1beta1.IngressSpec{
-				Backend: &v1beta1.IngressBackend{
-					ServiceName: "kuard",
-					ServicePort: intstr.FromInt(80),
+			Spec: netv1.IngressSpec{
+				DefaultBackend: &netv1.IngressBackend{
+					Service: &netv1.IngressServiceBackend{
+						Name: "kuard",
+						Port: netv1.ServiceBackendPort{
+							Number: 80,
+						},
+					},
 				},
 			},
 		}
 		rh.OnAdd(i1)
 		s1 := service("default", "kuard",
-			v1.ServicePort{
+			corev1.ServicePort{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -362,15 +386,19 @@ func TestIssue247(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(80),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
 			},
 		},
 	}
@@ -382,7 +410,7 @@ func TestIssue247(t *testing.T) {
 	//     protocol: TCP
 	//     targetPort: kuard
 	s1 := service("default", "kuard",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       80,
 			TargetPort: intstr.FromString("kuard"),
@@ -402,26 +430,34 @@ func TestCDSResourceFiltering(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Rules: []v1beta1.IngressRule{{
+		Spec: netv1.IngressSpec{
+			Rules: []netv1.IngressRule{{
 				Host: "www.example.com",
-				IngressRuleValue: v1beta1.IngressRuleValue{
-					HTTP: &v1beta1.HTTPIngressRuleValue{
-						Paths: []v1beta1.HTTPIngressPath{{
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "kuard",
-								ServicePort: intstr.FromInt(80),
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{{
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "kuard",
+									Port: netv1.ServiceBackendPort{
+										Number: 80,
+									},
+								},
 							},
 						}, {
 							Path: "/httpbin",
-							Backend: v1beta1.IngressBackend{
-								ServiceName: "httpbin",
-								ServicePort: intstr.FromInt(8080),
+							Backend: netv1.IngressBackend{
+								Service: &netv1.IngressServiceBackend{
+									Name: "httpbin",
+									Port: netv1.ServiceBackendPort{
+										Number: 8080,
+									},
+								},
 							},
 						}},
 					},
@@ -433,7 +469,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 
 	// add two services, check that they are there
 	s1 := service("default", "kuard",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       80,
 			TargetPort: intstr.FromString("kuard"),
@@ -441,7 +477,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 	)
 	rh.OnAdd(s1)
 	s2 := service("default", "httpbin",
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       8080,
 			TargetPort: intstr.FromString("httpbin"),
@@ -481,15 +517,19 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "default",
 			Name:      "kuard",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(8080),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 8080,
+					},
+				},
 			},
 		},
 	}
@@ -504,7 +544,7 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 			"enroute.saaras.io/max-requests":         "404",
 			"enroute.saaras.io/max-retries":          "7",
 		},
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       8080,
 			TargetPort: intstr.FromInt(8080),
@@ -551,7 +591,7 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 			"enroute.saaras.io/max-requests":         "1e6",
 			"enroute.saaras.io/max-retries":          "0",
 		},
-		v1.ServicePort{
+		corev1.ServicePort{
 			Protocol:   "TCP",
 			Port:       8080,
 			TargetPort: intstr.FromInt(8080),
@@ -593,13 +633,13 @@ func TestClusterPerServiceParameters(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -652,13 +692,13 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -735,13 +775,13 @@ func TestClusterWithHealthChecks(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Protocol:   "TCP",
 				Port:       80,
 				TargetPort: intstr.FromInt(8080),
@@ -788,21 +828,25 @@ func TestClusterServiceTLSBackend(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(443),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 443,
+					},
+				},
 			},
 		},
 	}
 	rh.OnAdd(i1)
 
-	s1 := &v1.Service{
+	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
@@ -810,8 +854,8 @@ func TestClusterServiceTLSBackend(t *testing.T) {
 				"enroute.saaras.io/upstream-protocol.tls": "securebackend",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "securebackend",
 				Protocol:   "TCP",
 				Port:       443,
@@ -835,7 +879,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
@@ -843,8 +887,8 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 				"enroute.saaras.io/upstream-protocol.tls": "securebackend,443",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:       "securebackend",
 				Protocol:   "TCP",
 				Port:       443,
@@ -853,7 +897,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		},
 	})
 
-	secret := &v1.Secret{
+	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "foo",
 			Namespace: "default",
@@ -945,22 +989,26 @@ func TestExternalNameService(t *testing.T) {
 	rh, cc, done := setup(t)
 	defer done()
 
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: &v1beta1.IngressBackend{
-				ServiceName: "kuard",
-				ServicePort: intstr.FromInt(80),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "kuard",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
 			},
 		},
 	}
 	rh.OnAdd(i1)
 
 	// s1 is a simple tcp 80 -> 8080 service.
-	s1 := externalnameservice("default", "kuard", "foo.io", v1.ServicePort{
+	s1 := externalnameservice("default", "kuard", "foo.io", corev1.ServicePort{
 		Protocol:   "TCP",
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
@@ -977,14 +1025,14 @@ func TestExternalNameService(t *testing.T) {
 	}, streamCDS(t, cc))
 }
 
-func serviceWithAnnotations(ns, name string, annotations map[string]string, ports ...v1.ServicePort) *v1.Service {
-	return &v1.Service{
+func serviceWithAnnotations(ns, name string, annotations map[string]string, ports ...corev1.ServicePort) *corev1.Service {
+	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        name,
 			Namespace:   ns,
 			Annotations: annotations,
 		},
-		Spec: v1.ServiceSpec{
+		Spec: corev1.ServiceSpec{
 			Ports: ports,
 		},
 	}

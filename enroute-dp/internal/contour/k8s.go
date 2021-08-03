@@ -23,11 +23,11 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/prometheus/client_golang/prometheus"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/metrics"
 	"github.com/sirupsen/logrus"
-	"k8s.io/api/networking/v1beta1"
+	"k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -112,7 +112,7 @@ func (reh *ResourceEventHandler) update() {
 
 // validIngressClass returns true iff:
 //
-// 1. obj is not of type *v1beta1.Ingress or gatewayhostv1.GatewayHost.
+// 1. obj is not of type *v1.Ingress or gatewayhostv1.GatewayHost.
 // 2. obj has no ingress.class annotation.
 // 2. obj's ingress.class annotation matches d.IngressClass.
 func (reh *ResourceEventHandler) validIngressClass(obj interface{}) bool {
@@ -120,7 +120,7 @@ func (reh *ResourceEventHandler) validIngressClass(obj interface{}) bool {
 	case *gatewayhostv1.GatewayHost:
 		class, ok := getIngressClassAnnotation(i.Annotations)
 		return !ok || class == reh.ingressClass()
-	case *v1beta1.Ingress:
+	case *v1.Ingress:
 		class, ok := getIngressClassAnnotation(i.Annotations)
 		return !ok || class == reh.ingressClass()
 	default:

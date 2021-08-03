@@ -294,8 +294,8 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	if mode_ingress {
 		coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
 		coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-		coreInformers.Networking().V1beta1().Ingresses().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1beta1().GatewayHosts().Informer().AddEventHandler(&reh)
+		coreInformers.Networking().V1().Ingresses().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1().GatewayHosts().Informer().AddEventHandler(&reh)
 
 		// Add informers for each root-gatewayhost namespaces
 		for _, inf := range namespacedInformers {
@@ -309,9 +309,9 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	// step 5.5 register resource event handler with k8s informers
 	if mode_ingress {
-		contourInformers.Enroute().V1beta1().RouteFilters().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1beta1().HttpFilters().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1beta1().TLSCertificateDelegations().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1().RouteFilters().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1().HttpFilters().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1().TLSCertificateDelegations().Informer().AddEventHandler(&reh)
 	}
 
 	// step 6. endpoints updates are handled directly by the EndpointsTranslator
@@ -332,7 +332,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	// step 6.5
 	if mode_ingress {
-		contourInformers.Enroute().V1beta1().GlobalConfigs().Informer().AddEventHandler(pct)
+		contourInformers.Enroute().V1().GlobalConfigs().Informer().AddEventHandler(pct)
 	}
 
 	// step 7. setup workgroup runner and register informers.

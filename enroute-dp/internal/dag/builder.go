@@ -25,12 +25,11 @@ import (
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
-	"k8s.io/apimachinery/pkg/util/intstr"
+	net_v1 "k8s.io/api/networking/v1"
 
 	_ "github.com/davecgh/go-spew/spew"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 	"github.com/sirupsen/logrus"
 )
@@ -80,7 +79,7 @@ type builder struct {
 	log      logrus.FieldLogger
 }
 
-func (b *builder) debugPrintServices(m Meta, port intstr.IntOrString) {
+func (b *builder) debugPrintServices(m Meta, port net_v1.ServiceBackendPort) {
 	if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
 
 		logger.EL.ELogger.Debugf("dag:builder:debugPrintServices(): Cannot find service meta [%+v] port [%+v]\n", m, port)
@@ -91,7 +90,7 @@ func (b *builder) debugPrintServices(m Meta, port intstr.IntOrString) {
 }
 
 // lookupHTTPService returns a HTTPService that matches the Meta and port supplied.
-func (b *builder) lookupHTTPService(m Meta, port intstr.IntOrString) *HTTPService {
+func (b *builder) lookupHTTPService(m Meta, port net_v1.ServiceBackendPort) *HTTPService {
 	s := b.lookupService(m, port)
 	switch s := s.(type) {
 	case *HTTPService:
@@ -104,10 +103,11 @@ func (b *builder) lookupHTTPService(m Meta, port intstr.IntOrString) *HTTPServic
 		}
 		for i := range svc.Spec.Ports {
 			p := &svc.Spec.Ports[i]
-			if int(p.Port) == port.IntValue() {
+			if p.Port == port.Number {
 				return b.addHTTPService(svc, p)
 			}
-			if port.String() == p.Name {
+			// When comparing names, one of them should be non-empty for comparison to be valid
+			if port.Name == p.Name && ((port.Name != "") || (p.Name != "")) {
 				return b.addHTTPService(svc, p)
 			}
 		}
@@ -121,7 +121,7 @@ func (b *builder) lookupHTTPService(m Meta, port intstr.IntOrString) *HTTPServic
 }
 
 // lookupTCPService returns a TCPService that matches the Meta and port supplied.
-func (b *builder) lookupTCPService(m Meta, port intstr.IntOrString) *TCPService {
+func (b *builder) lookupTCPService(m Meta, port net_v1.ServiceBackendPort) *TCPService {
 	s := b.lookupService(m, port)
 	switch s := s.(type) {
 	case *TCPService:
@@ -133,10 +133,10 @@ func (b *builder) lookupTCPService(m Meta, port intstr.IntOrString) *TCPService 
 		}
 		for i := range svc.Spec.Ports {
 			p := &svc.Spec.Ports[i]
-			if int(p.Port) == port.IntValue() {
+			if p.Port == port.Number {
 				return b.addTCPService(svc, p)
 			}
-			if port.String() == p.Name {
+			if port.Name == p.Name {
 				return b.addTCPService(svc, p)
 			}
 		}
@@ -146,15 +146,15 @@ func (b *builder) lookupTCPService(m Meta, port intstr.IntOrString) *TCPService 
 		return nil
 	}
 }
-func (b *builder) lookupService(m Meta, port intstr.IntOrString) Service {
-	if port.Type != intstr.Int {
+func (b *builder) lookupService(m Meta, port net_v1.ServiceBackendPort) Service {
+	if port.Number < 0 || port.Number > 65535 {
 		// can't handle, give up
 		return nil
 	}
 	sm := servicemeta{
 		name:      m.name,
 		namespace: m.namespace,
-		port:      int32(port.IntValue()),
+		port:      port.Number,
 	}
 	s, ok := b.services[sm]
 	if !ok {
@@ -318,7 +318,7 @@ func (b *builder) compute() *DAG {
 }
 
 // route builds a dag.Route for the supplied Ingress.
-func route(ingress *v1beta1.Ingress, path string, service *HTTPService) *Route {
+func route(ingress *net_v1.Ingress, path string, service *HTTPService) *Route {
 	wr := websocketRoutes(ingress)
 	r := &Route{
 		HTTPSUpgrade:  tlsRequired(ingress),
@@ -484,10 +484,10 @@ func (b *builder) computeIngresses() {
 			for _, httppath := range httppaths(rule) {
 				path := stringOrDefault(httppath.Path, "/")
 				be := httppath.Backend
-				m := Meta{name: be.ServiceName, namespace: ing.Namespace}
+				m := Meta{name: be.Service.Name, namespace: ing.Namespace}
 				// XXX: We now read the protocol directly from gatewayhostv1.Service
 				// s.Protocol = be.Protocol
-				s := b.lookupHTTPService(m, be.ServicePort)
+				s := b.lookupHTTPService(m, be.Service.Port)
 				if s == nil {
 					continue
 				}
@@ -582,9 +582,9 @@ func (b *builder) secureVirtualhostExists(host string) bool {
 
 // rulesFromSpec merges the IngressSpec's Rules with a synthetic
 // rule representing the default backend.
-func rulesFromSpec(spec v1beta1.IngressSpec) []v1beta1.IngressRule {
+func rulesFromSpec(spec net_v1.IngressSpec) []net_v1.IngressRule {
 	rules := spec.Rules
-	if backend := spec.Backend; backend != nil {
+	if backend := spec.DefaultBackend; backend != nil {
 		rule := defaultBackendRule(backend)
 		rules = append(rules, rule)
 	}
@@ -592,14 +592,16 @@ func rulesFromSpec(spec v1beta1.IngressSpec) []v1beta1.IngressRule {
 }
 
 // defaultBackendRule returns an IngressRule that represents the IngressBackend.
-func defaultBackendRule(be *v1beta1.IngressBackend) v1beta1.IngressRule {
-	return v1beta1.IngressRule{
-		IngressRuleValue: v1beta1.IngressRuleValue{
-			HTTP: &v1beta1.HTTPIngressRuleValue{
-				Paths: []v1beta1.HTTPIngressPath{{
-					Backend: v1beta1.IngressBackend{
-						ServiceName: be.ServiceName,
-						ServicePort: be.ServicePort,
+func defaultBackendRule(be *net_v1.IngressBackend) net_v1.IngressRule {
+	return net_v1.IngressRule{
+		IngressRuleValue: net_v1.IngressRuleValue{
+			HTTP: &net_v1.HTTPIngressRuleValue{
+				Paths: []net_v1.HTTPIngressPath{{
+					Backend: net_v1.IngressBackend{
+						Service: &net_v1.IngressServiceBackend{
+							Name: be.Service.Name,
+							Port: be.Service.Port,
+						},
 					},
 				}},
 			},
@@ -775,7 +777,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 					return
 				}
 				m := Meta{name: service.Name, namespace: ir.Namespace}
-				s := b.lookupHTTPService(m, intstr.FromInt(service.Port))
+				s := b.lookupHTTPService(m, net_v1.ServiceBackendPort{Number: int32(service.Port)})
 
 				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
 					logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Looked up Service [%s:%d]\n",
@@ -961,7 +963,7 @@ func (b *builder) processTCPProxy(ir *gatewayhostv1.GatewayHost, visited []*gate
 		var proxy TCPProxy
 		for _, service := range tcpproxy.Services {
 			m := Meta{name: service.Name, namespace: ir.Namespace}
-			s := b.lookupTCPService(m, intstr.FromInt(service.Port))
+			s := b.lookupTCPService(m, net_v1.ServiceBackendPort{Number: int32(service.Port)})
 			if s == nil {
 				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("tcpproxy: service %s/%s/%d: not found", ir.Namespace, service.Name, service.Port), Vhost: host})
 				return
@@ -1020,7 +1022,7 @@ func routeEnforceTLS(enforceTLS, permitInsecure bool) bool {
 // httppaths returns a slice of HTTPIngressPath values for a given IngressRule.
 // In the case that the IngressRule contains no valid HTTPIngressPaths, a
 // nil slice is returned.
-func httppaths(rule v1beta1.IngressRule) []v1beta1.HTTPIngressPath {
+func httppaths(rule net_v1.IngressRule) []net_v1.HTTPIngressPath {
 	if rule.IngressRuleValue.HTTP == nil {
 		// rule.IngressRuleValue.HTTP value is optional.
 		return nil

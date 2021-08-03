@@ -18,7 +18,7 @@ import (
 	"regexp"
 	"strings"
 
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 )
 
 // mergePathConditions merges the given slice of prefix Conditions into a single

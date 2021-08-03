@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 
 	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
@@ -38,8 +38,8 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/k8s"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	"google.golang.org/grpc"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/networking/v1beta1"
+	corev1 "k8s.io/api/core/v1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -60,23 +60,30 @@ func TestNonTLSListener(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// i1 is a simple ingress, no hostname, no tls.
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
 		},
 	}
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -101,7 +108,7 @@ func TestNonTLSListener(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// i2 is the same as i1 but has the kubernetes.io/ingress.allow-http: "false" annotation
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
@@ -109,8 +116,15 @@ func TestNonTLSListener(t *testing.T) {
 				"kubernetes.io/ingress.allow-http": "false",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
 		},
 	}
 
@@ -127,7 +141,7 @@ func TestNonTLSListener(t *testing.T) {
 
 	// i3 is similar to i2, but uses the ingress.kubernetes.io/force-ssl-redirect: "true" annotation
 	// to force 80 -> 443 upgrade
-	i3 := &v1beta1.Ingress{
+	i3 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
@@ -135,8 +149,15 @@ func TestNonTLSListener(t *testing.T) {
 				"ingress.kubernetes.io/force-ssl-redirect": "true",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
 		},
 	}
 
@@ -162,40 +183,47 @@ func TestTLSListener(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
 		},
 	}
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -241,7 +269,7 @@ func TestTLSListener(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// i2 is the same as i1 but has the kubernetes.io/ingress.allow-http: "false" annotation
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
@@ -249,9 +277,16 @@ func TestTLSListener(t *testing.T) {
 				"kubernetes.io/ingress.allow-http": "false",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -294,15 +329,15 @@ func TestGatewayHostTLSListener(t *testing.T) {
 	defer done()
 
 	// secret1 is a tls secret
-	secret1 := &v1.Secret{
+	secret1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
@@ -358,13 +393,13 @@ func TestGatewayHostTLSListener(t *testing.T) {
 		},
 	}
 
-	svc1 := &v1.Service{
+	svc1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -476,40 +511,47 @@ func TestLDSFilter(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
 		},
 	}
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -577,28 +619,35 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 	rh.OnAdd(s1)
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -625,7 +674,7 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 		Nonce:   "3",
 	}, streamLDS(t, cc, "ingress_https"))
 
-	i2 := &v1beta1.Ingress{
+	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
@@ -633,9 +682,16 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 				"enroute.saaras.io/tls-minimum-protocol-version": "1.3",
 			},
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -692,22 +748,29 @@ func TestLDSIngressHTTPUseProxyProtocol(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// i1 is a simple ingress, no hostname, no tls.
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
 		},
 	}
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -743,27 +806,34 @@ func TestLDSIngressHTTPSUseProxyProtocol(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -783,13 +853,13 @@ func TestLDSIngressHTTPSUseProxyProtocol(t *testing.T) {
 		Nonce:   "1",
 	}, streamLDS(t, cc))
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -839,27 +909,34 @@ func TestLDSCustomAddressAndPort(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
@@ -879,13 +956,13 @@ func TestLDSCustomAddressAndPort(t *testing.T) {
 		Nonce:   "1",
 	}, streamLDS(t, cc))
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -930,40 +1007,47 @@ func TestLDSCustomAccessLogPaths(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
 	// i1 is a tls ingress
-	i1 := &v1beta1.Ingress{
+	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "simple",
 			Namespace: "default",
 		},
-		Spec: v1beta1.IngressSpec{
-			Backend: backend("backend", intstr.FromInt(80)),
-			TLS: []v1beta1.IngressTLS{{
+		Spec: netv1.IngressSpec{
+			DefaultBackend: &netv1.IngressBackend{
+				Service: &netv1.IngressServiceBackend{
+					Name: "backend",
+					Port: netv1.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
+			TLS: []netv1.IngressTLS{{
 				Hosts:      []string{"kuard.example.com"},
 				SecretName: "secret",
 			}},
 		},
 	}
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "backend",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     80,
@@ -1050,13 +1134,13 @@ func TestLDSGatewayHostInsideRootNamespaces(t *testing.T) {
 		},
 	}
 
-	svc1 := &v1.Service{
+	svc1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "roots",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -1157,15 +1241,15 @@ func TestGatewayHostHTTPS(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
@@ -1194,13 +1278,13 @@ func TestGatewayHostHTTPS(t *testing.T) {
 		},
 	}
 
-	svc1 := &v1.Service{
+	svc1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -1279,7 +1363,7 @@ func TestLDSGatewayHostTCPProxyTLSPassthrough(t *testing.T) {
 			},
 		},
 	}
-	svc := service("default", "correct-backend", v1.ServicePort{
+	svc := service("default", "correct-backend", corev1.ServicePort{
 		Protocol:   "TCP",
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
@@ -1319,15 +1403,15 @@ func TestLDSGatewayHostTCPForward(t *testing.T) {
 	defer done()
 
 	// s1 is a tls secret
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "secret",
 			Namespace: "default",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
@@ -1361,7 +1445,7 @@ func TestLDSGatewayHostTCPForward(t *testing.T) {
 		},
 	}
 	rh.OnAdd(s1)
-	svc := service("default", "correct-backend", v1.ServicePort{
+	svc := service("default", "correct-backend", corev1.ServicePort{
 		Protocol:   "TCP",
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
@@ -1404,28 +1488,28 @@ func TestGatewayHostTLSCertificateDelegation(t *testing.T) {
 		Nonce:   "0",
 	}, streamLDS(t, cc))
 
-	s1 := &v1.Secret{
+	s1 := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "wildcard",
 			Namespace: "secret",
 		},
 		Type: "kubernetes.io/tls",
 		Data: map[string][]byte{
-			v1.TLSCertKey:       []byte("certificate"),
-			v1.TLSPrivateKeyKey: []byte("key"),
+			corev1.TLSCertKey:       []byte("certificate"),
+			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
 
 	// add a secret object secret/wildcard.
 	rh.OnAdd(s1)
 
-	rh.OnAdd(&v1.Service{
+	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "kuard",
 			Namespace: "default",
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
 				Name:     "http",
 				Protocol: "TCP",
 				Port:     8080,
@@ -1607,14 +1691,29 @@ func streamLDS(t *testing.T, cc *grpc.ClientConn, rn ...string) *envoy_service_d
 	})
 }
 
-func backend(name string, port intstr.IntOrString) *v1beta1.IngressBackend {
-	return &v1beta1.IngressBackend{
-		ServiceName: name,
-		ServicePort: port,
+func backend(name string, port intstr.IntOrString) *netv1.IngressBackend {
+	if port.Type == intstr.Int {
+		return &netv1.IngressBackend{
+			Service: &netv1.IngressServiceBackend{
+				Name: name,
+				Port: netv1.ServiceBackendPort{
+					Number: port.IntVal,
+				},
+			},
+		}
+	} else {
+		return &netv1.IngressBackend{
+			Service: &netv1.IngressServiceBackend{
+				Name: name,
+				Port: netv1.ServiceBackendPort{
+					Name: port.StrVal,
+				},
+			},
+		}
 	}
 }
 
-func filterchaintls(domain string, secret *v1.Secret, filter *envoy_config_listener_v3.Filter, alpn ...string) []*envoy_config_listener_v3.FilterChain {
+func filterchaintls(domain string, secret *corev1.Secret, filter *envoy_config_listener_v3.Filter, alpn ...string) []*envoy_config_listener_v3.FilterChain {
 	return []*envoy_config_listener_v3.FilterChain{
 		envoy.FilterChainTLS(
 			domain,

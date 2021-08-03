@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/spec"
 	//"github.com/go-openapi/swag"
-	v1beta1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1beta1"
+	v1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"
 	"github.com/saarasio/enroute/enroute-dp/saaras"
 	"github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"github.com/saarasio/enroute/enroutectl/config"
@@ -449,12 +449,12 @@ func CreateOnEnroute(url string, ecfg *config.EnrouteConfig) {
 	}
 }
 
-func ProxyConfigToHttpFilters(proxy config.SaarasDbProxy) v1beta1.HttpFilterList {
-	return v1beta1.HttpFilterList{}
+func ProxyConfigToHttpFilters(proxy config.SaarasDbProxy) v1.HttpFilterList {
+	return v1.HttpFilterList{}
 }
 
-func ProxyConfigToRouteFilters(proxy config.SaarasDbProxy) v1beta1.RouteFilterList {
-	return v1beta1.RouteFilterList{}
+func ProxyConfigToRouteFilters(proxy config.SaarasDbProxy) v1.RouteFilterList {
+	return v1.RouteFilterList{}
 }
 
 func ru_to_saaras_ru(ru []config.RouteUpstreams) []saarasconfig.SaarasMicroService2 {
@@ -575,49 +575,49 @@ func EnrouteCtlServiceToSaarasGatewayHost(saarassvc *config.Service) *saaras.Saa
 	return &sghs
 }
 
-func SanitizeGatewayHost(gh *v1beta1.GatewayHost) {
-	//v1b1gh.apiVersion = "enroute.saaras.io/v1beta1"
+func SanitizeGatewayHost(gh *v1.GatewayHost) {
+	//v1b1gh.apiVersion = "enroute.saaras.io/v1"
 	gh.ObjectMeta.Namespace = "openapi"
-	gh.TypeMeta.APIVersion = "enroute.saaras.io/v1beta1"
+	gh.TypeMeta.APIVersion = "enroute.saaras.io/v1"
 	gh.TypeMeta.Kind = "GatewayHost"
 }
 
-func SaarasServiceToGatewayHost(saarassvc config.Service) *v1beta1.GatewayHost {
+func SaarasServiceToGatewayHost(saarassvc config.Service) *v1.GatewayHost {
 
 	// Convert config.Service to saaras.SaarasGatewayHostService
-	// Call Saaras_ir__to__v1b1_ir2() to convert saaras.SaarasGatewayHostService to v1beta1.GatewayHost
+	// Call Saaras_ir__to__v1b1_ir2() to convert saaras.SaarasGatewayHostService to v1.GatewayHost
 	sghs := EnrouteCtlServiceToSaarasGatewayHost(&saarassvc)
 	v1b1gh := saaras.Saaras_ir__to__v1b1_ir2(sghs)
 	SanitizeGatewayHost(v1b1gh)
 	return v1b1gh
 }
 
-func ProxyConfigToGatewayHosts(proxy config.SaarasDbProxy) *v1beta1.GatewayHostList {
-	items := make([]v1beta1.GatewayHost, 0)
+func ProxyConfigToGatewayHosts(proxy config.SaarasDbProxy) *v1.GatewayHostList {
+	items := make([]v1.GatewayHost, 0)
 
 	for _, oneSvc := range proxy.ProxyServices {
 		gwHost := SaarasServiceToGatewayHost(oneSvc.Service)
 		items = append(items, *gwHost)
 	}
-	return &v1beta1.GatewayHostList{
+	return &v1.GatewayHostList{
 		Items: items,
 	}
 }
 
-func ProxyConfigToGlobalConfig(proxy config.SaarasDbProxy) v1beta1.GlobalConfigList {
-	var gcl v1beta1.GlobalConfigList
+func ProxyConfigToGlobalConfig(proxy config.SaarasDbProxy) v1.GlobalConfigList {
+	var gcl v1.GlobalConfigList
 	for _, oneGc := range proxy.ProxyGlobalconfigs {
 		gc := oneGc.Globalconfig
 
 		if gcl.Items == nil {
-			gcl.Items = make([]v1beta1.GlobalConfig, 1)
+			gcl.Items = make([]v1.GlobalConfig, 1)
 		}
-		oneGlobalConfig := v1beta1.GlobalConfig{
+		oneGlobalConfig := v1.GlobalConfig{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      gc.GlobalconfigName,
 				Namespace: "gw" + "-" + "openapi", //TODO
 			},
-			Spec: v1beta1.GlobalConfigSpec{
+			Spec: v1.GlobalConfigSpec{
 				Name:   "proxy_config_name",
 				Type:   gc.GlobalconfigType,
 				Config: gc.Config,
@@ -628,7 +628,7 @@ func ProxyConfigToGlobalConfig(proxy config.SaarasDbProxy) v1beta1.GlobalConfigL
 	return gcl
 }
 
-func SyncProxyToK8sApi(ecfg *config.EnrouteConfig) *v1beta1.GatewayHostList {
+func SyncProxyToK8sApi(ecfg *config.EnrouteConfig) *v1.GatewayHostList {
 	if ecfg == nil {
 		return nil
 	}

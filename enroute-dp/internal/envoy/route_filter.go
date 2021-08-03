@@ -1,7 +1,6 @@
 package envoy
 
 import (
-	"fmt"
 	//"strings"
 	//"encoding/json"
 	//"github.com/pkg/errors"
@@ -98,32 +97,24 @@ func SaarasConfigToEnvoyConfig(cfg *cfg.CorsFilterConfig) *envoy_config_route_v3
 func corsConfig(vh *dag.VirtualHost) *envoy_config_route_v3.CorsPolicy {
 
 	if vh != nil {
-		fmt.Printf("envoy:corsConfig() VH [%+v]\n", vh)
 		// VH Cors
 		cors_http_filter := dag.GetVHHttpFilterConfigIfPresent(cfg.FILTER_TYPE_HTTP_CORS, vh)
 
 		// No CORS filter
 		if cors_http_filter == nil {
-			fmt.Printf("envoy:corsConfig(): No cors filter found \n")
 			return nil
 		}
 
 		filter_config := cors_http_filter.Filter.Filter_config
-		fmt.Printf("envoy:corsConfig() Received CORS Filter Config %s\n", filter_config)
 
 		// Unmarshal config
 		unmsh_cfg, e := cfg.UnmarshalCorsFilterConfig(filter_config)
 
 		if e != nil {
-			fmt.Printf("envoy:corsConfig() Failed to Unmarshal cors config \n")
 			return nil
 		}
 
-		fmt.Printf("envoy:corsConfig() Unmarshalled Filter Config [%+v]\n", unmsh_cfg)
-
 		c_cfg := SaarasConfigToEnvoyConfig(unmsh_cfg)
-
-		fmt.Printf("envoy:corsConfig() Envoy Cors Config [%+v]\n", c_cfg)
 
 		return c_cfg
 	}
