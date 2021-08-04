@@ -1,3 +1,4 @@
+{{- if .Values.service.createGlobalConfig -}}
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: GlobalConfig
@@ -46,16 +47,17 @@ spec:
             }
           ]
         }
+{{- end -}}
 ---
 apiVersion: enroute.saaras.io/v1beta1
 kind: RouteFilter
 metadata:
   labels:
     app: {{ .Values.service.name }}-app
-  name: {{ .Values.service.name }}-rl2
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
   namespace: {{ .Values.service.namespace }}
 spec:
-  name: {{ .Values.service.name }}-rl2
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
   type: route_filter_ratelimit
   routeFilterConfig:
     config: |
@@ -73,10 +75,10 @@ kind: HttpFilter
 metadata:
   labels:
     app: {{ .Values.service.name }}-app
-  name: {{ .Values.service.name }}-luatestfilter
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
   namespace: {{ .Values.service.namespace }}
 spec:
-  name: {{ .Values.service.name }}-luatestfilter
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
   type: http_filter_lua
   httpFilterConfig:
     config: |
@@ -93,10 +95,10 @@ kind: HttpFilter
 metadata:
   labels:
     app: {{ .Values.service.name }}-app
-  name: {{ .Values.service.name }}-corsfilter
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
   namespace: {{ .Values.service.namespace }}
 spec:
-  name: {{ .Values.service.name }}-corsfilter
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
   type: http_filter_cors
   httpFilterConfig:
     config: |
@@ -115,13 +117,13 @@ kind: HttpFilter
 metadata:
   labels:
     app: {{ .Values.service.name }}-app
-  name: {{ .Values.service.name }}-jwtfilter
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
   namespace: {{ .Values.service.namespace }}
 spec:
-  name: {{ .Values.service.name }}-jwtfilter
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
   type: http_filter_jwt
   services:
-     name: {{ .Values.service.name }}-externalauth
+     name: {{ .Values.service.name }}-{{ .Values.service.port }}-externalauth
      port: 443
      protocol: tls
   httpFilterConfig:
@@ -140,7 +142,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.service.name }}-externalauth
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-externalauth
   namespace: {{ .Values.service.namespace }}
 spec:
   type: ExternalName

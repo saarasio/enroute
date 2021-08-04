@@ -4,7 +4,7 @@ kind: GatewayHost
 metadata:
   labels:
     app: {{ .Values.service.name }}
-  name: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-gatewayhost
+  name: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-{{ .Values.service.port }}-gatewayhost
   namespace: {{ .Values.service.namespace }}
 spec:
   virtualhost:

@@ -93,12 +93,14 @@ service:
   enableTLS: false
   namespace: demo-service
   prefix: /
+  createGlobalConfig: true
 
 autoTLS:
   issueCert: false
   certificateCN: 'he.enroutedemo.com'
   enableProd: false
   createIssuers: false
+  createChallengeService: true
   email: contact@example.com
 
 globalSettings:

@@ -58,6 +58,7 @@ spec:
     kind: ClusterIssuer
   secretName: {{ .Values.autoTLS.certificateCN }}
 ---
+{{- if .Values.autoTLS.createChallengeService }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -69,5 +70,6 @@ spec:
     targetPort: 8089
   selector:
     acme.cert-manager.io/http01-solver: "true"
+{{- end }}
 ---
 {{- end }}
