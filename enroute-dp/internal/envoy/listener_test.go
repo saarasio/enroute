@@ -258,7 +258,7 @@ func TestHTTPConnectionManager(t *testing.T) {
 									CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
 										Name: "gzip",
 										TypedConfig: &any.Any{
-											TypeUrl: cfg.HTTPFilterGzip,
+											TypeUrl: cfg.HTTPFilterCompressorGzip,
 										},
 									},
 								}),

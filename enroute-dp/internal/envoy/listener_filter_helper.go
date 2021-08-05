@@ -105,7 +105,7 @@ func httpFilters(vh *dag.Vertex) []*envoy_extensions_filters_network_http_connec
 					CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
 						Name: "gzip",
 						TypedConfig: &any.Any{
-							TypeUrl: cfg.HTTPFilterGzip,
+							TypeUrl: cfg.HTTPFilterCompressorGzip,
 						},
 					},
 				}),
