@@ -10,15 +10,12 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 
+	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/lua/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
-	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/lua/v3"
-
 )
-
-
 
 func TestAddLuaHTTPRouteFilter(t *testing.T) {
 

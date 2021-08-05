@@ -5,17 +5,17 @@
 package envoy
 
 import (
+	envoy_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	envoy_compressor_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/compressor/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/cors/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+	http "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"github.com/saarasio/enroute/enroute-dp/saarasfilters"
-	http "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
-	envoy_compressor_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/compressor/v3"
-	envoy_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
-	"github.com/golang/protobuf/ptypes/any"
 )
 
 func DagFilterToHttpFilter(df *dag.HttpFilter, vh *dag.VirtualHost) *envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter {
@@ -99,17 +99,17 @@ func httpFilters(vh *dag.Vertex) []*envoy_extensions_filters_network_http_connec
 
 	http_filters = append(http_filters,
 		&envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
-            Name: "compressor",
-            ConfigType: &http.HttpFilter_TypedConfig{
-                TypedConfig: toAny(&envoy_compressor_v3.Compressor{
-                    CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
-                        Name: "gzip",
-                        TypedConfig: &any.Any{
-                            TypeUrl: cfg.HTTPFilterGzip,
-                        },
-                    },
-                }),
-            },
+			Name: "compressor",
+			ConfigType: &http.HttpFilter_TypedConfig{
+				TypedConfig: toAny(&envoy_compressor_v3.Compressor{
+					CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
+						Name: "gzip",
+						TypedConfig: &any.Any{
+							TypeUrl: cfg.HTTPFilterGzip,
+						},
+					},
+				}),
+			},
 		})
 
 	http_filters = append(http_filters,

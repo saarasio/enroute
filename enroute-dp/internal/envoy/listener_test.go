@@ -26,19 +26,19 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 
+	envoy_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	envoy_compressor_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/compressor/v3"
+	http "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/google/go-cmp/cmp"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	http "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
-	envoy_compressor_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/compressor/v3"
-	envoy_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
-	"github.com/golang/protobuf/ptypes/any"
-	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
 func TestListener(t *testing.T) {
@@ -252,17 +252,17 @@ func TestHTTPConnectionManager(t *testing.T) {
 							},
 						},
 						HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{{
-							Name:       "compressor",
+							Name: "compressor",
 							ConfigType: &http.HttpFilter_TypedConfig{
-                TypedConfig: toAny(&envoy_compressor_v3.Compressor{
-                    CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
-                        Name: "gzip",
-                        TypedConfig: &any.Any{
-                            TypeUrl: cfg.HTTPFilterGzip,
-                        },
-                    },
-                }),
-            },
+								TypedConfig: toAny(&envoy_compressor_v3.Compressor{
+									CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
+										Name: "gzip",
+										TypedConfig: &any.Any{
+											TypeUrl: cfg.HTTPFilterGzip,
+										},
+									},
+								}),
+							},
 						}, {
 							Name:       wellknown.GRPCWeb,
 							ConfigType: nil,
