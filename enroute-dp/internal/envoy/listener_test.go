@@ -34,6 +34,11 @@ import (
 	"google.golang.org/protobuf/testing/protocmp"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	http "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+	envoy_compressor_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/compressor/v3"
+	envoy_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	"github.com/golang/protobuf/ptypes/any"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
 func TestListener(t *testing.T) {
@@ -247,8 +252,17 @@ func TestHTTPConnectionManager(t *testing.T) {
 							},
 						},
 						HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{{
-							Name:       wellknown.Gzip,
-							ConfigType: nil,
+							Name:       "compressor",
+							ConfigType: &http.HttpFilter_TypedConfig{
+                TypedConfig: toAny(&envoy_compressor_v3.Compressor{
+                    CompressorLibrary: &envoy_core_v3.TypedExtensionConfig{
+                        Name: "gzip",
+                        TypedConfig: &any.Any{
+                            TypeUrl: cfg.HTTPFilterGzip,
+                        },
+                    },
+                }),
+            },
 						}, {
 							Name:       wellknown.GRPCWeb,
 							ConfigType: nil,
