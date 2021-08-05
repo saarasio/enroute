@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	rl "github.com/envoyproxy/go-control-plane/envoy/service/ratelimit/v2"
+	rl "github.com/envoyproxy/go-control-plane/envoy/service/ratelimit/v3"
 	"github.com/sirupsen/logrus"
 )
 
