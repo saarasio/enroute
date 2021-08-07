@@ -1,5 +1,5 @@
 {{- if eq .Values.service.enableTLS true }}
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: GatewayHost
 metadata:
   labels:
@@ -15,15 +15,15 @@ spec:
     {{- end }}
     {{- if .Values.filters.lua.enable }}
     filters:
-      - name: {{ .Values.service.name }}-luatestfilter
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
         type: http_filter_lua
     {{- end }}
     {{- if .Values.filters.cors.enable }}
-      - name: {{ .Values.service.name }}-corsfilter
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
         type: http_filter_cors
     {{- end }}
     {{- if .Values.filters.jwt.enable }}
-      - name: {{ .Values.service.name }}-jwtfilter
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
         type: http_filter_jwt
     {{- end }}
   routes:
@@ -51,7 +51,7 @@ spec:
         {{- end }}
       {{- if .Values.filters.ratelimit.enable }}
       filters:
-        - name: {{ .Values.service.name }}-rl2
+        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
           type: route_filter_ratelimit
       {{- end }}
       services:
