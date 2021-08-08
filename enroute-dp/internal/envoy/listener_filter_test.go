@@ -31,17 +31,17 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 			TypedConfig: toAny(&envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
 				HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
 					{
-						Name:       wellknown.Gzip,
+						Name:       "compressor",
 						ConfigType: nil,
 					},
 
 					{
-						Name:       wellknown.GRPCWeb,
+						Name:       "grpcweb",
 						ConfigType: nil,
 					},
 
 					{
-						Name:       wellknown.Router,
+						Name:       "router",
 						ConfigType: nil,
 					},
 				},
@@ -67,17 +67,17 @@ func TestAddLuaHTTPVHFilter(t *testing.T) {
 						},
 					},
 					{
-						Name:       wellknown.Gzip,
+						Name:       "compressor",
 						ConfigType: nil,
 					},
 
 					{
-						Name:       wellknown.GRPCWeb,
+						Name:       "grpcweb",
 						ConfigType: nil,
 					},
 
 					{
-						Name:       wellknown.Router,
+						Name:       "router",
 						ConfigType: nil,
 					},
 				},

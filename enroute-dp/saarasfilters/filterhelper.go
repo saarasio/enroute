@@ -7,7 +7,6 @@ package saarasfilters
 import (
 	_ "github.com/davecgh/go-spew/spew"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
-	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	_ "github.com/saarasio/enroute/enroute-dp/internal/logger"
 	_ "github.com/sirupsen/logrus"
 )
@@ -21,12 +20,12 @@ func SequenceFilters(m *map[string]*envoy_extensions_filters_network_http_connec
 	}
 
 	// Gzip
-	if hf, ok := (*m)[wellknown.Gzip]; ok {
+	if hf, ok := (*m)["compressor"]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
 	// GRPCWeb
-	if hf, ok := (*m)[wellknown.GRPCWeb]; ok {
+	if hf, ok := (*m)["grpcweb"]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
@@ -36,7 +35,7 @@ func SequenceFilters(m *map[string]*envoy_extensions_filters_network_http_connec
 	}
 
 	// Router
-	if hf, ok := (*m)[wellknown.Router]; ok {
+	if hf, ok := (*m)["router"]; ok {
 		http_filters = append(http_filters, hf)
 	}
 
