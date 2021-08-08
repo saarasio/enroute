@@ -5,7 +5,7 @@ import (
 )
 
 const (
-    HTTPFilterCompressorGzip    = "type.googleapis.com/envoy.extensions.compression.gzip.compressor.v3.Gzip"
-    HTTPFilterRouter  = "type.googleapis.com/envoy.extensions.filters.http.router.v3.Router"
-    HTTPFilterGrpcWeb = "type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb"
+	HTTPFilterCompressorGzip = "type.googleapis.com/envoy.extensions.compression.gzip.compressor.v3.Gzip"
+	HTTPFilterRouter         = "type.googleapis.com/envoy.extensions.filters.http.router.v3.Router"
+	HTTPFilterGrpcWeb        = "type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb"
 )
