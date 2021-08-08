@@ -7,10 +7,8 @@ enrouteService:
   
   imagePullSecrets: []
   
-  #TODO
-  #imageLocationEnroute: saarasio/enroute-gw:latest
-  imageLocationEnroute: saarasio/enroute-gwi:latest
-  imageLocationEnvoy: envoyproxy/envoy:v1.16.3
+  imageLocationEnroute: saarasio/enroute-gwi:v0.8.0
+  imageLocationEnvoy: envoyproxy/envoy:v1.19.0
  
   podAnnotations: {}
   
