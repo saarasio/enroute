@@ -11,7 +11,6 @@ import (
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/cors/v3"
 	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	http "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
-	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
@@ -114,14 +113,23 @@ func httpFilters(vh *dag.Vertex) []*envoy_extensions_filters_network_http_connec
 
 	http_filters = append(http_filters,
 		&envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
-			Name:       wellknown.GRPCWeb,
-			ConfigType: nil,
+
+            Name: "grpcweb",
+            ConfigType: &http.HttpFilter_TypedConfig{
+                TypedConfig: &any.Any{
+                    TypeUrl: cfg.HTTPFilterGrpcWeb,
+                },
+            },
 		})
 
 	http_filters = append(http_filters,
 		&envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
-			Name:       wellknown.Router,
-			ConfigType: nil,
+            Name: "router",
+            ConfigType: &http.HttpFilter_TypedConfig{
+                TypedConfig: &any.Any{
+                    TypeUrl: cfg.HTTPFilterRouter,
+                },
+            },
 		})
 
 	return http_filters

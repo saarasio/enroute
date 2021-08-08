@@ -264,8 +264,12 @@ func TestHTTPConnectionManager(t *testing.T) {
 								}),
 							},
 						}, {
-							Name:       wellknown.GRPCWeb,
-							ConfigType: nil,
+							Name:       "grpcweb",
+							ConfigType: &http.HttpFilter_TypedConfig{
+									TypedConfig: &any.Any{
+											TypeUrl: cfg.HTTPFilterGrpcWeb,
+									},
+							},
 						},
 
 							//    {
@@ -287,8 +291,13 @@ func TestHTTPConnectionManager(t *testing.T) {
 							//	},
 
 							{
-								Name:       wellknown.Router,
-								ConfigType: nil,
+									Name:       "router",
+									ConfigType: &http.HttpFilter_TypedConfig{
+											TypedConfig: &any.Any{
+													TypeUrl: cfg.HTTPFilterRouter,
+											},
+									},
+
 							}},
 						HttpProtocolOptions: &envoy_config_core_v3.Http1ProtocolOptions{
 							// Enable support for HTTP/1.0 requests that carry
