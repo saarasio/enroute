@@ -19,7 +19,7 @@ spec:
   selector:
     app: hello-enroute
 ---
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: GlobalConfig
 metadata:
   labels:
@@ -67,7 +67,7 @@ spec:
           ]
         }
 ---
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: RouteFilter
 metadata:
   labels:
@@ -88,7 +88,7 @@ spec:
             ]
           }
 ---
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: HttpFilter
 metadata:
   labels:
@@ -108,7 +108,7 @@ spec:
            response_handle:logInfo("Hello World response");
         end
 ---
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: HttpFilter
 metadata:
   labels:
@@ -130,7 +130,7 @@ spec:
              "access_control_max_age" : "120"
          }
 ---
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: HttpFilter
 metadata:
   labels:
@@ -170,7 +170,7 @@ spec:
   # important to set protocol name
     name: https
 ---
-apiVersion: enroute.saaras.io/v1beta1
+apiVersion: enroute.saaras.io/v1
 kind: GatewayHost
 metadata:
   labels:
