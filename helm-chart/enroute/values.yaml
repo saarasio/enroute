@@ -8,7 +8,7 @@ enrouteService:
   imagePullSecrets: []
   
   imageLocationEnroute: saarasio/enroute-gwi:v0.8.0
-  imageLocationEnvoy: envoyproxy/envoy:v1.19.0
+  imageLocationEnvoy: envoyproxy/envoy:v1.19.1
  
   podAnnotations: {}
   
