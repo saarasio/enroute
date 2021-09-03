@@ -17,4 +17,4 @@ sources:
  - https://github.com/saarasio/enroute
  - https://getenroute.io
  - https://github.com/envoyproxy/envoy
-version: 0.4.0
+version: 0.4.1
