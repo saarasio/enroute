@@ -3,7 +3,31 @@ entries:
   enroute:
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2021-08-08T22:43:41.484554314Z"
+    created: "2021-09-03T03:23:36.956475328Z"
+    description: EnRoute API Gateway
+    digest: 828d51d09a48fd0971c2a1c4752cded54af89a24cb0766a87470888fd688ea92
+    home: https://getenroute.io/
+    icon: https://getenroute.io/favicon.ico
+    keywords:
+    - api gateway
+    - EnRoute - Envoy Route Controller
+    - Saaras
+    - envoy
+    - ingress
+    maintainers:
+    - email: contact@saaras.io
+      name: contact
+    name: enroute
+    sources:
+    - https://github.com/saarasio/enroute
+    - https://getenroute.io
+    - https://github.com/envoyproxy/envoy
+    urls:
+    - enroute-0.4.1.tgz
+    version: 0.4.1
+  - apiVersion: v1
+    appVersion: 0.8.0
+    created: "2021-09-03T03:23:36.954363674Z"
     description: EnRoute API Gateway
     digest: 7e5caac2e123092a6c93b0169268aafbabeac6453407d195af817024cf40239b
     home: https://getenroute.io/
@@ -28,12 +52,12 @@ entries:
   service-policy:
   - apiVersion: v2
     appVersion: 0.8.0
-    created: "2021-08-08T22:43:41.485121629Z"
+    created: "2021-09-03T03:23:36.957027255Z"
     description: Service L7 Policy using EnRoute API Gateway
-    digest: c05e1b6430300ae2c75b914b10b85835c57e1b5a9ed24c0a877a4e495d55cdda
+    digest: 7456c967cf503a0b9400f71e3f3f795bbae1e227409876d34dfd84c219f1e9cc
     name: service-policy
     type: application
     urls:
     - service-policy-0.3.0.tgz
     version: 0.3.0
-generated: "2021-08-08T22:43:41.48363432Z"
+generated: "2021-09-03T03:23:36.953379818Z"
