@@ -27,6 +27,10 @@ func (c *FakeEnrouteV1) HttpFilters(namespace string) v1.HttpFilterInterface {
 	return &FakeHttpFilters{c, namespace}
 }
 
+func (c *FakeEnrouteV1) PolicyOverlays(namespace string) v1.PolicyOverlayInterface {
+	return &FakePolicyOverlays{c, namespace}
+}
+
 func (c *FakeEnrouteV1) RouteFilters(namespace string) v1.RouteFilterInterface {
 	return &FakeRouteFilters{c, namespace}
 }

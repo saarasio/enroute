@@ -46,6 +46,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().GlobalConfigs().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("httpfilters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().HttpFilters().Informer()}, nil
+	case v1.SchemeGroupVersion.WithResource("policyoverlays"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().PolicyOverlays().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("routefilters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().RouteFilters().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("tlscertificatedelegations"):

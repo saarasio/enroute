@@ -29,6 +29,14 @@ type HttpFilterListerExpansion interface{}
 // HttpFilterNamespaceLister.
 type HttpFilterNamespaceListerExpansion interface{}
 
+// PolicyOverlayListerExpansion allows custom methods to be added to
+// PolicyOverlayLister.
+type PolicyOverlayListerExpansion interface{}
+
+// PolicyOverlayNamespaceListerExpansion allows custom methods to be added to
+// PolicyOverlayNamespaceLister.
+type PolicyOverlayNamespaceListerExpansion interface{}
+
 // RouteFilterListerExpansion allows custom methods to be added to
 // RouteFilterLister.
 type RouteFilterListerExpansion interface{}

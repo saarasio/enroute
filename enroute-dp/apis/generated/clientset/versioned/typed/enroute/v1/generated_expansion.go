@@ -11,6 +11,8 @@ type GlobalConfigExpansion interface{}
 
 type HttpFilterExpansion interface{}
 
+type PolicyOverlayExpansion interface{}
+
 type RouteFilterExpansion interface{}
 
 type TLSCertificateDelegationExpansion interface{}

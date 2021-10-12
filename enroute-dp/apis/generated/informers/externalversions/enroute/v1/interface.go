@@ -17,6 +17,8 @@ type Interface interface {
 	GlobalConfigs() GlobalConfigInformer
 	// HttpFilters returns a HttpFilterInformer.
 	HttpFilters() HttpFilterInformer
+	// PolicyOverlays returns a PolicyOverlayInformer.
+	PolicyOverlays() PolicyOverlayInformer
 	// RouteFilters returns a RouteFilterInformer.
 	RouteFilters() RouteFilterInformer
 	// TLSCertificateDelegations returns a TLSCertificateDelegationInformer.
@@ -47,6 +49,11 @@ func (v *version) GlobalConfigs() GlobalConfigInformer {
 // HttpFilters returns a HttpFilterInformer.
 func (v *version) HttpFilters() HttpFilterInformer {
 	return &httpFilterInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// PolicyOverlays returns a PolicyOverlayInformer.
+func (v *version) PolicyOverlays() PolicyOverlayInformer {
+	return &policyOverlayInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // RouteFilters returns a RouteFilterInformer.

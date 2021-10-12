@@ -16,6 +16,7 @@ type EnrouteV1Interface interface {
 	GatewayHostsGetter
 	GlobalConfigsGetter
 	HttpFiltersGetter
+	PolicyOverlaysGetter
 	RouteFiltersGetter
 	TLSCertificateDelegationsGetter
 }
@@ -35,6 +36,10 @@ func (c *EnrouteV1Client) GlobalConfigs(namespace string) GlobalConfigInterface 
 
 func (c *EnrouteV1Client) HttpFilters(namespace string) HttpFilterInterface {
 	return newHttpFilters(c, namespace)
+}
+
+func (c *EnrouteV1Client) PolicyOverlays(namespace string) PolicyOverlayInterface {
+	return newPolicyOverlays(c, namespace)
 }
 
 func (c *EnrouteV1Client) RouteFilters(namespace string) RouteFilterInterface {
