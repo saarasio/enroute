@@ -1,6 +1,31 @@
 apiVersion: v1
 entries:
   enroute:
+  - apiVersion: v2
+    appVersion: v0.8.0
+    created: "2021-12-13T19:20:55.90235Z"
+    description: EnRoute API Gateway
+    digest: 22f0f812075d46d40ecf8599be7002f4552629b204cbea0ccfdb728c4be93a9f
+    home: https://getenroute.io/
+    icon: https://getenroute.io/favicon.ico
+    keywords:
+    - api gateway
+    - EnRoute - Envoy Route Controller
+    - Saaras
+    - envoy
+    - ingress
+    maintainers:
+    - email: contact@saaras.io
+      name: contact
+    name: enroute
+    sources:
+    - https://github.com/saarasio/enroute
+    - https://getenroute.io
+    - https://github.com/envoyproxy/envoy
+    type: application
+    urls:
+    - enroute-0.5.0.tgz
+    version: 0.5.0
   - apiVersion: v1
     appVersion: 0.8.0
     created: "2021-09-03T03:26:13.844642856Z"
@@ -70,4 +95,4 @@ entries:
     urls:
     - service-policy-0.3.0.tgz
     version: 0.3.0
-generated: "2021-09-03T03:26:13.843000232Z"
+generated: "2021-12-13T19:20:55.885571Z"
