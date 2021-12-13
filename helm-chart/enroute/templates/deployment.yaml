@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "enroute.fullname" . }}
+  labels:
+    {{- include "enroute.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "enroute.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "enroute.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "enroute.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        # ENROUTE CONTAINER
+        - image: "{{ .Values.images.enrouteService.repository }}:{{ .Values.images.enrouteService.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.images.enrouteService.pullPolicy }}
+          name: enroute
+          command: ["/bin/enroute"]
+          args:
+            - serve
+            - --incluster
+            - --envoy-service-http-port
+            - "8080"
+            - --envoy-service-https-port
+            - "8443"
+            - --mode-ingress
+            - --enable-ratelimit
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources.enrouteService | nindent 12 }}
+        # REDIS CONTAINER
+        - image: "{{ .Values.images.redis.repository }}:{{ .Values.images.redis.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.images.redis.pullPolicy }}
+          name: redis
+          command: ["redis-server"]
+          args:
+            - --port
+            - "6379"
+            - --loglevel
+            - verbose
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources.redis | nindent 12 }}
+        # ENVOY CONTAINER
+        - image: "{{ .Values.images.envoy.repository }}:{{ .Values.images.envoy.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.images.envoy.pullPolicy }}
+          name: envoy
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8443
+              name: https
+          command: ["envoy"]
+          args:
+            - --config-path /config/enroute.json
+            - --service-cluster $(ENROUTE_NAMESPACE)
+            - --service-node $(ENVOY_POD_NAME)
+            - --log-level {{ .Values.envoySettings.logLevel }}
+          env:
+            - name: ENROUTE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: ENVOY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          volumeMounts:
+            - name: enroute-config
+              mountPath: /config
+          lifecycle:
+            preStop:
+              exec:
+                command: ["wget", "-qO-", "--post-data=''", "http://localhost:9001/healthcheck/fail"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources.envoy | nindent 12 }}
+      initContainers:
+        - image: "{{ .Values.images.enrouteService.repository }}:{{ .Values.images.enrouteService.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.images.enrouteService.pullPolicy }}
+          name: envoy-initconfig
+          command: ["/bin/enroute"]
+          args:
+            - bootstrap
+            - /config/enroute.json
+          volumeMounts:
+            - name: enroute-config
+              mountPath: /config
+          env:
+            - name: ENROUTE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+      volumes:
+        - name: enroute-config
+          emptyDir: {}
+      dnsPolicy: ClusterFirst
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

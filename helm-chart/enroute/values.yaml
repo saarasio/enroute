@@ -1,29 +1,53 @@
 # Default values for enroute.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-enrouteService:
-  enable: true
-  replicaCount: 1
-  
-  imagePullSecrets: []
-  
-  imageLocationEnroute: saarasio/enroute-gwi:v0.8.0
-  imageLocationEnvoy: envoyproxy/envoy:v1.19.1
- 
-  podAnnotations: {}
-  
-  podSecurityContext: {}
-    # fsGroup: 2000
-  
-  securityContext: {}
-    # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
-  
-  resources: {}
+
+replicaCount: 1
+
+images:
+  enrouteService:
+    repository: saarasio/enroute-gwi
+    tag: ~  # Chart.appVersion is used
+    pullPolicy: Always
+  redis:
+    repository: redis
+    tag: ~
+    pullPolicy: Always
+  envoy:
+    repository: envoyproxy/envoy
+    tag: v1.19.1
+    pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  enrouteService: {}
+  redis: {}
+  envoy: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -34,22 +58,32 @@ enrouteService:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
-  
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 100
-    targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
-  
-  nodeSelector: {}
-  
-  tolerations: []
-  
-  affinity: {}
 
-  rbac:
-    create: false
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  # This is the default policy
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: enroute
+          topologyKey: kubernetes.io/hostname
+
+##########
+# CUSTOM #
+##########
 
 # awsSettings controls AWS annotations
 # This annotation puts the AWS ELB into "TCP" mode so that it does not
@@ -67,44 +101,6 @@ ociSettings:
 digitaloceanSettings:
   enable: false
 
-# Oneof ["trace", "debug", "info", "error"]
+# One of ["trace", "debug", "info", "error"]
 envoySettings:
   logLevel: "trace"
-
-globalSettings:
-  nameOverride: ""
-  fullnameOverride: ""
-  serviceAccount:
-    # Specifies whether a service account should be created
-    create: true
-    # Annotations to add to the service account
-    annotations: {}
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
-    name: "enroutedemo"
-  
-  clusterRole:
-    create: true
-    name: "enroutedemo"
-  
-  clusterRoleBinding:
-    create: true
-    name: "enroutedemo"
-  
-  namespace:
-    create: true
-    name: "enroutedemo"
- 
-helloenrouteService:
-  create: false
-  imageLocationHelloEnroute:  gcr.io/saarasio-291001/hello-enroute
-
-filters:
-  lua:
-    enable: true
-  ratelimit:
-    enable: true
-  cors:
-    enable: false
-  jwt:
-    enable: false
