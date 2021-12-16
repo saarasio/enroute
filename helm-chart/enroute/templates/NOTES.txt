@@ -1,0 +1,6 @@
+###########
+# EnRoute #
+###########
+
+It got installed in namespace: {{ .Release.Namespace }}
+
