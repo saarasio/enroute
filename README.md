@@ -8,7 +8,7 @@ EnRoute makes is simple to expose services running in Kubernetes using one helm 
 
 ![](https://getenroute.io/img/APIGatewayIngressWithFiltersWithHelm.jpeg)
 
-EnRoute can also use ACME protocol to get, verify and install a Let's Encrypt Certificate
+EnRoute can also use ACME protocol to get, verify and install a Let's Encrypt Certificate in just one step
 
 ![](https://getenroute.io/img/onestep-fast-20.gif)
 
