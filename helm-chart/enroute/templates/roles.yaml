@@ -63,6 +63,6 @@ roleRef:
   name: {{ include "enroute.fullname" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ include "enroute.fullname" . }}
+    name: {{ include "enroute.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 ---
