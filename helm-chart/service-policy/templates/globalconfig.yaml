@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.service.name }}-app
   name: {{ .Values.service.name }}-rl-global-config
-  namespace: {{ .Values.service.namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   name: {{ .Values.service.name }}-rl-global-config
   type: globalconfig_ratelimit

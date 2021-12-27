@@ -44,7 +44,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: {{ .Values.autoTLS.certificateCN }}
-  namespace: {{ .Values.service.namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   commonName: {{ .Values.autoTLS.certificateCN }}
   dnsNames:
@@ -63,7 +63,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: acme-challenge-service
-  namespace: {{ .Values.service.namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - port: 80

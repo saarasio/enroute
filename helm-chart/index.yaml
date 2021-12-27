@@ -3,9 +3,9 @@ entries:
   enroute:
   - apiVersion: v2
     appVersion: v0.8.0
-    created: "2021-12-13T19:20:55.90235Z"
+    created: "2021-12-27T01:03:56.808846606Z"
     description: EnRoute API Gateway
-    digest: 22f0f812075d46d40ecf8599be7002f4552629b204cbea0ccfdb728c4be93a9f
+    digest: 798faf4272b6cdb246a00658e317bbc9e4dbb1f6167be6ee609798aed2f61913
     home: https://getenroute.io/
     icon: https://getenroute.io/favicon.ico
     keywords:
@@ -28,7 +28,7 @@ entries:
     version: 0.5.0
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2021-09-03T03:26:13.844642856Z"
+    created: "2021-12-27T01:03:56.808104093Z"
     description: EnRoute API Gateway
     digest: 55ef2115f0d40a327c6620ce21e124e23c2deb8161ef3059660f3f89b402b23b
     home: https://getenroute.io/
@@ -52,7 +52,7 @@ entries:
     version: 0.4.1
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2021-09-03T03:26:13.843872826Z"
+    created: "2021-12-27T01:03:56.807332755Z"
     description: EnRoute API Gateway
     digest: 7e5caac2e123092a6c93b0169268aafbabeac6453407d195af817024cf40239b
     home: https://getenroute.io/
@@ -77,9 +77,9 @@ entries:
   service-policy:
   - apiVersion: v2
     appVersion: 0.8.0
-    created: "2021-09-03T03:26:13.846527951Z"
+    created: "2021-12-27T01:03:56.809916218Z"
     description: Service L7 Policy using EnRoute API Gateway
-    digest: cf3f0d56bfc5926f55943c62df903bbe7b4be142848be0bc9402e1539c26604c
+    digest: 5b07b136bdec2cec0f43518f37c5ee52dc6ff03df6d6e5ec57657f8e870892fb
     name: service-policy
     type: application
     urls:
@@ -87,7 +87,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: 0.8.0
-    created: "2021-09-03T03:26:13.845628706Z"
+    created: "2021-12-27T01:03:56.80940935Z"
     description: Service L7 Policy using EnRoute API Gateway
     digest: 7456c967cf503a0b9400f71e3f3f795bbae1e227409876d34dfd84c219f1e9cc
     name: service-policy
@@ -95,4 +95,4 @@ entries:
     urls:
     - service-policy-0.3.0.tgz
     version: 0.3.0
-generated: "2021-12-13T19:20:55.885571Z"
+generated: "2021-12-27T01:03:56.806302528Z"
