@@ -13,8 +13,10 @@ import (
 )
 
 // HttpFilterLister helps list HttpFilters.
+// All objects returned here must be treated as read-only.
 type HttpFilterLister interface {
 	// List lists all HttpFilters in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.HttpFilter, err error)
 	// HttpFilters returns an object that can list and get HttpFilters.
 	HttpFilters(namespace string) HttpFilterNamespaceLister
@@ -45,10 +47,13 @@ func (s *httpFilterLister) HttpFilters(namespace string) HttpFilterNamespaceList
 }
 
 // HttpFilterNamespaceLister helps list and get HttpFilters.
+// All objects returned here must be treated as read-only.
 type HttpFilterNamespaceLister interface {
 	// List lists all HttpFilters in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.HttpFilter, err error)
 	// Get retrieves the HttpFilter from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1.HttpFilter, error)
 	HttpFilterNamespaceListerExpansion
 }

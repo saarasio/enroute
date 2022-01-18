@@ -13,8 +13,10 @@ import (
 )
 
 // GlobalConfigLister helps list GlobalConfigs.
+// All objects returned here must be treated as read-only.
 type GlobalConfigLister interface {
 	// List lists all GlobalConfigs in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.GlobalConfig, err error)
 	// GlobalConfigs returns an object that can list and get GlobalConfigs.
 	GlobalConfigs(namespace string) GlobalConfigNamespaceLister
@@ -45,10 +47,13 @@ func (s *globalConfigLister) GlobalConfigs(namespace string) GlobalConfigNamespa
 }
 
 // GlobalConfigNamespaceLister helps list and get GlobalConfigs.
+// All objects returned here must be treated as read-only.
 type GlobalConfigNamespaceLister interface {
 	// List lists all GlobalConfigs in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.GlobalConfig, err error)
 	// Get retrieves the GlobalConfig from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1.GlobalConfig, error)
 	GlobalConfigNamespaceListerExpansion
 }

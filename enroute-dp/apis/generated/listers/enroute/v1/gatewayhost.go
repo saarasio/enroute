@@ -13,8 +13,10 @@ import (
 )
 
 // GatewayHostLister helps list GatewayHosts.
+// All objects returned here must be treated as read-only.
 type GatewayHostLister interface {
 	// List lists all GatewayHosts in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.GatewayHost, err error)
 	// GatewayHosts returns an object that can list and get GatewayHosts.
 	GatewayHosts(namespace string) GatewayHostNamespaceLister
@@ -45,10 +47,13 @@ func (s *gatewayHostLister) GatewayHosts(namespace string) GatewayHostNamespaceL
 }
 
 // GatewayHostNamespaceLister helps list and get GatewayHosts.
+// All objects returned here must be treated as read-only.
 type GatewayHostNamespaceLister interface {
 	// List lists all GatewayHosts in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.GatewayHost, err error)
 	// Get retrieves the GatewayHost from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1.GatewayHost, error)
 	GatewayHostNamespaceListerExpansion
 }

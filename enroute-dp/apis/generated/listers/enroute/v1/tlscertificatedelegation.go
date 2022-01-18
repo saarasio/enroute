@@ -13,8 +13,10 @@ import (
 )
 
 // TLSCertificateDelegationLister helps list TLSCertificateDelegations.
+// All objects returned here must be treated as read-only.
 type TLSCertificateDelegationLister interface {
 	// List lists all TLSCertificateDelegations in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.TLSCertificateDelegation, err error)
 	// TLSCertificateDelegations returns an object that can list and get TLSCertificateDelegations.
 	TLSCertificateDelegations(namespace string) TLSCertificateDelegationNamespaceLister
@@ -45,10 +47,13 @@ func (s *tLSCertificateDelegationLister) TLSCertificateDelegations(namespace str
 }
 
 // TLSCertificateDelegationNamespaceLister helps list and get TLSCertificateDelegations.
+// All objects returned here must be treated as read-only.
 type TLSCertificateDelegationNamespaceLister interface {
 	// List lists all TLSCertificateDelegations in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.TLSCertificateDelegation, err error)
 	// Get retrieves the TLSCertificateDelegation from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1.TLSCertificateDelegation, error)
 	TLSCertificateDelegationNamespaceListerExpansion
 }

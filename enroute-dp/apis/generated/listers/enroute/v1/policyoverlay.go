@@ -13,8 +13,10 @@ import (
 )
 
 // PolicyOverlayLister helps list PolicyOverlays.
+// All objects returned here must be treated as read-only.
 type PolicyOverlayLister interface {
 	// List lists all PolicyOverlays in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.PolicyOverlay, err error)
 	// PolicyOverlays returns an object that can list and get PolicyOverlays.
 	PolicyOverlays(namespace string) PolicyOverlayNamespaceLister
@@ -45,10 +47,13 @@ func (s *policyOverlayLister) PolicyOverlays(namespace string) PolicyOverlayName
 }
 
 // PolicyOverlayNamespaceLister helps list and get PolicyOverlays.
+// All objects returned here must be treated as read-only.
 type PolicyOverlayNamespaceLister interface {
 	// List lists all PolicyOverlays in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.PolicyOverlay, err error)
 	// Get retrieves the PolicyOverlay from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1.PolicyOverlay, error)
 	PolicyOverlayNamespaceListerExpansion
 }

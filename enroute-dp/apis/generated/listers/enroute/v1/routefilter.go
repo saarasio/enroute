@@ -13,8 +13,10 @@ import (
 )
 
 // RouteFilterLister helps list RouteFilters.
+// All objects returned here must be treated as read-only.
 type RouteFilterLister interface {
 	// List lists all RouteFilters in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.RouteFilter, err error)
 	// RouteFilters returns an object that can list and get RouteFilters.
 	RouteFilters(namespace string) RouteFilterNamespaceLister
@@ -45,10 +47,13 @@ func (s *routeFilterLister) RouteFilters(namespace string) RouteFilterNamespaceL
 }
 
 // RouteFilterNamespaceLister helps list and get RouteFilters.
+// All objects returned here must be treated as read-only.
 type RouteFilterNamespaceLister interface {
 	// List lists all RouteFilters in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1.RouteFilter, err error)
 	// Get retrieves the RouteFilter from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1.RouteFilter, error)
 	RouteFilterNamespaceListerExpansion
 }
