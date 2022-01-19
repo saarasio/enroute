@@ -61,7 +61,10 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 	return c.tracker
 }
 
-var _ clientset.Interface = &Clientset{}
+var (
+	_ clientset.Interface = &Clientset{}
+	_ testing.FakeClient  = &Clientset{}
+)
 
 // EnrouteV1 retrieves the EnrouteV1Client
 func (c *Clientset) EnrouteV1() enroutev1.EnrouteV1Interface {
