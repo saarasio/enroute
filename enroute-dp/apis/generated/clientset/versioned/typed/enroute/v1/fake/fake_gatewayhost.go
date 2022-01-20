@@ -104,7 +104,7 @@ func (c *FakeGatewayHosts) UpdateStatus(ctx context.Context, gatewayHost *enrout
 // Delete takes name of the gatewayHost and deletes it. Returns an error if one occurs.
 func (c *FakeGatewayHosts) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(gatewayhostsResource, c.ns, name), &enroutev1.GatewayHost{})
+		Invokes(testing.NewDeleteActionWithOptions(gatewayhostsResource, c.ns, name, opts), &enroutev1.GatewayHost{})
 
 	return err
 }

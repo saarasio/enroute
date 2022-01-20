@@ -104,7 +104,7 @@ func (c *FakeRouteFilters) UpdateStatus(ctx context.Context, routeFilter *enrout
 // Delete takes name of the routeFilter and deletes it. Returns an error if one occurs.
 func (c *FakeRouteFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(routefiltersResource, c.ns, name), &enroutev1.RouteFilter{})
+		Invokes(testing.NewDeleteActionWithOptions(routefiltersResource, c.ns, name, opts), &enroutev1.RouteFilter{})
 
 	return err
 }

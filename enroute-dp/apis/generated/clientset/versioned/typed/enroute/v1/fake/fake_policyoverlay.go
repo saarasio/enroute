@@ -104,7 +104,7 @@ func (c *FakePolicyOverlays) UpdateStatus(ctx context.Context, policyOverlay *en
 // Delete takes name of the policyOverlay and deletes it. Returns an error if one occurs.
 func (c *FakePolicyOverlays) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(policyoverlaysResource, c.ns, name), &enroutev1.PolicyOverlay{})
+		Invokes(testing.NewDeleteActionWithOptions(policyoverlaysResource, c.ns, name, opts), &enroutev1.PolicyOverlay{})
 
 	return err
 }

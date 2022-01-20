@@ -104,7 +104,7 @@ func (c *FakeHttpFilters) UpdateStatus(ctx context.Context, httpFilter *enroutev
 // Delete takes name of the httpFilter and deletes it. Returns an error if one occurs.
 func (c *FakeHttpFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(httpfiltersResource, c.ns, name), &enroutev1.HttpFilter{})
+		Invokes(testing.NewDeleteActionWithOptions(httpfiltersResource, c.ns, name, opts), &enroutev1.HttpFilter{})
 
 	return err
 }

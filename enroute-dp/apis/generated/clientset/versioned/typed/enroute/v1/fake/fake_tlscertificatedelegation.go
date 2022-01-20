@@ -92,7 +92,7 @@ func (c *FakeTLSCertificateDelegations) Update(ctx context.Context, tLSCertifica
 // Delete takes name of the tLSCertificateDelegation and deletes it. Returns an error if one occurs.
 func (c *FakeTLSCertificateDelegations) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(tlscertificatedelegationsResource, c.ns, name), &enroutev1.TLSCertificateDelegation{})
+		Invokes(testing.NewDeleteActionWithOptions(tlscertificatedelegationsResource, c.ns, name, opts), &enroutev1.TLSCertificateDelegation{})
 
 	return err
 }

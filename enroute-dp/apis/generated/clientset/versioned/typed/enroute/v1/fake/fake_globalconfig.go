@@ -104,7 +104,7 @@ func (c *FakeGlobalConfigs) UpdateStatus(ctx context.Context, globalConfig *enro
 // Delete takes name of the globalConfig and deletes it. Returns an error if one occurs.
 func (c *FakeGlobalConfigs) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(globalconfigsResource, c.ns, name), &enroutev1.GlobalConfig{})
+		Invokes(testing.NewDeleteActionWithOptions(globalconfigsResource, c.ns, name, opts), &enroutev1.GlobalConfig{})
 
 	return err
 }
