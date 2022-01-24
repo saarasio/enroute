@@ -8,7 +8,14 @@ TAG_LATEST ?= false
 GIT_REF = $(shell git rev-parse --short=8 --verify HEAD)
 VERSION ?= $(GIT_REF)
 
+
+
 export GO111MODULE=on
+
+BVAL = $(value BTYPE)
+TAGS = "oidc gcp $(BVAL)"
+LDFLAGS = "-X main.GitCommit=$(GIT_COMMIT) -X main.MakeTime=$(MAKE_TIME)"
+
 
 test:
 	go test -mod=readonly ./...
@@ -17,7 +24,13 @@ test-race: | test
 	go test -race -mod=readonly ./...
 
 install:
-	go install -v -tags "oidc gcp" ./...
+	$(eval GIT_COMMIT=$(shell git log -1 --pretty=format:"%H"))
+	echo GIT_COMMIT '$(GIT_COMMIT)'
+
+	$(eval MAKE_TIME=$(shell date +"+%FT%T%z"))
+	echo MAKE_TIME '$(MAKE_TIME)'
+
+	go install -v -tags $(TAGS) -ldflags $(LDFLAGS) ./...
 
 download:
 	go mod download
