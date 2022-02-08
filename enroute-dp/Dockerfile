@@ -1,4 +1,4 @@
-FROM 			envoyproxy/envoy:v1.15.0
+FROM 			envoyproxy/envoy:v1.21.0
 WORKDIR 		/enroute
 COPY 			enroute /enroute
 COPY 			redis-server /bin
