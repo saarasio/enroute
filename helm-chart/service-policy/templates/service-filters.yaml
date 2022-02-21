@@ -102,3 +102,22 @@ spec:
   # important to set protocol name
     name: https
 ---
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+  type: route_filter_circuitbreakers
+  routeFilterConfig:
+    config: |
+          {
+                "max_connections" : 100,
+                "max_pending_requests" : 101,
+                "max_requests" : 102,
+                "max_retries" : 103
+          }
+---

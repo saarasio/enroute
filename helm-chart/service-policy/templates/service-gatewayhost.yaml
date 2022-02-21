@@ -49,10 +49,16 @@ spec:
           name: ":method"
           exact: "GET"
         {{- end }}
-      {{- if .Values.filters.ratelimit.enable }}
+      {{- if or (eq .Values.filters.ratelimit.enable true) (eq .Values.filters.circuitbreakers.enable true) }}
       filters:
+      {{- end }}
+      {{- if .Values.filters.ratelimit.enable }}
         - name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
           type: route_filter_ratelimit
+      {{- end }}
+      {{- if .Values.filters.circuitbreakers.enable }}
+        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+          type: route_filter_circuitbreakers
       {{- end }}
       services:
         - name: {{ .Values.service.name }}

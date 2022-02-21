@@ -86,6 +86,8 @@ filters:
     enable: false
   jwt:
     enable: false
+  circuitbreakers:
+    enable: false
 
 installHttpbin: false
 
