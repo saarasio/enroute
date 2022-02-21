@@ -42,7 +42,7 @@ const FILTER_TYPE_HTTP_RATELIMIT string = "http_filter_ratelimit"
 const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_HTTP_JWT string = "http_filter_jwt"
 const FILTER_TYPE_HTTP_ACCESSLOG string = "http_filter_accesslog"
-const FILTER_TYPE_SERVICE_CIRCUITBREAKERS string = "service_filter_circuitbreakers"
+const FILTER_TYPE_RT_CIRCUITBREAKERS string = "route_filter_circuitbreakers"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
@@ -193,19 +193,19 @@ type CircuitBreakerConfig struct {
 
 	// Max connections is maximum number of connections
 	// that Envoy will make to the upstream cluster.
-	MaxConnections uint32
+	MaxConnections uint32 `json:"max_connections"`
 
 	// MaxPendingRequests is maximum number of pending
 	// requests that Envoy will allow to the upstream cluster.
-	MaxPendingRequests uint32
+	MaxPendingRequests uint32 `json:"max_pending_requests"`
 
 	// MaxRequests is the maximum number of parallel requests that
 	// Envoy will make to the upstream cluster.
-	MaxRequests uint32
+	MaxRequests uint32 `json:"max_requests"`
 
 	// MaxRetries is the maximum number of parallel retries that
 	// Envoy will allow to the upstream cluster.
-	MaxRetries uint32
+	MaxRetries uint32 `json:"max_retries"`
 }
 
 func UnmarshalCircuitBreakerconfig(cc_config string) (CircuitBreakerConfig, error) {

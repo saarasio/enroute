@@ -175,16 +175,45 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluste
 		}
 	}
 
+	if logger.EL.ELogger != nil {
+		logger.EL.ELogger.Errorf("internal:envoy:cluster() Walk through cluster filters size [%v]\n", len(cluster.ClusterFilters))
+	}
+
 	// honor circuitbreaker filter
 	for _, f := range cluster.ClusterFilters {
-		if f.Filter.Filter_type == saarasconfig.FILTER_TYPE_SERVICE_CIRCUITBREAKERS {
+		if f.Filter.Filter_type == saarasconfig.FILTER_TYPE_RT_CIRCUITBREAKERS {
 			cbc, err := saarasconfig.UnmarshalCircuitBreakerconfig(f.Filter.Filter_config)
 			if err != nil {
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Errorf("internal:envoy:cluster() Failed to decode CircuitBreaker config [%+s] \n", f.Filter.Filter_config)
+				}
 			}
-			c.CircuitBreakers.Thresholds[0].MaxConnections = u32nil(cbc.MaxConnections)
-			c.CircuitBreakers.Thresholds[0].MaxPendingRequests = u32nil(cbc.MaxPendingRequests)
-			c.CircuitBreakers.Thresholds[0].MaxRequests = u32nil(cbc.MaxRequests)
-			c.CircuitBreakers.Thresholds[0].MaxRetries = u32nil(cbc.MaxRetries)
+
+			if c != nil && c.CircuitBreakers == nil {
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Debugf("internal:envoy:cluster() Set CircuitBreakers [%+v] \n", cbc)
+				}
+				c.CircuitBreakers = &envoy_config_cluster_v3.CircuitBreakers{
+					Thresholds: []*envoy_config_cluster_v3.CircuitBreakers_Thresholds{{
+						MaxConnections:     u32nil(cbc.MaxConnections),
+						MaxPendingRequests: u32nil(cbc.MaxPendingRequests),
+						MaxRequests:        u32nil(cbc.MaxRequests),
+						MaxRetries:         u32nil(cbc.MaxRetries),
+					}},
+				}
+
+			} else {
+				if c != nil && c.CircuitBreakers != nil && len(c.CircuitBreakers.Thresholds) > 0 {
+					c.CircuitBreakers.Thresholds[0].MaxConnections = u32nil(cbc.MaxConnections)
+					c.CircuitBreakers.Thresholds[0].MaxPendingRequests = u32nil(cbc.MaxPendingRequests)
+					c.CircuitBreakers.Thresholds[0].MaxRequests = u32nil(cbc.MaxRequests)
+					c.CircuitBreakers.Thresholds[0].MaxRetries = u32nil(cbc.MaxRetries)
+					if logger.EL.ELogger != nil {
+						logger.EL.ELogger.Debugf("internal:envoy:cluster() Set CircuitBreaker config [%+v] \n", cbc)
+					}
+				}
+			}
+
 		}
 	}
 	return c
