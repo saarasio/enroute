@@ -759,6 +759,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 			}
 
 			b.SetupRouteFilters(r, &route, ir.Namespace)
+			routeServiceFilters := b.RouteServiceFilters(r, &route, ir.Namespace)
 
 			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 				logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Walk through Route Services", ir.Spec.VirtualHost.Fqdn)
@@ -845,6 +846,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 					HealthCheck:          service.HealthCheck,
 					UpstreamValidation:   uv,
 					ClientValidation:     cv,
+					ClusterFilters:       routeServiceFilters,
 					SNI:                  s.ExternalName,
 				})
 				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {

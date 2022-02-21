@@ -386,6 +386,8 @@ type Cluster struct {
 
 	// Set cluster SNI
 	SNI string
+
+	ClusterFilters []*RouteFilter
 }
 
 func (c Cluster) Visit(f func(Vertex)) {

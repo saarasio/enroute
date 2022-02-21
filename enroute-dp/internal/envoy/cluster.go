@@ -32,6 +32,7 @@ import (
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	"github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
 // CACertificateKey stores the key for the TLS validation secret cert
@@ -162,6 +163,7 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluste
 		c.CloseConnectionsOnHostHealthFailure = true
 	}
 
+	// honor annotations
 	if anyPositive(service.MaxConnections, service.MaxPendingRequests, service.MaxRequests, service.MaxRetries) {
 		c.CircuitBreakers = &envoy_config_cluster_v3.CircuitBreakers{
 			Thresholds: []*envoy_config_cluster_v3.CircuitBreakers_Thresholds{{
@@ -170,6 +172,19 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluste
 				MaxRequests:        u32nil(service.MaxRequests),
 				MaxRetries:         u32nil(service.MaxRetries),
 			}},
+		}
+	}
+
+	// honor circuitbreaker filter
+	for _, f := range cluster.ClusterFilters {
+		if f.Filter.Filter_type == saarasconfig.FILTER_TYPE_SERVICE_CIRCUITBREAKERS {
+			cbc, err := saarasconfig.UnmarshalCircuitBreakerconfig(f.Filter.Filter_config)
+			if err != nil {
+			}
+			c.CircuitBreakers.Thresholds[0].MaxConnections = u32nil(cbc.MaxConnections)
+			c.CircuitBreakers.Thresholds[0].MaxPendingRequests = u32nil(cbc.MaxPendingRequests)
+			c.CircuitBreakers.Thresholds[0].MaxRequests = u32nil(cbc.MaxRequests)
+			c.CircuitBreakers.Thresholds[0].MaxRetries = u32nil(cbc.MaxRetries)
 		}
 	}
 	return c

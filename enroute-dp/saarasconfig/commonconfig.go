@@ -42,6 +42,7 @@ const FILTER_TYPE_HTTP_RATELIMIT string = "http_filter_ratelimit"
 const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_HTTP_JWT string = "http_filter_jwt"
 const FILTER_TYPE_HTTP_ACCESSLOG string = "http_filter_accesslog"
+const FILTER_TYPE_SERVICE_CIRCUITBREAKERS string = "service_filter_circuitbreakers"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
@@ -185,4 +186,36 @@ func UnmarshalRouteMatchCondition(route_config string) (RouteMatchConditions, er
 	}
 
 	return mc, err
+}
+
+type CircuitBreakerConfig struct {
+	// Circuit breaking limits
+
+	// Max connections is maximum number of connections
+	// that Envoy will make to the upstream cluster.
+	MaxConnections uint32
+
+	// MaxPendingRequests is maximum number of pending
+	// requests that Envoy will allow to the upstream cluster.
+	MaxPendingRequests uint32
+
+	// MaxRequests is the maximum number of parallel requests that
+	// Envoy will make to the upstream cluster.
+	MaxRequests uint32
+
+	// MaxRetries is the maximum number of parallel retries that
+	// Envoy will allow to the upstream cluster.
+	MaxRetries uint32
+}
+
+func UnmarshalCircuitBreakerconfig(cc_config string) (CircuitBreakerConfig, error) {
+	var cbc CircuitBreakerConfig
+	var err error
+
+	buf := strings.NewReader(cc_config)
+	if err = json.NewDecoder(buf).Decode(&cbc); err != nil {
+		errors.Wrap(err, "decoding response")
+	}
+
+	return cbc, err
 }
