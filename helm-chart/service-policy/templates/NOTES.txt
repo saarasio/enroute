@@ -1,4 +1,4 @@
-𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Ingress API Gateway Communit Edition Service Policy
+𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Ingress API Gateway Community Edition Service Policy
 -----------------------------------------------------------
 
 Request a free evaluation license for enterprise version
