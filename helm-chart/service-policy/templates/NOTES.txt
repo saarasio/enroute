@@ -1,5 +1,11 @@
-##########################
-# 𝙴𝚗𝚁𝚘𝚞𝚝𝚎 𝚂𝚎𝚛𝚟𝚒𝚌𝚎 𝙿𝚘𝚕𝚒𝚌𝚢 #
-##########################
+𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Ingress API Gateway Communit Edition Service Policy
+-----------------------------------------------------------
+
+Request a free evaluation license for enterprise version
+by sending an email to contact@saaras.io
+
+Join the Slack Channel           - https://slack.saaras.io
+Access the Getting Started Guide - https://getenroute.io/docs/getting-started-enroute-ingress-controller/
+EnRoute Features                 - https://getenroute.io/features/
 
 It got installed in namespace: {{ .Release.Namespace }}
