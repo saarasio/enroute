@@ -48,5 +48,4 @@ spec:
       targetPort: 8443
   selector:
     {{- include "enroute.selectorLabels" . | nindent 4 }}
-  externalTrafficPolicy: Local
   type: LoadBalancer

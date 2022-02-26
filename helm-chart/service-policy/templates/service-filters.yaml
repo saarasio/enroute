@@ -38,6 +38,7 @@ spec:
 
         function envoy_on_response(response_handle)
            response_handle:logInfo("Hello World response");
+           response_handle:headers():add("Lua-Filter-Says", "Hello")
         end
 ---
 apiVersion: enroute.saaras.io/v1
