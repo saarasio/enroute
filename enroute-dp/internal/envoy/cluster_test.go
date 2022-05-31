@@ -20,10 +20,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	envoy_config_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
+	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 
-	"github.com/envoyproxy/go-control-plane/envoy/type/v3"
+	envoy_type_v3 "github.com/envoyproxy/go-control-plane/envoy/type/v3"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/google/go-cmp/cmp"
 	gatewayhostv1 "github.com/saarasio/enroute/enroute-dp/apis/enroute/v1"

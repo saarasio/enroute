@@ -88,6 +88,8 @@ filters:
     enable: false
   circuitbreakers:
     enable: false
+  outlierdetection:
+    enable: false
 
 installHttpbin: false
 

@@ -22,13 +22,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
+	envoy_service_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
+	envoy_service_discovery_v3 "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	envoy_service_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+	envoy_service_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
+	envoy_service_load_stats_v3 "github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v3"
+	envoy_service_route_v3 "github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+	envoy_service_secret_v3 "github.com/envoyproxy/go-control-plane/envoy/service/secret/v3"
 
 	"github.com/sirupsen/logrus"
 )

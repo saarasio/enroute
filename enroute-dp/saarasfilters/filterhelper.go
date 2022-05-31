@@ -6,7 +6,7 @@ package saarasfilters
 
 import (
 	_ "github.com/davecgh/go-spew/spew"
-	"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+	envoy_extensions_filters_network_http_connection_manager_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	_ "github.com/saarasio/enroute/enroute-dp/internal/logger"
 	_ "github.com/sirupsen/logrus"
 )

@@ -31,16 +31,22 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# Backward compatibility
+enrouteService:
+  rbac:
+    create: false
+
 podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
   # capabilities:
   #   drop:
   #   - ALL
-  # readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: true
+  privileged: false
   # runAsNonRoot: true
   # runAsUser: 1000
 
@@ -104,3 +110,6 @@ digitaloceanSettings:
 # One of ["trace", "debug", "info", "error"]
 envoySettings:
   logLevel: "trace"
+
+mesh:
+  linkerD: false

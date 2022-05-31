@@ -4,10 +4,10 @@ import (
 	//"strings"
 	//"encoding/json"
 	//"github.com/pkg/errors"
-	"github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
+	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	//"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/cors/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
+	envoy_type_matcher_v3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	//"github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )

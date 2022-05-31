@@ -1,11 +1,37 @@
-𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Ingress API Gateway Community Edition Service Policy
------------------------------------------------------------
 
-Request a free evaluation license for enterprise version
-by sending an email to contact@saaras.io
+------------------ Configuration Graph -----------------------------------
+Filters enabled for service [{{ .Values.service.name }}]
+{{- if .Values.filters.lua.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+{{- end }}
+{{- if .Values.filters.cors.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+{{- end }}
+{{- if .Values.filters.jwt.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+{{- end }}
+{{- if .Values.filters.ratelimit.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
+    kubectl edit -n httpbin routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-rl2 (per-route ratelimit)
+    kubectl edit -n httpbin globalconfigs.enroute.saaras.io {{ .Values.service.name }}-rl-global-config (ratelimit engine global config)
+{{- end }}
+{{- if .Values.filters.circuitbreakers.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+    kubectl edit -n {{ .Release.Namespace }} routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+{{- end }}
 
-Join the Slack Channel           - https://slack.saaras.io
-Access the Getting Started Guide - https://getenroute.io/docs/getting-started-enroute-ingress-controller/
-EnRoute Features                 - https://getenroute.io/features/
+𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Community Edition Service Policy
+----------------------------------------
+Request an evaluation license for enterprise version - contact@saaras.io
 
-It got installed in namespace: {{ .Release.Namespace }}
+Slack Channel         - https://slack.saaras.io
+Getting Started Guide - https://getenroute.io/docs/getting-started-enroute-ingress-controller/
+EnRoute Features      - https://getenroute.io/features/

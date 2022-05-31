@@ -14,7 +14,7 @@
 package envoy
 
 import (
-	"github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
+	envoy_type_matcher_v3 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 )
 

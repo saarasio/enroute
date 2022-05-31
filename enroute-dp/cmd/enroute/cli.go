@@ -22,11 +22,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
+	envoy_service_cluster_v3 "github.com/envoyproxy/go-control-plane/envoy/service/cluster/v3"
+	envoy_service_discovery_v3 "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	envoy_service_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+	envoy_service_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/service/listener/v3"
+	envoy_service_route_v3 "github.com/envoyproxy/go-control-plane/envoy/service/route/v3"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"

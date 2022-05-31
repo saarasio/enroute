@@ -122,3 +122,22 @@ spec:
                 "max_retries" : 103
           }
 ---
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+  type: route_filter_outlierdetection
+  routeFilterConfig:
+    config: |
+          {
+                "consecutive_5xx" : 5,
+                "enforcing_consecutive_5xx" : 75,
+                "consecutive_gateway_failure" : 5,
+                "enforcing_consecutive_gateway_failure" : 75 
+          }
+---

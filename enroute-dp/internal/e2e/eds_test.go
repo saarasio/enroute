@@ -20,8 +20,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
+	envoy_service_discovery_v3 "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
+	envoy_service_endpoint_v3 "github.com/envoyproxy/go-control-plane/envoy/service/endpoint/v3"
 
 	"github.com/saarasio/enroute/enroute-dp/internal/envoy"
 	"google.golang.org/grpc"

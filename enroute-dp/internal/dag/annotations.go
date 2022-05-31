@@ -133,15 +133,15 @@ func websocketRoutes(i *v1.Ingress) map[string]bool {
 
 // MinProtoVersion returns the TLS protocol version specified by an ingress annotation
 // or default if non present.
-func MinProtoVersion(version string) envoy_extensions_transport_sockets_tls_v3.TlsParameters_TlsProtocol {
+func MinProtoVersion(version string) tlsv3.TlsParameters_TlsProtocol {
 	switch version {
 	case "1.3":
-		return envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_3
+		return tlsv3.TlsParameters_TLSv1_3
 	case "1.2":
-		return envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_2
+		return tlsv3.TlsParameters_TLSv1_2
 	default:
 		// any other value is interpreted as TLS/1.1
-		return envoy_extensions_transport_sockets_tls_v3.TlsParameters_TLSv1_1
+		return tlsv3.TlsParameters_TLSv1_1
 	}
 }
 

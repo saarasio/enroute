@@ -247,7 +247,7 @@ type SecureVirtualHost struct {
 	VirtualHost
 
 	// TLS minimum protocol version. Defaults to envoy_api_v2_auth.TlsParameters_TLS_AUTO
-	MinProtoVersion envoy_extensions_transport_sockets_tls_v3.TlsParameters_TlsProtocol
+	MinProtoVersion tlsv3.TlsParameters_TlsProtocol
 
 	// The cert and key for this host.
 	*Secret

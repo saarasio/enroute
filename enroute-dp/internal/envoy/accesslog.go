@@ -17,8 +17,8 @@
 package envoy
 
 import (
-	"github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
-	"github.com/envoyproxy/go-control-plane/envoy/extensions/access_loggers/file/v3"
+	envoy_config_accesslog_v3 "github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
+	envoy_extensions_access_loggers_file_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/access_loggers/file/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 )
 

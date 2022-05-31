@@ -52,7 +52,7 @@ spec:
           name: ":method"
           exact: "GET"
         {{- end }}
-      {{- if or (eq .Values.filters.ratelimit.enable true) (eq .Values.filters.circuitbreakers.enable true) }}
+      {{- if or (eq .Values.filters.ratelimit.enable true) (eq .Values.filters.circuitbreakers.enable true) (eq .Values.filters.outlierdetection.enable true) }}
       filters:
       {{- end }}
       {{- if .Values.filters.ratelimit.enable }}
@@ -62,6 +62,10 @@ spec:
       {{- if .Values.filters.circuitbreakers.enable }}
         - name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
           type: route_filter_circuitbreakers
+      {{- end }}
+      {{- if .Values.filters.outlierdetection.enable }}
+        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+          type: route_filter_outlierdetection
       {{- end }}
       services:
         - name: {{ .Values.service.name }}
