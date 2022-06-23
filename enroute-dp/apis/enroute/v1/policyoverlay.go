@@ -10,8 +10,8 @@ type GenericPolicyOverlayConfig struct {
 
 // PolicyOverlaySpec defines the spec of the CRD
 type PolicyOverlaySpec struct {
-	Name             string                  `json:"name,omitempty"`
-	Type             string                  `json:"type,omitempty"`
+	Name                string                     `json:"name,omitempty"`
+	Type                string                     `json:"type,omitempty"`
 	PolicyOverlayConfig GenericPolicyOverlayConfig `json:"policyOverlayConfig,omitempty"`
 	// Service that the filter communicates with to provide the filter functionality
 	// Eg: jwt server that hosts external JWKS

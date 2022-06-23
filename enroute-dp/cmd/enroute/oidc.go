@@ -1,3 +1,4 @@
+//go:build oidc
 // +build oidc
 
 // Copyright © 2018 Heptio

@@ -1,3 +1,4 @@
+//go:build !e && !c
 // +build !e,!c
 
 package dag
