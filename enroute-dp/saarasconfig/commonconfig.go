@@ -43,6 +43,7 @@ const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_HTTP_JWT string = "http_filter_jwt"
 const FILTER_TYPE_HTTP_ACCESSLOG string = "http_filter_accesslog"
 const FILTER_TYPE_RT_CIRCUITBREAKERS string = "route_filter_circuitbreakers"
+const FILTER_TYPE_RT_OUTLIERDETECTION string = "route_filter_outlierdetection"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
@@ -210,6 +211,25 @@ type CircuitBreakerConfig struct {
 
 func UnmarshalCircuitBreakerconfig(cc_config string) (CircuitBreakerConfig, error) {
 	var cbc CircuitBreakerConfig
+	var err error
+
+	buf := strings.NewReader(cc_config)
+	if err = json.NewDecoder(buf).Decode(&cbc); err != nil {
+		errors.Wrap(err, "decoding response")
+	}
+
+	return cbc, err
+}
+
+type OutlierDetectionConfig struct {
+	Consecutive_5xx                    uint32 `json:"consecutive_5xx"`
+	EnforcingConsecutive_5xx           uint32 `json:"enforcing_consecutive_5xx"`
+	ConsecutiveGatewayFailure          uint32 `json:"consecutive_gateway_failure"`
+	EnforcingConsecutiveGatewayFailure uint32 `json:"enforcing_consecutive_gateway_failure"`
+}
+
+func UnmarshalOutlierDetection(cc_config string) (OutlierDetectionConfig, error) {
+	var cbc OutlierDetectionConfig
 	var err error
 
 	buf := strings.NewReader(cc_config)

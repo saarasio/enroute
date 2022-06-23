@@ -54,7 +54,8 @@ func (b *builder) RouteServiceFilters(dag_r *Route, k8s_r *gatewayhostv1.Route, 
 	if k8s_r != nil && k8s_r.Filters != nil {
 		if len(k8s_r.Filters) > 0 {
 			for _, f := range k8s_r.Filters {
-				if f.Type == saarasconfig.FILTER_TYPE_RT_CIRCUITBREAKERS {
+				if f.Type == saarasconfig.FILTER_TYPE_RT_CIRCUITBREAKERS ||
+					f.Type == saarasconfig.FILTER_TYPE_RT_OUTLIERDETECTION {
 					m := RouteFilterMeta{filter_type: f.Type, name: f.Name, namespace: ns}
 					rf := b.lookupHTTPRouteFilter(m)
 					if rf != nil && dag_r != nil {

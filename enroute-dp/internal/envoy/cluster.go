@@ -215,6 +215,28 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluste
 			}
 
 		}
+		if f.Filter.Filter_type == saarasconfig.FILTER_TYPE_RT_OUTLIERDETECTION {
+			cbc, err := saarasconfig.UnmarshalOutlierDetection(f.Filter.Filter_config)
+			if err != nil {
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Errorf("internal:envoy:cluster() Failed to decode OutlierDetection config [%+s] \n", f.Filter.Filter_config)
+				}
+			}
+
+			if c != nil {
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Debugf("internal:envoy:cluster() Set OutlierDetection [%+v] \n", cbc)
+				}
+
+				c.OutlierDetection = &envoy_config_cluster_v3.OutlierDetection{
+					Consecutive_5Xx:                    u32nil(cbc.Consecutive_5xx),
+					EnforcingConsecutive_5Xx:           u32nil(cbc.EnforcingConsecutive_5xx),
+					ConsecutiveGatewayFailure:          u32nil(cbc.ConsecutiveGatewayFailure),
+					EnforcingConsecutiveGatewayFailure: u32nil(cbc.EnforcingConsecutiveGatewayFailure),
+				}
+			}
+
+		}
 	}
 	return c
 }

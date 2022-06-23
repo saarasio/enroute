@@ -491,6 +491,62 @@ func TestCluster(t *testing.T) {
 				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
+		"Verify OutlierDetector filter": {
+			cluster: &dag.Cluster{
+				Upstream: &dag.TCPService{
+					Name: s1.Name, Namespace: s1.Namespace,
+					ServicePort: &s1.Spec.Ports[0],
+				},
+				HealthCheck: &gatewayhostv1.HealthCheck{
+					Path: "/healthz",
+				},
+				ClusterFilters:[]*dag.RouteFilter{{
+						Filter: dag.Filter{
+							Filter_name: "od-filter",
+							Filter_type: "route_filter_outlierdetection",
+							Filter_config: `{
+								"consecutive_5xx" : 8,
+								"enforcing_consecutive_5xx" : 9,
+								"consecutive_gateway_failure" : 10,
+								"enforcing_consecutive_gateway_failure" : 11
+							}`,
+						},
+				}},
+			},
+			want: &envoy_config_cluster_v3.Cluster{
+				Name:                 "default/kuard/443/bc862a33ca",
+				AltStatName:          "default_kuard_443",
+				ClusterDiscoveryType: ClusterDiscoveryType(envoy_config_cluster_v3.Cluster_EDS),
+				EdsClusterConfig: &envoy_config_cluster_v3.Cluster_EdsClusterConfig{
+					EdsConfig:   ConfigSource("enroute"),
+					ServiceName: "default/kuard/http",
+				},
+				ConnectTimeout:                      protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:                            envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				OutlierDetection: &envoy_config_cluster_v3.OutlierDetection{
+					Consecutive_5Xx: protobuf.UInt32(8),
+					EnforcingConsecutive_5Xx: protobuf.UInt32(9),
+					ConsecutiveGatewayFailure: protobuf.UInt32(10),
+					EnforcingConsecutiveGatewayFailure: protobuf.UInt32(11),
+				},
+				CommonLbConfig:                      ClusterCommonLBConfig(),
+				CloseConnectionsOnHostHealthFailure: true,
+				HealthChecks: []*envoy_config_core_v3.HealthCheck{{
+					Timeout:            durationOrDefault(0, hcTimeout),
+					Interval:           durationOrDefault(0, hcInterval),
+					UnhealthyThreshold: countOrDefault(0, hcUnhealthyThreshold),
+					HealthyThreshold:   countOrDefault(0, hcHealthyThreshold),
+					HealthChecker: &envoy_config_core_v3.HealthCheck_HttpHealthCheck_{
+						HttpHealthCheck: &envoy_config_core_v3.HealthCheck_HttpHealthCheck{
+							Host: hcHost,
+							Path: "/healthz",
+						},
+					},
+				}},
+				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
+			},
+		},
+
 	}
 
 	for name, tc := range tests {
