@@ -21,8 +21,8 @@ import (
 	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	envoy_extensions_filters_network_http_connection_manager_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
-	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
 	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 )
 
@@ -74,7 +74,7 @@ func StatsListener(address string, port int) *envoy_config_listener_v3.Listener 
 							},
 						},
 						HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{{
-							Name: "router",
+							Name: wellknown.Router,
 							ConfigType: &envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter_TypedConfig{
 								TypedConfig: &any.Any{
 									TypeUrl: cfg.HTTPFilterRouter,
