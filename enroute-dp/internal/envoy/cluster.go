@@ -176,7 +176,7 @@ func cluster(cluster *dag.Cluster, service *dag.TCPService) *envoy_config_cluste
 	}
 
 	if logger.EL.ELogger != nil {
-		logger.EL.ELogger.Errorf("internal:envoy:cluster() Walk through cluster filters size [%v]\n", len(cluster.ClusterFilters))
+		logger.EL.ELogger.Debugf("internal:envoy:cluster() Walk through cluster filters size [%v]\n", len(cluster.ClusterFilters))
 	}
 
 	// honor circuitbreaker filter
