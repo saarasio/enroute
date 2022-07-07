@@ -50,6 +50,9 @@ spec:
             httpGet:
               path: /healthz
               port: 8000
+          volumeMounts:
+            - name: enroute-config
+              mountPath: /config
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           resources:

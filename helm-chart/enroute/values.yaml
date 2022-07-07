@@ -31,6 +31,14 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+service:
+  annotations: {}
+
+  externalTrafficPolicy:
+
+  type: LoadBalancer
+
+
 # Backward compatibility
 enrouteService:
   rbac:
@@ -49,9 +57,17 @@ securityContext:
   privileged: false
   # runAsNonRoot: true
   # runAsUser: 1000
+  # allowPrivilegeEscalation: false
 
 resources:
   enrouteService: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
   redis: {}
   envoy: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
