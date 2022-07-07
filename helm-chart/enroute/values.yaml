@@ -38,6 +38,8 @@ service:
 
   type: LoadBalancer
 
+  useproxyprotocol: false
+
 
 # Backward compatibility
 enrouteService:
