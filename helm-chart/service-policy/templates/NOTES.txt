@@ -19,8 +19,8 @@ Filters enabled for service [{{ .Values.service.name }}]
 {{- if .Values.filters.ratelimit.enable }}
          |
     {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
-    kubectl edit -n httpbin routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-rl2 (per-route ratelimit)
-    kubectl edit -n httpbin globalconfigs.enroute.saaras.io {{ .Values.service.name }}-rl-global-config (ratelimit engine global config)
+    kubectl edit -n {{ .Release.Namespace }} routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-rl2 (per-route ratelimit)
+    kubectl edit -n {{ .Release.Namespace }} globalconfigs.enroute.saaras.io {{ .Values.service.name }}-rl-global-config (ratelimit engine global config)
 {{- end }}
 {{- if .Values.filters.circuitbreakers.enable }}
          |
