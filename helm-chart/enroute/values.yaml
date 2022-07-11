@@ -40,6 +40,15 @@ service:
 
   useProxyProtocol: false
 
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+      targetPort: 8080
+    - port: 443
+      name: https
+      protocol: TCP
+      targetPort: 8443
 
 # Backward compatibility
 enrouteService:

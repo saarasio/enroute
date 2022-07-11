@@ -12,6 +12,19 @@ metadata:
   {{- end }}
 spec:
   ports:
+    {{- range .Values.service.ports }}
+    - name: {{ .name }}
+      port: {{ int .port }}
+      {{- if .targetPort }}
+      targetPort: {{ int .targetPort }}
+      {{- end }}
+      {{- if .nodePort }}
+      nodePort: {{ int .nodePort }}
+      {{- end }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+    {{- end }}
     - port: 80
       name: http
       protocol: TCP
