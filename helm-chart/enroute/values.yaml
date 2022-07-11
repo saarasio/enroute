@@ -38,7 +38,7 @@ service:
 
   type: LoadBalancer
 
-  useproxyprotocol: false
+  useProxyProtocol: false
 
 
 # Backward compatibility
