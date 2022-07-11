@@ -27,6 +27,12 @@ Filters enabled for service [{{ .Values.service.name }}]
     {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
     kubectl edit -n {{ .Release.Namespace }} routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
 {{- end }}
+{{- if .Values.filters.healthcheck.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
+{{- end }}
+
 
 𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Community Edition Service Policy
 ----------------------------------------

@@ -23,6 +23,10 @@ spec:
       - name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
         type: http_filter_cors
     {{- end }}
+    {{- if .Values.filters.healthcheck.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
+        type: http_filter_healthcheck
+    {{- end }}
     {{- if .Values.filters.jwt.enable }}
       - name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
         type: http_filter_jwt

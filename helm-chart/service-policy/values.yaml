@@ -90,6 +90,8 @@ filters:
     enable: false
   outlierdetection:
     enable: false
+  healthcheck:
+    enable: false
 
 installHttpbin: false
 
