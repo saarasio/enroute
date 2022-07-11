@@ -67,6 +67,7 @@ spec:
       services:
         - name: {{ .Values.service.name }}
           port: {{ .Values.service.port }}
+          {{- if .Values.service.httpHealthChecks }}
           healthCheck:
             healthyThresholdCount: 3
             intervalSeconds: 5
@@ -74,5 +75,6 @@ spec:
             host: hc
             timeoutSeconds: 3
             unhealthyThresholdCount: 3
+          {{- end }}
 ---
 {{- end }}

@@ -102,6 +102,7 @@ service:
   enableTLS: false
   prefix: /default-service-prefix
   createGlobalConfig: true
+  httpHealthChecks: false
 
 autoTLS:
   issueCert: false
