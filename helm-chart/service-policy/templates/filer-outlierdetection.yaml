@@ -12,8 +12,8 @@ spec:
   routeFilterConfig:
     config: |
           {
-                "consecutive_5xx" : 5,
-                "enforcing_consecutive_5xx" : 75,
-                "consecutive_gateway_failure" : 5,
-                "enforcing_consecutive_gateway_failure" : 75
+                "consecutive_5xx" : {{ .Values.filters.outlierdetection.consecutive5xx | int }},
+                "enforcing_consecutive_5xx" : {{ .Values.filters.outlierdetection.enforcingConsecutive5xx | int }},
+                "consecutive_gateway_failure" : {{ .Values.filters.outlierdetection.consecutiveGatewayFailure | int }},
+                "enforcing_consecutive_gateway_failure" : {{ .Values.filters.outlierdetection.enforcingConsecutiveGatewayFailure | int }}
           }

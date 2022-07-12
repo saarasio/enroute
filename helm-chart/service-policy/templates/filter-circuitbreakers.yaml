@@ -12,8 +12,8 @@ spec:
   routeFilterConfig:
     config: |
           {
-                "max_connections" : 100,
-                "max_pending_requests" : 101,
-                "max_requests" : 102,
-                "max_retries" : 103
+                "max_connections" : {{ .Values.filters.circuitbreakers.maxConnections | int }},
+                "max_pending_requests" : {{ .Values.filters.circuitbreakers.maxPendingRequests | int }},
+                "max_requests" : {{ .Values.filters.circuitbreakers.maxRequests | int }},
+                "max_retries" : {{ .Values.filters.circuitbreakers.maxRetries | int }}
           }

@@ -19,12 +19,34 @@ filters:
     enable: false
   cors:
     enable: false
+    regex: '\\*'
+    allowMethods: ['GET', 'OPTIONS']
+    allowHeaders: ['Content-Type']
+    exposeHeaders: '*'
+    maxAge: 120
   jwt:
     enable: false
+    name: auth0
+    jwksUri: "https://saaras.auth0.com/.well-known/jwks.json"
+    audience: "api-identifier"
+    issuer: "https://saaras.auth0.com/"
+    routes:
+    - prefix: /
+    serviceName:  auth0
+    servicePort: 443
+    headerName: "x-jwt-token"
   circuitbreakers:
     enable: false
+    maxConnections: 100
+    maxPendingRequest: 101
+    maxRequests: 102
+    maxRetries: 103
   outlierdetection:
     enable: false
+    consecutive5xx: 5
+    enforcingConsecutive5xx: 75
+    consecutiveGatewayFailure: 5
+    enforcingConsecutiveGatewayFailure: 75
   healthcheck:
     enable: false
 

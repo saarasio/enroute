@@ -16,12 +16,16 @@ spec:
   httpFilterConfig:
     config: |
          {
-           "name" : "auth0",
-           "jwks_uri" : "https://saaras.auth0.com/.well-known/jwks.json",
-           "audience" : "api-identifier",
-           "issuer" : "https://saaras.auth0.com/",
-           "route" : [{"prefix" : "/"}],
-           "jwt_service_name" : "auth0",
-           "jwt_service_port" : 443,
-           "jwt_forward_header_name" : "x-jwt-token"
+           "name" : {{ .Values.filters.jwt.name | quote }},
+           "jwks_uri" : {{ .Values.filters.jwt.jwksUri | quote }},
+           "audience" : {{ .Values.filters.jwt.audience | quote }},
+           "issuer" : {{ .Values.filters.jwt.issuer | quote }},
+           "route" : [
+             {{- range .Values.filters.jwt.routes }}
+             {"prefix" : {{ .prefix | quote }}}
+             {{- end }}
+           ],
+           "jwt_service_name" : {{ .Values.filters.jwt.serviceName | quote }},
+           "jwt_service_port" : {{ .Values.filters.jwt.servicePort | int }},
+           "jwt_forward_header_name" : {{ .Values.filters.jwt.headerName | quote }}
          }

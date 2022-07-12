@@ -13,10 +13,10 @@ spec:
     config: |
          {
              "match_condition" : {
-               "regex" : "\\*"
+               "regex" : {{ .Values.filters.cors.regex | quote }}
              },
-             "access_control_allow_methods" : "GET, OPTIONS",
-             "access_control_allow_headers" : "Content-Type",
-             "access_control_expose_headers" : "*",
-             "access_control_max_age" : "120"
+             "access_control_allow_methods" : {{ join "," .Values.filters.cors.allowMethods | quote }},
+             "access_control_allow_headers" : {{ join "," .Values.filters.cors.allowHeaders | quote }},
+             "access_control_expose_headers" : {{ .Values.filters.cors.exposeHeaders | quote }},
+             "access_control_max_age" : {{ .Values.filters.cors.maxAge | int | quote }}
          }
