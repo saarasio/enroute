@@ -1,4 +1,4 @@
-{{- if .Values.service.createGlobalConfig -}}
+{{- if .Values.service.ratelimit.createGlobalConfig -}}
 ---
 apiVersion: enroute.saaras.io/v1
 kind: GlobalConfig
