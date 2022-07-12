@@ -17,7 +17,6 @@ serviceAccount:
 filters:
   ratelimit:
     enable: false
-    createGlobalConfig: true
   cors:
     enable: false
   jwt:
