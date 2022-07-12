@@ -36,7 +36,7 @@ service:
   enableTLS: false
   prefix: /default-service-prefix
   healthcheck:
-    enabled: false
+    enable: false
     path: /healthz
     host: hc
     healthyCount: 3
