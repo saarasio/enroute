@@ -35,7 +35,14 @@ service:
   enableTLS: false
   prefix: /default-service-prefix
   createGlobalConfig: true
-  httpHealthChecks: false
+  healthcheck:
+    enabled: false
+    path: /healthz
+    host: hc
+    healthyCount: 3
+    unhealthyCount: 3
+    interval: 5
+    timeout: 3
 
 autoTLS:
   issueCert: false
