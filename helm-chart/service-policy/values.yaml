@@ -5,70 +5,22 @@
 nameOverride: ""
 fullnameOverride: ""
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+fqdn: ''
 
-filters:
-  ratelimit:
-    enable: false
-  cors:
-    enable: false
-    regex: '\\*'
-    allowMethods: ['GET', 'OPTIONS']
-    allowHeaders: ['Content-Type']
-    exposeHeaders: '*'
-    maxAge: 120
-  jwt:
-    enable: false
-    name: auth0
-    jwksUri: "https://saaras.auth0.com/.well-known/jwks.json"
-    audience: "api-identifier"
-    issuer: "https://saaras.auth0.com/"
-    routes:
-    - prefix: /
-    serviceName:  auth0
-    servicePort: 443
-    headerName: "x-jwt-token"
-  circuitbreakers:
-    enable: false
-    maxConnections: 100
-    maxPendingRequest: 101
-    maxRequests: 102
-    maxRetries: 103
-  outlierdetection:
-    enable: false
-    consecutive5xx: 5
-    enforcingConsecutive5xx: 75
-    consecutiveGatewayFailure: 5
-    enforcingConsecutiveGatewayFailure: 75
-  healthcheck:
-    enable: false
-
-service:
-  name: default-service-name
-  port: 80
-  fqdn: ''
-  enableTLS: false
-  prefix: /default-service-prefix
-  healthcheck:
-    enable: false
-    path: /healthz
-    host: hc
-    healthyCount: 3
-    unhealthyCount: 3
-    interval: 5
-    timeout: 3
-
-autoTLS:
-  issueCert: false
-  certificateCN: 'default-certificate-CN'
-  enableProd: false
-  createIssuers: false
-  createChallengeService: true
-  email: contact@example.com
+routes:
+  - conditions:
+      - prefix: /
+      # header: {}
+    enableWebsockets: false
+    # prefixRewrite: /
+    services:
+      - name: default-service-name
+        port: 80
+        healthcheck:
+          enable: false
+          # path: /healthz
+          # host: hc
+          # interval: 5
+          # timeout: 3
+          # healthyCount: 3
+          # unhealthyCount: 3
