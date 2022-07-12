@@ -11,35 +11,14 @@ spec:
   type: route_filter_ratelimit
   routeFilterConfig:
     config: |
-          { 
-            "descriptors" : 
-            [ 
+          {
+            "descriptors" :
+            [
               { "request_headers": { "header_name": "x-forwarded-for", "descriptor_key": "x-forwarded-for" } },
               { "request_headers": { "header_name": "x-forwarded-proto", "descriptor_key": "x-forwarded-proto" } },
               { "generic_key": { "descriptor_value" : "default_route" } }
             ]
           }
----
-apiVersion: enroute.saaras.io/v1
-kind: HttpFilter
-metadata:
-  labels:
-    app: {{ .Values.service.name }}-app
-  name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
-  namespace: {{ .Release.Namespace }}
-spec:
-  name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
-  type: http_filter_lua
-  httpFilterConfig:
-    config: |
-        function envoy_on_request(request_handle)
-           request_handle:logInfo("Hello World request");
-        end
-
-        function envoy_on_response(response_handle)
-           response_handle:logInfo("Hello World response");
-           response_handle:headers():add("Lua-Filter-Says", "Hello")
-        end
 ---
 apiVersion: enroute.saaras.io/v1
 kind: HttpFilter
@@ -138,6 +117,6 @@ spec:
                 "consecutive_5xx" : 5,
                 "enforcing_consecutive_5xx" : 75,
                 "consecutive_gateway_failure" : 5,
-                "enforcing_consecutive_gateway_failure" : 75 
+                "enforcing_consecutive_gateway_failure" : 75
           }
 ---
