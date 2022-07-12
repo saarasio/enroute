@@ -1,0 +1,86 @@
+{{- if eq .Values.service.enableTLS false }}
+---
+apiVersion: enroute.saaras.io/v1
+kind: GatewayHost
+metadata:
+  labels:
+    app: {{ .Values.service.name }}
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-gatewayhost
+  namespace: {{ .Release.Namespace }}
+spec:
+  virtualhost:
+    {{- if eq (len .Values.service.fqdn) 0 }}
+    fqdn: '*'
+    {{- else }}
+    fqdn: {{ quote .Values.service.fqdn }}
+    {{- end -}}
+    {{- if .Values.filters.lua.enable }}
+    filters:
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+        type: http_filter_lua
+    {{- end }}
+    {{- if .Values.filters.cors.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+        type: http_filter_cors
+    {{- end }}
+    {{- if .Values.filters.healthcheck.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
+        type: http_filter_healthcheck
+    {{- end }}
+    {{- if .Values.filters.jwt.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+        type: http_filter_jwt
+    {{- end }}
+  routes:
+    {{ if .Values.autoTLS.issueCert }}
+    - conditions:
+      - prefix: /.well-known/acme-challenge/
+        header:
+          name: ":method"
+          exact: "GET"
+      services:
+        - name: acme-challenge-service
+          port: 80
+          healthCheck:
+            healthyThresholdCount: 3
+            intervalSeconds: 5
+            path: /
+            host: hc
+            timeoutSeconds: 3
+            unhealthyThresholdCount: 3
+    {{- end }}
+    - conditions:
+      - prefix: {{ .Values.service.prefix }}
+        {{- if eq .Values.service.name "hello-enroute" }}
+        header:
+          name: ":method"
+          exact: "GET"
+        {{- end }}
+      {{- if or (eq .Values.filters.ratelimit.enable true) (eq .Values.filters.circuitbreakers.enable true) (eq .Values.filters.outlierdetection.enable true) }}
+      filters:
+      {{- end }}
+      {{- if .Values.filters.ratelimit.enable }}
+        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
+          type: route_filter_ratelimit
+      {{- end }}
+      {{- if .Values.filters.circuitbreakers.enable }}
+        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+          type: route_filter_circuitbreakers
+      {{- end }}
+      {{- if .Values.filters.outlierdetection.enable }}
+        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+          type: route_filter_outlierdetection
+      {{- end }}
+      services:
+        - name: {{ .Values.service.name }}
+          port: {{ .Values.service.port }}
+          {{- if .Values.service.httpHealthChecks }}
+          healthCheck:
+            healthyThresholdCount: 3
+            intervalSeconds: 5
+            path: /
+            host: hc
+            timeoutSeconds: 3
+            unhealthyThresholdCount: 3
+          {{- end }}
+{{- end }}

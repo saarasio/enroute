@@ -1,0 +1,143 @@
+---
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
+  type: route_filter_ratelimit
+  routeFilterConfig:
+    config: |
+          { 
+            "descriptors" : 
+            [ 
+              { "request_headers": { "header_name": "x-forwarded-for", "descriptor_key": "x-forwarded-for" } },
+              { "request_headers": { "header_name": "x-forwarded-proto", "descriptor_key": "x-forwarded-proto" } },
+              { "generic_key": { "descriptor_value" : "default_route" } }
+            ]
+          }
+---
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+  type: http_filter_lua
+  httpFilterConfig:
+    config: |
+        function envoy_on_request(request_handle)
+           request_handle:logInfo("Hello World request");
+        end
+
+        function envoy_on_response(response_handle)
+           response_handle:logInfo("Hello World response");
+           response_handle:headers():add("Lua-Filter-Says", "Hello")
+        end
+---
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+  type: http_filter_cors
+  httpFilterConfig:
+    config: |
+         {
+             "match_condition" : {
+               "regex" : "\\*"
+             },
+             "access_control_allow_methods" : "GET, OPTIONS",
+             "access_control_allow_headers" : "Content-Type",
+             "access_control_expose_headers" : "*",
+             "access_control_max_age" : "120"
+         }
+---
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+  type: http_filter_jwt
+  services:
+     name: {{ .Values.service.name }}-{{ .Values.service.port }}-externalauth
+     port: 443
+     protocol: tls
+  httpFilterConfig:
+    config: |
+         {
+           "name" : "auth0",
+           "jwks_uri" : "https://saaras.auth0.com/.well-known/jwks.json",
+           "audience" : "api-identifier",
+           "issuer" : "https://saaras.auth0.com/",
+           "route" : [{"prefix" : "/"}],
+           "jwt_service_name" : "auth0",
+           "jwt_service_port" : 443,
+           "jwt_forward_header_name" : "x-jwt-token"
+         }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-externalauth
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ExternalName
+  externalName: saaras.auth0.com
+  ports:
+  - port: 443
+  # important to set protocol name
+    name: https
+---
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+  type: route_filter_circuitbreakers
+  routeFilterConfig:
+    config: |
+          {
+                "max_connections" : 100,
+                "max_pending_requests" : 101,
+                "max_requests" : 102,
+                "max_retries" : 103
+          }
+---
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+  type: route_filter_outlierdetection
+  routeFilterConfig:
+    config: |
+          {
+                "consecutive_5xx" : 5,
+                "enforcing_consecutive_5xx" : 75,
+                "consecutive_gateway_failure" : 5,
+                "enforcing_consecutive_gateway_failure" : 75 
+          }
+---

@@ -1,0 +1,75 @@
+{{- if .Values.autoTLS.createIssuers }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+  namespace: cert-manager
+spec:
+  acme:
+    email: {{ .Values.autoTLS.email }}
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    solvers:
+    - http01:
+        ingress:
+          class: enroute
+      selector: {}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: cert-manager
+spec:
+  acme:
+    email: {{ .Values.autoTLS.email }}
+    privateKeySecretRef:
+    {{- if .Values.autoTLS.enableProd }}
+      name: letsencrypt-prod
+    {{- else }}
+      name: letsencrypt-staging
+    {{- end }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+    - http01:
+        ingress:
+          class: enroute
+      selector: {}
+{{- end }}
+---
+{{- if or .Values.autoTLS.issueCert .Values.service.enableTLS }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.autoTLS.certificateCN }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  commonName: {{ .Values.autoTLS.certificateCN }}
+  dnsNames:
+  - {{ .Values.autoTLS.certificateCN }}
+  issuerRef:
+    {{- if .Values.autoTLS.enableProd }}
+    name: letsencrypt-prod
+    {{- else }}
+    name: letsencrypt-staging
+    {{- end }}
+    kind: ClusterIssuer
+  secretName: {{ .Values.autoTLS.certificateCN }}
+---
+{{- if .Values.autoTLS.createChallengeService }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: acme-challenge-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 80
+    targetPort: 8089
+  selector:
+    acme.cert-manager.io/http01-solver: "true"
+{{- end }}
+---
+{{- end }}

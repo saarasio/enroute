@@ -1,0 +1,43 @@
+
+------------------ Configuration Graph -----------------------------------
+Filters enabled for service [{{ .Values.service.name }}]
+{{- if .Values.filters.lua.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
+{{- end }}
+{{- if .Values.filters.cors.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+{{- end }}
+{{- if .Values.filters.jwt.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+{{- end }}
+{{- if .Values.filters.ratelimit.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
+    kubectl edit -n {{ .Release.Namespace }} routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-rl2 (per-route ratelimit)
+    kubectl edit -n {{ .Release.Namespace }} globalconfigs.enroute.saaras.io {{ .Values.service.name }}-rl-global-config (ratelimit engine global config)
+{{- end }}
+{{- if .Values.filters.circuitbreakers.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+    kubectl edit -n {{ .Release.Namespace }} routefilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+{{- end }}
+{{- if .Values.filters.healthcheck.enable }}
+         |
+    {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
+    kubectl edit -n {{ .Release.Namespace }} httpfilters.enroute.saaras.io {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
+{{- end }}
+
+
+𝙴𝚗𝚁𝚘𝚞𝚝𝚎 Community Edition Service Policy
+----------------------------------------
+Request an evaluation license for enterprise version - contact@saaras.io
+
+Slack Channel         - https://slack.saaras.io
+Getting Started Guide - https://getenroute.io/docs/getting-started-enroute-ingress-controller/
+EnRoute Features      - https://getenroute.io/features/
