@@ -1,0 +1,27 @@
+---
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
+  type: http_filter_jwt
+  services:
+     name: {{ .Values.service.name }}-{{ .Values.service.port }}-externalauth
+     port: 443
+     protocol: tls
+  httpFilterConfig:
+    config: |
+         {
+           "name" : "auth0",
+           "jwks_uri" : "https://saaras.auth0.com/.well-known/jwks.json",
+           "audience" : "api-identifier",
+           "issuer" : "https://saaras.auth0.com/",
+           "route" : [{"prefix" : "/"}],
+           "jwt_service_name" : "auth0",
+           "jwt_service_port" : 443,
+           "jwt_forward_header_name" : "x-jwt-token"
+         }
