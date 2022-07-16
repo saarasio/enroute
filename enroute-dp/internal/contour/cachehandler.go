@@ -65,6 +65,7 @@ func (ch *CacheHandler) OnChange(kc *dag.KubernetesCache) {
 
 func (ch *CacheHandler) setGatewayHostStatus(st statusable) {
 	for _, s := range st.Statuses() {
+		ch.Debugf("CacheHandler(): Setting GatewayHost Status [%v]\n", s)
 		err := ch.GatewayHostStatus.SetStatus(s.Status, s.Description, s.Object)
 		if err != nil {
 			ch.Errorf("Error Setting Status of GatewayHost: %v", err)

@@ -31,7 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const DEFAULT_INGRESS_CLASS = "contour"
+const DEFAULT_INGRESS_CLASS = "enroute"
 
 // ResourceEventHandler implements cache.ResourceEventHandler, filters
 // k8s watcher events towards a dag.Builder (which also implements the

@@ -930,7 +930,7 @@ func TestIssue257(t *testing.T) {
 	//   labels:
 	//     app: kuard
 	//   annotations:
-	//     kubernetes.io/ingress.class: contour
+	//     kubernetes.io/ingress.class: enroute
 	// spec:
 	//   backend:
 	//     serviceName: kuard
@@ -940,7 +940,7 @@ func TestIssue257(t *testing.T) {
 			Name:      "kuard-ing",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"kubernetes.io/ingress.class": "contour",
+				"kubernetes.io/ingress.class": "enroute",
 			},
 		},
 		Spec: netv1.IngressSpec{
@@ -989,7 +989,7 @@ func TestIssue257(t *testing.T) {
 	//   labhls:
 	//     app: kuard
 	//   annotations:
-	//     kubernetes.io/ingress.class: contour
+	//     kubernetes.io/ingress.class: enroute
 	// spec:
 	//  rules:
 	//  - host: kuard.db.gd-ms.com
@@ -1004,7 +1004,7 @@ func TestIssue257(t *testing.T) {
 			Name:      "kuard-ing",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"kubernetes.io/ingress.class": "contour",
+				"kubernetes.io/ingress.class": "enroute",
 			},
 		},
 		Spec: netv1.IngressSpec{
@@ -1715,7 +1715,7 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 			Name:      "kuard ",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"kubernetes.io/ingress.class": "contour",
+				"kubernetes.io/ingress.class": "enroute",
 			},
 		},
 		Spec: gatewayhostv1.GatewayHostSpec{
@@ -1743,7 +1743,7 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 			Name:      "kuard ",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"enroute.saaras.io/ingress.class": "contour",
+				"enroute.saaras.io/ingress.class": "enroute",
 			},
 		},
 		Spec: gatewayhostv1.GatewayHostSpec{
@@ -1898,7 +1898,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 			Name:      "kuard-ing",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"kubernetes.io/ingress.class": "contour",
+				"kubernetes.io/ingress.class": "enroute",
 			},
 		},
 		Spec: netv1.IngressSpec{
@@ -1920,7 +1920,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 			Name:      "kuard-ing",
 			Namespace: "default",
 			Annotations: map[string]string{
-				"enroute.saaras.io/ingress.class": "contour",
+				"enroute.saaras.io/ingress.class": "enroute",
 			},
 		},
 		Spec: netv1.IngressSpec{

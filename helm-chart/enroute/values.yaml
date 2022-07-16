@@ -46,7 +46,10 @@ enrouteService:
   rbac:
     create: false
 
-podAnnotations: {}
+podAnnotations:
+  prometheus.io/path: /stats/prometheus
+  prometheus.io/port: "8002"
+  prometheus.io/scrape: "true"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -131,3 +134,6 @@ envoySettings:
 
 mesh:
   linkerD: false
+
+opa:
+  enable: true
