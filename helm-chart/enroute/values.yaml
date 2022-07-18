@@ -38,8 +38,17 @@ service:
 
   type: LoadBalancer
 
-  useproxyprotocol: false
+  useProxyProtocol: false
 
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+      targetPort: 8080
+    - port: 443
+      name: https
+      protocol: TCP
+      targetPort: 8443
 
 # Backward compatibility
 enrouteService:
@@ -112,25 +121,9 @@ affinity:
 # CUSTOM #
 ##########
 
-# awsSettings controls AWS annotations
-# This annotation puts the AWS ELB into "TCP" mode so that it does not
-# do HTTP negotiation for HTTPS connections at the ELB edge.
-# The downside of this is the remote IP address of all connections will
-# appear to be the internal address of the ELB. See docs/proxy-proto.md
-# for information about enabling the PROXY protocol on the ELB to recover
-# the original remote IP address.
-awsSettings:
-  enable: false
-
-ociSettings:
-  enable: false
-
-digitaloceanSettings:
-  enable: false
-
 # One of ["trace", "debug", "info", "error"]
 envoySettings:
-  logLevel: "trace"
+  logLevel: "debug"
 
 mesh:
   linkerD: false

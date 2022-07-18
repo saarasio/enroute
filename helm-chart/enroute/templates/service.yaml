@@ -12,14 +12,19 @@ metadata:
   {{- end }}
 spec:
   ports:
-    - port: 80
-      name: http
-      protocol: TCP
-      targetPort: 8080
-    - port: 443
-      name: https
-      protocol: TCP
-      targetPort: 8443
+    {{- range .Values.service.ports }}
+    - name: {{ .name }}
+      port: {{ int .port }}
+      {{- if .targetPort }}
+      targetPort: {{ int .targetPort }}
+      {{- end }}
+      {{- if .nodePort }}
+      nodePort: {{ int .nodePort }}
+      {{- end }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+    {{- end }}
   selector:
     {{- include "enroute.selectorLabels" . | nindent 4 }}
   type: LoadBalancer

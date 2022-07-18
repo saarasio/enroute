@@ -42,7 +42,7 @@ spec:
             - "8443"
             - --mode-ingress
             - --enable-ratelimit
-            {{- if .Values.service.useproxyprotocol }}
+            {{- if .Values.service.useProxyProtocol }}
             - --use-proxy-protocol
             {{- end }}
           livenessProbe:
