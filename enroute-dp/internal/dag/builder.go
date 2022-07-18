@@ -83,8 +83,9 @@ func (b *builder) debugPrintServices(m Meta, port net_v1.ServiceBackendPort) {
 	if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
 
 		logger.EL.ELogger.Debugf("dag:builder:debugPrintServices(): Cannot find service meta [%+v] port [%+v]\n", m, port)
-		for _, svc := range b.source.services {
-			logger.EL.ELogger.Debugf("dag:builder:debugPrintServices(): Have service [%+v]\n", svc)
+		for key, svc := range b.source.services {
+			logger.EL.ELogger.Debugf(
+				"dag:builder:debugPrintServices(): Have service meta-key [%+v] svc [%+v]\n", key, svc)
 		}
 	}
 }
@@ -385,7 +386,9 @@ func (b *builder) validGatewayHosts() []*gatewayhostv1.GatewayHost {
 				conflicting = append(conflicting, fmt.Sprintf("%s/%s", ir.Namespace, ir.Name))
 			}
 			sort.Strings(conflicting) // sort for test stability
-			msg := fmt.Sprintf("fqdn %q is used in multiple GatewayHosts: %s", fqdn, strings.Join(conflicting, ", "))
+			msg := fmt.Sprintf(
+				"fqdn %q is used in multiple GatewayHosts: %s",
+				fqdn, strings.Join(conflicting, ", "))
 			for _, ir := range irs {
 				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: msg, Vhost: fqdn})
 			}
@@ -524,20 +527,26 @@ func (b *builder) computeGatewayHosts() {
 
 		// ensure root gatewayhost lives in allowed namespace
 		if !b.rootAllowed(ir) {
-			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "root GatewayHost cannot be defined in this namespace"})
+			b.setStatus(Status{Object: ir, Status: StatusInvalid,
+				Description: "root GatewayHost cannot be defined in this namespace"})
 			continue
 		}
 
 		host := ir.Spec.VirtualHost.Fqdn
 		if isBlank(host) {
-			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "Spec.VirtualHost.Fqdn must be specified"})
+			b.setStatus(Status{Object: ir, Status: StatusInvalid,
+				Description: "Spec.VirtualHost.Fqdn must be specified"})
 			continue
 		}
 
 		// Allow wildcard host if non-TLS
 		if ir.Spec.VirtualHost.TLS != nil && strings.Contains(host, "*") {
 			b.setStatus(Status{Object: ir,
-				Status: StatusInvalid, Description: fmt.Sprintf("Spec.VirtualHost.Fqdn %q cannot use wildcards", host), Vhost: host})
+				Status: StatusInvalid,
+				Description: fmt.Sprintf(
+					"Spec.VirtualHost.Fqdn %q cannot use wildcards",
+					host),
+				Vhost: host})
 			continue
 		}
 
@@ -560,7 +569,10 @@ func (b *builder) computeGatewayHosts() {
 
 			// If not passthrough and secret is invalid, then set status
 			if secretInvalidOrNotFound && !passthrough {
-				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed", tls.SecretName)})
+				b.setStatus(Status{Object: ir,
+					Status: StatusInvalid,
+					Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed",
+						tls.SecretName)})
 			}
 		}
 
@@ -635,7 +647,9 @@ func (b *builder) DAG() *DAG {
 	for meta := range b.orphaned {
 		ir, ok := b.source.gatewayhosts[meta]
 		if ok {
-			b.setStatus(Status{Object: ir, Status: StatusOrphaned, Description: "this GatewayHost is not part of a delegation chain from a root GatewayHost"})
+			b.setStatus(Status{
+				Object: ir, Status: StatusOrphaned,
+				Description: "this GatewayHost is not part of a delegation chain from a root GatewayHost"})
 		}
 	}
 	dag.statuses = b.statuses
@@ -742,7 +756,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 		// route cannot both delegate and point to services
 		if len(route.Services) > 0 && route.Delegate != nil {
 			b.setStatus(Status{Object: ir, Status: StatusInvalid,
-				Description: fmt.Sprintf("cannot specify services and delegate in the same route"), Vhost: host})
+				Description: fmt.Sprintf(
+					"cannot specify services and delegate in the same route"), Vhost: host})
 			return
 		}
 
@@ -768,13 +783,16 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 			for _, service := range route.Services {
 				if service.Port < 1 || service.Port > 65535 {
 					b.setStatus(Status{Object: ir, Status: StatusInvalid,
-						Description: fmt.Sprintf("service %q: port must be in the range 1-65535", service.Name), Vhost: host})
+						Description: fmt.Sprintf("service %q: port must be in the range 1-65535",
+							service.Name), Vhost: host})
 					return
 				}
 				if service.Weight < 0 && logger.EL.ELogger != nil {
-					logger.EL.ELogger.Infof("bad service weight [%s] [%d]\n", service.Name, service.Weight)
+					logger.EL.ELogger.Infof("bad service weight [%s] [%d]\n",
+						service.Name, service.Weight)
 					b.setStatus(Status{Object: ir, Status: StatusInvalid,
-						Description: fmt.Sprintf("service %q: weight must be greater than or equal to zero", service.Name), Vhost: host})
+						Description: fmt.Sprintf("service %q: weight must be greater than or equal to zero",
+							service.Name), Vhost: host})
 					return
 				}
 				m := Meta{name: service.Name, namespace: ir.Namespace}
@@ -789,7 +807,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 					if logger.EL.ELogger != nil {
 						logger.EL.ELogger.Debugf("bad service [%s] - invalid or missing\n", service.Name)
 					}
-					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
+					b.setStatus(Status{Object: ir, Status: StatusInvalid,
+						Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
 					return
 				}
 
@@ -807,7 +826,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 
 				if err != nil {
 					if logger.EL.ELogger != nil {
-						logger.EL.ELogger.Debugf("bad service [%s] - error in getting protocol\n", service.Name)
+						logger.EL.ELogger.Debugf(
+							"bad service [%s] - error in getting protocol\n", service.Name)
 					}
 				}
 
@@ -818,7 +838,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 					if err != nil {
 						// Do not add route/upstream if we cannot validate upstream validation context
 						if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-							logger.EL.ELogger.Infof("dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
+							logger.EL.ELogger.Infof(
+								"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
 								ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
 						}
 
@@ -831,7 +852,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 					if err != nil {
 						// Do not add route/upstream if we cannot validate upstream validation context
 						if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-							logger.EL.ELogger.Infof("dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
+							logger.EL.ELogger.Infof(
+								"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
 								ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
 						}
 
@@ -850,7 +872,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 					SNI:                  s.ExternalName,
 				})
 				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-					logger.EL.ELogger.Infof("dag:builder:processRoutes() Valid: IR [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
+					logger.EL.ELogger.Infof(
+						"dag:builder:processRoutes() Valid: IR [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
 				}
 			}
 
@@ -909,13 +932,15 @@ func (b *builder) lookupUpstreamValidation(ir *gatewayhostv1.GatewayHost, host s
 	cacert := b.lookupSecret(Meta{name: uv.CACertificate, namespace: namespace}, validCA)
 	if cacert == nil {
 		// UpstreamValidation is requested, but cert is missing or not configured
-		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: upstreamValidation requested but secret not found or misconfigured", service.Name), Vhost: host})
+		b.setStatus(Status{Object: ir, Status: StatusInvalid,
+			Description: fmt.Sprintf("service %q: upstreamValidation requested but secret not found or misconfigured", service.Name), Vhost: host})
 		return nil, fmt.Errorf("service %q: upstreamValidation requested but secret not found or misconfigured", service.Name)
 	}
 
 	if uv.SubjectName == "" {
 		// UpstreamValidation is requested, but SAN is not provided
-		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name), Vhost: host})
+		b.setStatus(Status{Object: ir, Status: StatusInvalid,
+			Description: fmt.Sprintf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name), Vhost: host})
 		return nil, fmt.Errorf("service %q: upstreamValidation requested but subject alt name not found or misconfigured", service.Name)
 	}
 
@@ -935,7 +960,8 @@ func (b *builder) lookupClientValidation(ir *gatewayhostv1.GatewayHost, host str
 	cacert := b.lookupSecret(Meta{name: cv.CACertificate, namespace: namespace}, validSecret)
 	if cacert == nil {
 		// UpstreamValidation is requested, but cert is missing or not configured
-		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("service %q: clientValidation requested but secret not found or misconfigured", service.Name), Vhost: host})
+		b.setStatus(Status{Object: ir, Status: StatusInvalid,
+			Description: fmt.Sprintf("service %q: clientValidation requested but secret not found or misconfigured", service.Name), Vhost: host})
 		return nil, fmt.Errorf("service %q: clientValidation requested but secret not found or misconfigured", service.Name)
 	}
 
@@ -957,7 +983,8 @@ func (b *builder) processTCPProxy(ir *gatewayhostv1.GatewayHost, visited []*gate
 	// tcpproxy cannot both delegate and point to services
 	tcpproxy := ir.Spec.TCPProxy
 	if len(tcpproxy.Services) > 0 && tcpproxy.Delegate != nil {
-		b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: "tcpproxy: cannot specify services and delegate in the same tcpproxy", Vhost: host})
+		b.setStatus(Status{Object: ir, Status: StatusInvalid,
+			Description: "tcpproxy: cannot specify services and delegate in the same tcpproxy", Vhost: host})
 		return
 	}
 

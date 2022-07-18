@@ -98,7 +98,7 @@ func corsConfig(vh *dag.VirtualHost) *envoy_config_route_v3.CorsPolicy {
 
 	if vh != nil {
 		// VH Cors
-		cors_http_filter := dag.GetVHHttpFilterConfigIfPresent(cfg.FILTER_TYPE_HTTP_CORS, vh)
+		cors_http_filter := dag.GetVHHttpFilterConfigIfPresent(cfg.FILTER_TYPE_VH_CORS, vh)
 
 		// No CORS filter
 		if cors_http_filter == nil {

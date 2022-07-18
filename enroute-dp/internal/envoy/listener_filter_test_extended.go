@@ -57,7 +57,7 @@ func TestAddLuaHTTPRouteFilter(t *testing.T) {
 		{
 			Filter: dag.Filter{
 				Filter_name:   "luaroutefilter",
-				Filter_type:   cfg.FILTER_TYPE_RT_LUA,
+				Filter_type:   cfg.FILTER_TYPE_VH_LUA,
 				Filter_config: luaCode,
 			},
 		},

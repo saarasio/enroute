@@ -21,13 +21,13 @@ import (
 func DagFilterToHttpFilter(df *dag.HttpFilter, vh *dag.VirtualHost) *envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter {
 	if df != nil {
 		switch df.Filter_type {
-		case cfg.FILTER_TYPE_HTTP_LUA, cfg.FILTER_TYPE_RT_LUA:
+		case cfg.FILTER_TYPE_HTTP_LUA:
 			lua_http_filter := &envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
 				Name:       "envoy.lua",
 				ConfigType: httpLuaTypedConfig(df, vh),
 			}
 			return lua_http_filter
-		case cfg.FILTER_TYPE_HTTP_CORS:
+		case cfg.FILTER_TYPE_VH_CORS:
 			cors_http_filter := &envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
 				Name:       "envoy.cors",
 				ConfigType: httpCorsTypedConfig(df, vh),
@@ -134,4 +134,12 @@ func httpFilters(vh *dag.Vertex) []*envoy_extensions_filters_network_http_connec
 		})
 
 	return http_filters
+}
+
+/////////////////////// VH Filters //////////////////////////////
+
+func TypedFilterConfig(vh *dag.VirtualHost) map[string]*any.Any {
+       var tfc map[string]*any.Any
+
+       return tfc
 }

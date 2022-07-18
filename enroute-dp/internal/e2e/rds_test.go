@@ -2959,7 +2959,7 @@ func TestCorsFilter(t *testing.T) {
 	}
 
 	host_filters := make([]gatewayhostv1.HostAttachedFilter, 0)
-	host_filters = append(host_filters, gatewayhostv1.HostAttachedFilter{Name: "cors_filter", Type: cfg.FILTER_TYPE_HTTP_CORS})
+	host_filters = append(host_filters, gatewayhostv1.HostAttachedFilter{Name: "cors_filter", Type: cfg.FILTER_TYPE_VH_CORS})
 
 	hf := gatewayhostv1.HttpFilter{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2968,7 +2968,7 @@ func TestCorsFilter(t *testing.T) {
 		},
 		Spec: gatewayhostv1.HttpFilterSpec{
 			Name: "cors_filter",
-			Type: cfg.FILTER_TYPE_HTTP_CORS,
+			Type: cfg.FILTER_TYPE_VH_CORS,
 			HttpFilterConfig: gatewayhostv1.GenericHttpFilterConfig{
 				Config: `{
 		"match_condition" : {

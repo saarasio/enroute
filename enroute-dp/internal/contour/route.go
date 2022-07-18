@@ -159,8 +159,7 @@ func envoyRouteFromDagRoute(vh *dag.VirtualHost, vhost *envoy_config_route_v3.Vi
 		Match:               envoy.RouteMatchNew(r),
 		Action:              envoy.RouteRoute(r),
 		RequestHeadersToAdd: envoy.RouteHeaders(),
-		// TODO: Only add this if there is a per-route filter configured
-		//TypedPerFilterConfig: envoy.RouteTypedFilterConfig(r),
+		TypedPerFilterConfig: envoy.TypedFilterConfig(vh),
 	}
 
 	if isVh == true && r.HTTPSUpgrade {

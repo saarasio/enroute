@@ -36,8 +36,8 @@ type SaarasRouteFilter struct {
 }
 
 const FILTER_TYPE_HTTP_LUA string = "http_filter_lua"
-const FILTER_TYPE_HTTP_CORS string = "http_filter_cors"
-const FILTER_TYPE_RT_LUA string = "route_filter_lua"
+const FILTER_TYPE_VH_CORS string = "http_filter_cors"
+const FILTER_TYPE_VH_LUA string = "route_filter_lua"
 const FILTER_TYPE_HTTP_RATELIMIT string = "http_filter_ratelimit"
 const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_HTTP_JWT string = "http_filter_jwt"

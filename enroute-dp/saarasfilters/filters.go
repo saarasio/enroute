@@ -21,7 +21,7 @@ func SetConfigJson(log *logrus.Entry, filter_type string, filter_config string, 
 			}
 			log.Errorf("Failed to decode RT Config [%+v] \n", filter_config)
 		}
-	case saarasconfig.FILTER_TYPE_HTTP_LUA, saarasconfig.FILTER_TYPE_RT_LUA:
+	case saarasconfig.FILTER_TYPE_HTTP_LUA, saarasconfig.FILTER_TYPE_VH_LUA:
 		// Lua filter config contains lua script, which cannot be converted to json
 		// convert it to { "config" : "..." } type
 		type luaFilterConfig struct {
@@ -33,7 +33,7 @@ func SetConfigJson(log *logrus.Entry, filter_type string, filter_config string, 
 		log.Errorf("Setting config_json to [%+v] \n", lfc)
 		*parse_config_success = true
 		(*args)["config_json"] = lfc
-	case saarasconfig.FILTER_TYPE_HTTP_CORS:
+	case saarasconfig.FILTER_TYPE_VH_CORS:
 		cfg, err := saarasconfig.UnmarshalCorsFilterConfig(filter_config)
 		if err == nil {
 			*parse_config_success = true
@@ -54,9 +54,9 @@ func IsFilterTypeValid(filter_type string) bool {
 	switch filter_type {
 	case saarasconfig.FILTER_TYPE_HTTP_LUA:
 		return true
-	case saarasconfig.FILTER_TYPE_RT_LUA:
+	case saarasconfig.FILTER_TYPE_VH_LUA:
 		return true
-	case saarasconfig.FILTER_TYPE_HTTP_CORS:
+	case saarasconfig.FILTER_TYPE_VH_CORS:
 		return true
 	case saarasconfig.FILTER_TYPE_RT_RATELIMIT:
 		return true
