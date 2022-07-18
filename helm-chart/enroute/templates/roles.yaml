@@ -42,6 +42,7 @@ rules:
     resources:
       - ingresses
       - gatewayhosts
+      - gatewayhostroutes
       - globalconfigs
       - httpfilters
       - routefilters

@@ -135,7 +135,6 @@ type Route struct {
 
 	// Disable external authorization for this route
 	DisableExtAuthz bool `json:"disableExtauth,omitempty"`
-
 }
 
 // PathRewritePolicy specifies how a request URL path should be
@@ -292,7 +291,7 @@ type GatewayHost struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
 
-	Spec   GatewayHostSpec `json:"spec"`
+	Spec GatewayHostSpec `json:"spec"`
 	// +optional
 	Status `json:"status"`
 }

@@ -443,17 +443,17 @@ func TestCluster(t *testing.T) {
 				HealthCheck: &gatewayhostv1.HealthCheck{
 					Path: "/healthz",
 				},
-				ClusterFilters:[]*dag.RouteFilter{{
-						Filter: dag.Filter{
-							Filter_name: "cb-filter",
-							Filter_type: "route_filter_circuitbreakers",
-							Filter_config: `{
+				ClusterFilters: []*dag.RouteFilter{{
+					Filter: dag.Filter{
+						Filter_name: "cb-filter",
+						Filter_type: "route_filter_circuitbreakers",
+						Filter_config: `{
 								"max_connections" : 1024,
 								"max_pending_requests" : 128,
 								"max_requests" : 128,
 								"max_retries" : 8
 							}`,
-						},
+					},
 				}},
 			},
 			want: &envoy_config_cluster_v3.Cluster{
@@ -464,14 +464,14 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:                      protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:                            envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				CircuitBreakers: &envoy_config_cluster_v3.CircuitBreakers{
 					Thresholds: []*envoy_config_cluster_v3.CircuitBreakers_Thresholds{{
-						MaxConnections: protobuf.UInt32(1024),
+						MaxConnections:     protobuf.UInt32(1024),
 						MaxPendingRequests: protobuf.UInt32(128),
-						MaxRequests: protobuf.UInt32(128),
-						MaxRetries: protobuf.UInt32(8),
+						MaxRequests:        protobuf.UInt32(128),
+						MaxRetries:         protobuf.UInt32(8),
 					}},
 				},
 				CommonLbConfig:                      ClusterCommonLBConfig(),
@@ -500,17 +500,17 @@ func TestCluster(t *testing.T) {
 				HealthCheck: &gatewayhostv1.HealthCheck{
 					Path: "/healthz",
 				},
-				ClusterFilters:[]*dag.RouteFilter{{
-						Filter: dag.Filter{
-							Filter_name: "od-filter",
-							Filter_type: "route_filter_outlierdetection",
-							Filter_config: `{
+				ClusterFilters: []*dag.RouteFilter{{
+					Filter: dag.Filter{
+						Filter_name: "od-filter",
+						Filter_type: "route_filter_outlierdetection",
+						Filter_config: `{
 								"consecutive_5xx" : 8,
 								"enforcing_consecutive_5xx" : 9,
 								"consecutive_gateway_failure" : 10,
 								"enforcing_consecutive_gateway_failure" : 11
 							}`,
-						},
+					},
 				}},
 			},
 			want: &envoy_config_cluster_v3.Cluster{
@@ -521,12 +521,12 @@ func TestCluster(t *testing.T) {
 					EdsConfig:   ConfigSource("enroute"),
 					ServiceName: "default/kuard/http",
 				},
-				ConnectTimeout:                      protobuf.Duration(250 * time.Millisecond),
-				LbPolicy:                            envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
+				ConnectTimeout: protobuf.Duration(250 * time.Millisecond),
+				LbPolicy:       envoy_config_cluster_v3.Cluster_ROUND_ROBIN,
 				OutlierDetection: &envoy_config_cluster_v3.OutlierDetection{
-					Consecutive_5Xx: protobuf.UInt32(8),
-					EnforcingConsecutive_5Xx: protobuf.UInt32(9),
-					ConsecutiveGatewayFailure: protobuf.UInt32(10),
+					Consecutive_5Xx:                    protobuf.UInt32(8),
+					EnforcingConsecutive_5Xx:           protobuf.UInt32(9),
+					ConsecutiveGatewayFailure:          protobuf.UInt32(10),
 					EnforcingConsecutiveGatewayFailure: protobuf.UInt32(11),
 				},
 				CommonLbConfig:                      ClusterCommonLBConfig(),
@@ -546,7 +546,6 @@ func TestCluster(t *testing.T) {
 				DnsLookupFamily: envoy_config_cluster_v3.Cluster_V4_ONLY,
 			},
 		},
-
 	}
 
 	for name, tc := range tests {

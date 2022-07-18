@@ -139,7 +139,7 @@ func httpFilters(vh *dag.Vertex) []*envoy_extensions_filters_network_http_connec
 /////////////////////// VH Filters //////////////////////////////
 
 func TypedFilterConfig(vh *dag.VirtualHost) map[string]*any.Any {
-       var tfc map[string]*any.Any
+	var tfc map[string]*any.Any
 
-       return tfc
+	return tfc
 }

@@ -156,9 +156,9 @@ func envoyRouteFromDagRoute(vh *dag.VirtualHost, vhost *envoy_config_route_v3.Vi
 	SetupFilters(vh, vhost, isVh, r)
 
 	rr := &envoy_config_route_v3.Route{
-		Match:               envoy.RouteMatchNew(r),
-		Action:              envoy.RouteRoute(r),
-		RequestHeadersToAdd: envoy.RouteHeaders(),
+		Match:                envoy.RouteMatchNew(r),
+		Action:               envoy.RouteRoute(r),
+		RequestHeadersToAdd:  envoy.RouteHeaders(),
 		TypedPerFilterConfig: envoy.TypedFilterConfig(vh),
 	}
 

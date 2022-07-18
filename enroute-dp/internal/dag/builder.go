@@ -65,7 +65,7 @@ func (b *builder) reset() {
 // A builder holds the state of one invocation of Builder.Build.
 // Once used, the builder should be discarded.
 type builder struct {
-	source         *KubernetesCache
+	source *KubernetesCache
 
 	services  map[servicemeta]Service
 	secrets   map[Meta]*Secret
@@ -73,7 +73,6 @@ type builder struct {
 
 	routefilters map[RouteFilterMeta]*RouteFilter
 	httpfilters  map[HttpFilterMeta]*HttpFilter
-
 
 	orphaned map[Meta]bool
 
@@ -252,7 +251,7 @@ func (b *builder) lookupVirtualHost(name string) *VirtualHost {
 	vh, ok := l.VirtualHosts[name]
 	if !ok {
 		vh := &VirtualHost{
-			Name:    name,
+			Name: name,
 		}
 		l.VirtualHosts[vh.Name] = vh
 		return vh
@@ -266,7 +265,7 @@ func (b *builder) lookupSecureVirtualHost(name string) *SecureVirtualHost {
 	if !ok {
 		svh := &SecureVirtualHost{
 			VirtualHost: VirtualHost{
-				Name:    name,
+				Name: name,
 			},
 		}
 		l.VirtualHosts[svh.VirtualHost.Name] = svh
@@ -534,7 +533,7 @@ func (b *builder) computeGatewayHosts() {
 		if isBlank(host) {
 			b.setStatus(Status{Object: ir, Status: StatusInvalid,
 				Description: "Spec.VirtualHost.Fqdn must be specified",
-				Vhost: host})
+				Vhost:       host})
 			continue
 		}
 
@@ -542,7 +541,7 @@ func (b *builder) computeGatewayHosts() {
 		if ir.Spec.VirtualHost.TLS != nil && strings.Contains(host, "*") {
 			b.setStatus(Status{Object: ir, Status: StatusInvalid,
 				Description: fmt.Sprintf("Spec.VirtualHost.Fqdn %q cannot use wildcards", host),
-				Vhost: host})
+				Vhost:       host})
 			continue
 		}
 
@@ -567,7 +566,7 @@ func (b *builder) computeGatewayHosts() {
 			if secretInvalidOrNotFound && !passthrough {
 				b.setStatus(Status{Object: ir, Status: StatusInvalid,
 					Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed", tls.SecretName),
-					Vhost:host})
+					Vhost:       host})
 			}
 		}
 
@@ -790,7 +789,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 					logger.EL.ELogger.Debugf("dag:builder:processRoutes() bad service [%s] - invalid or missing\n", service.Name)
 				}
 				b.setStatus(Status{Object: ir, Status: StatusInvalid,
-				Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port), Vhost:host})
+					Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port), Vhost: host})
 				return fmt.Errorf("service [%s:%d]: is invalid or missing", service.Name, service.Port)
 			}
 

@@ -35,20 +35,28 @@ type SaarasRouteFilter struct {
 	Filter_config string `json:"filter_config"`
 }
 
+// Global HTTP Filters
 const FILTER_TYPE_HTTP_LUA string = "http_filter_lua"
-const FILTER_TYPE_VH_CORS string = "http_filter_cors"
-const FILTER_TYPE_VH_LUA string = "route_filter_lua"
 const FILTER_TYPE_HTTP_RATELIMIT string = "http_filter_ratelimit"
-const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_HTTP_JWT string = "http_filter_jwt"
 const FILTER_TYPE_HTTP_ACCESSLOG string = "http_filter_accesslog"
+const FILTER_TYPE_HTTP_EXTAUTHZ string = "http_filter_extauthz"
+const FILTER_TYPE_HTTP_HEALTHCHECK string = "http_filter_healthcheck"
+const FILTER_TYPE_HTTP_WASM string = "http_filter_wasm"
+
+// VirtualHost Filters
+const FILTER_TYPE_VH_LUA string = "vh_filter_lua"
+const FILTER_TYPE_VH_CORS string = "vh_filter_cors"
+const FILTER_TYPE_VH_RBAC string = "vh_filter_rbac"
+
+// Route Filters
+const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_RT_CIRCUITBREAKERS string = "route_filter_circuitbreakers"
 const FILTER_TYPE_RT_OUTLIERDETECTION string = "route_filter_outlierdetection"
-const FILTER_TYPE_HTTP_EXTAUTHZ string = "http_filter_extauthz"
-const FILTER_TYPE_HTTP_WASM string = "http_filter_wasm"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
+const PROXY_CONFIG_GLOBALS string = "globalconfig_globals"
 
 const JAEGER_TRACING_CLUSTER string = "jaeger-trace"
 const EDS_CONFIG_CLUSTER string = "contour"
@@ -191,6 +199,24 @@ func UnmarshalRouteMatchCondition(route_config string) (RouteMatchConditions, er
 	return mc, err
 }
 
+type ProxyConfigGlobals struct {
+	LinkerdEnabled             bool `json:"linkerd_enabled,omitempty"`
+	LinkerdHeaderDisabled      bool `json:"linkerd_header_disabled,omitempty"`
+	LinkerdServiceModeDisabled bool `json:"linkerd_servicemode_disabled,omitempty"`
+}
+
+func UnmarshalProxyConfigGlobals(global_config string) (ProxyConfigGlobals, error) {
+	var pcg ProxyConfigGlobals
+	var err error
+
+	buf := strings.NewReader(global_config)
+	if err = json.NewDecoder(buf).Decode(&pcg); err != nil {
+		errors.Wrap(err, "decoding response")
+	}
+
+	return pcg, err
+}
+
 type CircuitBreakerConfig struct {
 	// Circuit breaking limits
 
@@ -240,6 +266,50 @@ func UnmarshalOutlierDetection(cc_config string) (OutlierDetectionConfig, error)
 	}
 
 	return cbc, err
+}
+
+type WasmConfig struct {
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+}
+
+func UnmarshalWasmConfig(wasm_config string) (WasmConfig, error) {
+	var wc WasmConfig
+	var err error
+
+	buf := strings.NewReader(wasm_config)
+	if err = json.NewDecoder(buf).Decode(&wc); err != nil {
+		errors.Wrap(err, "decoding response")
+	}
+
+	return wc, err
+}
+
+type ExtAuthzConfig struct {
+	Url                         string   `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	AuthService                 string   `protobuf:"bytes,2,opt,name=auth_service,proto3" json:"auth_service,omitempty"`
+	AuthServicePort             int      `protobuf:"bytes,2,opt,name=auth_service_port,proto3" json:"auth_service_port,omitempty"`
+	AuthServiceProto            string   `protobuf:"bytes,2,opt,name=auth_service_proto,proto3" json:"auth_service_proto,omitempty"`
+	Body_max_bytes              uint32   `protobuf:"bytes,2,opt,name=body_max_bytes,proto3" json:"body_max_bytes,omitempty"`
+	Body_allow_partial          bool     `protobuf:"bytes,2,opt,name=body_allow_partial,proto3" json:"body_allow_partial,omitempty"`
+	Status_on_error             uint32   `protobuf:"bytes,2,opt,name=status_on_error,proto3" json:"status_on_error,omitempty"`
+	Failure_mode_allow          bool     `protobuf:"bytes,2,opt,name=failure_mode_allow,proto3" json:"failure_mode_allow,omitempty"`
+	Timeout                     uint32   `protobuf:"bytes,2,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	Path_prefix                 string   `protobuf:"bytes,2,opt,name=path_prefix,proto3" json:"path_prefix,omitempty"`
+	PackRawBytes                bool     `protobuf:"bytes,2,opt,name=pack_raw_bytes,proto3" json:"pack_raw_bytes,omitempty"`
+	AllowedRequestHeaders       []string `json:"allowed_request_headers"`
+	AllowedAuthorizationHeaders []string `json:"allowed_authorization_headers"`
+}
+
+func UnmarshalExtAuthzFilterConfig(extauthz_config string) (ExtAuthzConfig, error) {
+	var wc ExtAuthzConfig
+	var err error
+
+	buf := strings.NewReader(extauthz_config)
+	if err = json.NewDecoder(buf).Decode(&wc); err != nil {
+		errors.Wrap(err, "decoding response")
+	}
+
+	return wc, err
 }
 
 type HealthCheckConfig struct {
