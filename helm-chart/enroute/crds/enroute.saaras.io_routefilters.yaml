@@ -1,0 +1,162 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: (devel)
+  creationTimestamp: null
+  name: routefilters.enroute.saaras.io
+spec:
+  group: enroute.saaras.io
+  names:
+    kind: RouteFilter
+    listKind: RouteFilterList
+    plural: routefilters
+    singular: routefilter
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        description: RouteFilter is an Ingress CRD specificiation
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: RouteFilterSpec defines the spec of the CRD
+            properties:
+              name:
+                type: string
+              routeFilterConfig:
+                properties:
+                  config:
+                    type: string
+                type: object
+              services:
+                description: 'Service that the filter may need to communicate with
+                  to provide the filter functionality Eg: jwt server that hosts external
+                  JWKS'
+                properties:
+                  clientvalidation:
+                    description: ClientValidation defines a way to provide client's
+                      identity encoded in SAN in a certificate. The certificate to
+                      send to backend service that it'll verify
+                    properties:
+                      caSecret:
+                        description: Name of the Kubernetes secret be used to validate
+                          the certificate presented by the backend
+                        type: string
+                      subjectName:
+                        description: Key which is expected to be present in the 'subjectAltName'
+                          of the presented certificate
+                        type: string
+                    required:
+                    - caSecret
+                    - subjectName
+                    type: object
+                  healthCheck:
+                    description: HealthCheck defines optional healthchecks on the
+                      upstream service
+                    properties:
+                      healthyThresholdCount:
+                        description: The number of healthy health checks required
+                          before a host is marked healthy
+                        format: int32
+                        type: integer
+                      host:
+                        description: The value of the host header in the HTTP health
+                          check request. If left empty (default value), the name "contour-envoy-healthcheck"
+                          will be used.
+                        type: string
+                      intervalSeconds:
+                        description: The interval (seconds) between health checks
+                        format: int64
+                        type: integer
+                      path:
+                        description: HTTP endpoint used to perform health checks on
+                          upstream service
+                        type: string
+                      timeoutSeconds:
+                        description: The time to wait (seconds) for a health check
+                          response
+                        format: int64
+                        type: integer
+                      unhealthyThresholdCount:
+                        description: The number of unhealthy health checks required
+                          before a host is marked unhealthy
+                        format: int32
+                        type: integer
+                    required:
+                    - healthyThresholdCount
+                    - intervalSeconds
+                    - path
+                    - timeoutSeconds
+                    - unhealthyThresholdCount
+                    type: object
+                  name:
+                    description: Name is the name of Kubernetes service to proxy traffic.
+                      Names defined here will be used to look up corresponding endpoints
+                      which contain the ips to route.
+                    type: string
+                  port:
+                    description: Port (defined as Integer) to proxy traffic to since
+                      a service can have multiple defined
+                    exclusiveMaximum: true
+                    maximum: 65536
+                    minimum: 1
+                    type: integer
+                  protocol:
+                    description: Protocol may be used to specify (or override) the
+                      protocol used to reach this Service. Values may be tls, h2,
+                      h2c. If omitted, protocol-selection falls back on Service annotations.
+                    enum:
+                    - h2
+                    - h2c
+                    - tls
+                    type: string
+                  strategy:
+                    description: LB Algorithm to apply (see https://github.com/saarasio/enroute/enroute-dp/blob/master/design/gatewayhost-design.md#load-balancing)
+                    type: string
+                  validation:
+                    description: UpstreamValidation defines how to verify the backend
+                      service's certificate
+                    properties:
+                      caSecret:
+                        description: Name of the Kubernetes secret be used to validate
+                          the certificate presented by the backend
+                        type: string
+                      subjectName:
+                        description: Key which is expected to be present in the 'subjectAltName'
+                          of the presented certificate
+                        type: string
+                    required:
+                    - caSecret
+                    - subjectName
+                    type: object
+                  weight:
+                    description: Weight defines percentage of traffic to balance traffic
+                    format: int32
+                    type: integer
+                required:
+                - name
+                - port
+                type: object
+              type:
+                type: string
+            type: object
+        required:
+        - metadata
+        - spec
+        type: object
+    served: true
+    storage: true

@@ -27,7 +27,6 @@ type GlobalConfigsGetter interface {
 type GlobalConfigInterface interface {
 	Create(ctx context.Context, globalConfig *v1.GlobalConfig, opts metav1.CreateOptions) (*v1.GlobalConfig, error)
 	Update(ctx context.Context, globalConfig *v1.GlobalConfig, opts metav1.UpdateOptions) (*v1.GlobalConfig, error)
-	UpdateStatus(ctx context.Context, globalConfig *v1.GlobalConfig, opts metav1.UpdateOptions) (*v1.GlobalConfig, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
 	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.GlobalConfig, error)
@@ -116,22 +115,6 @@ func (c *globalConfigs) Update(ctx context.Context, globalConfig *v1.GlobalConfi
 		Namespace(c.ns).
 		Resource("globalconfigs").
 		Name(globalConfig.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(globalConfig).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *globalConfigs) UpdateStatus(ctx context.Context, globalConfig *v1.GlobalConfig, opts metav1.UpdateOptions) (result *v1.GlobalConfig, err error) {
-	result = &v1.GlobalConfig{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("globalconfigs").
-		Name(globalConfig.Name).
-		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(globalConfig).
 		Do(ctx).

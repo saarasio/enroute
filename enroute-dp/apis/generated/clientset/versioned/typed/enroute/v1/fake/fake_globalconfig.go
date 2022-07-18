@@ -89,18 +89,6 @@ func (c *FakeGlobalConfigs) Update(ctx context.Context, globalConfig *enroutev1.
 	return obj.(*enroutev1.GlobalConfig), err
 }
 
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeGlobalConfigs) UpdateStatus(ctx context.Context, globalConfig *enroutev1.GlobalConfig, opts v1.UpdateOptions) (*enroutev1.GlobalConfig, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(globalconfigsResource, "status", c.ns, globalConfig), &enroutev1.GlobalConfig{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*enroutev1.GlobalConfig), err
-}
-
 // Delete takes name of the globalConfig and deletes it. Returns an error if one occurs.
 func (c *FakeGlobalConfigs) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.

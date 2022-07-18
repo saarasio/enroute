@@ -27,7 +27,6 @@ type HttpFilter struct {
 	metav1.ObjectMeta `json:"metadata"`
 
 	Spec   HttpFilterSpec `json:"spec"`
-	Status `json:"status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

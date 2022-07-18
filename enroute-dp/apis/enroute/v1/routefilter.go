@@ -27,7 +27,6 @@ type RouteFilter struct {
 	metav1.ObjectMeta `json:"metadata"`
 
 	Spec   RouteFilterSpec `json:"spec"`
-	Status `json:"status"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

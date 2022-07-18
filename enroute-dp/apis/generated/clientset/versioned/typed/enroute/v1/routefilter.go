@@ -27,7 +27,6 @@ type RouteFiltersGetter interface {
 type RouteFilterInterface interface {
 	Create(ctx context.Context, routeFilter *v1.RouteFilter, opts metav1.CreateOptions) (*v1.RouteFilter, error)
 	Update(ctx context.Context, routeFilter *v1.RouteFilter, opts metav1.UpdateOptions) (*v1.RouteFilter, error)
-	UpdateStatus(ctx context.Context, routeFilter *v1.RouteFilter, opts metav1.UpdateOptions) (*v1.RouteFilter, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
 	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.RouteFilter, error)
@@ -116,22 +115,6 @@ func (c *routeFilters) Update(ctx context.Context, routeFilter *v1.RouteFilter, 
 		Namespace(c.ns).
 		Resource("routefilters").
 		Name(routeFilter.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(routeFilter).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *routeFilters) UpdateStatus(ctx context.Context, routeFilter *v1.RouteFilter, opts metav1.UpdateOptions) (result *v1.RouteFilter, err error) {
-	result = &v1.RouteFilter{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("routefilters").
-		Name(routeFilter.Name).
-		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(routeFilter).
 		Do(ctx).

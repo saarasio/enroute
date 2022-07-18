@@ -89,18 +89,6 @@ func (c *FakeHttpFilters) Update(ctx context.Context, httpFilter *enroutev1.Http
 	return obj.(*enroutev1.HttpFilter), err
 }
 
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeHttpFilters) UpdateStatus(ctx context.Context, httpFilter *enroutev1.HttpFilter, opts v1.UpdateOptions) (*enroutev1.HttpFilter, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(httpfiltersResource, "status", c.ns, httpFilter), &enroutev1.HttpFilter{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*enroutev1.HttpFilter), err
-}
-
 // Delete takes name of the httpFilter and deletes it. Returns an error if one occurs.
 func (c *FakeHttpFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.

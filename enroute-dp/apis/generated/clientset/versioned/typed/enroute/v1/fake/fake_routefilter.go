@@ -89,18 +89,6 @@ func (c *FakeRouteFilters) Update(ctx context.Context, routeFilter *enroutev1.Ro
 	return obj.(*enroutev1.RouteFilter), err
 }
 
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeRouteFilters) UpdateStatus(ctx context.Context, routeFilter *enroutev1.RouteFilter, opts v1.UpdateOptions) (*enroutev1.RouteFilter, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(routefiltersResource, "status", c.ns, routeFilter), &enroutev1.RouteFilter{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*enroutev1.RouteFilter), err
-}
-
 // Delete takes name of the routeFilter and deletes it. Returns an error if one occurs.
 func (c *FakeRouteFilters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.

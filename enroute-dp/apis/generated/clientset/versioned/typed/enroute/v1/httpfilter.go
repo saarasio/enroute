@@ -27,7 +27,6 @@ type HttpFiltersGetter interface {
 type HttpFilterInterface interface {
 	Create(ctx context.Context, httpFilter *v1.HttpFilter, opts metav1.CreateOptions) (*v1.HttpFilter, error)
 	Update(ctx context.Context, httpFilter *v1.HttpFilter, opts metav1.UpdateOptions) (*v1.HttpFilter, error)
-	UpdateStatus(ctx context.Context, httpFilter *v1.HttpFilter, opts metav1.UpdateOptions) (*v1.HttpFilter, error)
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
 	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.HttpFilter, error)
@@ -116,22 +115,6 @@ func (c *httpFilters) Update(ctx context.Context, httpFilter *v1.HttpFilter, opt
 		Namespace(c.ns).
 		Resource("httpfilters").
 		Name(httpFilter.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(httpFilter).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *httpFilters) UpdateStatus(ctx context.Context, httpFilter *v1.HttpFilter, opts metav1.UpdateOptions) (result *v1.HttpFilter, err error) {
-	result = &v1.HttpFilter{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("httpfilters").
-		Name(httpFilter.Name).
-		SubResource("status").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(httpFilter).
 		Do(ctx).
