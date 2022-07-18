@@ -13,6 +13,8 @@ import (
 type Interface interface {
 	// GatewayHosts returns a GatewayHostInformer.
 	GatewayHosts() GatewayHostInformer
+	// GatewayHostRoutes returns a GatewayHostRouteInformer.
+	GatewayHostRoutes() GatewayHostRouteInformer
 	// GlobalConfigs returns a GlobalConfigInformer.
 	GlobalConfigs() GlobalConfigInformer
 	// HttpFilters returns a HttpFilterInformer.
@@ -39,6 +41,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // GatewayHosts returns a GatewayHostInformer.
 func (v *version) GatewayHosts() GatewayHostInformer {
 	return &gatewayHostInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// GatewayHostRoutes returns a GatewayHostRouteInformer.
+func (v *version) GatewayHostRoutes() GatewayHostRouteInformer {
+	return &gatewayHostRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // GlobalConfigs returns a GlobalConfigInformer.

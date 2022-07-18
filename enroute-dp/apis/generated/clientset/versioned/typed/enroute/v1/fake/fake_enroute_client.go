@@ -19,6 +19,10 @@ func (c *FakeEnrouteV1) GatewayHosts(namespace string) v1.GatewayHostInterface {
 	return &FakeGatewayHosts{c, namespace}
 }
 
+func (c *FakeEnrouteV1) GatewayHostRoutes(namespace string) v1.GatewayHostRouteInterface {
+	return &FakeGatewayHostRoutes{c, namespace}
+}
+
 func (c *FakeEnrouteV1) GlobalConfigs(namespace string) v1.GlobalConfigInterface {
 	return &FakeGlobalConfigs{c, namespace}
 }

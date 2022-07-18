@@ -296,6 +296,7 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
 		coreInformers.Networking().V1().Ingresses().Informer().AddEventHandler(&reh)
 		contourInformers.Enroute().V1().GatewayHosts().Informer().AddEventHandler(&reh)
+		contourInformers.Enroute().V1().GatewayHostRoutes().Informer().AddEventHandler(&reh)
 
 		// Add informers for each root-gatewayhost namespaces
 		for _, inf := range namespacedInformers {

@@ -137,6 +137,8 @@ type Route struct {
 	PrefixRewrite string
 
 	RouteFilters []*RouteFilter
+
+	DisableExtAuthz bool
 }
 
 // TimeoutPolicy defines the timeout request/idle

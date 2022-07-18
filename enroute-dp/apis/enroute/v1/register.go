@@ -31,6 +31,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&GatewayHost{},
 		&GatewayHostList{},
+		&GatewayHostRoute{},
+		&GatewayHostRouteList{},
 		&GlobalConfig{},
 		&GlobalConfigList{},
 		&HttpFilter{},

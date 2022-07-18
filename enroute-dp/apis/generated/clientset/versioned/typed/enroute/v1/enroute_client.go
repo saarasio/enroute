@@ -16,6 +16,7 @@ import (
 type EnrouteV1Interface interface {
 	RESTClient() rest.Interface
 	GatewayHostsGetter
+	GatewayHostRoutesGetter
 	GlobalConfigsGetter
 	HttpFiltersGetter
 	PolicyOverlaysGetter
@@ -30,6 +31,10 @@ type EnrouteV1Client struct {
 
 func (c *EnrouteV1Client) GatewayHosts(namespace string) GatewayHostInterface {
 	return newGatewayHosts(c, namespace)
+}
+
+func (c *EnrouteV1Client) GatewayHostRoutes(namespace string) GatewayHostRouteInterface {
+	return newGatewayHostRoutes(c, namespace)
 }
 
 func (c *EnrouteV1Client) GlobalConfigs(namespace string) GlobalConfigInterface {

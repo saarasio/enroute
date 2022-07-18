@@ -7,6 +7,8 @@ package v1
 
 type GatewayHostExpansion interface{}
 
+type GatewayHostRouteExpansion interface{}
+
 type GlobalConfigExpansion interface{}
 
 type HttpFilterExpansion interface{}

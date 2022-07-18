@@ -43,9 +43,10 @@ const (
 // BuildDAG returns a new DAG from the supplied KubernetesCache.
 func BuildDAG(kc *KubernetesCache) *DAG {
 	log := logrus.StandardLogger()
-	log.SetLevel(logrus.InfoLevel)
+	log.SetLevel(logrus.DebugLevel)
 	builder := &builder{source: kc, log: log}
 	builder.reset()
+	log.Debugf("dag:builder:BuildDAG(): Recompute DAG, Reprogram Envoy")
 	return builder.compute()
 }
 
@@ -64,7 +65,7 @@ func (b *builder) reset() {
 // A builder holds the state of one invocation of Builder.Build.
 // Once used, the builder should be discarded.
 type builder struct {
-	source *KubernetesCache
+	source         *KubernetesCache
 
 	services  map[servicemeta]Service
 	secrets   map[Meta]*Secret
@@ -72,6 +73,7 @@ type builder struct {
 
 	routefilters map[RouteFilterMeta]*RouteFilter
 	httpfilters  map[HttpFilterMeta]*HttpFilter
+
 
 	orphaned map[Meta]bool
 
@@ -81,8 +83,6 @@ type builder struct {
 
 func (b *builder) debugPrintServices(m Meta, port net_v1.ServiceBackendPort) {
 	if logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
-
-		logger.EL.ELogger.Debugf("dag:builder:debugPrintServices(): Cannot find service meta [%+v] port [%+v]\n", m, port)
 		for key, svc := range b.source.services {
 			logger.EL.ELogger.Debugf(
 				"dag:builder:debugPrintServices(): Have service meta-key [%+v] svc [%+v]\n", key, svc)
@@ -221,9 +221,6 @@ func (b *builder) addTCPService(svc *v1.Service, port *v1.ServicePort) *TCPServi
 // secret fails validation or is missing.
 func (b *builder) lookupSecret(m Meta, validate func(*v1.Secret) bool) *Secret {
 
-	if logger.EL.ELogger != nil {
-		logger.EL.ELogger.Debugf("dag:builder:lookupSecret(): [%+v]\n", m)
-	}
 	if s, ok := b.secrets[m]; ok {
 		return s
 	}
@@ -255,7 +252,7 @@ func (b *builder) lookupVirtualHost(name string) *VirtualHost {
 	vh, ok := l.VirtualHosts[name]
 	if !ok {
 		vh := &VirtualHost{
-			Name: name,
+			Name:    name,
 		}
 		l.VirtualHosts[vh.Name] = vh
 		return vh
@@ -269,7 +266,7 @@ func (b *builder) lookupSecureVirtualHost(name string) *SecureVirtualHost {
 	if !ok {
 		svh := &SecureVirtualHost{
 			VirtualHost: VirtualHost{
-				Name: name,
+				Name:    name,
 			},
 		}
 		l.VirtualHosts[svh.VirtualHost.Name] = svh
@@ -390,7 +387,8 @@ func (b *builder) validGatewayHosts() []*gatewayhostv1.GatewayHost {
 				"fqdn %q is used in multiple GatewayHosts: %s",
 				fqdn, strings.Join(conflicting, ", "))
 			for _, ir := range irs {
-				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: msg, Vhost: fqdn})
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+					Description: msg, Vhost: fqdn})
 			}
 		}
 	}
@@ -535,17 +533,15 @@ func (b *builder) computeGatewayHosts() {
 		host := ir.Spec.VirtualHost.Fqdn
 		if isBlank(host) {
 			b.setStatus(Status{Object: ir, Status: StatusInvalid,
-				Description: "Spec.VirtualHost.Fqdn must be specified"})
+				Description: "Spec.VirtualHost.Fqdn must be specified",
+				Vhost: host})
 			continue
 		}
 
 		// Allow wildcard host if non-TLS
 		if ir.Spec.VirtualHost.TLS != nil && strings.Contains(host, "*") {
-			b.setStatus(Status{Object: ir,
-				Status: StatusInvalid,
-				Description: fmt.Sprintf(
-					"Spec.VirtualHost.Fqdn %q cannot use wildcards",
-					host),
+			b.setStatus(Status{Object: ir, Status: StatusInvalid,
+				Description: fmt.Sprintf("Spec.VirtualHost.Fqdn %q cannot use wildcards", host),
 				Vhost: host})
 			continue
 		}
@@ -569,10 +565,9 @@ func (b *builder) computeGatewayHosts() {
 
 			// If not passthrough and secret is invalid, then set status
 			if secretInvalidOrNotFound && !passthrough {
-				b.setStatus(Status{Object: ir,
-					Status: StatusInvalid,
-					Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed",
-						tls.SecretName)})
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+					Description: fmt.Sprintf("TLS Secret [%s] not found or is malformed", tls.SecretName),
+					Vhost:host})
 			}
 		}
 
@@ -653,6 +648,7 @@ func (b *builder) DAG() *DAG {
 		}
 	}
 	dag.statuses = b.statuses
+
 	return &dag
 }
 
@@ -722,6 +718,166 @@ func getProtocol(service gatewayhostv1.Service, s *HTTPService) (string, error) 
 	return protocol, nil
 }
 
+func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayhostv1.Route, host string, enforceTLS bool, ns string) error {
+	pathConditionValid, errMesg := pathConditionsValid(route.Conditions, "route")
+
+	if !pathConditionValid {
+		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+			logger.EL.ELogger.Debugf(
+				"dag:builder:processGatewayHostRoute() Path Condition Invalid: Host [%s] Err [%s] Conditions [%+v]",
+				host, errMesg, route.Conditions)
+		}
+		return fmt.Errorf("%s", errMesg)
+	}
+
+	// Look for duplicate exact match headers on this route
+	if !headerConditionsAreValid(route.Conditions) {
+		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+			logger.EL.ELogger.Debugf(
+				"dag:builder:processRoutes() cannot specify duplicate header 'exact match' conditions in the same route - IR [%s] ", ir.Spec.VirtualHost.Fqdn)
+		}
+		b.setStatus(Status{Object: ir, Status: StatusInvalid,
+			Description: "cannot specify duplicate header 'exact match' conditions in the same route", Vhost: host})
+	}
+
+	// Route has a delegate, check doesn't have a service
+	if len(route.Services) > 0 && route.Delegate != nil {
+		b.setStatus(Status{Object: ir, Status: StatusInvalid,
+			Description: "cannot specify services and delegate in the same route", Vhost: host})
+		return fmt.Errorf("cannot specify services and delegate in the same route")
+	}
+
+	if len(route.Services) > 0 {
+		r := &Route{
+			PathCondition:    mergePathConditions(route.Conditions),
+			HeaderConditions: MergeHeaderConditions(route.Conditions),
+			Websocket:        route.EnableWebsockets,
+			HTTPSUpgrade:     routeEnforceTLS(enforceTLS, route.PermitInsecure),
+			PrefixRewrite:    route.PrefixRewrite,
+			TimeoutPolicy:    timeoutPolicy(route.TimeoutPolicy),
+			RetryPolicy:      retryPolicy(route.RetryPolicy),
+			DisableExtAuthz:  route.DisableExtAuthz,
+		}
+
+		b.SetupRouteFilters(r, &route, ns)
+		routeServiceFilters := b.RouteServiceFilters(r, &route, ns)
+
+		for _, service := range route.Services {
+			if service.Port < 1 || service.Port > 65535 {
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+					Description: fmt.Sprintf("service %q: port must be in the range 1-65535",
+						service.Name), Vhost: host})
+				return fmt.Errorf("service %q: port must be in the range 1-65535", service.Name)
+			}
+			if service.Weight < 0 && logger.EL.ELogger != nil {
+				logger.EL.ELogger.Infof("bad service weight [%s] [%d]\n",
+					service.Name, service.Weight)
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+					Description: fmt.Sprintf("service %q: weight must be greater than or equal to zero",
+						service.Name), Vhost: host})
+				return fmt.Errorf("service %q: weight must be greater than or equal to zero", service.Name)
+			}
+			m := Meta{name: service.Name, namespace: ns}
+			s := b.lookupHTTPService(m, net_v1.ServiceBackendPort{Number: int32(service.Port)})
+
+			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
+				logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Looked up Service [%s:%d]\n",
+					ir.Spec.VirtualHost.Fqdn, service.Name, service.Port)
+			}
+
+			if s == nil {
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Debugf("dag:builder:processRoutes() bad service [%s] - invalid or missing\n", service.Name)
+				}
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+				Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port), Vhost:host})
+				return fmt.Errorf("service [%s:%d]: is invalid or missing", service.Name, service.Port)
+			}
+
+			var uv, cv *UpstreamValidation
+			var err error
+
+			if logger.EL.ELogger != nil {
+				logger.EL.ELogger.Debugf("dag:builder:processRoutes() service [%s] - protocol [%s]\n", service.Name, s.Protocol)
+			}
+
+			protocol, err := getProtocol(service, s)
+
+			// XXX: Ensure that our HTTPService on DAG has the right protocol set
+			s.Protocol = protocol
+
+			if err != nil {
+				if logger.EL.ELogger != nil {
+					logger.EL.ELogger.Debugf(
+						"bad service [%s] - error in getting protocol\n", service.Name)
+				}
+			}
+
+			if protocol == "tls" {
+				// we can only validate TLS connections to services that talk TLS
+				uv, err = b.lookupUpstreamValidation(ir, host, &service, ns)
+
+				if err != nil {
+					// Do not add route/upstream if we cannot validate upstream validation context
+					if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+						logger.EL.ELogger.Infof(
+							"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
+							ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
+					}
+
+					return fmt.Errorf("service [%s:%d]: Error in upstream validation", service.Name, service.Port)
+				}
+
+				// client validation
+				cv, err = b.lookupClientValidation(ir, host, &service, ns)
+
+				if err != nil {
+					// Do not add route/upstream if we cannot validate upstream validation context
+					if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+						logger.EL.ELogger.Infof(
+							"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
+							ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
+					}
+
+					return fmt.Errorf("service [%s:%d]: Error in client validation", service.Name, service.Port)
+				}
+			}
+			// When talking to an ExternalName (DNS) service, explicitly set SNI to that name
+			r.Clusters = append(r.Clusters, &Cluster{
+				Upstream:             s,
+				LoadBalancerStrategy: service.Strategy,
+				Weight:               service.Weight,
+				HealthCheck:          service.HealthCheck,
+				UpstreamValidation:   uv,
+				ClientValidation:     cv,
+				ClusterFilters:       routeServiceFilters,
+				SNI:                  s.ExternalName,
+			})
+			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
+				logger.EL.ELogger.Infof(
+					"dag:builder:processRoutes() Valid: IR [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
+			}
+		}
+
+		b.lookupVirtualHost(host).addRoute(r)
+		b.lookupSecureVirtualHost(host).addRoute(r)
+	}
+
+	return nil
+}
+
+func (b *builder) processGatewayHostRoute(ir *gatewayhostv1.GatewayHost, ghr *gatewayhostv1.GatewayHostRoute, host string, enforceTLS bool) {
+
+	if ghr == nil {
+		return
+	}
+
+	route := ghr.Spec.Route
+	ns := ghr.Namespace
+
+	b.processOneRoute(ir, route, host, enforceTLS, ns)
+}
+
 // Process routes for one GatewayHost
 func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewayhostv1.GatewayHost, host string, enforceTLS bool) {
 	visited = append(visited, ir)
@@ -730,156 +886,31 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 		logger.EL.ELogger.Debugf("dag:builder:processRoutes() IR [%s]", ir.Spec.VirtualHost.Fqdn)
 	}
 
+	ns := ir.Namespace
+
 	for _, route := range ir.Spec.Routes {
 
-		pathConditionValid, errMesg := pathConditionsValid(route.Conditions, "route")
+		err := b.processOneRoute(ir, route, host, enforceTLS, ns)
 
-		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-			logger.EL.ELogger.Debugf("dag:builder:processRoutes() Check Path Condition Valid: IR [%s] ", ir.Spec.VirtualHost.Fqdn)
-		}
-
-		if !pathConditionValid {
-			b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: errMesg, Vhost: host})
-			continue
-		}
-
-		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-			logger.EL.ELogger.Debugf("dag:builder:processRoutes() Check Header Condition Valid: IR [%s] ", ir.Spec.VirtualHost.Fqdn)
-		}
-		// Look for duplicate exact match headers on this route
-		if !headerConditionsAreValid(route.Conditions) {
-			b.setStatus(Status{Object: ir, Status: StatusInvalid,
-				Description: "cannot specify duplicate header 'exact match' conditions in the same route", Vhost: host})
-			continue
-		}
-
-		// route cannot both delegate and point to services
-		if len(route.Services) > 0 && route.Delegate != nil {
-			b.setStatus(Status{Object: ir, Status: StatusInvalid,
-				Description: fmt.Sprintf(
-					"cannot specify services and delegate in the same route"), Vhost: host})
+		if err != nil {
 			return
 		}
 
-		// base case: The route points to services, so we add them to the vhost
-		if len(route.Services) > 0 {
-			r := &Route{
-				PathCondition:    mergePathConditions(route.Conditions),
-				HeaderConditions: MergeHeaderConditions(route.Conditions),
-				Websocket:        route.EnableWebsockets,
-				HTTPSUpgrade:     routeEnforceTLS(enforceTLS, route.PermitInsecure),
-				PrefixRewrite:    route.PrefixRewrite,
-				TimeoutPolicy:    timeoutPolicy(route.TimeoutPolicy),
-				RetryPolicy:      retryPolicy(route.RetryPolicy),
-			}
-
-			b.SetupRouteFilters(r, &route, ir.Namespace)
-			routeServiceFilters := b.RouteServiceFilters(r, &route, ir.Namespace)
-
+		// Process GatewayHostRoute for this GatewayHost
+		for _, ghroute := range b.source.gatewayhostroutes {
 			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-				logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Walk through Route Services", ir.Spec.VirtualHost.Fqdn)
+				logger.EL.ELogger.Infof(
+					"dag:builder:processRoutes() Processing GHR [%v] \n", ghroute)
 			}
 
-			for _, service := range route.Services {
-				if service.Port < 1 || service.Port > 65535 {
-					b.setStatus(Status{Object: ir, Status: StatusInvalid,
-						Description: fmt.Sprintf("service %q: port must be in the range 1-65535",
-							service.Name), Vhost: host})
-					return
-				}
-				if service.Weight < 0 && logger.EL.ELogger != nil {
-					logger.EL.ELogger.Infof("bad service weight [%s] [%d]\n",
-						service.Name, service.Weight)
-					b.setStatus(Status{Object: ir, Status: StatusInvalid,
-						Description: fmt.Sprintf("service %q: weight must be greater than or equal to zero",
-							service.Name), Vhost: host})
-					return
-				}
-				m := Meta{name: service.Name, namespace: ir.Namespace}
-				s := b.lookupHTTPService(m, net_v1.ServiceBackendPort{Number: int32(service.Port)})
-
-				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
-					logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Looked up Service [%s:%d]\n",
-						ir.Spec.VirtualHost.Fqdn, service.Name, service.Port)
-				}
-
-				if s == nil {
-					if logger.EL.ELogger != nil {
-						logger.EL.ELogger.Debugf("bad service [%s] - invalid or missing\n", service.Name)
-					}
-					b.setStatus(Status{Object: ir, Status: StatusInvalid,
-						Description: fmt.Sprintf("Service [%s:%d] is invalid or missing", service.Name, service.Port)})
-					return
-				}
-
-				var uv, cv *UpstreamValidation
-				var err error
-
-				if logger.EL.ELogger != nil {
-					logger.EL.ELogger.Debugf("service [%s] - protocol [%s]\n", service.Name, s.Protocol)
-				}
-
-				protocol, err := getProtocol(service, s)
-
-				// XXX: Ensure that our HTTPService on DAG has the right protocol set
-				s.Protocol = protocol
-
-				if err != nil {
-					if logger.EL.ELogger != nil {
-						logger.EL.ELogger.Debugf(
-							"bad service [%s] - error in getting protocol\n", service.Name)
-					}
-				}
-
-				if protocol == "tls" {
-					// we can only validate TLS connections to services that talk TLS
-					uv, err = b.lookupUpstreamValidation(ir, host, &service, ir.Namespace)
-
-					if err != nil {
-						// Do not add route/upstream if we cannot validate upstream validation context
-						if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-							logger.EL.ELogger.Infof(
-								"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
-								ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
-						}
-
-						return
-					}
-
-					// client validation
-					cv, err = b.lookupClientValidation(ir, host, &service, ir.Namespace)
-
-					if err != nil {
-						// Do not add route/upstream if we cannot validate upstream validation context
-						if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-							logger.EL.ELogger.Infof(
-								"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
-								ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
-						}
-
-						return
-					}
-				}
-				// When talking to an ExternalName (DNS) service, explicitly set SNI to that name
-				r.Clusters = append(r.Clusters, &Cluster{
-					Upstream:             s,
-					LoadBalancerStrategy: service.Strategy,
-					Weight:               service.Weight,
-					HealthCheck:          service.HealthCheck,
-					UpstreamValidation:   uv,
-					ClientValidation:     cv,
-					ClusterFilters:       routeServiceFilters,
-					SNI:                  s.ExternalName,
-				})
+			if host == ghroute.Spec.Fqdn {
 				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 					logger.EL.ELogger.Infof(
-						"dag:builder:processRoutes() Valid: IR [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
+						"dag:builder:processRoutes() GHR fqdn Match [%s] \n", host)
 				}
-			}
 
-			b.lookupVirtualHost(host).addRoute(r)
-			b.lookupSecureVirtualHost(host).addRoute(r)
-			continue
+				b.processGatewayHostRoute(ir, ghroute, host, enforceTLS)
+			}
 		}
 
 		if route.Delegate == nil {
@@ -906,7 +937,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 				if dest.Name == vir.Name && dest.Namespace == vir.Namespace {
 					path = append(path, fmt.Sprintf("%s/%s", dest.Namespace, dest.Name))
 					description := fmt.Sprintf("route creates a delegation cycle: %s", strings.Join(path, " -> "))
-					b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: description, Vhost: host})
+					b.setStatus(Status{Object: ir, Status: StatusInvalid,
+						Description: description, Vhost: host})
 					return
 				}
 			}
@@ -994,7 +1026,9 @@ func (b *builder) processTCPProxy(ir *gatewayhostv1.GatewayHost, visited []*gate
 			m := Meta{name: service.Name, namespace: ir.Namespace}
 			s := b.lookupTCPService(m, net_v1.ServiceBackendPort{Number: int32(service.Port)})
 			if s == nil {
-				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: fmt.Sprintf("tcpproxy: service %s/%s/%d: not found", ir.Namespace, service.Name, service.Port), Vhost: host})
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+					Description: fmt.Sprintf("tcpproxy: service %s/%s/%d: not found",
+						ir.Namespace, service.Name, service.Port), Vhost: host})
 				return
 			}
 			proxy.Clusters = append(proxy.Clusters, &Cluster{
@@ -1031,7 +1065,8 @@ func (b *builder) processTCPProxy(ir *gatewayhostv1.GatewayHost, visited []*gate
 			if dest.Name == vir.Name && dest.Namespace == vir.Namespace {
 				path = append(path, fmt.Sprintf("%s/%s", dest.Namespace, dest.Name))
 				description := fmt.Sprintf("tcpproxy creates a delegation cycle: %s", strings.Join(path, " -> "))
-				b.setStatus(Status{Object: ir, Status: StatusInvalid, Description: description, Vhost: host})
+				b.setStatus(Status{Object: ir, Status: StatusInvalid,
+					Description: description, Vhost: host})
 				return
 			}
 		}
@@ -1040,7 +1075,8 @@ func (b *builder) processTCPProxy(ir *gatewayhostv1.GatewayHost, visited []*gate
 		b.processTCPProxy(dest, visited, host)
 	}
 
-	b.setStatus(Status{Object: ir, Status: StatusValid, Description: "valid GatewayHost", Vhost: host})
+	b.setStatus(Status{Object: ir, Status: StatusValid,
+		Description: "valid GatewayHost", Vhost: host})
 }
 
 // routeEnforceTLS determines if the route should redirect the user to a secure TLS listener

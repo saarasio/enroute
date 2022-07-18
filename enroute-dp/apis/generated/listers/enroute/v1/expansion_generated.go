@@ -13,6 +13,14 @@ type GatewayHostListerExpansion interface{}
 // GatewayHostNamespaceLister.
 type GatewayHostNamespaceListerExpansion interface{}
 
+// GatewayHostRouteListerExpansion allows custom methods to be added to
+// GatewayHostRouteLister.
+type GatewayHostRouteListerExpansion interface{}
+
+// GatewayHostRouteNamespaceListerExpansion allows custom methods to be added to
+// GatewayHostRouteNamespaceLister.
+type GatewayHostRouteNamespaceListerExpansion interface{}
+
 // GlobalConfigListerExpansion allows custom methods to be added to
 // GlobalConfigLister.
 type GlobalConfigListerExpansion interface{}

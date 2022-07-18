@@ -1390,6 +1390,75 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
+	ghr1 := &gatewayhostv1.GatewayHostRoute{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "gwroute2",
+			Namespace: "httpbin2",
+		},
+		Spec: gatewayhostv1.GatewayHostRouteSpec{
+			Route: gatewayhostv1.Route{
+				Conditions: []gatewayhostv1.Condition{{
+					Prefix: "/get-in-namespace-httpbin2",
+				}},
+				Services: []gatewayhostv1.Service{{
+					Name: "httpbin",
+					Port: 80,
+				}},
+			},
+			Fqdn: "example.com",
+		},
+	}
+
+	ghr2 := &gatewayhostv1.GatewayHostRoute{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "gwroute",
+			Namespace: "httpbin",
+		},
+		Spec: gatewayhostv1.GatewayHostRouteSpec{
+			Route: gatewayhostv1.Route{
+				Conditions: []gatewayhostv1.Condition{{
+					Prefix: "/status-in-namespace-httpbin/200",
+				}},
+				Services: []gatewayhostv1.Service{{
+					Name: "httpbin",
+					Port: 80,
+				}},
+			},
+			Fqdn: "example.com",
+		},
+	}
+
+	shttpbin := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "httpbin",
+			Namespace: "httpbin",
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
+				Name:       "http",
+				Protocol:   "TCP",
+				Port:       80,
+				TargetPort: intstr.FromInt(80),
+			}},
+		},
+	}
+
+	shttpbin2 := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "httpbin",
+			Namespace: "httpbin2",
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{{
+				Name:       "http",
+				Protocol:   "TCP",
+				Port:       80,
+				TargetPort: intstr.FromInt(80),
+			}},
+		},
+	}
+
+
 	s5 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "blog-admin",
@@ -2197,6 +2266,23 @@ func TestDAGInsert(t *testing.T) {
 					Port: 80,
 					VirtualHosts: virtualhosts(
 						virtualhost("example.com", prefixroute("/", httpService(s1))),
+					),
+				},
+			),
+		},
+		"gatewayhost with two gatewayhostroutes in two namespaces": {
+			objs: []interface{}{
+				ir1, s1, ghr1,ghr2, shttpbin, shttpbin2,
+			},
+			want: listeners(
+				&Listener{
+					Port: 80,
+					VirtualHosts: virtualhosts(
+						virtualhost("example.com",
+							prefixroute("/", httpService(s1)),
+							prefixroute("/status-in-namespace-httpbin/200", httpService(shttpbin)),
+							prefixroute("/get-in-namespace-httpbin2", httpService(shttpbin2)),
+					        ),
 					),
 				},
 			),
@@ -4116,7 +4202,7 @@ func TestDAGGatewayHostStatus(t *testing.T) {
 		//},
 		"missing service shows invalid status": {
 			objs: []interface{}{ir16},
-			want: []Status{{Object: ir16, Status: "invalid", Description: `Service [invalid:8080] is invalid or missing`, Vhost: ""}},
+			want: []Status{{Object: ir16, Status: "invalid", Description: `Service [invalid:8080] is invalid or missing`, Vhost: "example.com"}},
 		},
 	}
 

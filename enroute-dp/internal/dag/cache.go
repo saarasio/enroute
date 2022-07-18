@@ -40,11 +40,12 @@ type KubernetesCache struct {
 	mu sync.RWMutex
 	logrus.FieldLogger
 
-	ingresses    map[Meta]*net_v1.Ingress
-	gatewayhosts map[Meta]*gatewayhostv1.GatewayHost
-	secrets      map[Meta]*v1.Secret
-	delegations  map[Meta]*gatewayhostv1.TLSCertificateDelegation
-	services     map[Meta]*v1.Service
+	ingresses         map[Meta]*net_v1.Ingress
+	gatewayhosts      map[Meta]*gatewayhostv1.GatewayHost
+	gatewayhostroutes map[Meta]*gatewayhostv1.GatewayHostRoute
+	secrets           map[Meta]*v1.Secret
+	delegations       map[Meta]*gatewayhostv1.TLSCertificateDelegation
+	services          map[Meta]*v1.Service
 
 	routefilters map[RouteFilterMeta]*gatewayhostv1.RouteFilter
 	httpfilters  map[HttpFilterMeta]*gatewayhostv1.HttpFilter
@@ -93,6 +94,12 @@ func (kc *KubernetesCache) Insert(obj interface{}) {
 			kc.gatewayhosts = make(map[Meta]*gatewayhostv1.GatewayHost)
 		}
 		kc.gatewayhosts[m] = obj
+	case *gatewayhostv1.GatewayHostRoute:
+		m := Meta{name: obj.Name, namespace: obj.Namespace}
+		if kc.gatewayhostroutes == nil {
+			kc.gatewayhostroutes = make(map[Meta]*gatewayhostv1.GatewayHostRoute)
+		}
+		kc.gatewayhostroutes[m] = obj
 	case *gatewayhostv1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		if kc.delegations == nil {
@@ -146,6 +153,9 @@ func (kc *KubernetesCache) remove(obj interface{}) {
 	case *gatewayhostv1.GatewayHost:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.gatewayhosts, m)
+	case *gatewayhostv1.GatewayHostRoute:
+		m := Meta{name: obj.Name, namespace: obj.Namespace}
+		delete(kc.gatewayhostroutes, m)
 	case *gatewayhostv1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.delegations, m)
