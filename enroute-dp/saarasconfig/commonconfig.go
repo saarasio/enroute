@@ -44,6 +44,8 @@ const FILTER_TYPE_HTTP_JWT string = "http_filter_jwt"
 const FILTER_TYPE_HTTP_ACCESSLOG string = "http_filter_accesslog"
 const FILTER_TYPE_RT_CIRCUITBREAKERS string = "route_filter_circuitbreakers"
 const FILTER_TYPE_RT_OUTLIERDETECTION string = "route_filter_outlierdetection"
+const FILTER_TYPE_HTTP_EXTAUTHZ string = "http_filter_extauthz"
+const FILTER_TYPE_HTTP_WASM string = "http_filter_wasm"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
@@ -238,4 +240,20 @@ func UnmarshalOutlierDetection(cc_config string) (OutlierDetectionConfig, error)
 	}
 
 	return cbc, err
+}
+
+type HealthCheckConfig struct {
+	Path string `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+}
+
+func UnmarshalHealthCheckConfig(healthcheck_config string) (HealthCheckConfig, error) {
+	var hcc HealthCheckConfig
+	var err error
+
+	buf := strings.NewReader(healthcheck_config)
+	if err = json.NewDecoder(buf).Decode(&hcc); err != nil {
+		errors.Wrap(err, "error decoding response")
+	}
+
+	return hcc, err
 }
