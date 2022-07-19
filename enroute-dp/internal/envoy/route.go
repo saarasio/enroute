@@ -42,7 +42,7 @@ func RouteRoute(r *dag.Route) *envoy_config_route_v3.Route_Route {
 		HashPolicy:    hashPolicy(r),
 	}
 
-	SetupRouteRateLimits(r, &ra)
+	ProcessRouteFilters(r, &ra)
 
 	if r.Websocket {
 		ra.UpgradeConfigs = append(ra.UpgradeConfigs,

@@ -53,6 +53,7 @@ const FILTER_TYPE_VH_RBAC string = "vh_filter_rbac"
 const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_RT_CIRCUITBREAKERS string = "route_filter_circuitbreakers"
 const FILTER_TYPE_RT_OUTLIERDETECTION string = "route_filter_outlierdetection"
+const FILTER_TYPE_RT_HOST_REWRITE string = "route_filter_host_rewrite"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
@@ -326,4 +327,24 @@ func UnmarshalHealthCheckConfig(healthcheck_config string) (HealthCheckConfig, e
 	}
 
 	return hcc, err
+}
+
+// If Pattern_regex is specified, extract group from Pattern_regex, use it to build Substitution
+// If Pattern_regex is string, perform a literal rewrite using Substitution value
+// https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-field-config-route-v3-routeaction-host-rewrite-path-regex
+type HostRewriteConfig struct {
+	Pattern_regex string `json:"pattern_regex,omitempty"`
+	Substitution  string `json:"substitution,omitempty"`
+}
+
+func UnmarshalHostRewriteConfig(hrr_config string) (HostRewriteConfig, error) {
+	var hrr HostRewriteConfig
+	var err error
+
+	buf := strings.NewReader(hrr_config)
+	if err = json.NewDecoder(buf).Decode(&hrr); err != nil {
+		errors.Wrap(err, "error decoding response")
+	}
+
+	return hrr, err
 }

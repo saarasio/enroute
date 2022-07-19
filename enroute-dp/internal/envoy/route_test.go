@@ -28,6 +28,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
+	v31 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 )
 
 func TestRouteRoute(t *testing.T) {
@@ -347,6 +349,65 @@ func TestRouteRoute(t *testing.T) {
 							},
 						},
 					}},
+				},
+			},
+		},
+		"host rewrite literal replace": {
+			route: &dag.Route{
+				RouteFilters: []*dag.RouteFilter {
+					&dag.RouteFilter{
+						Filter: dag.Filter{
+							Filter_name: "host-rewrite",
+							Filter_type: cfg.FILTER_TYPE_RT_HOST_REWRITE,
+							Filter_config: `{
+								"substitution" : "newhost.com"
+							}`,
+						},
+					},
+				},
+				Clusters: []*dag.Cluster{c1},
+			},
+			want: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					HostRewriteSpecifier: &envoy_config_route_v3.RouteAction_HostRewriteLiteral{
+						HostRewriteLiteral: "newhost.com",
+					},
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
+						Cluster: "default/kuard/8080/da39a3ee5e",
+					},
+				},
+			},
+		},
+		"host rewrite regex replace": {
+			route: &dag.Route{
+				RouteFilters: []*dag.RouteFilter {
+					&dag.RouteFilter{
+						Filter: dag.Filter{
+							Filter_name: "host-rewrite-regex-replace",
+							Filter_type: cfg.FILTER_TYPE_RT_HOST_REWRITE,
+							Filter_config: `{
+								"pattern_regex" : "^/(.+)/.+$",
+								"substitution" : "\\1"
+							}`,
+						},
+					},
+				},
+				Clusters: []*dag.Cluster{c1},
+			},
+			want: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					HostRewriteSpecifier : &envoy_config_route_v3.RouteAction_HostRewritePathRegex{
+						HostRewritePathRegex: &v31.RegexMatchAndSubstitute{
+							Pattern: &v31.RegexMatcher{
+								EngineType: &v31.RegexMatcher_GoogleRe2{},
+								Regex: "^/(.+)/.+$",
+							},
+							Substitution: `\1`,
+						},
+					},
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
+						Cluster: "default/kuard/8080/da39a3ee5e",
+					},
 				},
 			},
 		},
