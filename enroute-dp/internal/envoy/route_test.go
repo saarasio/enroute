@@ -20,16 +20,16 @@ import (
 	"testing"
 	"time"
 
+	v31 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	"github.com/saarasio/enroute/enroute-dp/internal/assert"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
-	v31 "github.com/envoyproxy/go-control-plane/envoy/type/matcher/v3"
 )
 
 func TestRouteRoute(t *testing.T) {
@@ -354,7 +354,7 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"host rewrite literal replace": {
 			route: &dag.Route{
-				RouteFilters: []*dag.RouteFilter {
+				RouteFilters: []*dag.RouteFilter{
 					&dag.RouteFilter{
 						Filter: dag.Filter{
 							Filter_name: "host-rewrite",
@@ -380,7 +380,7 @@ func TestRouteRoute(t *testing.T) {
 		},
 		"host rewrite regex replace": {
 			route: &dag.Route{
-				RouteFilters: []*dag.RouteFilter {
+				RouteFilters: []*dag.RouteFilter{
 					&dag.RouteFilter{
 						Filter: dag.Filter{
 							Filter_name: "host-rewrite-regex-replace",
@@ -396,11 +396,11 @@ func TestRouteRoute(t *testing.T) {
 			},
 			want: &envoy_config_route_v3.Route_Route{
 				Route: &envoy_config_route_v3.RouteAction{
-					HostRewriteSpecifier : &envoy_config_route_v3.RouteAction_HostRewritePathRegex{
+					HostRewriteSpecifier: &envoy_config_route_v3.RouteAction_HostRewritePathRegex{
 						HostRewritePathRegex: &v31.RegexMatchAndSubstitute{
 							Pattern: &v31.RegexMatcher{
 								EngineType: &v31.RegexMatcher_GoogleRe2{},
-								Regex: "^/(.+)/.+$",
+								Regex:      "^/(.+)/.+$",
 							},
 							Substitution: `\1`,
 						},
@@ -417,6 +417,69 @@ func TestRouteRoute(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			got := RouteRoute(tc.route)
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestRouteRedirects(t *testing.T) {
+	s1 := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "kuard",
+			Namespace: "default",
+		},
+		Spec: v1.ServiceSpec{
+			Ports: []v1.ServicePort{{
+				Name:       "http",
+				Protocol:   "TCP",
+				Port:       8080,
+				TargetPort: intstr.FromInt(8080),
+			}},
+		},
+	}
+	c1 := &dag.Cluster{
+		Upstream: &dag.TCPService{
+			Name:        s1.Name,
+			Namespace:   s1.Namespace,
+			ServicePort: &s1.Spec.Ports[0],
+		},
+	}
+	tests := map[string]struct {
+		route *dag.Route
+		want  *envoy_config_route_v3.Route
+	}{
+		"redirect response": {
+			route: &dag.Route{
+				RouteFilters: []*dag.RouteFilter{
+					&dag.RouteFilter{
+						Filter: dag.Filter{
+							Filter_name: "redirect-response",
+							Filter_type: cfg.FILTER_TYPE_RT_REDIRECT,
+							Filter_config: `{
+								"response_code" : 302,
+								"prefix_rewrite" : "/rewrite"
+							}`,
+						},
+					},
+				},
+				Clusters: []*dag.Cluster{c1},
+			},
+			want: &envoy_config_route_v3.Route{
+				Action: &envoy_config_route_v3.Route_Redirect{
+					Redirect: &envoy_config_route_v3.RedirectAction{
+						ResponseCode: envoy_config_route_v3.RedirectAction_FOUND,
+						PathRewriteSpecifier: &envoy_config_route_v3.RedirectAction_PrefixRewrite{
+							PrefixRewrite: "/rewrite",
+						},
+					},
+				},
+			},
+		},
+	}
+	var rr envoy_config_route_v3.Route
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			SetupRouteRedirects(tc.route, &rr)
+			assert.Equal(t, tc.want, rr)
 		})
 	}
 }

@@ -220,10 +220,75 @@ func dagToEnvoyHostRewrite(f *dag.RouteFilter, ra *envoy_config_route_v3.RouteAc
 	}
 }
 
+
+
 func SetupRouteRateLimits(r *dag.Route, ra *envoy_config_route_v3.RouteAction) {
 	if r.RouteFilters != nil {
 		ra.RateLimits = rateLimits(r.RouteFilters)
 	}
+}
+
+func RedirectFilterToEnvoyRouteAction(rf *dag.RouteFilter) *envoy_config_route_v3.Route_Redirect {
+    redirectFilterCfg, err := saarasconfig.UnmarshalRedirectConfig(rf.Filter.Filter_config)
+
+    if err != nil {
+      return nil
+    }
+
+    r := &envoy_config_route_v3.Route_Redirect{
+        Redirect: &envoy_config_route_v3.RedirectAction{},
+    }
+
+    if len(redirectFilterCfg.HostRedirect) > 0 {
+        r.Redirect.HostRedirect = redirectFilterCfg.HostRedirect
+    }
+
+    if len(redirectFilterCfg.SchemeRedirect) > 0 {
+        r.Redirect.SchemeRewriteSpecifier = &envoy_config_route_v3.RedirectAction_SchemeRedirect{
+            SchemeRedirect: redirectFilterCfg.SchemeRedirect,
+        }
+    }
+
+    if redirectFilterCfg.PortRedirect > 0 {
+        r.Redirect.PortRedirect = redirectFilterCfg.PortRedirect
+    }
+
+    if len(redirectFilterCfg.PathRedirect) > 0 {
+        r.Redirect.PathRewriteSpecifier = &envoy_config_route_v3.RedirectAction_PathRedirect{
+            PathRedirect: redirectFilterCfg.PathRedirect,
+        }
+    }
+
+    if len(redirectFilterCfg.PrefixRewrite) > 0 {
+        r.Redirect.PathRewriteSpecifier = &envoy_config_route_v3.RedirectAction_PrefixRewrite{
+            PrefixRewrite: redirectFilterCfg.PrefixRewrite,
+        }
+    }
+
+    switch redirectFilterCfg.ResponseCode {
+    case 301:
+        r.Redirect.ResponseCode = envoy_config_route_v3.RedirectAction_MOVED_PERMANENTLY
+    case 302:
+        r.Redirect.ResponseCode = envoy_config_route_v3.RedirectAction_FOUND
+    }
+
+    r.Redirect.StripQuery = redirectFilterCfg.StripQuery
+
+    return r
+}
+
+func DirectReponseFilterToEnvoyRouteAction(rf *dag.RouteFilter) *envoy_config_route_v3.Route_DirectResponse {
+    directResponseCfg, err := saarasconfig.UnmarshalDirectResponseConfig(rf.Filter.Filter_config)
+
+    if err != nil {
+	    return nil
+    }
+
+    return &envoy_config_route_v3.Route_DirectResponse{
+        DirectResponse: &envoy_config_route_v3.DirectResponseAction{
+            Status: directResponseCfg.StatusCode,
+        },
+    }
 }
 
 func ProcessRouteFilters(r *dag.Route, ra *envoy_config_route_v3.RouteAction) {
@@ -235,6 +300,25 @@ func ProcessRouteFilters(r *dag.Route, ra *envoy_config_route_v3.RouteAction) {
 		case saarasconfig.FILTER_TYPE_RT_HOST_REWRITE:
 			dagToEnvoyHostRewrite(f, ra)
 		default:
+		}
+	}
+}
+
+func SetupRouteRedirects(r *dag.Route, rr *envoy_config_route_v3.Route) {
+	for _, f := range r.RouteFilters {
+		if f.Filter.Filter_type == saarasconfig.FILTER_TYPE_RT_REDIRECT {
+			action := RedirectFilterToEnvoyRouteAction(f)
+			if action != nil {
+				rr.Action = action
+			}
+			return
+		}
+		if f.Filter.Filter_type == saarasconfig.FILTER_TYPE_RT_DIRECTRESPONSE {
+			action := DirectReponseFilterToEnvoyRouteAction(f)
+			if action != nil {
+				rr.Action = action
+			}
+			return
 		}
 	}
 }

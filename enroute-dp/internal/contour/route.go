@@ -167,6 +167,8 @@ func envoyRouteFromDagRoute(vh *dag.VirtualHost, vhost *envoy_config_route_v3.Vi
 		rr.RequestHeadersToAdd = nil
 	}
 
+	envoy.SetupRouteRedirects(r, rr)
+
 	vhost.Routes = append(vhost.Routes, rr)
 }
 

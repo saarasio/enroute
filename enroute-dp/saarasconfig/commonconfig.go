@@ -54,6 +54,8 @@ const FILTER_TYPE_RT_RATELIMIT string = "route_filter_ratelimit"
 const FILTER_TYPE_RT_CIRCUITBREAKERS string = "route_filter_circuitbreakers"
 const FILTER_TYPE_RT_OUTLIERDETECTION string = "route_filter_outlierdetection"
 const FILTER_TYPE_RT_HOST_REWRITE string = "route_filter_host_rewrite"
+const FILTER_TYPE_RT_REDIRECT string = "route_filter_redirect"
+const FILTER_TYPE_RT_DIRECTRESPONSE string = "route_filter_directreponse"
 
 const PROXY_CONFIG_RATELIMIT string = "globalconfig_ratelimit"
 const PROXY_CONFIG_ACCESSLOG string = "globalconfig_accesslog"
@@ -347,4 +349,44 @@ func UnmarshalHostRewriteConfig(hrr_config string) (HostRewriteConfig, error) {
 	}
 
 	return hrr, err
+}
+
+// https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#config-route-v3-redirectaction
+type RedirectConfig struct {
+	SchemeRedirect string `json:"scheme_redirect,omitempty"`
+	HostRedirect   string `json:"host_redirect,omitempty"`
+	PortRedirect   uint32 `json:"port_redirect,omitempty"`
+	PathRedirect   string `json:"path_redirect,omitempty"`
+	PrefixRewrite  string `json:"prefix_rewrite,omitempty"`
+	RegexRedirect  string `json:"regex_redirect,omitempty"`
+	ResponseCode   int    `json:"response_code,omitempty"`
+	StripQuery     bool   `json:"strip_query,omitempty"`
+}
+
+func UnmarshalRedirectConfig(in_config string) (RedirectConfig, error) {
+	var cfg RedirectConfig
+	var err error
+
+	buf := strings.NewReader(in_config)
+	if err = json.NewDecoder(buf).Decode(&cfg); err != nil {
+		errors.Wrap(err, "error decoding response")
+	}
+
+	return cfg, err
+}
+
+type DirectResponseConfig struct {
+	StatusCode   uint32    `json:"response_code,omitempty"`
+}
+
+func UnmarshalDirectResponseConfig(in_config string) (DirectResponseConfig, error) {
+	var cfg DirectResponseConfig
+	var err error
+
+	buf := strings.NewReader(in_config)
+	if err = json.NewDecoder(buf).Decode(&cfg); err != nil {
+		errors.Wrap(err, "error decoding response")
+	}
+
+	return cfg, err
 }
