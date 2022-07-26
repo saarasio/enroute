@@ -42,7 +42,7 @@ type KubernetesCache struct {
 
 	ingresses         map[Meta]*net_v1.Ingress
 	gatewayhosts      map[Meta]*gatewayhostv1.GatewayHost
-	gatewayhostroutes map[Meta]*gatewayhostv1.GatewayHostRoute
+	serviceroutes map[Meta]*gatewayhostv1.ServiceRoute
 	secrets           map[Meta]*v1.Secret
 	delegations       map[Meta]*gatewayhostv1.TLSCertificateDelegation
 	services          map[Meta]*v1.Service
@@ -94,12 +94,12 @@ func (kc *KubernetesCache) Insert(obj interface{}) {
 			kc.gatewayhosts = make(map[Meta]*gatewayhostv1.GatewayHost)
 		}
 		kc.gatewayhosts[m] = obj
-	case *gatewayhostv1.GatewayHostRoute:
+	case *gatewayhostv1.ServiceRoute:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
-		if kc.gatewayhostroutes == nil {
-			kc.gatewayhostroutes = make(map[Meta]*gatewayhostv1.GatewayHostRoute)
+		if kc.serviceroutes == nil {
+			kc.serviceroutes = make(map[Meta]*gatewayhostv1.ServiceRoute)
 		}
-		kc.gatewayhostroutes[m] = obj
+		kc.serviceroutes[m] = obj
 	case *gatewayhostv1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		if kc.delegations == nil {
@@ -153,9 +153,9 @@ func (kc *KubernetesCache) remove(obj interface{}) {
 	case *gatewayhostv1.GatewayHost:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.gatewayhosts, m)
-	case *gatewayhostv1.GatewayHostRoute:
+	case *gatewayhostv1.ServiceRoute:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
-		delete(kc.gatewayhostroutes, m)
+		delete(kc.serviceroutes, m)
 	case *gatewayhostv1.TLSCertificateDelegation:
 		m := Meta{name: obj.Name, namespace: obj.Namespace}
 		delete(kc.delegations, m)

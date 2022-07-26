@@ -16,11 +16,11 @@ import (
 type EnrouteV1Interface interface {
 	RESTClient() rest.Interface
 	GatewayHostsGetter
-	GatewayHostRoutesGetter
 	GlobalConfigsGetter
 	HttpFiltersGetter
 	PolicyOverlaysGetter
 	RouteFiltersGetter
+	ServiceRoutesGetter
 	TLSCertificateDelegationsGetter
 }
 
@@ -31,10 +31,6 @@ type EnrouteV1Client struct {
 
 func (c *EnrouteV1Client) GatewayHosts(namespace string) GatewayHostInterface {
 	return newGatewayHosts(c, namespace)
-}
-
-func (c *EnrouteV1Client) GatewayHostRoutes(namespace string) GatewayHostRouteInterface {
-	return newGatewayHostRoutes(c, namespace)
 }
 
 func (c *EnrouteV1Client) GlobalConfigs(namespace string) GlobalConfigInterface {
@@ -51,6 +47,10 @@ func (c *EnrouteV1Client) PolicyOverlays(namespace string) PolicyOverlayInterfac
 
 func (c *EnrouteV1Client) RouteFilters(namespace string) RouteFilterInterface {
 	return newRouteFilters(c, namespace)
+}
+
+func (c *EnrouteV1Client) ServiceRoutes(namespace string) ServiceRouteInterface {
+	return newServiceRoutes(c, namespace)
 }
 
 func (c *EnrouteV1Client) TLSCertificateDelegations(namespace string) TLSCertificateDelegationInterface {

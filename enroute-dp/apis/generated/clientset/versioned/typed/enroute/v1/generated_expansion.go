@@ -7,8 +7,6 @@ package v1
 
 type GatewayHostExpansion interface{}
 
-type GatewayHostRouteExpansion interface{}
-
 type GlobalConfigExpansion interface{}
 
 type HttpFilterExpansion interface{}
@@ -16,5 +14,7 @@ type HttpFilterExpansion interface{}
 type PolicyOverlayExpansion interface{}
 
 type RouteFilterExpansion interface{}
+
+type ServiceRouteExpansion interface{}
 
 type TLSCertificateDelegationExpansion interface{}

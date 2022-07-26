@@ -19,10 +19,6 @@ func (c *FakeEnrouteV1) GatewayHosts(namespace string) v1.GatewayHostInterface {
 	return &FakeGatewayHosts{c, namespace}
 }
 
-func (c *FakeEnrouteV1) GatewayHostRoutes(namespace string) v1.GatewayHostRouteInterface {
-	return &FakeGatewayHostRoutes{c, namespace}
-}
-
 func (c *FakeEnrouteV1) GlobalConfigs(namespace string) v1.GlobalConfigInterface {
 	return &FakeGlobalConfigs{c, namespace}
 }
@@ -37,6 +33,10 @@ func (c *FakeEnrouteV1) PolicyOverlays(namespace string) v1.PolicyOverlayInterfa
 
 func (c *FakeEnrouteV1) RouteFilters(namespace string) v1.RouteFilterInterface {
 	return &FakeRouteFilters{c, namespace}
+}
+
+func (c *FakeEnrouteV1) ServiceRoutes(namespace string) v1.ServiceRouteInterface {
+	return &FakeServiceRoutes{c, namespace}
 }
 
 func (c *FakeEnrouteV1) TLSCertificateDelegations(namespace string) v1.TLSCertificateDelegationInterface {

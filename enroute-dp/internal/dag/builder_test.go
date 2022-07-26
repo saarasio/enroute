@@ -1390,12 +1390,12 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ghr1 := &gatewayhostv1.GatewayHostRoute{
+	ghr1 := &gatewayhostv1.ServiceRoute{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "gwroute2",
+			Name: "gwroute2",
 			Namespace: "httpbin2",
 		},
-		Spec: gatewayhostv1.GatewayHostRouteSpec{
+		Spec: gatewayhostv1.ServiceRouteSpec{
 			Route: gatewayhostv1.Route{
 				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/get-in-namespace-httpbin2",
@@ -1409,12 +1409,12 @@ func TestDAGInsert(t *testing.T) {
 		},
 	}
 
-	ghr2 := &gatewayhostv1.GatewayHostRoute{
+	ghr2 := &gatewayhostv1.ServiceRoute{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "gwroute",
+			Name: "gwroute",
 			Namespace: "httpbin",
 		},
-		Spec: gatewayhostv1.GatewayHostRouteSpec{
+		Spec: gatewayhostv1.ServiceRouteSpec{
 			Route: gatewayhostv1.Route{
 				Conditions: []gatewayhostv1.Condition{{
 					Prefix: "/status-in-namespace-httpbin/200",
@@ -1457,6 +1457,7 @@ func TestDAGInsert(t *testing.T) {
 			}},
 		},
 	}
+
 
 	s5 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2269,9 +2270,9 @@ func TestDAGInsert(t *testing.T) {
 				},
 			),
 		},
-		"gatewayhost with two gatewayhostroutes in two namespaces": {
+		"gatewayhost with two serviceroutes in two namespaces": {
 			objs: []interface{}{
-				ir1, s1, ghr1, ghr2, shttpbin, shttpbin2,
+				ir1, s1, ghr1,ghr2, shttpbin, shttpbin2,
 			},
 			want: listeners(
 				&Listener{
@@ -2281,7 +2282,7 @@ func TestDAGInsert(t *testing.T) {
 							prefixroute("/", httpService(s1)),
 							prefixroute("/status-in-namespace-httpbin/200", httpService(shttpbin)),
 							prefixroute("/get-in-namespace-httpbin2", httpService(shttpbin2)),
-						),
+					        ),
 					),
 				},
 			),

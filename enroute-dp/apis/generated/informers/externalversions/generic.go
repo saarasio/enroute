@@ -42,8 +42,6 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=enroute.saaras.io, Version=v1
 	case v1.SchemeGroupVersion.WithResource("gatewayhosts"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().GatewayHosts().Informer()}, nil
-	case v1.SchemeGroupVersion.WithResource("gatewayhostroutes"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().GatewayHostRoutes().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("globalconfigs"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().GlobalConfigs().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("httpfilters"):
@@ -52,6 +50,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().PolicyOverlays().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("routefilters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().RouteFilters().Informer()}, nil
+	case v1.SchemeGroupVersion.WithResource("serviceroutes"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().ServiceRoutes().Informer()}, nil
 	case v1.SchemeGroupVersion.WithResource("tlscertificatedelegations"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Enroute().V1().TLSCertificateDelegations().Informer()}, nil
 

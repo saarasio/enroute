@@ -13,14 +13,6 @@ type GatewayHostListerExpansion interface{}
 // GatewayHostNamespaceLister.
 type GatewayHostNamespaceListerExpansion interface{}
 
-// GatewayHostRouteListerExpansion allows custom methods to be added to
-// GatewayHostRouteLister.
-type GatewayHostRouteListerExpansion interface{}
-
-// GatewayHostRouteNamespaceListerExpansion allows custom methods to be added to
-// GatewayHostRouteNamespaceLister.
-type GatewayHostRouteNamespaceListerExpansion interface{}
-
 // GlobalConfigListerExpansion allows custom methods to be added to
 // GlobalConfigLister.
 type GlobalConfigListerExpansion interface{}
@@ -52,6 +44,14 @@ type RouteFilterListerExpansion interface{}
 // RouteFilterNamespaceListerExpansion allows custom methods to be added to
 // RouteFilterNamespaceLister.
 type RouteFilterNamespaceListerExpansion interface{}
+
+// ServiceRouteListerExpansion allows custom methods to be added to
+// ServiceRouteLister.
+type ServiceRouteListerExpansion interface{}
+
+// ServiceRouteNamespaceListerExpansion allows custom methods to be added to
+// ServiceRouteNamespaceLister.
+type ServiceRouteNamespaceListerExpansion interface{}
 
 // TLSCertificateDelegationListerExpansion allows custom methods to be added to
 // TLSCertificateDelegationLister.

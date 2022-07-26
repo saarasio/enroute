@@ -13,8 +13,6 @@ import (
 type Interface interface {
 	// GatewayHosts returns a GatewayHostInformer.
 	GatewayHosts() GatewayHostInformer
-	// GatewayHostRoutes returns a GatewayHostRouteInformer.
-	GatewayHostRoutes() GatewayHostRouteInformer
 	// GlobalConfigs returns a GlobalConfigInformer.
 	GlobalConfigs() GlobalConfigInformer
 	// HttpFilters returns a HttpFilterInformer.
@@ -23,6 +21,8 @@ type Interface interface {
 	PolicyOverlays() PolicyOverlayInformer
 	// RouteFilters returns a RouteFilterInformer.
 	RouteFilters() RouteFilterInformer
+	// ServiceRoutes returns a ServiceRouteInformer.
+	ServiceRoutes() ServiceRouteInformer
 	// TLSCertificateDelegations returns a TLSCertificateDelegationInformer.
 	TLSCertificateDelegations() TLSCertificateDelegationInformer
 }
@@ -43,11 +43,6 @@ func (v *version) GatewayHosts() GatewayHostInformer {
 	return &gatewayHostInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
-// GatewayHostRoutes returns a GatewayHostRouteInformer.
-func (v *version) GatewayHostRoutes() GatewayHostRouteInformer {
-	return &gatewayHostRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
-}
-
 // GlobalConfigs returns a GlobalConfigInformer.
 func (v *version) GlobalConfigs() GlobalConfigInformer {
 	return &globalConfigInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
@@ -66,6 +61,11 @@ func (v *version) PolicyOverlays() PolicyOverlayInformer {
 // RouteFilters returns a RouteFilterInformer.
 func (v *version) RouteFilters() RouteFilterInformer {
 	return &routeFilterInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ServiceRoutes returns a ServiceRouteInformer.
+func (v *version) ServiceRoutes() ServiceRouteInformer {
+	return &serviceRouteInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // TLSCertificateDelegations returns a TLSCertificateDelegationInformer.

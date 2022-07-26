@@ -723,7 +723,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 	if !pathConditionValid {
 		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 			logger.EL.ELogger.Debugf(
-				"dag:builder:processGatewayHostRoute() Path Condition Invalid: Host [%s] Err [%s] Conditions [%+v]",
+				"dag:builder:processServiceRoute() Path Condition Invalid: Host [%s] Err [%s] Conditions [%+v]",
 				host, errMesg, route.Conditions)
 		}
 		return fmt.Errorf("%s", errMesg)
@@ -865,7 +865,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 	return nil
 }
 
-func (b *builder) processGatewayHostRoute(ir *gatewayhostv1.GatewayHost, ghr *gatewayhostv1.GatewayHostRoute, host string, enforceTLS bool) {
+func (b *builder) processServiceRoute(ir *gatewayhostv1.GatewayHost, ghr *gatewayhostv1.ServiceRoute, host string, enforceTLS bool) {
 
 	if ghr == nil {
 		return
@@ -895,8 +895,8 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 			return
 		}
 
-		// Process GatewayHostRoute for this GatewayHost
-		for _, ghroute := range b.source.gatewayhostroutes {
+		// Process ServiceRoute for this GatewayHost
+		for _, ghroute := range b.source.serviceroutes {
 			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 				logger.EL.ELogger.Infof(
 					"dag:builder:processRoutes() Processing GHR [%v] \n", ghroute)
@@ -908,7 +908,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 						"dag:builder:processRoutes() GHR fqdn Match [%s] \n", host)
 				}
 
-				b.processGatewayHostRoute(ir, ghroute, host, enforceTLS)
+				b.processServiceRoute(ir, ghroute, host, enforceTLS)
 			}
 		}
 
