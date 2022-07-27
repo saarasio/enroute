@@ -1,0 +1,41 @@
+# Chart to install services used to demo EnRoute
+#
+# httpbin service:
+# httpbin.org
+#
+# echo service (websocket):
+# https://github.com/jmalloc/echo-server
+# https://hub.docker.com/r/jmalloc/echo-server
+#
+# grpc service:
+# https://github.com/moul/grpcbin
+
+service:
+  # -- httpbin service:
+  # httpbin.org
+  httpbin:
+    # -- enable/disable service installation
+    enable: true
+    # -- namespace to install service in
+    namespace: httpbin
+    # -- port on which the (kubernetes clusterip) service is accessible
+    port: 9000
+  # -- echo service (websocket):
+  # https://github.com/jmalloc/echo-server
+  # https://hub.docker.com/r/jmalloc/echo-server
+  echo:
+    # -- enable/disable service installation
+    enable: true
+    # -- namespace to install service in
+    namespace: echo
+    # -- port on which the (kubernetes clusterip) service is accessible
+    port: 9001
+  # -- grpc service:
+  # https://github.com/moul/grpcbin
+  grpc:
+    # -- enable/disable service installation
+    enable: true
+    # -- namespace to install service in
+    namespace: grpc
+    # -- port on which the (kubernetes clusterip) service is accessible
+    port: 9002

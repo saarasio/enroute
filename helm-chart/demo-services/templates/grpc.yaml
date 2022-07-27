@@ -1,0 +1,43 @@
+{{- if .Values.service.grpc.enable }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grpcbin
+  namespace: {{ .Values.service.grpc.namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpcbin
+  namespace: {{ .Values.service.grpc.namespace }}
+spec:
+  ports:
+    - name: grpc-port
+      port: {{ .Values.service.grpc.port }}
+      targetPort: grpc-port
+      protocol: TCP
+  selector:
+    app: grpcbin-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpcbin-deployment
+  namespace: {{ .Values.service.grpc.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpcbin-server
+  template:
+    metadata:
+      labels:
+        app: grpcbin-server
+    spec:
+      containers:
+        - name: grpcbin-server
+          image: moul/grpcbin
+          ports:
+            - name: grpc-port
+              containerPort: 9000
+{{- end }}

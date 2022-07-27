@@ -1,0 +1,43 @@
+{{- if .Values.service.echo.enable }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: echo
+  namespace: {{ .Values.service.echo.namespace }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo
+  namespace: {{ .Values.service.echo.namespace }}
+spec:
+  ports:
+    - name: echoport
+      port: {{ .Values.service.echo.port }}
+      targetPort: echoport
+      protocol: TCP
+  selector:
+    app: echo-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-deployment
+  namespace: {{ .Values.service.echo.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo-server
+  template:
+    metadata:
+      labels:
+        app: echo-server
+    spec:
+      containers:
+        - name: echo-server
+          image: jmalloc/echo-server
+          ports:
+            - name: echoport
+              containerPort: 8080
+{{- end }}
