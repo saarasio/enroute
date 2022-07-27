@@ -1,0 +1,18 @@
+{{- if .Values.filters.healthcheck.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    component: healthcheck
+    configscope: globalconfig
+  name: healthcheck-globalconfig
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: healthcheck-globalconfig
+  type: http_filter_healthcheck 
+  httpFilterConfig:
+    config: |
+         {
+             "path" : "{{ .Values.filters.healthcheck.path }}"
+         }
+{{- end -}}

@@ -1,0 +1,23 @@
+{{- if .Values.filters.virtualhost.cors.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+  type: vh_filter_cors
+  httpFilterConfig:
+    config: |
+         {
+             "match_condition" : {
+               "regex" : "{{ .Values.filters.virtualhost.cors.match_condition_regex }}"
+             },
+             "access_control_allow_methods"  : "{{ .Values.filters.virtualhost.cors.access_control_allow_methods }}",
+             "access_control_allow_headers"  : "{{ .Values.filters.virtualhost.cors.access_control_allow_headers }}",
+             "access_control_expose_headers" : "{{ .Values.filters.virtualhost.cors.access_control_expose_headers }}",
+             "access_control_max_age"        : "{{ .Values.filters.virtualhost.cors.access_control_max_age }}"
+         }
+{{- end -}}

@@ -1,0 +1,24 @@
+{{- if .Values.filters.route.redirect.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-redirect
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-redirect
+  type: route_filter_redirect
+  routeFilterConfig:
+    config: |
+      {
+         "scheme_redirect": "{{ .Values.filters.route.redirect.scheme_redirect -}}",
+         "host_redirect": "{{ .Values.filters.route.redirect.host_redirect -}}",
+         "port_redirect": {{ .Values.filters.route.redirect.port_redirect -}},
+         "path_redirect": "{{ .Values.filters.route.redirect.path_redirect -}}",
+         "prefix_rewrite": "{{ .Values.filters.route.redirect.prefix_rewrite -}}",
+         "regex_redirect": "{{ .Values.filters.route.redirect.regex_redirect -}}",
+         "response_code": {{ .Values.filters.route.redirect.response_code -}},
+         "strip_query": {{ .Values.filters.route.redirect.strip_query }}
+      }
+{{- end -}}

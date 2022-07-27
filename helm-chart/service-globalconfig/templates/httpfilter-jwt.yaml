@@ -1,0 +1,29 @@
+{{- if .Values.filters.jwt.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    component: jwt
+    configscope: globalconfig
+  name: jwt-globalconfig
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: jwt-globalconfig
+  type: http_filter_jwt
+  services:
+     name: {{ .Values.filters.jwt.issuer.service_name }}
+     port: {{ .Values.filters.jwt.issuer.service_port }}
+     protocol: {{ .Values.filters.jwt.issuer.service_protocol }}
+  httpFilterConfig:
+    config: |
+         {
+           "name": "{{ .Values.filters.jwt.name }}",
+           "jwks_uri": "{{ .Values.filters.jwt.jwks_uri }}",
+           "audience": "{{ .Values.filters.jwt.audience }}",
+           "issuer": "{{ .Values.filters.jwt.issuer_url }}",
+           "route": [{"prefix" : "/"}],
+           "jwt_service_name": "{{ .Values.filters.jwt.jwt_service_name }}",
+           "jwt_service_port": "{{ .Values.filters.jwt.jwt_service_port }}",
+           "jwt_forward_header_name": "{{ .Values.filters.jwt.jwt_forward_header_name }}"
+         }
+{{- end -}}

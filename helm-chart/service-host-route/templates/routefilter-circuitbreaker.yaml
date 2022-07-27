@@ -1,0 +1,20 @@
+{{- if .Values.filters.route.circuitbreakers.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+  type: route_filter_circuitbreakers
+  routeFilterConfig:
+    config: |
+          {
+                "max_connections": {{ .Values.filters.route.circuitbreakers.max_connections }},
+                "max_pending_requests": {{ .Values.filters.route.circuitbreakers.max_pending_requests }},
+                "max_requests": {{ .Values.filters.route.circuitbreakers.max_requests }},
+                "max_retries": {{ .Values.filters.route.circuitbreakers.max_retries }}
+          }
+{{- end -}}

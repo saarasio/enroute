@@ -1,0 +1,18 @@
+{{- if .Values.filters.wasm.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    component: wasm
+    configscope: globalconfig
+  name: wasm-globalconfig
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: wasm-globalconfig
+  type: http_filter_wasm
+  httpFilterConfig:
+    config: |
+         {
+             "url" : "{{ .Values.filters.wasm.image_url }}"
+         }
+{{- end -}}

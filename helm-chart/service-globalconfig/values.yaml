@@ -1,0 +1,108 @@
+# Default values for service-globalconfig.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+filters:
+  # -- lua filter configuration
+  lua:
+    # -- when enabled, a lua filter is installed with basic script
+    enable: false
+    # -- not used
+    scriptfile: files/script.lua
+  # -- Rate Limit engine config
+  ratelimit:
+    # -- when enabled, Rate Limit engine global config is created
+    enable: false
+  # -- cors filter configuration
+  cors:
+    # -- when enabled, global cors filter config is created
+    enable: false
+  # -- jwt filter configuration
+  # https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/jwt_authn_filter#config-http-filters-jwt-authn
+  jwt:
+    # -- when enabled, global jwt filter config is installed
+    enable: false
+    # -- Name of JWKS provider
+    name: "auth0"
+    # -- JWKS provider URI to reach provider
+    jwks_uri: "https://saaras.auth0.com/.well-known/jwks.json"
+    # -- audience allowed to access
+    audience: "api-identifier"
+    # -- JWT issuer URL, the principal that issued the JWT, usually a URL or an email address
+    issuer_url: "https://saaras.auth0.com/"
+    # -- Service name used to access the JWKS provider
+    jwt_service_name: "jwt-issuer-auth0"
+    # -- Port used to access the JWKS provider
+    jwt_service_port: 443
+    # -- Header name in which the JWT token is forwarded to upstream
+    jwt_forward_header_name: "x-jwt-token"
+    # -- Issuer service created to access JWT provider
+    # These settings are used to create an ExternalName service
+    issuer:
+      # -- Create ExternalName issuer service
+      create: false
+      # -- name of ExternalName issuer service
+      service_name: "jwt-issuer-auth0"
+      # -- port for ExternalName issuer service
+      service_port: 443
+      # -- protocol used to communicate with external service
+      service_protocol: tls
+      # -- DNS of external service
+      external_name: saaras.auth0.com
+  # -- ext_authz filter configuration
+  # https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter#config-http-filters-ext-authz
+  extauthz:
+    # -- when enabled, global ext_authz filter config is installed
+    enable: false
+    # -- URL to reach external authz service
+    # Uses the form <scheme>://<namespace>.<service-name>:<service-port>
+    # scheme can be grpc or https, if no port is specified, port 443 is used for https
+    url: "https://ext-authz-ns.ext-auth:8443"
+    # -- unused, use url field
+    auth_service: "ext-authz"
+    # -- unused, use url field
+    auth_service_port: 8080
+    # -- valid values are (http or grpc), used to communicate with external auth service
+    auth_service_proto: "http"
+    # -- defines the maximum bytes that will be buffered for this filter, else returns 413
+    body_max_bytes: 409
+    # -- invoke auth filter when maximum bytes are reached
+    body_allow_partial: true
+    # -- http status to return when network error in reaching external auth service
+    status_on_error: 403
+    # -- when set, requests are allowed to upstream even when there is a failure to communicate with external auth service
+    failure_mode_allow: true
+    timeout: 10
+    # -- prepend path value when sending requests to external authorization service
+    path_prefix: 
+    pack_raw_bytes: false
+    # -- a list of allowed request headers may be supplied
+    # https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/ext_authz/v3/ext_authz.proto.html#envoy-v3-api-field-extensions-filters-http-ext-authz-v3-authorizationrequest-allowed-headers
+    allowed_request_headers:
+        - '"x-stamp"'
+        - '"requested-status"'
+        - '"x_forwarded_for"'
+        - '"requested-cookie"'
+    # -- list of response headers from auth service that are forwarded to upstream
+    # https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/ext_authz/v3/ext_authz.proto.html#envoy-v3-api-field-extensions-filters-http-ext-authz-v3-authorizationresponse-allowed-upstream-headers
+    allowed_authorization_headers:
+        - '"ext-authz-example-header"'
+        - '"x-auth-accountId"'
+        - '"x-auth-userId"'
+        - '"x-auth-userId"'
+  # -- wasm filter configuration
+  wasm:
+    enable: false
+    # -- url to remote oci image that has a wasm plugin packaged in it
+    image_url: "oci://saarasio/vvx-json"
+  # -- OPA filter configuration
+  opa:
+    enable: false
+  # -- HealthCheck filter configuration
+  healthcheck:
+    enable: false
+    # -- Path on which healthchecks can be performed
+    path: "/healthz"
+
+mesh:
+  linkerD: false

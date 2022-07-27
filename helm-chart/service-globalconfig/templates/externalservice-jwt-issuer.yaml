@@ -1,0 +1,13 @@
+{{- if .Values.filters.jwt.issuer.create -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.filters.jwt.issuer.service_name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ExternalName
+  externalName: {{ .Values.filters.jwt.issuer.external_name }}
+  ports:
+  - port: {{ .Values.filters.jwt.issuer.service_port }}
+    name: https
+{{- end -}}

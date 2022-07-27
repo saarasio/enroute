@@ -1,0 +1,97 @@
+apiVersion: enroute.saaras.io/v1
+{{- if not .Values.routeonly }}
+kind: GatewayHost
+{{- else }}
+kind: ServiceRoute
+{{- end }}
+metadata:
+  labels:
+    app: {{ .Values.service.name }}
+{{- if not .Values.routeonly }}
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-gatewayhost-{{ .Release.Name }}
+{{- else }}
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-serviceroute-{{ .Release.Name }}
+{{- end }}
+  namespace: {{ .Release.Namespace }}
+spec:
+{{- if not .Values.routeonly }}
+  virtualhost:
+    {{- if eq (len .Values.service.fqdn) 0 }}
+    fqdn: '*'
+    {{- else }}
+    fqdn: {{ quote .Values.service.fqdn }}
+    {{- end -}}
+{{- else }}
+  {{- if eq (len .Values.service.fqdn) 0 }}
+  fqdn: '*'
+  {{- else }}
+  fqdn: {{ quote .Values.service.fqdn }}
+  {{- end -}}
+{{- end }}
+{{- if not .Values.routeonly }}
+    {{- if or (eq .Values.filters.virtualhost.lua.enable true) (eq .Values.filters.virtualhost.cors.enable true) (eq .Values.filters.virtualhost.rbac.enable true) }}
+    filters:
+    {{- end }}
+    {{- if .Values.filters.virtualhost.lua.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-luafilter
+        type: vh_filter_lua
+    {{- end }}
+    {{- if .Values.filters.virtualhost.cors.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
+        type: vh_filter_cors
+    {{- end }}
+    {{- if .Values.filters.virtualhost.rbac.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-rbac
+        type: vh_filter_rbac
+    {{- end }}
+{{- end }}
+{{- if not .Values.routeonly }}
+  routes:
+  - conditions:
+{{- else }}
+  route:
+    conditions:
+{{- end }}
+    - prefix: {{ .Values.service.prefix }}
+    {{- if or (eq .Values.filters.route.ratelimit.enable true) (eq .Values.filters.route.circuitbreakers.enable true) (eq .Values.filters.route.outlierdetection.enable true) (eq .Values.filters.route.hostrewrite.enable true) (eq .Values.filters.route.redirect.enable true) (eq .Values.filters.route.directresponse.enable true)}}
+    filters:
+    {{- end }}
+    {{- if .Values.filters.route.ratelimit.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-ratelimit
+        type: route_filter_ratelimit
+    {{- end }}
+    {{- if .Values.filters.route.circuitbreakers.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
+        type: route_filter_circuitbreakers
+    {{- end }}
+    {{- if .Values.filters.route.outlierdetection.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+        type: route_filter_outlierdetection
+    {{- end }}
+    {{- if .Values.filters.route.hostrewrite.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-hostrewrite
+        type: route_filter_host_rewrite
+    {{- end }}
+    {{- if .Values.filters.route.redirect.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-redirect
+        type: route_filter_redirect
+    {{- end }}
+    {{- if .Values.filters.route.directresponse.enable }}
+      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-directresponse
+        type: route_filter_directresponse
+    {{- end }}
+    services:
+      - name: {{ .Values.service.name }}
+        port: {{ .Values.service.port }}
+        {{- if .Values.service.protocol }}
+        protocol: {{ .Values.service.protocol }}
+        {{- end }}
+        {{- if .Values.service.httphealthcheck.enable }}
+        healthCheck:
+          healthyThresholdCount: {{ .Values.service.httphealthcheck.healthy_threshold_count }}
+          intervalSeconds: {{ .Values.service.httphealthcheck.interval_seconds }}
+          path: {{ .Values.service.httphealthcheck.path }}
+          host: {{ .Values.service.httphealthcheck.host }}
+          timeoutSeconds: {{ .Values.service.httphealthcheck.timeout_seconds }}
+          unhealthyThresholdCount: {{ .Values.service.httphealthcheck.unhealthy_threshold_count }}
+        {{- end }}

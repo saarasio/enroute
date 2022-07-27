@@ -1,0 +1,21 @@
+{{- if .Values.filters.route.outlierdetection.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    component: outlierdetection
+    configscope: routeconfig
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-outlierdetection
+  type: route_filter_outlierdetection
+  routeFilterConfig:
+    config: |
+      {
+        "consecutive_5xx": {{ .Values.filters.route.outlierdetection.consecutive_5xx }},
+        "enforcing_consecutive_5xx": {{ .Values.filters.route.outlierdetection.enforcing_consecutive_5xx }},
+        "consecutive_gateway_failure": {{ .Values.filters.route.outlierdetection.consecutive_gateway_failure }},
+        "enforcing_consecutive_gateway_failure":  {{ .Values.filters.route.outlierdetection.enforcing_consecutive_gateway_failure }}
+      }
+{{- end }}

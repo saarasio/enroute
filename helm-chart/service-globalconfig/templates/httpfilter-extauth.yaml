@@ -1,0 +1,30 @@
+{{- if .Values.filters.extauthz.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    component: ext_authz
+    configscope: globalconfig
+  name: extauthz-globalconfig
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: exatauthz-globalconfig
+  type: http_filter_extauthz
+  httpFilterConfig:
+    config: |
+         {
+            "url" : "{{ .Values.filters.extauthz.url }}",
+            "auth_service" : "{{ .Values.filters.extauthz.auth_service }}",
+            "auth_service_port" : {{ .Values.filters.extauthz.auth_service_port }},
+            "auth_service_proto" : "{{ .Values.filters.extauthz.auth_service_proto }}",
+            "body_max_bytes" : {{ .Values.filters.extauthz.body_max_bytes }},
+            "body_allow_partial" : {{ .Values.filters.extauthz.body_allow_partial }},
+            "status_on_error" : {{ .Values.filters.extauthz.status_on_error }},
+            "failure_mode_allow" : {{ .Values.filters.extauthz.failure_mode_allow }},
+            "timeout" : {{ .Values.filters.extauthz.timeout }},
+            "path_prefix" : "{{ .Values.filters.extauthz.path_prefix }}",
+            "pack_raw_bytes" : {{ .Values.filters.extauthz.pack_raw_bytes }},
+            "allowed_request_headers": [{{ join "," .Values.filters.extauthz.allowed_request_headers }}],
+            "allowed_authorization_headers" : [{{ join "," .Values.filters.extauthz.allowed_authorization_headers }}]
+         }
+{{- end -}}

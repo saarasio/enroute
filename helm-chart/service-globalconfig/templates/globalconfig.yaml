@@ -1,0 +1,12 @@
+apiVersion: enroute.saaras.io/v1
+kind: GlobalConfig
+metadata:
+  name: enroute-globalconfig
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: enroute-globalconfig
+  type: globalconfig_globals
+  config: |
+        {
+          "linkerd_enabled": {{ .Values.mesh.linkerD }}
+        }

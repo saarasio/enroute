@@ -1,0 +1,23 @@
+{{- if .Values.filters.lua.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: HttpFilter
+metadata:
+  labels:
+    component: lua
+    configscope: globalconfig
+  name: lua-globalconfig
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: lua-globalconfig
+  type: http_filter_lua
+  httpFilterConfig:
+    config: |
+        function envoy_on_request(request_handle)
+           request_handle:logInfo("Hello World request");
+        end
+        
+        function envoy_on_response(response_handle)
+           response_handle:logInfo("Hello World response");
+           response_handle:headers():add("Lua-Filter-Says", "Hello")
+        end
+{{- end -}}

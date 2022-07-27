@@ -1,0 +1,21 @@
+{{- if .Values.filters.route.hostrewrite.enable -}}
+apiVersion: enroute.saaras.io/v1
+kind: RouteFilter
+metadata:
+  labels:
+    app: {{ .Values.service.name }}-app
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-hostrewrite
+  namespace: {{ .Release.Namespace }}
+spec:
+  name: {{ .Values.service.name }}-{{ .Values.service.port }}-hostrewrite
+  type: route_filter_host_rewrite
+  routeFilterConfig:
+    config: |
+          {
+
+             {{- if .Values.filters.route.hostrewrite.pattern_regex }}
+                "pattern_regex": "{{ .Values.filters.route.hostrewrite.pattern_regex }}",
+             {{- end }}
+                "substitution": "{{ .Values.filters.route.hostrewrite.substitution }}"
+          }
+{{- end -}}

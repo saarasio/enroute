@@ -1,0 +1,157 @@
+# Default values for service-hostroute.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+#
+#
+# if routeonly == false
+#   create GatewayHost
+#   A GatewayHost is a Host and a Route
+#   Filters associated with GatewayHost effect all Routes and Services attached to this GatewayHost
+# else
+#   create ServiceRoute
+#   Filters associated with ServiceRoute ONLY effect that ONE route and ONE service
+#
+# A ServiceRoute gets associated to a GatewayHost using the Fqdn
+#
+# Eg:
+#
+#   ADD GatewayHost (fqdn=enroutedemo.com) route /a service /s1
+#   ADD ServiceRoute (fqdn=enroutedemo.com) route /b service /s2
+#   ADD ServiceRoute (fqdn=enroutedemo.com) route /c service /s3
+#
+#   Results in -
+#
+#    'enroutedemo.com'
+#     - route(/a)
+#       service(s1)
+#     - route(/b)
+#       service(s2)
+#     - route(/c)
+#       service(s3)
+#
+#    Service s2 and s3 may reside in a namespace different from GatewayHost
+#
+#
+#
+#
+#    Similarly,
+#
+#
+#   ADD ServiceRoute (fqdn=*) route /x service /q1
+#   ADD ServiceRoute (fqdn=*) route /y service /q2
+#   ADD GatewayHost (fqdn=*) route/z service /q3
+#
+#   Results in -
+#
+#   '*'
+#    - route(/x)
+#      service(q1)
+#    - route(/y)
+#      service(q2)
+#    - route(/z)
+#      service(q3)
+#
+#
+#   Set routeonly to true when you want to create a GatewayHost
+#   Create a GatewayHost when you want to control traffic (using filters) for ALL routes and services for that VirtualHost
+#
+
+# -- when set to true, create `ServiceRoute`
+# when set to false, create `GatewayHost`
+# A `GatewayHost` creates a Host with Fqdn and a Route
+#  eg: GatewayHost(fqdn='foo.com', route='/bar') creates Host(fqdn='foo.com'), Route('/bar)
+# A `ServiceRoute` creates a Route and associates it with an existing Host
+#  eg: ServiceRoute (fqdn='foo.com', route='/baz') creates Route('/baz) and associates it with Host('/foo')
+# A `ServiceRoute` is used when a Host is already created using `ServiceRoute`
+routeonly: false
+
+service:
+  # -- fqdn for the service being configured
+  # When `ServiceRoute` is created, a Host with this Fqdn is created
+  # When `ServiceRoute` is created, a route is associated with a Host with this Fqdn
+  fqdn: ''
+  # -- L7 prefix on which to make the service routable
+  prefix: /
+  # -- Name of the service
+  name: httpbin
+  # -- Port on which the clusterIP service is accessible
+  port: 9000
+  # -- Set protocol to "h2c" for a grpc service, else leave empty
+  protocol:
+  # -- Define healthcheck for this service
+  httphealthcheck:
+     # -- When enabled, health checks are installed
+     enable: false
+     healthy_threshold_count: 3
+     interval_seconds: 5
+     path: /
+     host: hc
+     timeout_seconds: 3
+     unhealthy_threshold_count: 3
+
+
+#   Filters can be associated with GatewayHost or ServiceRoute
+#
+#   Filters associated with GatewayHost effect all route and services for that GatewayHost (filters.virtualhost below)
+#
+#   Filters associated with ServiceRoute only effect ONE route and service (filters.route below)
+
+filters:
+  virtualhost:
+    lua:
+      # -- when enabled, lua filter is associated with this virtualhost
+      enable: false
+      scriptfile: files/script.lua
+    cors:
+      # -- when enabled, cors filter is associated with this virtualhost
+      enable: false
+      access_control_allow_methods: "GET, OPTIONS"
+      access_control_allow_headers: "Content-Type"
+      access_control_expose_headers: "*"
+      access_control_max_age: 120
+      match_condition_regex: \\*
+    # -- when enabled, cors filter is associated with this virtualhost
+    rbac:
+      enable: false
+  route:
+    ratelimit:
+      # -- enable configuration to send rate-limit descriptors for this route to global rate-limit engine
+      # example descriptors from template file are installed
+      # Note: these may have to be fine-tuned for the use-case
+      enable: false
+    # -- enable/configure circuit breakers for this route
+    circuitbreakers:
+      enable: false
+      max_connections : 100
+      max_pending_requests : 101
+      max_requests : 102
+      max_retries : 103
+    # -- enable/configure outliner detection settings for this route
+    outlierdetection:
+      enable: false
+      consecutive_5xx: 5
+      enforcing_consecutive_5xx: 5
+      consecutive_gateway_failure: 5
+      enforcing_consecutive_gateway_failure: 5
+    hostrewrite:
+      enable: false
+      pattern_regex:
+      # -- if `pattern_regex` is empty, simply replace host with the value specified in `substitution`
+      # if `pattern_regex` is not empty, match groups in pattern can be used to rewrite this host
+      # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-field-config-route-v3-routeaction-host-rewrite-path-regex
+      substitution: newhost.com
+    # -- redirect a request using these settings
+    # TODO
+    redirect:
+      enable: false
+      scheme_redirect: http
+      host_redirect: enroutedemo.com
+      port_redirect: 8081
+      path_redirect: /get
+      prefix_rewrite: /get_rewrite
+      regex_redirect: redirect
+      response_code: 302
+      strip_query: false
+    # -- used to send a direct response
+    directresponse:
+      enable: false
