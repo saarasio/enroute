@@ -1,6 +1,6 @@
 apiVersion: v2
-name: service-policy
-description: Service L7 Policy using EnRoute API Gateway
+name: service-policy-demo
+description: Service L7 Demo Policy using EnRoute API Gateway
 type: application
 version: 0.4.0
 appVersion: v0.10.0

@@ -1,80 +1,36 @@
-{{- if eq .Values.service.enableTLS true }}
+---
 apiVersion: enroute.saaras.io/v1
 kind: GatewayHost
 metadata:
+  name: {{ include "service-policy.fullname" . }}
   labels:
-    app: {{ .Values.service.name }}
-  name: {{ .Values.service.name }}-{{ .Values.autoTLS.certificateCN }}-{{ .Values.service.port }}-gatewayhost
+    {{- include "service-policy.labels" . | nindent 4 }}-gatewayhost
   namespace: {{ .Release.Namespace }}
 spec:
   virtualhost:
-    fqdn: {{ quote .Values.autoTLS.certificateCN }}
-    {{- if .Values.service.enableTLS }}
-    tls:
-      secretName: {{ .Values.autoTLS.certificateCN }}
-    {{- end }}
-    {{- if .Values.filters.lua.enable }}
-    filters:
-      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-luatestfilter
-        type: http_filter_lua
-    {{- end }}
-    {{- if .Values.filters.cors.enable }}
-      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-corsfilter
-        type: http_filter_cors
-    {{- end }}
-    {{- if .Values.filters.healthcheck.enable }}
-      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-healthcheckfilter
-        type: http_filter_healthcheck
-    {{- end }}
-    {{- if .Values.filters.jwt.enable }}
-      - name: {{ .Values.service.name }}-{{ .Values.service.port }}-jwtfilter
-        type: http_filter_jwt
-    {{- end }}
+    {{- if eq (len .Values.fqdn) 0 }}
+    fqdn: '*'
+    {{- else }}
+    fqdn: {{ quote .Values.fqdn }}
+    {{- end -}}
   routes:
+    {{- range .Values.routes }}
     - conditions:
-      - prefix: /.well-known/acme-challenge/
-        header:
-          name: ":method"
-          exact: "GET"
+      {{- range .conditions }}
+      - prefix: {{ .prefix }}
+      {{- end }}
       services:
-        - name: acme-challenge-service
-          port: 80
+      {{- range .services }}
+      - name: {{ .name }}
+        port: {{ .port | int }}
+        {{- if .healthcheck.enabled }}
           healthCheck:
-            healthyThresholdCount: 3
-            intervalSeconds: 5
-            path: /
-            host: hc
-            timeoutSeconds: 3
-            unhealthyThresholdCount: 3
-    - conditions:
-      - prefix: {{ .Values.service.prefix }}
-        {{- if eq .Values.service.name "hello-enroute" }}
-        header:
-          name: ":method"
-          exact: "GET"
+            healthyThresholdCount: {{ .services.healthcheck.healthy | default 3 }}
+            intervalSeconds: {{ .services.healthcheck.interval | default 5 }}
+            path: {{ .services.healthcheck.path }}
+            host: {{ .services.healthcheck.host }}
+            timeoutSeconds: {{ .services.healthcheck.timeout | default 3 }}
+            unhealthyThresholdCount: {{ .services.healthcheck.unhealthy | default 3 }}
         {{- end }}
-      {{- if or (eq .Values.filters.ratelimit.enable true) (eq .Values.filters.circuitbreakers.enable true) }}
-      filters:
       {{- end }}
-      {{- if .Values.filters.ratelimit.enable }}
-        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-rl2
-          type: route_filter_ratelimit
-      {{- end }}
-      {{- if .Values.filters.circuitbreakers.enable }}
-        - name: {{ .Values.service.name }}-{{ .Values.service.port }}-circuitbreakers
-          type: route_filter_circuitbreakers
-      {{- end }}
-      services:
-        - name: {{ .Values.service.name }}
-          port: {{ .Values.service.port }}
-          {{- if .Values.service.httpHealthChecks }}
-          healthCheck:
-            healthyThresholdCount: 3
-            intervalSeconds: 5
-            path: /
-            host: hc
-            timeoutSeconds: 3
-            unhealthyThresholdCount: 3
-          {{- end }}
----
-{{- end }}
+    {{- end }}
