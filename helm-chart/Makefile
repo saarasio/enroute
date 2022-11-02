@@ -15,7 +15,10 @@ helm-package-index:
 	helm repo index .
 
 helm-lint:
-	cd enroute && helm lint . && cd .. && cd service-policy && helm lint . && cd ..
+	cd enroute && helm lint . && cd .. && \
+	cd service-policy && helm lint . && cd .. && \
+	cd service-globalconfig && helm lint . &&  cd .. && \
+	cd demo-services && helm lint . &&  cd ..
 
 helm-template:
 	cd enroute && helm template . > ../enroute-out.yaml && cd ../service-policy && helm template . > ../service-policy-out.yaml && cd ..

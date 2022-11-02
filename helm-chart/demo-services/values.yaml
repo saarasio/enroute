@@ -39,3 +39,7 @@ service:
     namespace: grpc
     # -- port on which the (kubernetes clusterip) service is accessible
     port: 9002
+  avote:
+    enable: true
+    namespace: avote
+    port: 9003
