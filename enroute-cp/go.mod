@@ -3,7 +3,7 @@ module github.com/saarasio/enroute/enroute-cp
 go 1.17
 
 require (
-	github.com/labstack/echo/v4 v4.6.1
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/saarasio/enroute/enroute-cp/docs v0.7.0
 	github.com/saarasio/enroute/enroute-dp v0.7.0
@@ -38,9 +38,9 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
-	github.com/labstack/gommon v0.3.0 // indirect
+	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -55,9 +55,9 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/net v0.0.0-20210913180222-943fd674d43e // indirect
+	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
-	golang.org/x/sys v0.0.0-20210910150752-751e447fb3d0 // indirect
+	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect

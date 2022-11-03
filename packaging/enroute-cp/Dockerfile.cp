@@ -21,20 +21,20 @@
    	# (3.2.1) Migration script runs hasura temporarily and then kills it.
 	# (3.3) Start hasura
 
-FROM ubuntu:18.04
+FROM ubuntu:jammy
 
 WORKDIR /bin
 
 # 1.1
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y software-properties-common
-RUN add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
-RUN apt-get update && apt-get install -y gnupg2 libicu55
+RUN add-apt-repository "deb http://security.ubuntu.com/ubuntu jammy-security main"
+RUN apt-get update && apt-get install -y gnupg2 libicu-dev
 #RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
 COPY ACCC4CF8.asc .
 RUN cat ACCC4CF8.asc | apt-key add -
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-RUN apt-get update && apt-get install -y software-properties-common postgresql-11 postgresql-client-11 postgresql-contrib-11
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN apt-get update && apt-get install -y software-properties-common postgresql-14 postgresql-client-14 postgresql-contrib-14
 
 #1.2
 RUN apt-get update && apt-get install -y supervisor vim netcat net-tools sed
@@ -72,9 +72,9 @@ ENV HASURA_GRAPHQL_MIGRATIONS_DIR=/migrations
 ENV HASURA_GRAPHQL_SERVER_PORT=8888
 
 # Only allow connections from localhost
-RUN echo "host all  all    127.0.0.1/32  trust" >> /etc/postgresql/11/main/pg_hba.conf
+RUN echo "host all  all    127.0.0.1/32  trust" >> /etc/postgresql/14/main/pg_hba.conf
 # Only listen on localhost
-# RUN echo "listen_addresses='*'" >> /etc/postgresql/11/main/postgresql.conf
+# RUN echo "listen_addresses='*'" >> /etc/postgresql/14/main/postgresql.conf
 
 # Allow other processes to reach posgresql on port 5432
 EXPOSE 5432
@@ -83,7 +83,7 @@ EXPOSE 5432
 EXPOSE 8888
 
 # Setup volume for postgresql
-VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/11/main"]
+VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql", "/var/lib/postgresql/14/main"]
 
 ENV DB_PORT=8888
 ENV DB_HOST=127.0.0.1
