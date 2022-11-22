@@ -733,7 +733,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 	if !headerConditionsAreValid(route.Conditions) {
 		if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 			logger.EL.ELogger.Debugf(
-				"dag:builder:processRoutes() cannot specify duplicate header 'exact match' conditions in the same route - IR [%s] ", ir.Spec.VirtualHost.Fqdn)
+				"dag:builder:processRoutes() cannot specify duplicate header 'exact match' conditions in the same route - GatewayHost [%s] ", ir.Spec.VirtualHost.Fqdn)
 		}
 		b.setStatus(Status{Object: ir, Status: StatusInvalid,
 			Description: "cannot specify duplicate header 'exact match' conditions in the same route", Vhost: host})
@@ -780,7 +780,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 			s := b.lookupHTTPService(m, net_v1.ServiceBackendPort{Number: int32(service.Port)})
 
 			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil && logger.EL.ELogger.GetLevel() >= logrus.DebugLevel {
-				logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: IR [%s] Looked up Service [%s:%d]\n",
+				logger.EL.ELogger.Debugf("dag:builder:processRoutes() Valid: GatewayHost [%s] Looked up Service [%s:%d]\n",
 					ir.Spec.VirtualHost.Fqdn, service.Name, service.Port)
 			}
 
@@ -820,7 +820,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 					// Do not add route/upstream if we cannot validate upstream validation context
 					if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 						logger.EL.ELogger.Infof(
-							"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
+							"dag:builder:processRoutes() Valid: GatewayHost [%s] TLS Service [%s:%d] Upstream Validation err [%s]\n",
 							ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
 					}
 
@@ -834,7 +834,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 					// Do not add route/upstream if we cannot validate upstream validation context
 					if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 						logger.EL.ELogger.Infof(
-							"dag:builder:processRoutes() Valid: IR [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
+							"dag:builder:processRoutes() Valid: GatewayHost [%s] TLS Service [%s:%d] Client Validation err [%s]\n",
 							ir.Spec.VirtualHost.Fqdn, service.Name, service.Port, err)
 					}
 
@@ -854,7 +854,7 @@ func (b *builder) processOneRoute(ir *gatewayhostv1.GatewayHost, route gatewayho
 			})
 			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 				logger.EL.ELogger.Infof(
-					"dag:builder:processRoutes() Valid: IR [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
+					"dag:builder:processRoutes() Valid: GatewayHost [%s] Setup Cluster \n", ir.Spec.VirtualHost.Fqdn)
 			}
 		}
 
@@ -882,7 +882,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 	visited = append(visited, ir)
 
 	if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
-		logger.EL.ELogger.Debugf("dag:builder:processRoutes() IR [%s]", ir.Spec.VirtualHost.Fqdn)
+		logger.EL.ELogger.Debugf("dag:builder:processRoutes() GatewayHost [%s]", ir.Spec.VirtualHost.Fqdn)
 	}
 
 	ns := ir.Namespace
@@ -899,13 +899,13 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 		for _, ghroute := range b.source.serviceroutes {
 			if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 				logger.EL.ELogger.Infof(
-					"dag:builder:processRoutes() Processing GHR [%v] \n", ghroute)
+					"dag:builder:processRoutes() Processing ServiceRoute [%v] \n", ghroute)
 			}
 
 			if host == ghroute.Spec.Fqdn {
 				if ir != nil && ir.Spec.VirtualHost != nil && logger.EL.ELogger != nil {
 					logger.EL.ELogger.Infof(
-						"dag:builder:processRoutes() GHR fqdn Match [%s] \n", host)
+						"dag:builder:processRoutes() ServiceRoute fqdn Match [%s] \n", host)
 				}
 
 				b.processServiceRoute(ir, ghroute, host, enforceTLS)
@@ -924,7 +924,7 @@ func (b *builder) processRoutes(ir *gatewayhostv1.GatewayHost, visited []*gatewa
 		}
 
 		if dest, ok := b.source.gatewayhosts[Meta{name: route.Delegate.Name, namespace: namespace}]; ok {
-			// dest is not an orphaned ingress route, as there is an IR that points to it
+			// dest is not an orphaned ingress route, as there is an GatewayHost that points to it
 			delete(b.orphaned, Meta{name: dest.Name, namespace: dest.Namespace})
 
 			// ensure we are not following an edge that produces a cycle
@@ -1052,7 +1052,7 @@ func (b *builder) processTCPProxy(ir *gatewayhostv1.GatewayHost, visited []*gate
 	}
 
 	if dest, ok := b.source.gatewayhosts[Meta{name: tcpproxy.Delegate.Name, namespace: namespace}]; ok {
-		// dest is not an orphaned ingress route, as there is an IR that points to it
+		// dest is not an orphaned ingress route, as there is an GatewayHost that points to it
 		delete(b.orphaned, Meta{name: dest.Name, namespace: dest.Namespace})
 
 		// ensure we are not following an edge that produces a cycle
