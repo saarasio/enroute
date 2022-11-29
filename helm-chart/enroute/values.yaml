@@ -136,8 +136,6 @@ envoySettings:
 mesh:
   linkerD: false
 
-opa:
-  enable: true
 istio:
    enable: false
    strictmtls: false

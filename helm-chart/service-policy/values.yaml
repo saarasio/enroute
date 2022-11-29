@@ -101,7 +101,7 @@ service:
   fqdn: ''
   enableTLS: false
   prefix: /default-service-prefix
-  createGlobalConfig: true
+  createGlobalConfig: false
   httpHealthChecks: false
 
 autoTLS:

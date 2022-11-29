@@ -3,9 +3,9 @@ entries:
   enroute:
   - apiVersion: v2
     appVersion: v0.10.0
-    created: "2022-03-20T19:25:43.711958273Z"
+    created: "2022-11-02T21:02:20.335248313Z"
     description: EnRoute API Gateway
-    digest: 2cebe602d0a3ef00d305107223761396f548197843f93da3a3ba173ec4a2898e
+    digest: 123d2c02f9c34addd3969b5f7d3099d55731db7db678e00fd8673ceb5ca5e709
     home: https://getenroute.io/
     icon: https://getenroute.io/favicon.ico
     keywords:
@@ -27,8 +27,33 @@ entries:
     - enroute-0.6.0.tgz
     version: 0.6.0
   - apiVersion: v2
+    appVersion: v0.10.0
+    created: "2022-11-02T21:02:20.341195944Z"
+    description: EnRoute API Gateway
+    digest: 969762761db97b9238153e9caeb7b35d541febc3b552f181df28d1f0f5d18ff3
+    home: https://getenroute.io/
+    icon: https://getenroute.io/favicon.ico
+    keywords:
+    - api gateway
+    - EnRoute - Envoy Route Controller
+    - Saaras
+    - envoy
+    - ingress
+    maintainers:
+    - email: contact@saaras.io
+      name: contact
+    name: enroute
+    sources:
+    - https://github.com/saarasio/enroute
+    - https://getenroute.io
+    - https://github.com/envoyproxy/envoy
+    type: application
+    urls:
+    - online-version-enroute/enroute-0.6.0.tgz
+    version: 0.6.0
+  - apiVersion: v2
     appVersion: v0.8.0
-    created: "2022-03-20T19:25:43.711351333Z"
+    created: "2022-11-02T21:02:20.334370619Z"
     description: EnRoute API Gateway
     digest: 4b35319db2838bcdb004e8bb65283e368604a16a0b9d87a29d6e413c80b4dbd7
     home: https://getenroute.io/
@@ -53,7 +78,7 @@ entries:
     version: 0.5.0
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2022-03-20T19:25:43.710790079Z"
+    created: "2022-11-02T21:02:20.332828056Z"
     description: EnRoute API Gateway
     digest: 55ef2115f0d40a327c6620ce21e124e23c2deb8161ef3059660f3f89b402b23b
     home: https://getenroute.io/
@@ -77,7 +102,7 @@ entries:
     version: 0.4.1
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2022-03-20T19:25:43.710133215Z"
+    created: "2022-11-02T21:02:20.330082182Z"
     description: EnRoute API Gateway
     digest: 7e5caac2e123092a6c93b0169268aafbabeac6453407d195af817024cf40239b
     home: https://getenroute.io/
@@ -102,17 +127,27 @@ entries:
   service-policy:
   - apiVersion: v2
     appVersion: v0.10.0
-    created: "2022-03-20T19:25:43.71496047Z"
+    created: "2022-11-02T21:02:20.339829414Z"
     description: Service L7 Policy using EnRoute API Gateway
-    digest: e0329baac4b63cce56fe334453c0cfa2bb1d6d90bc3c30231cbc8a34ddc40e4d
+    digest: 624c83752f74a59a1afee97690ef7f49a7c49831eea0949e1fc4c7ce8e07edc1
     name: service-policy
     type: application
     urls:
     - service-policy-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v2
+    appVersion: v0.10.0
+    created: "2022-11-02T21:02:20.342259299Z"
+    description: Service L7 Policy using EnRoute API Gateway
+    digest: c585ad86c26b16cfa971b0fd2c4708a344281ef5ff38270ad42bc24d1f47653d
+    name: service-policy
+    type: application
+    urls:
+    - online-version-service-policy/service-policy-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
     appVersion: 0.8.0
-    created: "2022-03-20T19:25:43.713805351Z"
+    created: "2022-11-02T21:02:20.338771599Z"
     description: Service L7 Policy using EnRoute API Gateway
     digest: c9dd7e5d9683e48b1d99d953f48eca80a064bee3ad1aed1403b48347729ca325
     name: service-policy
@@ -122,7 +157,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: 0.8.0
-    created: "2022-03-20T19:25:43.712718844Z"
+    created: "2022-11-02T21:02:20.33756344Z"
     description: Service L7 Policy using EnRoute API Gateway
     digest: 7456c967cf503a0b9400f71e3f3f795bbae1e227409876d34dfd84c219f1e9cc
     name: service-policy
@@ -130,4 +165,4 @@ entries:
     urls:
     - service-policy-0.3.0.tgz
     version: 0.3.0
-generated: "2022-03-20T19:25:43.709404324Z"
+generated: "2022-11-02T21:02:20.325081305Z"

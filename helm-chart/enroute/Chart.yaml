@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v0.10.0
+name: enroute
 description: EnRoute API Gateway
 home: https://getenroute.io/
 icon: https://getenroute.io/favicon.ico
@@ -12,7 +12,6 @@ keywords:
 maintainers:
 - email: contact@saaras.io
   name: contact
-name: enroute
 sources:
   - https://github.com/saarasio/enroute
   - https://getenroute.io

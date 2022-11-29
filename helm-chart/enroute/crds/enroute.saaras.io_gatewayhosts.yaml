@@ -145,7 +145,7 @@ spec:
                         (or path) should be swapped with this value
                       type: string
                     retryPolicy:
-                      description: // The retry policy for this route
+                      description: The retry policy for this route
                       properties:
                         count:
                           description: NumRetries is maximum allowed number of retries.
@@ -155,6 +155,17 @@ spec:
                         perTryTimeout:
                           description: PerTryTimeout specifies the timeout per retry
                             attempt. Ignored if NumRetries is not supplied.
+                          type: string
+                        retriableStatusCodes:
+                          description: HTTP status codes that should trigger a retry
+                            in addition to those specified by RetryOn.
+                          items:
+                            format: int32
+                            type: integer
+                          type: array
+                        retryOn:
+                          description: RetryOn specifies the conditions on which to
+                            retry a request.
                           type: string
                       required:
                       - count
@@ -277,6 +288,20 @@ spec:
                     timeoutPolicy:
                       description: The timeout policy for this route
                       properties:
+                        cluster_connect:
+                          description: Timeout for new network connections, if not
+                            set default value is 5s
+                          type: string
+                        cluster_idle:
+                          description: Idle Timeout for upstream connections, duration
+                            for which there are no active connections default is 1h,
+                            to disable, set it to 0
+                          type: string
+                        cluster_max_duration:
+                          description: Maximum duration for connection
+                          type: string
+                        idle:
+                          type: string
                         request:
                           description: Timeout for receiving a response from the server
                             after processing a request from client. If not supplied
