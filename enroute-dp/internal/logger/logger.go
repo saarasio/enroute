@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"github.com/rs/zerolog"
 )
 
 type EnrouteLogger struct {
@@ -60,18 +61,23 @@ func (el *EnrouteLogger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		switch key {
 		case "error":
 			l = logrus.ErrorLevel
+			zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 			fmt.Fprintf(w, "Set Log Level [%s]\n", key)
 		case "info":
 			l = logrus.InfoLevel
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
 			fmt.Fprintf(w, "Set Log Level [%s]\n", key)
 		case "debug":
 			l = logrus.DebugLevel
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
 			fmt.Fprintf(w, "Set Log Level [%s]\n", key)
 		case "trace":
 			l = logrus.TraceLevel
+			zerolog.SetGlobalLevel(zerolog.TraceLevel)
 			fmt.Fprintf(w, "Set Log Level [%s]\n", key)
 		default:
 			l = logrus.InfoLevel
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
 			fmt.Fprintf(w, "Set Log Level [%s]\n", key)
 		}
 
