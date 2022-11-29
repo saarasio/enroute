@@ -204,6 +204,7 @@ func UnmarshalRouteMatchCondition(route_config string) (RouteMatchConditions, er
 
 type ProxyConfigGlobals struct {
 	LinkerdEnabled             bool `json:"linkerd_enabled,omitempty"`
+	IstioEnabled               bool `json:"istio_enabled,omitempty"`
 	LinkerdHeaderDisabled      bool `json:"linkerd_header_disabled,omitempty"`
 	LinkerdServiceModeDisabled bool `json:"linkerd_servicemode_disabled,omitempty"`
 }

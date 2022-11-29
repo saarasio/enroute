@@ -25,6 +25,7 @@ import (
 	envoy_extensions_filters_network_http_connection_manager_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	envoy_extensions_filters_network_tcp_proxy_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/tcp_proxy/v3"
 	envoy_extensions_transport_sockets_tls_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
+	envoy_tls_inspector_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/listener/tls_inspector/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -52,6 +53,9 @@ const TCPDefaultIdleTimeout = 9001 * time.Second
 func TLSInspector() *envoy_config_listener_v3.ListenerFilter {
 	return &envoy_config_listener_v3.ListenerFilter{
 		Name: wellknown.TlsInspector,
+		ConfigType: &envoy_config_listener_v3.ListenerFilter_TypedConfig{
+			TypedConfig: toAny(&envoy_tls_inspector_v3.TlsInspector{}),
+		},
 	}
 }
 
