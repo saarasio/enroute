@@ -122,7 +122,7 @@ type Route struct {
 	PrefixRewrite string `json:"prefixRewrite,omitempty"`
 	// The timeout policy for this route
 	TimeoutPolicy *TimeoutPolicy `json:"timeoutPolicy,omitempty"`
-	// // The retry policy for this route
+	// The retry policy for this route
 	RetryPolicy *RetryPolicy `json:"retryPolicy,omitempty"`
 
 	// Filters attached to this route
@@ -207,6 +207,22 @@ type TimeoutPolicy struct {
 	// Timeout for receiving a response from the server after processing a request from client.
 	// If not supplied the timeout duration is undefined.
 	Request string `json:"request"`
+
+	// +optional
+	Idle string `json:"idle,omitempty"`
+
+	// +optional
+	// Idle Timeout for upstream connections, duration for which there are no active connections
+	// default is 1h, to disable, set it to 0
+	ClusterIdle string `json:"cluster_idle,omitempty"`
+
+	// +optional
+	// Timeout for new network connections, if not set default value is 5s
+	ClusterConnect string `json:"cluster_connect,omitempty"`
+
+	// +optional
+	// Maximum duration for connection
+	ClusterMaxConnectionDuration string `json:"cluster_max_duration,omitempty"`
 }
 
 // RetryPolicy define the attributes associated with retrying policy
@@ -217,6 +233,13 @@ type RetryPolicy struct {
 	// PerTryTimeout specifies the timeout per retry attempt.
 	// Ignored if NumRetries is not supplied.
 	PerTryTimeout string `json:"perTryTimeout,omitempty"`
+	// RetryOn specifies the conditions on which to retry a request.
+	// +optional
+	RetryOn string `json:"retryOn,omitempty"`
+
+	// HTTP status codes that should trigger a retry in addition to those specified by RetryOn.
+	// +optional
+	RetriableStatusCodes []uint32 `json:"retriableStatusCodes,omitempty"`
 }
 
 // UpstreamValidation defines how to verify the backend service's certificate

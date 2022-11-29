@@ -19,7 +19,7 @@ type GlobalConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
 
-	Spec GlobalConfigSpec `json:"spec"`
+	Spec   GlobalConfigSpec `json:"spec"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
