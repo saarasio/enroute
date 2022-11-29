@@ -17,6 +17,11 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.istio.enable }}
+      {{- with .Values.istioPodAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
       labels:
         {{- include "enroute.selectorLabels" . | nindent 8 }}
     spec:
@@ -60,6 +65,32 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           resources:
             {{- toYaml .Values.resources.enrouteService | nindent 12 }}
+  {{- if .Values.istio.enable }}
+        # ISTIO Cert Server
+        - name: cert-server
+          image: saarasio/cert-server:v0.1.0
+          command:
+            - /usr/local/bin/cert-server
+          args:
+            - '--port'
+            - '8005'
+            - '--loglevel'
+            - info
+          ports:
+            - name: tcp
+              containerPort: 8005
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - name: istio-certs
+              mountPath: /etc/istio-certs/
+            - name: enroute-config
+              mountPath: /config
+          imagePullPolicy: Always
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+   {{- end }}
         # REDIS CONTAINER
         - image: "{{ .Values.images.redis.repository }}:{{ .Values.images.redis.tag | default "latest" }}"
           imagePullPolicy: {{ .Values.images.redis.pullPolicy }}
@@ -134,6 +165,12 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
       volumes:
+  {{- if .Values.istio.enable }}
+        - name: istio-certs
+          emptyDir:
+            medium: Memory
+   {{- end }}
+
         - name: enroute-config
           emptyDir: {}
       dnsPolicy: ClusterFirst

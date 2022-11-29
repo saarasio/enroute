@@ -20,7 +20,7 @@ images:
 
 imagePullSecrets: []
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "enroute"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -59,6 +59,14 @@ podAnnotations:
   prometheus.io/path: /stats/prometheus
   prometheus.io/port: "8002"
   prometheus.io/scrape: "true"
+
+istioPodAnnotations:
+  proxy.istio.io/config: |
+    proxyMetadata:
+      OUTPUT_CERTS: /etc/istio-certs
+  sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-certs"}]'
+  traffic.sidecar.istio.io/includeInboundPorts: ''
+  traffic.sidecar.istio.io/includeOutboundIPRanges: ''
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -130,3 +138,6 @@ mesh:
 
 opa:
   enable: true
+istio:
+   enable: false
+   strictmtls: false
