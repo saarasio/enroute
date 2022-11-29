@@ -60,3 +60,6 @@ yamllint:
 gofmt:
 	@echo Checking code is gofmted
 	@test -z "$(shell gofmt -s -l -d -e $(SRCDIRS) | tee /dev/stderr)"
+
+rmcrds:
+	kubectl get customresourcedefinitions.apiextensions.k8s.io | grep saaras | cut -d ' ' -f 1 | xargs kubectl delete customresourcedefinitions.apiextensions.k8s.io
