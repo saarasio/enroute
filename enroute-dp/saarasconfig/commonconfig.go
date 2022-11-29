@@ -44,6 +44,8 @@ const FILTER_TYPE_HTTP_EXTAUTHZ string = "http_filter_extauthz"
 const FILTER_TYPE_HTTP_HEALTHCHECK string = "http_filter_healthcheck"
 const FILTER_TYPE_HTTP_WASM string = "http_filter_wasm"
 
+const FILTER_TYPE_CUSTOM_RESPONSE = "custom_response"
+
 // VirtualHost Filters
 const FILTER_TYPE_VH_LUA string = "vh_filter_lua"
 const FILTER_TYPE_VH_CORS string = "vh_filter_cors"
@@ -204,7 +206,7 @@ func UnmarshalRouteMatchCondition(route_config string) (RouteMatchConditions, er
 
 type ProxyConfigGlobals struct {
 	LinkerdEnabled             bool `json:"linkerd_enabled,omitempty"`
-	IstioEnabled               bool `json:"istio_enabled,omitempty"`
+	IstioEnabled		   bool `json:"istio_enabled,omitempty"`
 	LinkerdHeaderDisabled      bool `json:"linkerd_header_disabled,omitempty"`
 	LinkerdServiceModeDisabled bool `json:"linkerd_servicemode_disabled,omitempty"`
 }
@@ -377,11 +379,39 @@ func UnmarshalRedirectConfig(in_config string) (RedirectConfig, error) {
 }
 
 type DirectResponseConfig struct {
-	StatusCode   uint32    `json:"response_code,omitempty"`
+	StatusCode uint32 `json:"response_code,omitempty"`
 }
 
 func UnmarshalDirectResponseConfig(in_config string) (DirectResponseConfig, error) {
 	var cfg DirectResponseConfig
+	var err error
+
+	buf := strings.NewReader(in_config)
+	if err = json.NewDecoder(buf).Decode(&cfg); err != nil {
+		errors.Wrap(err, "error decoding response")
+	}
+
+	return cfg, err
+}
+
+type UpdateResponseBody struct {
+	TextFormat string `json:"text_format,omitempty"`
+	JsonFormat map[string]interface{}`json:"json_format,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+}
+
+type CustomResponse struct {
+	MatchStatusCode uint32 `json:"match_status_code,omitempty"`
+	UpdateStatusCode uint32 `json:"update_status_code,omitempty"`
+	UpdateResponseBody UpdateResponseBody `json:"update_response_body,omitempty"`
+}
+
+type CustomResponseConfig struct {
+	CustomResponseOverride []CustomResponse `json:"custom_response_override,omitempty"`
+}
+
+func UnmarshalCustomResponse(in_config string) (CustomResponseConfig, error) {
+	var cfg CustomResponseConfig
 	var err error
 
 	buf := strings.NewReader(in_config)

@@ -20,6 +20,7 @@ import (
 	"sort"
 	"time"
 
+	v31 "github.com/envoyproxy/go-control-plane/envoy/config/accesslog/v3"
 	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	envoy_extensions_filters_network_http_connection_manager_v3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
@@ -30,8 +31,11 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/protobuf"
+	cfg "github.com/saarasio/enroute/enroute-dp/saarasconfig"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 )
 
 // HTTPDefaultIdleTimeout sets the idle timeout for HTTP connections
@@ -84,6 +88,96 @@ func Listener(name, address string, port int, lf []*envoy_config_listener_v3.Lis
 	return l
 }
 
+func localReplyConfig(vh *dag.Vertex) *envoy_extensions_filters_network_http_connection_manager_v3.LocalReplyConfig {
+
+	var vhost *dag.VirtualHost
+
+	if vh != nil {
+		switch v := (*vh).(type) {
+		case *dag.VirtualHost:
+			vhost = v
+		case *dag.SecureVirtualHost:
+			vhost = &v.VirtualHost
+		default:
+			// not interesting
+		}
+	}
+
+	lrc_filter := dag.GetVHHttpFilterConfigIfPresent(cfg.FILTER_TYPE_CUSTOM_RESPONSE, vhost)
+
+	if lrc_filter != nil {
+
+		lrc_filter_cfg, err := cfg.UnmarshalCustomResponse(lrc_filter.Filter.Filter_config)
+
+		if err == nil {
+			var lrc envoy_extensions_filters_network_http_connection_manager_v3.LocalReplyConfig
+
+			if len(lrc_filter_cfg.CustomResponseOverride) > 0 {
+
+				for _, one_lrc_filter_cfg := range lrc_filter_cfg.CustomResponseOverride {
+					rm := &envoy_extensions_filters_network_http_connection_manager_v3.ResponseMapper{
+						Filter: &v31.AccessLogFilter{
+							FilterSpecifier: &v31.AccessLogFilter_StatusCodeFilter{
+								StatusCodeFilter: &v31.StatusCodeFilter{
+									Comparison: &v31.ComparisonFilter{
+										Op: v31.ComparisonFilter_EQ,
+										Value: &envoy_config_core_v3.RuntimeUInt32{
+											DefaultValue: one_lrc_filter_cfg.MatchStatusCode,
+								// RuntimeKey is mandatory and used as an override to default value.
+								// It is mandatory to specify, so let's set it to some random value
+											RuntimeKey: "key_b",
+										},
+									},
+								},
+							},
+						},
+						StatusCode: &wrappers.UInt32Value{
+							Value: one_lrc_filter_cfg.UpdateStatusCode,
+						},
+						Body: &envoy_config_core_v3.DataSource{
+							Specifier: &envoy_config_core_v3.DataSource_InlineString{
+								InlineString: one_lrc_filter_cfg.UpdateResponseBody.TextFormat,
+							},
+						},
+					}
+
+					 if len(one_lrc_filter_cfg.UpdateResponseBody.ContentType) == 0 ||
+						one_lrc_filter_cfg.UpdateResponseBody.ContentType == "text/plain" {
+						rm.BodyFormatOverride = &envoy_config_core_v3.SubstitutionFormatString{
+							Format: &envoy_config_core_v3.SubstitutionFormatString_TextFormatSource{
+								TextFormatSource:  &envoy_config_core_v3.DataSource{
+									Specifier: &envoy_config_core_v3.DataSource_InlineString{
+										InlineString: one_lrc_filter_cfg.UpdateResponseBody.TextFormat,
+									},
+								},
+
+							},
+							ContentType: "text/plain",
+						}
+					} else if one_lrc_filter_cfg.UpdateResponseBody.ContentType == "application/json" {
+						jsonformat, err := structpb.NewStruct(one_lrc_filter_cfg.UpdateResponseBody.JsonFormat)
+						if err != nil {
+							rm.BodyFormatOverride = &envoy_config_core_v3.SubstitutionFormatString{
+								Format: &envoy_config_core_v3.SubstitutionFormatString_JsonFormat{
+									JsonFormat: jsonformat,
+								},
+								ContentType: "application/json",
+							}
+						}
+					 }
+
+					lrc.Mappers = append(lrc.Mappers, rm)
+				}
+
+				return &lrc
+			}
+
+		}
+	}
+
+	return nil
+}
+
 // HTTPConnectionManager creates a new HTTP Connection Manager filter
 // for the supplied route and access log.
 func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *envoy_config_listener_v3.Filter {
@@ -129,6 +223,8 @@ func HTTPConnectionManager(routename, accessLogPath string, vh *dag.Vertex) *env
 					IdleTimeout: protobuf.Duration(60 * time.Second),
 				},
 				//RequestTimeout:   protobuf.Duration(requestTimeout),
+
+				// LocalReplyConfig: localReplyConfig(vh),
 
 				// issue #1487 pass through X-Request-Id if provided.
 				PreserveExternalRequestId: true,
