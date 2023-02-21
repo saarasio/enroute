@@ -129,6 +129,20 @@ affinity:
 # CUSTOM #
 ##########
 
+livenessProbe:
+  timeoutSeconds: 2
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  timeoutSeconds: 2
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
 # One of ["trace", "debug", "info", "error"]
 envoySettings:
   logLevel: "debug"
