@@ -15,7 +15,7 @@ images:
     pullPolicy: Always
   envoy:
     repository: envoyproxy/envoy
-    tag: v1.23.0
+    tag: v1.27.0
     pullPolicy: Always
 
 imagePullSecrets: []
