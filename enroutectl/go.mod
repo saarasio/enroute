@@ -94,4 +94,4 @@ replace github.com/saarasio/enroute/enroutectl => ./
 
 replace github.com/saarasio/enroute/enroute-dp => ../enroute-dp/
 
-go 1.21.0
+go 1.21
