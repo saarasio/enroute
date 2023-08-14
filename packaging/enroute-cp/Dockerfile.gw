@@ -21,7 +21,7 @@
    	# (3.2.1) Migration script runs hasura temporarily and then kills it.
 	# (3.3) Start hasura
 
-FROM ubuntu:kinetic
+FROM ubuntu:jammy
 
 WORKDIR /bin
 
