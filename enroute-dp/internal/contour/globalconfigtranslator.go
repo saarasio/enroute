@@ -23,7 +23,7 @@ type GlobalConfigTranslator struct {
 	C2 chan string
 }
 
-func (e *GlobalConfigTranslator) OnAdd(obj interface{}) {
+func (e *GlobalConfigTranslator) OnAdd(obj interface{}, isInInitialList bool) {
 	switch obj := obj.(type) {
 	case *gatewayhostv1.GlobalConfig:
 		e.addGlobalConfig(obj)

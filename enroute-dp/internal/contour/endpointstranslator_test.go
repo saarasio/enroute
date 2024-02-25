@@ -163,7 +163,7 @@ func TestEndpointsTranslatorAddEndpoints(t *testing.T) {
 			et := &EndpointsTranslator{
 				FieldLogger: log,
 			}
-			et.OnAdd(tc.ep)
+			et.OnAdd(tc.ep, false)
 			got := et.Contents()
 			if !reflect.DeepEqual(tc.want, got) {
 				t.Fatalf("got: %v, want: %v", got, tc.want)
@@ -183,7 +183,7 @@ func TestEndpointsTranslatorRemoveEndpoints(t *testing.T) {
 				et.OnAdd(endpoints("default", "simple", v1.EndpointSubset{
 					Addresses: addresses("192.168.183.24"),
 					Ports:     ports(8080),
-				}))
+				}), false)
 			},
 			ep: endpoints("default", "simple", v1.EndpointSubset{
 				Addresses: addresses("192.168.183.24"),
@@ -195,7 +195,7 @@ func TestEndpointsTranslatorRemoveEndpoints(t *testing.T) {
 				et.OnAdd(endpoints("default", "simple", v1.EndpointSubset{
 					Addresses: addresses("192.168.183.24"),
 					Ports:     ports(8080),
-				}))
+				}), false)
 			},
 			ep: endpoints("default", "different", v1.EndpointSubset{
 				Addresses: addresses("192.168.183.24"),
@@ -225,7 +225,7 @@ func TestEndpointsTranslatorRemoveEndpoints(t *testing.T) {
 						Ports: ports(8000, 8443),
 					},
 				)
-				et.OnAdd(e1)
+				et.OnAdd(e1, false)
 			},
 			ep: endpoints(
 				"super-long-namespace-name-oh-boy",
@@ -328,7 +328,7 @@ func TestEndpointsTranslatorScaleToZeroEndpoints(t *testing.T) {
 		Addresses: addresses("192.168.183.24"),
 		Ports:     ports(8080),
 	})
-	et.OnAdd(e1)
+	et.OnAdd(e1, false)
 
 	// Assert endpoint was added
 	want := []proto.Message{

@@ -140,12 +140,12 @@ type resourceEventHandler struct {
 	*contour.EndpointsTranslator
 }
 
-func (r *resourceEventHandler) OnAdd(obj interface{}) {
+func (r *resourceEventHandler) OnAdd(obj interface{}, isInInitialList bool) {
 	switch obj.(type) {
 	case *v1.Endpoints:
-		r.EndpointsTranslator.OnAdd(obj)
+		r.EndpointsTranslator.OnAdd(obj, false)
 	default:
-		r.ResourceEventHandler.OnAdd(obj)
+		r.ResourceEventHandler.OnAdd(obj, false)
 	}
 }
 

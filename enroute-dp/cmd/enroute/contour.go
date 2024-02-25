@@ -19,6 +19,7 @@ import (
 
 	resource "github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
+	gwclientset "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 	"github.com/saarasio/enroute/enroute-dp/internal/logger"
 	_ "github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -36,6 +37,7 @@ func main() {
 
 	// Use our logger
 	el := logger.EL
+
 
 	app := kingpin.New("enroute", "enroute agent to control envoy proxy")
 
@@ -98,7 +100,7 @@ func main() {
 	}
 }
 
-func newClient(kubeconfig string, inCluster bool) (*kubernetes.Clientset, *clientset.Clientset) {
+func newClient(kubeconfig string, inCluster bool) (*kubernetes.Clientset, *clientset.Clientset, *gwclientset.Clientset) {
 	var err error
 	var config *rest.Config
 	if kubeconfig != "" && !inCluster {
@@ -113,7 +115,9 @@ func newClient(kubeconfig string, inCluster bool) (*kubernetes.Clientset, *clien
 	check(err)
 	enrouteClient, err := clientset.NewForConfig(config)
 	check(err)
-	return client, enrouteClient
+	gwClient, err := gwclientset.NewForConfig(config)
+	check(err)
+	return client, enrouteClient, gwClient
 }
 
 func check(err error) {

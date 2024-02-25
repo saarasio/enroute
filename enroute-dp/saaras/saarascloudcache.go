@@ -79,7 +79,7 @@ func (sac *SaarasCloudCache) update__v1b1_ir__cache(
 				}
 				sac.ir[cache_key] = cloud_ir
 				//spew.Dump(cloud_ir)
-				reh.OnAdd(cloud_ir)
+				reh.OnAdd(cloud_ir, false)
 			}
 		}
 	}
@@ -117,7 +117,7 @@ func (sac *SaarasCloudCache) update__v1b1_service__cache(
 			}
 			sac.svc[cloud_svc.ObjectMeta.Namespace+cloud_svc.ObjectMeta.Name] = cloud_svc
 			log.Infof("update__v1b1_service__cache() - SVC [%s] on saaras cloud added - OnAdd()\n", cloud_svc.ObjectMeta.Name)
-			reh.OnAdd(cloud_svc)
+			reh.OnAdd(cloud_svc, false)
 		}
 	}
 
@@ -404,7 +404,7 @@ func (sac *SaarasCloudCache) update__v1b1__endpoint_cache(v1b1_endpoint_map *map
 				sac.ep = make(map[string]*v1.Endpoints)
 			}
 			sac.ep[cloud_ep.ObjectMeta.Namespace+cloud_ep.ObjectMeta.Name] = cloud_ep
-			et.OnAdd(cloud_ep)
+			et.OnAdd(cloud_ep, false)
 		}
 	}
 
@@ -456,7 +456,7 @@ func (sac *SaarasCloudCache) update_saaras_secret_cache(
 			// Secret not found in cache
 			log.Infof("update_saaras_secret_cache() Insert secret in Saaras Cache[%s]\n", secret_cache_map_key)
 			sac.sdbsecrets[secret_cache_map_key] = &secret
-			reh.OnAdd(&secret)
+			reh.OnAdd(&secret, false)
 		}
 	}
 
@@ -489,7 +489,7 @@ func (sac *SaarasCloudCache) update__v1__rf_cache(v1b1_rf_map *map[string]*enrou
 			}
 			sac.rf[cloud_rf.ObjectMeta.Namespace+cloud_rf.ObjectMeta.Name+cloud_rf.Spec.Type] = cloud_rf
 			log.Infof("update__v1__rf_cache() - RF [%s] on saaras cloud not in cache - OnAdd()\n", cloud_rf.ObjectMeta.Name)
-			reh.OnAdd(cloud_rf)
+			reh.OnAdd(cloud_rf, false)
 		}
 	}
 
@@ -519,7 +519,7 @@ func (sac *SaarasCloudCache) update__v1b1__pc(v1b1_pc_map *map[string]*enroutev1
 				sac.pc = make(map[string]*enroutev1.GlobalConfig, 0)
 			}
 			sac.pc[cloud_pc.ObjectMeta.Namespace+cloud_pc.ObjectMeta.Name+cloud_pc.Spec.Type] = cloud_pc
-			pct.OnAdd(cloud_pc)
+			pct.OnAdd(cloud_pc, false)
 		}
 	}
 
@@ -551,7 +551,7 @@ func (sac *SaarasCloudCache) update__v1__vf_cache(v1b1_vf_map *map[string]*enrou
 			}
 			sac.vf[cloud_vf.ObjectMeta.Namespace+cloud_vf.ObjectMeta.Name+cloud_vf.Spec.Type] = cloud_vf
 			log.Infof("update__v1__vf_cache() - HTTPFilter [%s] on saaras cloud not in cache - OnAdd()\n", cloud_vf.ObjectMeta.Name)
-			reh.OnAdd(cloud_vf)
+			reh.OnAdd(cloud_vf, false)
 		}
 	}
 
@@ -582,7 +582,7 @@ func (sac *SaarasCloudCache) update__v1__secret_cache(v1_secret_map *map[string]
 			}
 			log.Infof("update__v1__secret_cache() - SEC [%s] not in cache OnAdd()\n", cloud_secret.ObjectMeta.Name)
 			sac.sec[cloud_secret.ObjectMeta.Namespace+cloud_secret.ObjectMeta.Name] = cloud_secret
-			reh.OnAdd(cloud_secret)
+			reh.OnAdd(cloud_secret, false)
 		}
 	}
 

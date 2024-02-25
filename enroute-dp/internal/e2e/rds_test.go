@@ -89,7 +89,7 @@ func TestEditIngress(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// add default/kuard to translator.
 	old := &netv1.Ingress{
@@ -105,7 +105,7 @@ func TestEditIngress(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(old)
+	rh.OnAdd(old, false)
 
 	// check that it's been translated correctly.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -221,7 +221,7 @@ func TestIngressPathRouteWithoutHost(t *testing.T) {
 				},
 			}},
 		},
-	})
+	}, false)
 
 	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -237,7 +237,7 @@ func TestIngressPathRouteWithoutHost(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// check that it's been translated correctly.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -291,7 +291,7 @@ func TestEditIngressInPlace(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -307,7 +307,7 @@ func TestEditIngressInPlace(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -323,7 +323,7 @@ func TestEditIngressInPlace(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s2)
+	rh.OnAdd(s2, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
@@ -483,7 +483,7 @@ func TestEditIngressInPlace(t *testing.T) {
 			corev1.TLSCertKey:       []byte("certificate"),
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
-	})
+	}, false)
 
 	// i4 is the same as i3, and includes a TLS spec object to enable ingress_https routes
 	// i3 is like i2, but adds the ingress.kubernetes.io/force-ssl-redirect: "true" annotation
@@ -592,7 +592,7 @@ func TestRequestTimeout(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// i1 is a simple ingress bound to the default vhost.
 	i1 := &netv1.Ingress{
@@ -601,7 +601,7 @@ func TestRequestTimeout(t *testing.T) {
 			DefaultBackend: backend("backend", intstr.FromInt(80)),
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
@@ -719,7 +719,7 @@ func TestSSLRedirectOverlay(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -731,7 +731,7 @@ func TestSSLRedirectOverlay(t *testing.T) {
 			corev1.TLSCertKey:       []byte("certificate"),
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -746,7 +746,7 @@ func TestSSLRedirectOverlay(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	// i2 is an overlay to add the let's encrypt handler.
 	i2 := &netv1.Ingress{
@@ -772,7 +772,7 @@ func TestSSLRedirectOverlay(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i2)
+	rh.OnAdd(i2, false)
 
 	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -787,7 +787,7 @@ func TestSSLRedirectOverlay(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	assertRDS(t, cc, "5", []*envoy_config_route_v3.VirtualHost{{ // ingress_http
 		Name:    "example.com",
@@ -831,7 +831,7 @@ func TestInvalidCertInIngress(t *testing.T) {
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
-	rh.OnAdd(secret)
+	rh.OnAdd(secret, false)
 
 	// Create a service
 	rh.OnAdd(&corev1.Service{
@@ -846,7 +846,7 @@ func TestInvalidCertInIngress(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	// Create an ingress that uses the invalid secret
 	rh.OnAdd(&netv1.Ingress{
@@ -874,7 +874,7 @@ func TestInvalidCertInIngress(t *testing.T) {
 				},
 			}},
 		},
-	})
+	}, false)
 
 	assertRDS(t, cc, "3", []*envoy_config_route_v3.VirtualHost{{ // ingress_http
 		Name:    "kuard.io",
@@ -954,7 +954,7 @@ func TestIssue257(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -970,7 +970,7 @@ func TestIssue257(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
@@ -1079,7 +1079,7 @@ func TestRDSFilter(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1091,7 +1091,7 @@ func TestRDSFilter(t *testing.T) {
 			corev1.TLSCertKey:       []byte("certificate"),
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
-	})
+	}, false)
 
 	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1107,7 +1107,7 @@ func TestRDSFilter(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// i2 is an overlay to add the let's encrypt handler.
 	i2 := &netv1.Ingress{
@@ -1133,7 +1133,7 @@ func TestRDSFilter(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i2)
+	rh.OnAdd(i2, false)
 
 	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1149,7 +1149,7 @@ func TestRDSFilter(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s2)
+	rh.OnAdd(s2, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "5",
@@ -1215,7 +1215,7 @@ func TestWebsocketIngress(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1245,7 +1245,7 @@ func TestWebsocketIngress(t *testing.T) {
 				},
 			}},
 		},
-	})
+	}, false)
 
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "websocket.hello.world",
@@ -1274,7 +1274,7 @@ func TestWebsocketGatewayHost(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1311,7 +1311,7 @@ func TestWebsocketGatewayHost(t *testing.T) {
 				}},
 			}},
 		},
-	})
+	}, false)
 
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "websocket.hello.world",
@@ -1347,7 +1347,7 @@ func TestPrefixRewriteGatewayHost(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1384,7 +1384,7 @@ func TestPrefixRewriteGatewayHost(t *testing.T) {
 				}},
 			}},
 		},
-	})
+	}, false)
 
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "prefixrewrite.hello.world",
@@ -1428,7 +1428,7 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1443,7 +1443,7 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1494,7 +1494,7 @@ func TestDefaultBackendDoesNotOverwriteNamedHost(t *testing.T) {
 				},
 			}},
 		},
-	})
+	}, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
@@ -1550,7 +1550,7 @@ func TestRDSGatewayHostInsideRootNamespaces(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	// ir1 is an gatewayhost that is in the root namespaces
 	ir1 := &gatewayhostv1.GatewayHost{
@@ -1573,7 +1573,7 @@ func TestRDSGatewayHostInsideRootNamespaces(t *testing.T) {
 	}
 
 	// add gatewayhost
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -1617,7 +1617,7 @@ func TestRDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	// ir1 is an gatewayhost that is not in the root namespaces
 	ir1 := &gatewayhostv1.GatewayHost{
@@ -1640,7 +1640,7 @@ func TestRDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 	}
 
 	// add gatewayhost
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -1674,7 +1674,7 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1699,7 +1699,7 @@ func TestRDSGatewayHostClassAnnotation(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
@@ -1864,7 +1864,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1882,7 +1882,7 @@ func TestRDSIngressClassAnnotation(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
@@ -2023,7 +2023,7 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	go func() {
 		for i := 0; i < 100; i++ {
@@ -2044,7 +2044,7 @@ func TestRDSAssertNoDataRaceDuringInsertAndStream(t *testing.T) {
 						}},
 					}},
 				},
-			})
+			}, false)
 		}
 		close(stop)
 	}()
@@ -2109,7 +2109,7 @@ func TestRDSIngressSpecMissingHTTPKey(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2125,7 +2125,7 @@ func TestRDSIngressSpecMissingHTTPKey(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
@@ -2154,7 +2154,7 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2176,7 +2176,7 @@ func TestRouteWithAServiceWeight(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
@@ -2242,7 +2242,7 @@ func TestRouteWithTLS(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2254,7 +2254,7 @@ func TestRouteWithTLS(t *testing.T) {
 			corev1.TLSCertKey:       []byte("certificate"),
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
-	})
+	}, false)
 
 	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2280,7 +2280,7 @@ func TestRouteWithTLS(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	// check that ingress_http has been updated.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -2328,7 +2328,7 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2342,7 +2342,7 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2354,7 +2354,7 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 			corev1.TLSCertKey:       []byte("certificate"),
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
-	})
+	}, false)
 
 	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2388,7 +2388,7 @@ func TestRouteWithTLS_InsecurePaths(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	// check that ingress_http has been updated.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -2451,7 +2451,7 @@ func TestRouteRetryAnnotations(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	i1 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2473,7 +2473,7 @@ func TestRouteRetryAnnotations(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "*",
 		Domains: []string{"*"},
@@ -2503,7 +2503,7 @@ func TestRouteRetryGatewayHost(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	i1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -2528,7 +2528,7 @@ func TestRouteRetryGatewayHost(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
@@ -2563,7 +2563,7 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// i1 is an _invalid_ timeout, which we interpret as _infinite_.
 	i1 := &gatewayhostv1.GatewayHost{
@@ -2584,7 +2584,7 @@ func TestRouteTimeoutPolicyGatewayHost(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
@@ -2713,7 +2713,7 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	// simple single service
 	ir1 := &gatewayhostv1.GatewayHost{
@@ -2736,7 +2736,7 @@ func TestRouteWithSessionAffinity(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 	assertRDS(t, cc, "2", []*envoy_config_route_v3.VirtualHost{{
 		Name:    "www.example.com",
 		Domains: domains("www.example.com"),
@@ -2875,7 +2875,7 @@ func TestLoadBalancingStrategies(t *testing.T) {
 	for i, x := range services {
 		s := st
 		s.ObjectMeta.Name = x.name
-		rh.OnAdd(&s)
+		rh.OnAdd(&s, false)
 		ss[i] = gatewayhostv1.Service{
 			Name:     x.name,
 			Port:     80,
@@ -2900,7 +2900,7 @@ func TestLoadBalancingStrategies(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir)
+	rh.OnAdd(ir, false)
 	want := []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),
@@ -2949,7 +2949,7 @@ func TestCorsFilter(t *testing.T) {
 	for i, x := range services {
 		s := st
 		s.ObjectMeta.Name = x.name
-		rh.OnAdd(&s)
+		rh.OnAdd(&s, false)
 		ss[i] = gatewayhostv1.Service{
 			Name:     x.name,
 			Port:     80,
@@ -2984,7 +2984,7 @@ func TestCorsFilter(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(&hf)
+	rh.OnAdd(&hf, false)
 
 	ir := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -3005,7 +3005,7 @@ func TestCorsFilter(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir)
+	rh.OnAdd(ir, false)
 	want := []*envoy_config_route_v3.VirtualHost{{
 		Name:    "test2.test.com",
 		Domains: domains("test2.test.com"),

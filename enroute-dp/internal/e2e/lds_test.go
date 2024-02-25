@@ -89,10 +89,10 @@ func TestNonTLSListener(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add it and assert that we now have a ingress_http listener
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
@@ -229,10 +229,10 @@ func TestTLSListener(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// assert that there is only a static listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -245,7 +245,7 @@ func TestTLSListener(t *testing.T) {
 	}, streamLDS(t, cc))
 
 	// add ingress and assert the existence of ingress_http and ingres_https
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
@@ -408,7 +408,7 @@ func TestGatewayHostTLSListener(t *testing.T) {
 	}
 
 	// add secret
-	rh.OnAdd(secret1)
+	rh.OnAdd(secret1, false)
 
 	// assert that there is only a static listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -430,10 +430,10 @@ func TestGatewayHostTLSListener(t *testing.T) {
 	}
 
 	// add service
-	rh.OnAdd(svc1)
+	rh.OnAdd(svc1, false)
 
 	// add ingress and assert the existence of ingress_http and ingres_https
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
@@ -468,7 +468,7 @@ func TestGatewayHostTLSListener(t *testing.T) {
 
 	rh.OnDelete(i1)
 	// add secret
-	rh.OnAdd(secret1)
+	rh.OnAdd(secret1, false)
 	l2 := &envoy_config_listener_v3.Listener{
 		Name:    "ingress_https",
 		Address: envoy.SocketAddress("0.0.0.0", 8443),
@@ -489,7 +489,7 @@ func TestGatewayHostTLSListener(t *testing.T) {
 	}
 
 	// add ingress and assert the existence of ingress_http and ingres_https
-	rh.OnAdd(i2)
+	rh.OnAdd(i2, false)
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "7",
 		Resources: resources(t,
@@ -557,13 +557,13 @@ func TestLDSFilter(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// add ingress and fetch ingress_https
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
@@ -630,7 +630,7 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// i1 is a tls ingress
 	i1 := &netv1.Ingress{
@@ -654,10 +654,10 @@ func TestLDSTLSMinimumProtocolVersion(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	// add ingress and fetch ingress_https
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
@@ -776,11 +776,11 @@ func TestLDSIngressHTTPUseProxyProtocol(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add it and assert that we now have a ingress_http listener using
 	// the proxy protocol (the true param to filterchain)
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
@@ -841,7 +841,7 @@ func TestLDSIngressHTTPSUseProxyProtocol(t *testing.T) {
 	}
 
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// assert that there is only a static listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -865,11 +865,11 @@ func TestLDSIngressHTTPSUseProxyProtocol(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add ingress and assert the existence of ingress_http and ingres_https and both
 	// are using proxy protocol
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	ingress_https := &envoy_config_listener_v3.Listener{
 		Name:    "ingress_https",
@@ -944,7 +944,7 @@ func TestLDSCustomAddressAndPort(t *testing.T) {
 	}
 
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// assert that there is only a static listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -968,11 +968,11 @@ func TestLDSCustomAddressAndPort(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add ingress and assert the existence of ingress_http and ingres_https and both
 	// are using proxy protocol
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	ingress_http := &envoy_config_listener_v3.Listener{
 		Name:         "ingress_http",
@@ -1053,10 +1053,10 @@ func TestLDSCustomAccessLogPaths(t *testing.T) {
 				Port:     80,
 			}},
 		},
-	})
+	}, false)
 
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// assert that there is only a static listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -1068,7 +1068,7 @@ func TestLDSCustomAccessLogPaths(t *testing.T) {
 		Nonce:   "2",
 	}, streamLDS(t, cc))
 
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	ingress_http := &envoy_config_listener_v3.Listener{
 		Name:         "ingress_http",
@@ -1149,8 +1149,8 @@ func TestLDSGatewayHostInsideRootNamespaces(t *testing.T) {
 	}
 
 	// add gatewayhost & service
-	rh.OnAdd(svc1)
-	rh.OnAdd(ir1)
+	rh.OnAdd(svc1, false)
+	rh.OnAdd(ir1, false)
 
 	// assert there is an active listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -1208,7 +1208,7 @@ func TestLDSGatewayHostOutsideRootNamespaces(t *testing.T) {
 	}
 
 	// add gatewayhost
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	// assert that there is only a static listener
 	assert.Equal(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -1293,13 +1293,13 @@ func TestGatewayHostHTTPS(t *testing.T) {
 	}
 
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// add service
-	rh.OnAdd(svc1)
+	rh.OnAdd(svc1, false)
 
 	// add gatewayhost
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	ingressHTTP := &envoy_config_listener_v3.Listener{
 		Name:         "ingress_http",
@@ -1368,8 +1368,8 @@ func TestLDSGatewayHostTCPProxyTLSPassthrough(t *testing.T) {
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
 	})
-	rh.OnAdd(svc)
-	rh.OnAdd(i1)
+	rh.OnAdd(svc, false)
+	rh.OnAdd(i1, false)
 
 	ingressHTTPS := &envoy_config_listener_v3.Listener{
 		Name:    "ingress_https",
@@ -1444,14 +1444,14 @@ func TestLDSGatewayHostTCPForward(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 	svc := service("default", "correct-backend", corev1.ServicePort{
 		Protocol:   "TCP",
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
 	})
-	rh.OnAdd(svc)
-	rh.OnAdd(i1)
+	rh.OnAdd(svc, false)
+	rh.OnAdd(i1, false)
 
 	ingressHTTPS := &envoy_config_listener_v3.Listener{
 		Name:         "ingress_https",
@@ -1501,7 +1501,7 @@ func TestGatewayHostTLSCertificateDelegation(t *testing.T) {
 	}
 
 	// add a secret object secret/wildcard.
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	rh.OnAdd(&corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -1515,7 +1515,7 @@ func TestGatewayHostTLSCertificateDelegation(t *testing.T) {
 				Port:     8080,
 			}},
 		},
-	})
+	}, false)
 
 	// add an gatewayhost in a different namespace mentioning secret/wildcard.
 	rh.OnAdd(&gatewayhostv1.GatewayHost{
@@ -1540,7 +1540,7 @@ func TestGatewayHostTLSCertificateDelegation(t *testing.T) {
 				}},
 			}},
 		},
-	})
+	}, false)
 
 	ingress_http := &envoy_config_listener_v3.Listener{
 		Name:         "ingress_http",
@@ -1574,7 +1574,7 @@ func TestGatewayHostTLSCertificateDelegation(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(t1)
+	rh.OnAdd(t1, false)
 
 	ingress_https := &envoy_config_listener_v3.Listener{
 		Name:    "ingress_https",

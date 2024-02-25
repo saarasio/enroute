@@ -39,7 +39,7 @@ type EndpointsTranslator struct {
 	Cond
 }
 
-func (e *EndpointsTranslator) OnAdd(obj interface{}) {
+func (e *EndpointsTranslator) OnAdd(obj interface{}, isInInitialList bool) {
 	switch obj := obj.(type) {
 	case *v1.Endpoints:
 		e.addEndpoints(obj)

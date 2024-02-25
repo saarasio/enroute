@@ -29,7 +29,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
-	contourinformers "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions"
+	enrouteinformers "github.com/saarasio/enroute/enroute-dp/apis/generated/informers/externalversions"
 	"github.com/saarasio/enroute/enroute-dp/internal/contour"
 	"github.com/saarasio/enroute/enroute-dp/internal/dag"
 	"github.com/saarasio/enroute/enroute-dp/internal/debug"
@@ -42,6 +42,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 	coreinformers "k8s.io/client-go/informers"
+	gwinformers "sigs.k8s.io/gateway-api/pkg/client/informers/externalversions"
+	gwclientset "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -83,20 +85,21 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 	serve.Flag("incluster", "use in cluster configuration.").BoolVar(&ctx.InCluster)
 	serve.Flag("kubeconfig", "path to kubeconfig (if not in running inside a cluster)").Default(filepath.Join(os.Getenv("HOME"), ".kube", "config")).StringVar(&ctx.Kubeconfig)
 
+	serve.Flag("http-address", "address the metrics http endpoint will bind to").Default("0.0.0.0").StringVar(&ctx.metricsAddr)
+	serve.Flag("http-port", "port the metrics http endpoint will bind to").Default("8000").IntVar(&ctx.metricsPort)
+
 	serve.Flag("xds-address", "xDS gRPC API address").Default("127.0.0.1").StringVar(&ctx.xdsAddr)
 	serve.Flag("xds-port", "xDS gRPC API port").Default("8001").IntVar(&ctx.xdsPort)
-
-	serve.Flag("rl-address", "Rate Limit gRPC API address").Default("127.0.0.1").StringVar(&ctx.rlAddr)
-	serve.Flag("rl-port", "Rate Limit gRPC API port").Default("8003").IntVar(&ctx.rlPort)
 
 	serve.Flag("stats-address", "Envoy /stats interface address").Default("0.0.0.0").StringVar(&ctx.statsAddr)
 	serve.Flag("stats-port", "Envoy /stats interface port").Default("8002").IntVar(&ctx.statsPort)
 
+	serve.Flag("rl-address", "Rate Limit gRPC API address").Default("127.0.0.1").StringVar(&ctx.rlAddr)
+	serve.Flag("rl-port", "Rate Limit gRPC API port").Default("8003").IntVar(&ctx.rlPort)
+
+
 	serve.Flag("debug-http-address", "address the debug http endpoint will bind to").Default("127.0.0.1").StringVar(&ctx.debugAddr)
 	serve.Flag("debug-http-port", "port the debug http endpoint will bind to").Default("6060").IntVar(&ctx.debugPort)
-
-	serve.Flag("http-address", "address the metrics http endpoint will bind to").Default("0.0.0.0").StringVar(&ctx.metricsAddr)
-	serve.Flag("http-port", "port the metrics http endpoint will bind to").Default("8000").IntVar(&ctx.metricsPort)
 
 	serve.Flag("contour-cafile", "CA bundle file name for serving gRPC with TLS").Envar("CONTOUR_CAFILE").StringVar(&ctx.caFile)
 	serve.Flag("contour-cert-file", "Contour certificate file name for serving gRPC over TLS").Envar("CONTOUR_CERT_FILE").StringVar(&ctx.contourCert)
@@ -104,7 +107,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 
 	serve.Flag("gatewayhost-root-namespaces", "Restrict contour to searching these namespaces for root gateway hosts").StringVar(&ctx.rootNamespaces)
 
-	serve.Flag("ingress-class-name", "Contour IngressClass name").StringVar(&ctx.ingressClass)
+	serve.Flag("ingress-class-name", "EnRoute IngressClass name").StringVar(&ctx.ingressClass)
 
 	serve.Flag("envoy-http-access-log", "Envoy HTTP access log").Default(contour.DEFAULT_HTTP_ACCESS_LOG).StringVar(&ctx.httpAccessLog)
 	serve.Flag("envoy-https-access-log", "Envoy HTTPS access log").Default(contour.DEFAULT_HTTPS_ACCESS_LOG).StringVar(&ctx.httpsAccessLog)
@@ -121,6 +124,7 @@ func registerServe(app *kingpin.Application) (*kingpin.CmdClause, *serveContext)
 
 	serve.Flag("mode-ingress", "Set to true to run enroute in ingress mode").BoolVar(&ctx.modeIngress)
 	serve.Flag("enable-ratelimit", "Set to true to enable ratelimit").BoolVar(&ctx.ratelimitEnabled)
+	serve.Flag("enable-acl", "Set to true to enable ratelimit").Default("true").BoolVar(&ctx.aclEnabled)
 
 	return serve, &ctx
 }
@@ -138,6 +142,9 @@ type serveContext struct {
 	// enroute's rate-limit service parameters
 	rlAddr string
 	rlPort int
+
+	aclAddr string
+	aclPort int
 
 	// contour's debug handler parameters
 	debugAddr string
@@ -172,6 +179,7 @@ type serveContext struct {
 
 	modeIngress      bool
 	ratelimitEnabled bool
+	aclEnabled       bool
 }
 
 // tlsconfig returns a new *tls.Config. If the context is not properly configured
@@ -230,24 +238,27 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 	mode_ingress = ctx.modeIngress
 
 	var client *kubernetes.Clientset
-	var contourClient *clientset.Clientset
+	var enrouteClient *clientset.Clientset
+	var gwClient *gwclientset.Clientset
 
 	client = nil
 
 	// step 1. establish k8s client connection
 	if mode_ingress {
-		client, contourClient = newClient(ctx.Kubeconfig, ctx.InCluster)
+		client, enrouteClient, gwClient = newClient(ctx.Kubeconfig, ctx.InCluster)
 	}
 
 	// step 2. create informers
 	// note: 0 means resync timers are disabled
 
 	var coreInformers coreinformers.SharedInformerFactory
-	var contourInformers contourinformers.SharedInformerFactory
+	var enrouteInformers enrouteinformers.SharedInformerFactory
+	var gwInformers gwinformers.SharedInformerFactory
 
 	if mode_ingress {
 		coreInformers = coreinformers.NewSharedInformerFactory(client, 0)
-		contourInformers = contourinformers.NewSharedInformerFactory(contourClient, 0)
+		enrouteInformers = enrouteinformers.NewSharedInformerFactory(enrouteClient, 0)
+		gwInformers = gwinformers.NewSharedInformerFactory(gwClient, 0)
 	}
 
 	c := make(chan string)
@@ -273,8 +284,12 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		},
 		ListenerCache:     contour.NewListenerCache(ctx.statsAddr, ctx.statsPort),
 		FieldLogger:       log.WithField("context", "CacheHandler"),
-		GatewayHostStatus: &k8s.GatewayHostStatus{},
+		GatewayHostStatus: &k8s.GatewayHostStatus{
+			Client: enrouteClient,
+			GatewayClient: gwClient,
+		},
 	}
+
 
 	// step 4. wrap the gRPC cache handler in a k8s resource event handler.
 	reh := contour.ResourceEventHandler{
@@ -295,24 +310,41 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 		coreInformers.Core().V1().Services().Informer().AddEventHandler(&reh)
 		coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
 		coreInformers.Networking().V1().Ingresses().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1().GatewayHosts().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1().ServiceRoutes().Informer().AddEventHandler(&reh)
+		enrouteInformers.Enroute().V1().GatewayHosts().Informer().AddEventHandler(&reh)
+		enrouteInformers.Enroute().V1().ServiceRoutes().Informer().AddEventHandler(&reh)
+		coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
 
-		// Add informers for each root-gatewayhost namespaces
-		for _, inf := range namespacedInformers {
-			inf.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-		}
-		// If root-gatewayhosts are not defined, then add the informer for all namespaces
-		if len(namespacedInformers) == 0 {
-			coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
-		}
+//		// Add informers for each root-gatewayhost namespaces
+//		for _, inf := range namespacedInformers {
+//			inf.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+//		}
+//		// If root-gatewayhosts are not defined, then add the informer for all namespaces
+//		if len(namespacedInformers) == 0 {
+//			coreInformers.Core().V1().Secrets().Informer().AddEventHandler(&reh)
+//		}
 	}
 
 	// step 5.5 register resource event handler with k8s informers
 	if mode_ingress {
-		contourInformers.Enroute().V1().RouteFilters().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1().HttpFilters().Informer().AddEventHandler(&reh)
-		contourInformers.Enroute().V1().TLSCertificateDelegations().Informer().AddEventHandler(&reh)
+		enrouteInformers.Enroute().V1().RouteFilters().Informer().AddEventHandler(&reh)
+		enrouteInformers.Enroute().V1().HttpFilters().Informer().AddEventHandler(&reh)
+		enrouteInformers.Enroute().V1().TLSCertificateDelegations().Informer().AddEventHandler(&reh)
+		enrouteInformers.Enroute().V1().GlobalConfigs().Informer().AddEventHandler(&reh)
+	}
+
+	gateway_api := true
+
+	if gateway_api {
+		// pkg/mod/sigs.k8s.io/gateway-api@v0.5.1/apis/v1beta1/gateway_types.go
+		// https://github.com/kubernetes-sigs/gateway-api/blob/8a57d9a71583dba2e7c433bfbd04e8f4a98bf84f/pkg/client/informers/externalversions/generic.go
+		// https://pkg.go.dev/sigs.k8s.io/gateway-api@v0.5.1/apis/v1beta1
+		gwInformers.Gateway().V1beta1().Gateways().Informer().AddEventHandler(&reh)
+		gwInformers.Gateway().V1beta1().GatewayClasses().Informer().AddEventHandler(&reh)
+		gwInformers.Gateway().V1beta1().HTTPRoutes().Informer().AddEventHandler(&reh)
+		gwInformers.Gateway().V1alpha2().UDPRoutes().Informer().AddEventHandler(&reh)
+		//gwInformers.Gateway().V1alpha2().ReferenceGrants().Informer().AddEventHandler(&reh)
+		gwInformers.Gateway().V1beta1().ReferenceGrants().Informer().AddEventHandler(&reh)
+		//gwInformers.Gateway().V1alpha2().ReferencePolicies().Informer().AddEventHandler(&reh)
 	}
 
 	// step 6. endpoints updates are handled directly by the EndpointsTranslator
@@ -333,16 +365,20 @@ func doServe(log logrus.FieldLogger, ctx *serveContext) error {
 
 	// step 6.5
 	if mode_ingress {
-		contourInformers.Enroute().V1().GlobalConfigs().Informer().AddEventHandler(pct)
+		enrouteInformers.Enroute().V1().GlobalConfigs().Informer().AddEventHandler(pct)
 	}
 
 	// step 7. setup workgroup runner and register informers.
 	var g workgroup.Group
 	if mode_ingress {
 		g.Add(startInformer(coreInformers, log.WithField("context", "coreinformers")))
-		g.Add(startInformer(contourInformers, log.WithField("context", "contourinformers")))
+		g.Add(startInformer(enrouteInformers, log.WithField("context", "enrouteinformers")))
 		for _, inf := range namespacedInformers {
 			g.Add(startInformer(inf, log.WithField("context", "corenamespacedinformers")))
+		}
+
+		if gateway_api {
+			g.Add(startInformer(gwInformers, log.WithField("context", "gatewayinformers")))
 		}
 	}
 

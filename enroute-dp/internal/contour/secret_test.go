@@ -394,7 +394,7 @@ func TestSecretVisit(t *testing.T) {
 				Metrics:     metrics.NewMetrics(prometheus.NewRegistry()),
 			}
 			for _, o := range tc.objs {
-				reh.OnAdd(o)
+				reh.OnAdd(o, false)
 			}
 			root := dag.BuildDAG(&reh.KubernetesCache)
 			got := visitSecrets(root)

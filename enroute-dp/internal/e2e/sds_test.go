@@ -52,7 +52,7 @@ func TestSDSVisibility(t *testing.T) {
 		},
 	}
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// assert that the secret is _not_ visible as it is
 	// not referenced by any ingress/gatewayhost
@@ -77,7 +77,7 @@ func TestSDSVisibility(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	// TODO(dfc) #1165: secret should not be present if the ingress does not
 	// have any valid routes.
@@ -114,7 +114,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 		},
 	}
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// i1 is a tls ingress
 	i1 := &netv1.Ingress{
@@ -130,7 +130,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -165,7 +165,7 @@ func TestSDSShouldNotIncrementVersionNumberForUnrelatedSecret(t *testing.T) {
 			corev1.TLSPrivateKeyKey: []byte("key"),
 		},
 	}
-	rh.OnAdd(s2)
+	rh.OnAdd(s2, false)
 
 	t.Skipf("See issue 1166")
 
@@ -204,7 +204,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 		},
 	}
 	// add secret
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// i1 is a tls ingress
 	i1 := &netv1.Ingress{
@@ -220,7 +220,7 @@ func TestSDSshouldNotPublishInvalidSecret(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	// SDS should be empty
 	c.Request(secretType).Equals(&envoy_service_discovery_v3.DiscoveryResponse{

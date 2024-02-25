@@ -26,11 +26,13 @@ import (
 	clientset "github.com/saarasio/enroute/enroute-dp/apis/generated/clientset/versioned"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	gwclientset "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 )
 
 // GatewayHostStatus allows for updating the object's Status field
 type GatewayHostStatus struct {
 	Client clientset.Interface
+	GatewayClient *gwclientset.Clientset
 }
 
 // SetStatus sets the GatewayHost status field to an Valid or Invalid status

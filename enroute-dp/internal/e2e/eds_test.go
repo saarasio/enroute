@@ -56,7 +56,7 @@ func TestAddRemoveEndpoints(t *testing.T) {
 		},
 	)
 
-	rh.OnAdd(e1)
+	rh.OnAdd(e1, false)
 
 	// check that it's been translated correctly.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -139,7 +139,7 @@ func TestAddEndpointComplicated(t *testing.T) {
 		},
 	)
 
-	rh.OnAdd(e1)
+	rh.OnAdd(e1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
@@ -199,7 +199,7 @@ func TestEndpointFilter(t *testing.T) {
 		},
 	)
 
-	rh.OnAdd(e1)
+	rh.OnAdd(e1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "1",
@@ -240,7 +240,7 @@ func TestIssue602(t *testing.T) {
 			Port: 8080,
 		}},
 	})
-	rh.OnAdd(e1)
+	rh.OnAdd(e1, false)
 
 	// Assert endpoint was added
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{

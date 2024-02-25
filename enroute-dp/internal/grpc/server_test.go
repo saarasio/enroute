@@ -66,7 +66,7 @@ func TestGRPC(t *testing.T) {
 						TargetPort: intstr.FromInt(6502),
 					}},
 				},
-			})
+			}, false)
 
 			sds := envoy_service_cluster_v3.NewClusterDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
@@ -93,7 +93,7 @@ func TestGRPC(t *testing.T) {
 						Port: 443,
 					}},
 				}},
-			})
+			}, false)
 
 			eds := envoy_service_endpoint_v3.NewEndpointDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
@@ -131,7 +131,7 @@ func TestGRPC(t *testing.T) {
 						},
 					}},
 				},
-			})
+			}, false)
 
 			lds := envoy_service_listener_v3.NewListenerDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
@@ -167,7 +167,7 @@ func TestGRPC(t *testing.T) {
 						},
 					}},
 				},
-			})
+			}, false)
 
 			rds := envoy_service_route_v3.NewRouteDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
@@ -188,7 +188,7 @@ func TestGRPC(t *testing.T) {
 					corev1.TLSCertKey:       []byte("certificate"),
 					corev1.TLSPrivateKeyKey: []byte("key"),
 				},
-			})
+			}, false)
 
 			sds := envoy_service_secret_v3.NewSecretDiscoveryServiceClient(cc)
 			ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)

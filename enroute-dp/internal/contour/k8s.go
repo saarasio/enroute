@@ -59,7 +59,7 @@ type Notifier interface {
 	OnChange(*dag.KubernetesCache)
 }
 
-func (reh *ResourceEventHandler) OnAdd(obj interface{}) {
+func (reh *ResourceEventHandler) OnAdd(obj interface{}, isInInitialList bool) {
 	timer := prometheus.NewTimer(reh.ResourceEventHandlerSummary.With(prometheus.Labels{"op": "OnAdd"}))
 	defer timer.ObserveDuration()
 	if !reh.validIngressClass(obj) {

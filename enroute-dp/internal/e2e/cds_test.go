@@ -59,7 +59,7 @@ func TestClusterLongServiceName(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	rh.OnAdd(service(
 		"default",
@@ -69,7 +69,7 @@ func TestClusterLongServiceName(t *testing.T) {
 			Port:       8080,
 			TargetPort: intstr.FromInt(8080),
 		},
-	))
+	), false)
 
 	// check that it's been translated correctly.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -104,7 +104,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	i2 := &netv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -132,7 +132,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i2)
+	rh.OnAdd(i2, false)
 
 	// s1 is a simple tcp 80 -> 8080 service.
 	s1 := service("default", "kuard", corev1.ServicePort{
@@ -140,7 +140,7 @@ func TestClusterAddUpdateDelete(t *testing.T) {
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
 	})
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
@@ -269,7 +269,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	s1 := service("default", "kuard",
 		corev1.ServicePort{
@@ -286,7 +286,7 @@ func TestClusterRenameUpdateDelete(t *testing.T) {
 		},
 	)
 
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
@@ -361,7 +361,7 @@ func TestIssue243(t *testing.T) {
 				},
 			},
 		}
-		rh.OnAdd(i1)
+		rh.OnAdd(i1, false)
 		s1 := service("default", "kuard",
 			corev1.ServicePort{
 				Protocol:   "TCP",
@@ -369,7 +369,7 @@ func TestIssue243(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			},
 		)
-		rh.OnAdd(s1)
+		rh.OnAdd(s1, false)
 		assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 			VersionInfo: "2",
 			Resources: resources(t,
@@ -402,7 +402,7 @@ func TestIssue247(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	// spec:
 	//   ports:
@@ -416,7 +416,7 @@ func TestIssue247(t *testing.T) {
 			TargetPort: intstr.FromString("kuard"),
 		},
 	)
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
 		Resources: resources(t,
@@ -465,7 +465,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	// add two services, check that they are there
 	s1 := service("default", "kuard",
@@ -475,7 +475,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 			TargetPort: intstr.FromString("kuard"),
 		},
 	)
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 	s2 := service("default", "httpbin",
 		corev1.ServicePort{
 			Protocol:   "TCP",
@@ -483,7 +483,7 @@ func TestCDSResourceFiltering(t *testing.T) {
 			TargetPort: intstr.FromString("httpbin"),
 		},
 	)
-	rh.OnAdd(s2)
+	rh.OnAdd(s2, false)
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
 		Resources: resources(t,
@@ -533,7 +533,7 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	s1 := serviceWithAnnotations(
 		"default",
@@ -550,7 +550,7 @@ func TestClusterCircuitbreakerAnnotations(t *testing.T) {
 			TargetPort: intstr.FromInt(8080),
 		},
 	)
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	// check that it's been translated correctly.
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
@@ -645,7 +645,7 @@ func TestClusterPerServiceParameters(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -674,7 +674,7 @@ func TestClusterPerServiceParameters(t *testing.T) {
 				}},
 			}},
 		},
-	})
+	}, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -704,7 +704,7 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -733,7 +733,7 @@ func TestClusterLoadBalancerStrategyPerRoute(t *testing.T) {
 				}},
 			}},
 		},
-	})
+	}, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -787,7 +787,7 @@ func TestClusterWithHealthChecks(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	rh.OnAdd(&gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -810,7 +810,7 @@ func TestClusterWithHealthChecks(t *testing.T) {
 				}},
 			}},
 		},
-	})
+	}, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -844,7 +844,7 @@ func TestClusterServiceTLSBackend(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	s1 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -863,7 +863,7 @@ func TestClusterServiceTLSBackend(t *testing.T) {
 			}},
 		},
 	}
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
@@ -895,7 +895,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 				TargetPort: intstr.FromInt(8080),
 			}},
 		},
-	})
+	}, false)
 
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
@@ -907,7 +907,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(secret)
+	rh.OnAdd(secret, false)
 
 	ir1 := &gatewayhostv1.GatewayHost{
 		ObjectMeta: metav1.ObjectMeta{
@@ -928,7 +928,7 @@ func TestClusterServiceTLSBackendCAValidation(t *testing.T) {
 		},
 	}
 
-	rh.OnAdd(ir1)
+	rh.OnAdd(ir1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "3",
@@ -1005,7 +1005,7 @@ func TestExternalNameService(t *testing.T) {
 			},
 		},
 	}
-	rh.OnAdd(i1)
+	rh.OnAdd(i1, false)
 
 	// s1 is a simple tcp 80 -> 8080 service.
 	s1 := externalnameservice("default", "kuard", "foo.io", corev1.ServicePort{
@@ -1013,7 +1013,7 @@ func TestExternalNameService(t *testing.T) {
 		Port:       80,
 		TargetPort: intstr.FromInt(8080),
 	})
-	rh.OnAdd(s1)
+	rh.OnAdd(s1, false)
 
 	assertEqual(t, &envoy_service_discovery_v3.DiscoveryResponse{
 		VersionInfo: "2",
