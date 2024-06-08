@@ -1,3 +1,8 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+container: ubuntu:22.04
+
 queue:
   name: Default
   demands: cmake
