@@ -1,3 +1,11 @@
+
+# Saaras EnRoute - Most Scalable Ingress API Gateway
+
+## As of 2025, EnRoute OSS is no longer updated. Saaras EnRoute community edition is available with the latest updates. 
+
+## Email contact - at - saaras.io if you need access to the source code
+
+
 [![Build Status](https://dev.azure.com/saaras-io/Enroute/_apis/build/status/saarasio.enroute?branchName=master)](https://dev.azure.com/saaras-io/Enroute/_build/latest?definitionId=6&branchName=master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Twitter](https://img.shields.io/twitter/follow/SaarasInc?label=Follow%20EnRoute&style=social)](https://twitter.com/intent/follow?screen_name=SaarasInc)
